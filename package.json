@@ -1,0 +1,12 @@
+{
+  "name": "yjc-test",
+  "version": "1.0.0",
+  "description": "Your Journey Coach",
+  "type": "module",
+  "scripts": {
+    "build": "mkdir -p public && cp -r * public/ || true"
+  },
+  "dependencies": {
+    "puppeteer": "^24.39.0"
+  }
+}

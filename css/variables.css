@@ -1,0 +1,41 @@
+/* Nature Journey Theme Variables */
+:root {
+    /* Colors */
+    --color-bg-primary: #fdfbf7;
+    /* Off-white / Cream */
+    --color-bg-secondary: #f4f1ea;
+    /* Warm Beige */
+
+    --color-accent-gold: #c5a065;
+    /* Muted Earth Gold */
+    --color-accent-gold-dim: #a0804b;
+    --color-accent-green: #4a6741;
+    /* Deep Forest Green */
+
+    --color-text-primary: #1c2321;
+    /* Dark Green/Charcoal */
+    --color-text-secondary: #4a4a4a;
+    /* Soft Grey */
+    --color-text-muted: #787878;
+
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 2rem;
+    --spacing-lg: 4rem;
+    --spacing-xl: 8rem;
+
+    /* Layout */
+    --container-width: 1200px;
+    --header-height: 90px;
+
+    /* Effects */
+    --transition-fast: 0.3s ease;
+    --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+}
