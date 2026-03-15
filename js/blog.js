@@ -8,7 +8,34 @@ document.addEventListener('DOMContentLoaded', () => {
                               const postTitle = document.getElementById('post-title');
         const postDate = document.getElementById('post-date');
         const postAuthor = document.getElementById('post-author');
-        const postContent = document.getElementById('post-content');
+        const postContent = document.getElementById('post-content');            let text = (block.children || []).map(child => {
+                                let txt = child.text || '';
+                                if (Array.isArray(child.marks)) {
+                                                            if (child.marks.includes('strong')) txt = `<strong>${txt}</strong>`;
+                                                            if (child.marks.includes('em')) txt = `<em>${txt}</em>`;
+                                }
+                                return txt;
+        }).join('');
+                    if (block.style === 'h1') { html += `<h1>${text}</h1>`; }
+                    else if (block.style === 'h2') { html += `<h2>${text}</h2>`; }
+                    else if (block.style === 'h3') { html += `<h3>${text}</h3>`; }
+                    else if (block.style === 'h4') { html += `<h4>${text}</h4>`; }
+                    else if (block.style === 'blockquote') { html += `<blockquote>${text}</blockquote>`; }
+                    else if (block.listItem) {
+                                            if (!inList) {
+                                                                        html += block.listItem === 'bullet' ? '<ul>' : '<ol>';
+                                                                        inList = true;
+                                            }
+                                            html += `<li>${text}</li>`;
+                                            const nextBlock = blocks[index + 1];
+                                            if (!nextBlock || nextBlock.listItem !== block.listItem) {
+                                                                        html += block.listItem === 'bullet' ? '</ul>' : '</ol>';
+                                                                        inList = false;
+                                            }
+                    } else { html += `<p>${text}</p>`; }
+});
+        return html;
+}
 
                               let allPosts = [];
 
