@@ -1,215 +1,217 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const blogListView = document.getElementById('blog-list-view');
-    const singlePostView = document.getElementById('single-post-view');
-    const blogGrid = document.getElementById('blog-grid');
-    const backBtn = document.getElementById('back-to-blog');
+        const blogListView = document.getElementById('blog-list-view');
+        const singlePostView = document.getElementById('single-post-view');
+        const blogGrid = document.getElementById('blog-grid');
+        const backBtn = document.getElementById('back-to-blog');
 
-    // DOM Elements for Single Post
-    const postTitle = document.getElementById('post-title');
-    const postDate = document.getElementById('post-date');
-    const postAuthor = document.getElementById('post-author');
-    const postContent = document.getElementById('post-content');
+                              // DOM Elements for Single Post
+                              const postTitle = document.getElementById('post-title');
+        const postDate = document.getElementById('post-date');
+        const postAuthor = document.getElementById('post-author');
+        const postContent = document.getElementById('post-content');
 
-    let allPosts = [];
+                              let allPosts = [];
 
-    // --- Utility: Render Simple Portable Text ---
-    function renderPortableText(blocks) {
-        if (!Array.isArray(blocks)) return '';
-        
-        let html = '';
-        let inList = false;
+                              // --- Utility: Get Sanity image URL from ref ---
+                              function sanityImageUrl(ref) {
+                                          if (!ref) return '';
+                                          // ref looks like: image-e4aaa8f4ff0d91664ad3e5a613ef358a546f17ea-1200x1200-png
+            const parts = ref.split('-');
+                                          const format = parts[parts.length - 1];
+                                          const dimensions = parts[parts.length - 2];
+                                          const id = parts.slice(1, parts.length - 2).join('-');
+                                          return `https://cdn.sanity.io/images/9ksnhows/production/${id}-${dimensions}.${format}`;
+                              }
 
-        blocks.forEach((block, index) => {
-            if (block._type !== 'block') return;
-            
-            // Extract text from children
-            const text = (block.children || []).map(child => {
-                let textContent = child.text || '';
-                // Handle simple marks if needed (bold, italic)
-                if (child.marks && child.marks.includes('strong')) textContent = `<strong>${textContent}</strong>`;
-                if (child.marks && child.marks.includes('em')) textContent = `<em>${textContent}</em>`;
-                return textContent;
-            }).join('');
+                              // --- Utility: Render Simple Portable Text ---
+                              function renderPortableText(blocks) {
+                                          if (!Array.isArray(blocks)) return '';
 
-            // Handle lists
-            const isListItem = block.listItem === 'bullet' || block.listItem === 'number';
-            const isNextListItem = blocks[index + 1] && (blocks[index + 1].listItem === 'bullet' || blocks[index + 1].listItem === 'number');
+            let html = '';
+                                          let inList = false;
 
-            if (isListItem && !inList) {
-                html += block.listItem === 'number' ? '<ol>' : '<ul>';
-                inList = true;
+            blocks.forEach((block, index) => {
+                            if (block._type !== 'block') return;
+
+                                       // Extract text from children
+                                       const text = (block.children || []).map(child => {
+                                                           let txt = child.text || '';
+
+                                                                                               // Handle basic marks (strong, em)
+                                                                                               if (Array.isArray(child.marks)) {
+                                                                                                                       if (child.marks.includes('strong')) txt = `<strong>${txt}</strong>`;
+                                                                                                                       if (child.marks.includes('em')) txt = `<em>${txt}</em>`;
+                                                                                                   }
+
+                                                                                               return txt;
+                                       }).join('');
+
+                                       // Handle headings
+                                       if (block.style === 'h1') {
+                                                           html += `<h1>${text}</h1>`;
+                                       } else if (block.style === 'h2') {
+                                                           html += `<h2>${text}</h2>`;
+                                       } else if (block.style === 'h3') {
+                                                           html += `<h3>${text}</h3>`;
+                                       } else if (block.style === 'h4') {
+                                                           html += `<h4>${text}</h4>`;
+                                       } else if (block.style === 'blockquote') {
+                                                           html += `<blockquote>${text}</blockquote>`;
+                                       } else if (block.listItem) {
+                                                           // Simplified list handling
+                                if (!inList) {
+                                                        html += block.listItem === 'bullet' ? '<ul>' : '<ol>';
+                                                        inList = true;
+                                }
+                                                           html += `<li>${text}</li>`;
+
+                                // Peek ahead to see if list ends
+                                const nextBlock = blocks[index + 1];
+                                                           if (!nextBlock || nextBlock.listItem !== block.listItem) {
+                                                                                   html += block.listItem === 'bullet' ? '</ul>' : '</ol>';
+                                                                                   inList = false;
+                                                           }
+                                       } else {
+                                                           html += `<p>${text}</p>`;
+                                       }
+            });
+
+            return html;
+                              }
+
+                              // Function to render blog list
+                              function renderList(posts) {
+                                          blogGrid.innerHTML = '';
+
+            if (posts.length === 0) {
+                            blogGrid.innerHTML = '<p style="text-align: center; width: 100%; grid-column: 1 / -1; color: var(--color-text-muted);">No posts found.</p>';
+                            return;
             }
 
-            if (isListItem) {
-                html += `<li>${text}</li>`;
-            } else {
-                if (block.style === 'h2') html += `<h2>${text}</h2>`;
-                else if (block.style === 'h3') html += `<h3>${text}</h3>`;
-                else if (block.style === 'blockquote') html += `<blockquote>${text}</blockquote>`;
-                else html += `<p>${text}</p>`;
-            }
+            posts.forEach((post, index) => {
+                            const card = document.createElement('div');
+                            card.className = 'blog-card fade-in-up';
+                            card.style.animationDelay = `${index * 0.1}s`;
 
-            if (inList && !isNextListItem) {
-                html += block.listItem === 'number' ? '</ol>' : '</ul>';
-                inList = false;
-            }
-        });
+                                      // Add image if available
+                                      if (post.image && post.image.asset && post.image.asset._ref) {
+                                                          const img = document.createElement('img');
+                                                          img.src = sanityImageUrl(post.image.asset._ref);
+                                                          img.alt = post.title || '';
+                                                          img.style.width = '100%';
+                                                          img.style.maxHeight = '200px';
+                                                          img.style.objectFit = 'cover';
+                                                          img.style.borderRadius = '8px';
+                                                          img.style.marginBottom = '1rem';
+                                                          card.appendChild(img);
+                                      }
 
-        return html;
-    }
+                                      const date = document.createElement('span');
+                            date.className = 'blog-date';
+                            const dateObj = new Date(post.date);
+                            date.textContent = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // --- Utility: Convert a post title into a stable URL slug ---
-    function toSlug(title) {
-        return (title || '')
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, '-') // replace non-alphanumerics with hyphens
-            .replace(/^-+|-+$/g, '');     // strip leading/trailing hyphens
-    }
+                                      const title = document.createElement('h3');
+                            title.textContent = post.title;
 
-    // --- Utility: Find a post by slug ---
-    function findPostBySlug(slug) {
-        return allPosts.findIndex(p => toSlug(p.title) === slug);
-    }
+                                      const summary = document.createElement('p');
 
-    // Check if we are loading a specific post from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const slugFromUrl = urlParams.get('post');
+                                      const summary = document.createElement('p');
+                            summary.textContent = post.summary || 'Click to read more...';
 
-    // Fetch posts from Sanity
-    sanityClient.fetch('*[_type == "post"]')
-        .then(posts => {
-            allPosts = posts || [];
+                                      const readMore = document.createElement('span');
+                            readMore.className = 'read-more';
+                            readMore.textContent = 'Read More ->';
 
-            // Sort newest first
-            allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                                      card.appendChild(date);
+                            card.appendChild(title);
+                            card.appendChild(summary);
+                            card.appendChild(readMore);
 
-            if (slugFromUrl) {
-                const index = findPostBySlug(slugFromUrl);
-                if (index !== -1) {
-                    renderSinglePost(index);
-                } else {
-                    renderList(); // Slug not found, fall back to list
-                }
-            } else {
-                renderList();
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching blog posts from Sanity:', error);
-            if (blogGrid) {
-                blogGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts available yet. Check back soon!</p>';
-            }
-        });
+                                      card.addEventListener('click', () => {
+                                                          renderSinglePost(index);
+                                                          // Simple scroll to top
+                                                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                          // Update URL hash
+                                                                            window.location.hash = `post-${index}`;
+                                      });
 
-    function renderList() {
-        if (!blogListView || !singlePostView || !blogGrid) return;
+                                      blogGrid.appendChild(card);
+            });
+                              }
 
-        blogListView.style.display = 'block';
-        singlePostView.style.display = 'none';
-
-        // Remove URL parameter for a clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-
-        blogGrid.innerHTML = '';
-
-        if (allPosts.length === 0) {
-            blogGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">No posts available yet. Check back soon!</p>';
-            return;
-        }
-
-        allPosts.forEach((post, index) => {
-            const card = document.createElement('div');
-            card.className = 'blog-card fade-in-up';
-            card.style.animationDelay = `${index * 0.1}s`;
+                              // Function to render single post
+                              function renderSinglePost(index) {
+                                          const post = allPosts[index];
+                                          blogListView.style.display = 'none';
+                                          singlePostView.style.display = 'block';
 
             const dateObj = new Date(post.date);
-            const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                                          postDate.textContent = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                                          postTitle.textContent = post.title;
+                                          postAuthor.textContent = post.author || 'Your Journey Coach';
 
-            // Use textContent for user-provided text to prevent XSS
-            const dateSpan = document.createElement('span');
-            dateSpan.className = 'blog-date';
-            dateSpan.textContent = formattedDate;
+            // Add image if available
+            let imageHtml = '';
+                                          if (post.image && post.image.asset && post.image.asset._ref) {
+                                                          const imageUrl = sanityImageUrl(post.image.asset._ref);
+                                                          imageHtml = `<img src="${imageUrl}" alt="${post.title}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 2rem;">`;
+                                          }
 
-            const titleEl = document.createElement('h3');
-            titleEl.textContent = post.title;
+            // Use custom renderer to parse the block content array into HTML
+            let bodyHtml = '';
+                                          if (Array.isArray(post.body)) {
+                                                          bodyHtml = renderPortableText(post.body);
+                                          } else if (typeof post.body === 'string') {
+                                                          bodyHtml = `<p>${post.body}</p>`;
+                                          } else {
+                                                          bodyHtml = '<p><em>Content formatting error.</em></p>';
+                                                          console.warn('Body is not an array or string.', post.body);
+                                          }
 
-            const summaryEl = document.createElement('p');
-            // Use summary if available, otherwise generate a plain-text excerpt from body
-            const summaryText = post.summary || (post.body ? post.body.replace(/[#*`_\[\]]/g, '').substring(0, 120) + '...' : '');
-            summaryEl.textContent = summaryText;
+            postContent.innerHTML = imageHtml + bodyHtml;
+                              }
 
-            const readMore = document.createElement('span');
-            readMore.className = 'read-more';
-            readMore.textContent = 'Read Article →';
+                              // Handle back button
+                              backBtn.addEventListener('click', (e) => {
+                                          e.preventDefault();
+                                          singlePostView.style.display = 'none';
+                                          blogListView.style.display = 'block';
+                                          window.location.hash = '';
+                              });
 
-            card.appendChild(dateSpan);
-            card.appendChild(titleEl);
-            card.appendChild(summaryEl);
-            card.appendChild(readMore);
+                              // Initial Fetch from Sanity
+                              async function fetchPosts() {
+                                          try {
+                                                          // Sanity GROQ query
+                                              const query = encodeURIComponent('*[_type == "post"] | order(date desc) { title, "slug": slug.current, date, author, summary, body, image }');
+                                                          const url = `https://9ksnhows.api.sanity.io/v2021-10-21/data/query/production?query=${query}`;
 
-            card.addEventListener('click', () => navigateToPost(index));
-            blogGrid.appendChild(card);
-        });
+                                              const response = await fetch(url);
+                                                          const result = await response.json();
 
-        // Trigger reveal animations
-        setTimeout(() => {
-            document.querySelectorAll('.blog-card').forEach(el => el.classList.add('is-visible'));
-        }, 100);
-    }
+                                              if (result.result) {
+                                                                  allPosts = result.result;
+                                                                  renderList(allPosts);
 
-    function renderSinglePost(index) {
-        if (!blogListView || !singlePostView) return;
+                                                              // Check if we should deep link to a post
+                                                              const hash = window.location.hash;
+                                                                  if (hash.startsWith('#post-')) {
+                                                                                          const index = parseInt(hash.split('-')[1]);
+                                                                                          if (!isNaN(index) && allPosts[index]) {
+                                                                                                                      renderSinglePost(index);
+                                                                                              }
+                                                                  }
+                                              } else {
+                                                                  throw new Error('No posts found');
+                                              }
+                                          } catch (error) {
+                                                          console.error('Error fetching posts:', error);
+                                                          blogGrid.innerHTML = '<p style="text-align: center; width: 100%; grid-column: 1 / -1; color: var(--color-error);">Unable to load blog posts. Please try again later.</p>';
+                                          }
+                              }
 
-        const post = allPosts[index];
-        blogListView.style.display = 'none';
-        singlePostView.style.display = 'block';
-
-        const dateObj = new Date(post.date);
-        postDate.textContent = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        postTitle.textContent = post.title;
-        postAuthor.textContent = post.author || 'Your Journey Coach';
-
-        // Use custom renderer to parse the block content array into HTML
-        if (Array.isArray(post.body)) {
-            postContent.innerHTML = renderPortableText(post.body);
-        } else if (typeof post.body === 'string') {
-            postContent.textContent = post.body;
-        } else {
-            postContent.innerHTML = '<p><em>Content formatting error.</em></p>';
-            console.warn('Body is not an array or string.', post.body);
-        }
-
-        // Update the URL to a human-readable slug
-        const slug = toSlug(post.title);
-        const newUrl = window.location.pathname + '?post=' + slug;
-        window.history.pushState({ slug }, '', newUrl);
-
-        backBtn.onclick = (e) => {
-            e.preventDefault();
-            renderList();
-        };
-
-        window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-
-    function navigateToPost(index) {
-        renderSinglePost(index);
-    }
-
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', () => {
-        const params = new URLSearchParams(window.location.search);
-        const slug = params.get('post');
-
-        if (slug) {
-            const index = findPostBySlug(slug);
-            if (index !== -1) {
-                renderSinglePost(index);
-                return;
-            }
-        }
-        renderList();
-    });
+                              fetchPosts();
+});
 
 });
