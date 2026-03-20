@@ -271,55 +271,44 @@
             </div>
         </section>
 
-        <!-- Call to Action / Contact Form -->
-        <section id="contact"
-            style="padding: 4rem 0 5rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; background: linear-gradient(180deg, var(--color-bg-primary) 0%, rgba(26, 29, 30, 0.4) 100%); border-top: 1px solid rgba(255,255,255,0.03);">
+    <section id="contact" style="padding: 4rem 0 5rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; background: linear-gradient(180deg, var(--color-bg-primary) 0%, rgba(26, 29, 30, 0.4) 100%); border-top: 1px solid rgba(255,255,255,0.03);">
 
-            <div class="fade-in-scroll" style="text-align: center; margin-bottom: 0.5rem;">
-                <span
-                    style="display: block; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--color-accent-gold); margin-bottom: 1rem;">GET
-                    IN TOUCH</span>
-                <h2 style="font-size: 2.5rem; margin-bottom: 0.75rem;">Begin Your Journey</h2>
-                <p
-                    style="color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 2.5rem auto; line-height: 1.7;">
-                    Ready to take your leadership to the next level? Share a little about yourself and I'll be in touch
-                    within one business day.
-                </p>
+    <div class="fade-in-scroll" style="text-align: center; margin-bottom: 0.5rem;">
+        <span style="display: block; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase; color: var(--color-accent-gold); margin-bottom: 1rem;">
+            GET IN TOUCH
+        </span>
+        <h2 style="font-size: 2.5rem; margin-bottom: 0.75rem;">Begin Your Journey</h2>
+        <p style="color: var(--color-text-secondary); max-width: 500px; margin: 0 auto 2.5rem auto; line-height: 1.7;">
+            Ready to take your leadership to the next level? Share a little about yourself and I'll be in touch within one business day.
+        </p>
+    </div>
+
+    <div class="fade-in-scroll" style="width: 100%; max-width: 680px; padding: 0 1.5rem;">
+        
+        <form action="https://api.web3forms.com/submit" method="POST" id="contact-form" style="background: var(--color-bg-secondary); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 3rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <input type="hidden" name="access_key" value="a2029f20-9a9b-40f2-b628-0c18a2f9c238">
+            
+            <input type="hidden" name="redirect" value="https://journeycoach.co">
+
+            <input type="text" name="name" required placeholder="Your Name" style="padding: 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; width: 100%;">
+            
+            <input type="email" name="email" required placeholder="Your Email" style="padding: 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; width: 100%;">
+            
+            <textarea name="message" required placeholder="How can I help you?" rows="5" style="padding: 1rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; width: 100%; resize: vertical;"></textarea>
+            
+            <button type="submit" style="padding: 1rem; background: var(--color-accent-gold, #c7a96b); color: #000; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">Send Message</button>
+
+            <div id="cf-success" style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(199,169,107,0.1); border:1px solid rgba(199,169,107,0.3); color:var(--color-accent-gold); font-size:0.95rem; line-height:1.6;">
+                ✓ Thank you — your message has been received. I'll be in touch within one business day.
             </div>
-
-            <!-- Contact Form -->
-            <div class="fade-in-scroll" style="width: 100%; max-width: 680px; padding: 0 1.5rem;">
-                <form id="contact-form" novalidate style="
-                    background: var(--color-bg-secondary);
-                    border: 1px solid rgba(255,255,255,0.07);
-                    border-radius: 8px;
-                    padding: 3rem;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1.5rem;
-                ">
-        <form action="https://api.web3forms.com/submit" method="POST">
-          <input type="hidden" name="access_key" value="a2029f20-9a9b-40f2-b628-0c18a2f9c238">
-          <input type="text" name="name" required placeholder="Your Name">
-          <input type="email" name="email" required placeholder="Your Email">
-          <textarea name="message" required placeholder="How can I help you?" rows="5"></textarea>
-      <button type="submit">Send Message</button>
+            <div id="cf-error" style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.3); color:#e07070; font-size:0.95rem; line-height:1.6;">
+                Something went wrong sending your message. Please email me directly at <a href="mailto:john@yourjourneycoach.com" style="color:inherit; text-decoration:underline;">john@yourjourneycoach.com</a>.
+            </div>
 
         </form>
-
-                    <!-- Feedback messages -->
-                    <div id="cf-success"
-                        style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(199,169,107,0.1); border:1px solid rgba(199,169,107,0.3); color:var(--color-accent-gold); font-size:0.95rem; line-height:1.6;">
-                        ✓ Thank you — your message has been received. I'll be in touch within one business day.
-                    </div>
-                    <div id="cf-error"
-                        style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.3); color:#e07070; font-size:0.95rem; line-height:1.6;">
-                        Something went wrong sending your message. Please email me directly at
-                        <a href="mailto:john@yourjourneycoach.com"
-                            style="color:inherit; text-decoration:underline;">john@yourjourneycoach.com</a>.
-                    </div>
-                </form>
-            </div>
+    </div>
+</section>
 
             <style>
                 .cf-label {
