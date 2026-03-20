@@ -298,13 +298,14 @@
                     flex-direction: column;
                     gap: 1.5rem;
                 ">
-                  <form action="https://api.web3forms.com/submit" method="POST">
-  <input type="hidden" name="access_key" value="a2029f20-9a9b-40f2-b628-0c18a2f9c238">
-  <input type="text" name="name" required>
-  <input type="email" name="email" required>
-  <textarea name="message" required></textarea>
-  <button type="submit">Submit</button>
-</form>
+        <form action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="a2029f20-9a9b-40f2-b628-0c18a2f9c238">
+          <input type="text" name="name" required placeholder="Your Name">
+          <input type="email" name="email" required placeholder="Your Email">
+          <textarea name="message" required placeholder="How can I help you?" rows="5"></textarea>
+      <button type="submit">Send Message</button>
+
+        </form>
 
                     <!-- Feedback messages -->
                     <div id="cf-success"
