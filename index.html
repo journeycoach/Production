@@ -298,86 +298,13 @@
                     flex-direction: column;
                     gap: 1.5rem;
                 ">
-                    <!-- Honeypot (hidden from real users, bots fill it) -->
-                    <div style="display:none;" aria-hidden="true">
-                        <label for="cf-honey">Leave this empty</label>
-                        <input type="text" id="cf-honey" name="_honey" tabindex="-1" autocomplete="off">
-                    </div>
-
-                    <!-- Row: Name + Email + Phone -->
-                    <div id="cf-row-top" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;">
-                        <div class="cf-field">
-                            <label for="cf-name" class="cf-label">Full Name <span
-                                    style="color:var(--color-accent-gold)">*</span></label>
-                            <input type="text" id="cf-name" name="name" required placeholder="Jane-Smith"
-                                class="cf-input">
-                        </div>
-                        <div class="cf-field">
-                            <label for="cf-email" class="cf-label">Email Address <span
-                                    style="color:var(--color-accent-gold)">*</span></label>
-                            <input type="email" id="cf-email" name="email" required placeholder="jane@company.com"
-                                class="cf-input">
-                        </div>
-                        <div class="cf-field">
-                            <label for="cf-phone" class="cf-label">Phone Number <span
-                                    style="color:var(--color-accent-gold)">*</span></label>
-                            <input type="tel" id="cf-phone" name="phone" required placeholder="+1 555‑123‑4567"
-                                class="cf-input">
-                        </div>
-                    </div>
-
-                    <!-- Area of Interest -->
-                    <div class="cf-field">
-                        <label for="cf-interest" class="cf-label">Area of Interest <span
-                                style="color:var(--color-accent-gold)">*</span></label>
-                        <select id="cf-interest" name="interest" required class="cf-input">
-                            <option value="" disabled selected>Select an option…</option>
-                            <option value="Enneagram">Enneagram</option>
-                            <option value="Team Training">Team Training</option>
-                            <option value="Executive Coaching">Executive Coaching</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-
-                    <!-- Message -->
-                    <div class="cf-field">
-                        <label for="cf-message" class="cf-label">Tell me a little about what you are looking for today.
-                            <span style="color:var(--color-accent-gold)">*</span></label>
-                        <textarea id="cf-message" name="message" required rows="5"
-                            placeholder="Tell me a bit about your current situation and what you're hoping to achieve through coaching..."
-                            class="cf-input" style="resize: vertical; min-height: 120px;"></textarea>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" id="cf-submit" style="
-                        margin-top: 0.5rem;
-                        padding: 1rem 2.5rem;
-                        background: transparent;
-                        border: 1px solid var(--color-accent-gold);
-                        color: var(--color-accent-gold);
-                        font-family: var(--font-body);
-                        font-size: 0.85rem;
-                        font-weight: 600;
-                        letter-spacing: 2px;
-                        text-transform: uppercase;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 10px;
-                        align-self: flex-start;
-                    " onmouseover="if(!this.disabled){this.style.background='var(--color-accent-gold)';this.style.color='#0a0e14';}"
-                        onmouseout="if(!this.disabled){this.style.background='transparent';this.style.color='var(--color-accent-gold)';}">
-                        <span id="cf-btn-text">Send Message</span>
-                        <svg id="cf-spinner"
-                            style="display:none; width:18px; height:18px; animation: cf-spin 0.8s linear infinite;"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-                            <path d="M12 2a10 10 0 0 1 10 10" />
-                        </svg>
-                    </button>
+                  <form action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="a2029f20-9a9b-40f2-b628-0c18a2f9c238">
+  <input type="text" name="name" required>
+  <input type="email" name="email" required>
+  <textarea name="message" required></textarea>
+  <button type="submit">Submit</button>
+</form>
 
                     <!-- Feedback messages -->
                     <div id="cf-success"
