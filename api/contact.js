@@ -11,28 +11,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, phone, interest, message, _honey } = req.body;
+  const { name, email, phone, interest, message, _honey, 'cf-turnstile-response': turnstileToken } = req.body;
 
   // Honeypot check — bots fill hidden fields; humans leave them blank
   if (_honey) {
     // Silently succeed so the bot thinks it worked
     return res.status(200).json({ ok: true });
   }
-export default async function handler(req, res) {
-  // 1. Grab all the data coming from your front-end form
-  // (Make sure 'cf-turnstile-response' is included here!)
-  const { name, email, phone, interest, message, _honey, 'cf-turnstile-response': turnstileToken } = req.body;
 
-  // --- CHECKPOINT 1: THE HONEYPOT ---
-  if (_honey) {
-    // It's a bot. Return a fake success so it goes away.
-    return res.status(200).json({ success: true, message: "Message sent." });
-  }
-
-  // --- CHECKPOINT 2: CLOUDFLARE TURNSTILE ---
+  // --- CLOUDFLARE TURNSTILE ---
   if (!turnstileToken) {
     // The token is missing entirely. Reject it.
-    return res.status(400).json({ success: false, message: "CAPTCHA token missing." });
+    return res.status(400).json({ error: "CAPTCHA token missing." });
   }
 
   // Ask Cloudflare if the token is valid
@@ -49,21 +39,9 @@ export default async function handler(req, res) {
 
   if (!verifyData.success) {
     // Cloudflare says the token is fake or expired. Reject it.
-    return res.status(400).json({ success: false, message: "CAPTCHA verification failed." });
+    return res.status(400).json({ error: "CAPTCHA verification failed." });
   }
 
-  // --- ALL CLEAR: SEND THE EMAIL ---
-  try {
-    // Your existing Resend code goes here!
-    // Example: await resend.emails.send({ ... });
-
-    return res.status(200).json({ success: true, message: "Message sent successfully!" });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Failed to send email." });
-  }
-}
-  // Cloudflare code done 
-  
   // Basic validation
   if (!name || !email || !phone || !interest || !message) {
     return res.status(400).json({ error: 'Name, email, phone, area of interest, and message are required.' });
