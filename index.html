@@ -2,17 +2,6 @@
 <html lang="en">
 
 <head>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-KDC0RED213"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-KDC0RED213');
-</script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Executive Leadership Coaching | Elevate Your Impact</title>
@@ -39,6 +28,11 @@
     <link rel="stylesheet" href="css/variables.css?v=6">
     <link rel="stylesheet" href="css/style.css?v=6">
     <link rel="stylesheet" href="css/responsive.css?v=6">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
 </head>
 
 <body>
@@ -50,7 +44,9 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="logo" id="nav-logo">Your Journey Coach</a>
+            <a href="index.html" class="logo" id="nav-logo">
+                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+            </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
             </ul>
@@ -281,7 +277,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- Call to Action / Contact Form -->
         <section id="contact"
             style="padding: 4rem 0 5rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; background: linear-gradient(180deg, var(--color-bg-primary) 0%, rgba(26, 29, 30, 0.4) 100%); border-top: 1px solid rgba(255,255,255,0.03);">
@@ -320,7 +316,7 @@
                         <div class="cf-field">
                             <label for="cf-name" class="cf-label">Full Name <span
                                     style="color:var(--color-accent-gold)">*</span></label>
-                            <input type="text" id="cf-name" name="name" required placeholder="Jane Smith"
+                            <input type="text" id="cf-name" name="name" required placeholder="Jane-Smith"
                                 class="cf-input">
                         </div>
                         <div class="cf-field">
@@ -359,8 +355,10 @@
                             class="cf-input" style="resize: vertical; min-height: 120px;"></textarea>
                     </div>
 
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACwOgJv1aCZ3vsnP"></div>
+
+                    
                     <!-- Submit -->
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACt13j1xYnpJgcv2"></div>
                     <button type="submit" id="cf-submit" style="
                         margin-top: 0.5rem;
                         padding: 1rem 2.5rem;
@@ -399,8 +397,8 @@
                     <div id="cf-error"
                         style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.3); color:#e07070; font-size:0.95rem; line-height:1.6;">
                         Something went wrong sending your message. Please email me directly at
-                        <a href="mailto:john@journeycoach.co"
-                            style="color:inherit; text-decoration:underline;">john@journeycoach.co</a>.
+                        <a href="mailto:john@yourjourneycoach.com"
+                            style="color:inherit; text-decoration:underline;">john@yourjourneycoach.com</a>.
                     </div>
                 </form>
             </div>
@@ -460,17 +458,62 @@
                     }
                 }
 
-                @media (max-width: 560px) {
-                    #contact-form {
-                        padding: 2rem 1.25rem;
+                @media (max-width: 640px) {
+
+                    /* Section header */
+                    #contact h2 {
+                        font-size: 2rem;
                     }
 
+                    /* Outer wrapper — remove side padding so the form goes edge-to-edge */
+                    #contact > .fade-in-scroll:last-of-type {
+                        padding: 0 0.75rem;
+                    }
+
+                    /* Form card */
+                    #contact-form {
+                        padding: 1.75rem 1.25rem;
+                        gap: 1.25rem;
+                        border-radius: 6px;
+                    }
+
+                    /* Stack name / email / phone vertically */
                     #cf-row-top {
                         grid-template-columns: 1fr;
+                        gap: 1.25rem;
                     }
 
+                    /* Larger inputs for finger-friendly tapping */
+                    .cf-input {
+                        padding: 0.9rem 1rem;
+                        font-size: 1rem; /* 16px — prevents iOS Safari from auto-zooming on input focus */
+                        border-radius: 6px;
+                    }
+
+                    /* Bigger label text for legibility */
+                    .cf-label {
+                        font-size: 0.75rem;
+                        margin-bottom: 0.4rem;
+                    }
+
+                    /* Textarea — give a bit more height so it's easier to type in */
+                    #cf-message {
+                        min-height: 140px;
+                    }
+
+                    /* Submit button — full width, taller tap target */
                     #cf-submit {
                         align-self: stretch;
+                        width: 100%;
+                        padding: 1.1rem 1rem;
+                        font-size: 0.9rem;
+                        border-radius: 6px;
+                    }
+
+                    /* Turnstile widget — center it */
+                    .cf-turnstile {
+                        display: flex;
+                        justify-content: center;
                     }
                 }
             </style>
@@ -537,7 +580,12 @@
     </main>
 
     <footer style="padding: 3rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.05);">
-        <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2.5rem;">
+        <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+
+            <!-- Footer Logo -->
+            <a href="index.html">
+                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+            </a>
 
             <!-- Credentials in Footer -->
             <div class="footer-credentials"
@@ -579,6 +627,7 @@
     <script src="js/sanity-client.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </body>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 </html>

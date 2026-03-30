@@ -210,10 +210,6 @@ ul {
     height: 60px;
 }
 
-.navbar.scrolled .logo {
-    font-size: 1.2rem;
-}
-
 .navbar::before {
     content: '';
     position: absolute;
@@ -259,11 +255,42 @@ ul {
 }
 
 .logo {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-accent-gold);
-    transition: font-size 0.35s ease;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.35s ease;
+}
+
+.logo:hover {
+    opacity: 0.85;
+}
+
+.logo-img {
+    height: 52px;
+    width: auto;
+    display: block;
+    transition: height 0.35s ease, filter 0.4s ease;
+    /* On dark hero: logo has navy/grey tones that show clearly */
+    filter: brightness(0) invert(1);
+    /* White-tinted for dark background at top */
+}
+
+.navbar.scrolled .logo-img {
+    height: 40px;
+    filter: none;
+    /* Full colour on white scrolled navbar */
+}
+
+.footer-logo {
+    height: 70px;
+    width: auto;
+    display: block;
+    opacity: 0.75;
+    filter: none;
+    transition: opacity 0.3s ease;
+}
+
+.footer-logo:hover {
+    opacity: 1;
 }
 
 .nav-links {

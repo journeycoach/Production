@@ -9,9 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Filter out hidden resources before grouping
+            const visibleResources = resources.filter(res => !res.isHidden);
+
+            if (visibleResources.length === 0) {
+                toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
+                return;
+            }
+
             // Group resources by category
             const categories = {};
-            resources.forEach(res => {
+            visibleResources.forEach(res => {
                 const cat = res.category || 'General';
                 if (!categories[cat]) {
                     categories[cat] = [];
