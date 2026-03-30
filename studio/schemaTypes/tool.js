@@ -19,6 +19,7 @@ export default {
             { title: 'General', value: 'General' },
             { title: 'Books', value: 'Books' },
             { title: 'Podcasts', value: 'Podcasts' },
+            { title: 'Tools', value: 'Tools' },
           ],
         },
         initialValue: 'General',
