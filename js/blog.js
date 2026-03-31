@@ -21,39 +21,108 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'https://cdn.sanity.io/images/9ksnhows/production/' + withoutFormat + '.' + format;
     }
 
-    // Utility: Render Simple Portable Text
+    // Utility: Render Portable Text (full-featured)
     function renderPortableText(blocks) {
         if (!Array.isArray(blocks)) return '';
+
+        // Build a lookup map for mark definitions (annotations like links, colors)
+        const markDefs = {};
+        blocks.forEach(block => {
+            if (block._type === 'block' && Array.isArray(block.markDefs)) {
+                block.markDefs.forEach(def => { markDefs[def._key] = def; });
+            }
+        });
+
         let html = '';
         let inList = false;
+        let listType = '';
+
         blocks.forEach((block, index) => {
-            if (block._type !== 'block') return;
-            const text = (block.children || []).map(child => {
-                let txt = child.text || '';
-                if (Array.isArray(child.marks)) {
-                    if (child.marks.includes('strong')) txt = '<strong>' + txt + '</strong>';
-                    if (child.marks.includes('em')) txt = '<em>' + txt + '</em>';
+            // ── Non-block types ───────────────────────────────────────────────
+            if (block._type === 'image') {
+                // Close any open list first
+                if (inList) { html += listType === 'bullet' ? '</ul>' : '</ol>'; inList = false; listType = ''; }
+                if (block.asset && block.asset._ref) {
+                    const imgUrl = sanityImageUrl(block.asset._ref);
+                    const alt = block.alt || '';
+                    const caption = block.caption ? `<figcaption style="text-align:center;font-size:0.875rem;color:var(--color-text-muted);margin-top:0.5rem;">${block.caption}</figcaption>` : '';
+                    html += `<figure style="margin:2rem 0;">\n  <img src="${imgUrl}" alt="${alt}" style="max-width:100%;border-radius:8px;">\n  ${caption}\n</figure>`;
                 }
+                return;
+            }
+
+            if (block._type === 'codeBlock') {
+                if (inList) { html += listType === 'bullet' ? '</ul>' : '</ol>'; inList = false; listType = ''; }
+                const lang = block.language || 'text';
+                const code = (block.code || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += `<div class="code-block-wrapper" style="margin:1.5rem 0;">\n  <div class="code-block-header" style="background:#1a1a1a;border-radius:8px 8px 0 0;padding:0.4rem 1rem;font-size:0.75rem;color:#888;letter-spacing:0.5px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.08);">${lang}</div>\n  <pre style="background:#111;border-radius:0 0 8px 8px;padding:1.25rem 1.5rem;overflow-x:auto;margin:0;"><code style="font-family:'Fira Code','Courier New',monospace;font-size:0.9rem;color:#e0e0e0;line-height:1.6;">${code}</code></pre>\n</div>`;
+                return;
+            }
+
+            if (block._type !== 'block') return;
+
+            // ── Render inline children ────────────────────────────────────────
+            const text = (block.children || []).map(child => {
+                let txt = (child.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                if (!Array.isArray(child.marks) || child.marks.length === 0) return txt;
+
+                // Apply decorator marks (order matters — code first to avoid double-escaping)
+                if (child.marks.includes('code')) txt = `<code style="font-family:'Fira Code','Courier New',monospace;font-size:0.88em;background:rgba(255,255,255,0.07);padding:0.15em 0.4em;border-radius:4px;">${txt}</code>`;
+                if (child.marks.includes('strong')) txt = `<strong>${txt}</strong>`;
+                if (child.marks.includes('em')) txt = `<em>${txt}</em>`;
+                if (child.marks.includes('underline')) txt = `<span style="text-decoration:underline;">${txt}</span>`;
+                if (child.marks.includes('strike-through')) txt = `<span style="text-decoration:line-through;">${txt}</span>`;
+
+                // Apply annotation marks
+                child.marks.forEach(markKey => {
+                    const def = markDefs[markKey];
+                    if (!def) return;
+                    if (def._type === 'link') {
+                        const target = def.blank ? ' target="_blank" rel="noopener noreferrer"' : '';
+                        txt = `<a href="${def.href || '#'}"${target} style="color:var(--color-accent-gold);text-decoration:underline;">${txt}</a>`;
+                    }
+                    if (def._type === 'highlight' && def.color) {
+                        txt = `<span style="color:${def.color};">${txt}</span>`;
+                    }
+                });
+
                 return txt;
             }).join('');
-            if (block.style === 'h1') { html += '<h1>' + text + '</h1>'; }
-            else if (block.style === 'h2') { html += '<h2>' + text + '</h2>'; }
-            else if (block.style === 'h3') { html += '<h3>' + text + '</h3>'; }
-            else if (block.style === 'h4') { html += '<h4>' + text + '</h4>'; }
-            else if (block.style === 'blockquote') { html += '<blockquote>' + text + '</blockquote>'; }
-            else if (block.listItem) {
-                if (!inList) {
-                    html += block.listItem === 'bullet' ? '<ul>' : '<ol>';
+
+            // ── Block-level rendering ─────────────────────────────────────────
+            // Handle list items
+            if (block.listItem) {
+                const newListType = block.listItem === 'bullet' ? 'bullet' : 'number';
+                if (!inList || listType !== newListType) {
+                    if (inList) html += listType === 'bullet' ? '</ul>' : '</ol>';
+                    html += newListType === 'bullet' ? '<ul>' : '<ol>';
                     inList = true;
+                    listType = newListType;
                 }
-                html += '<li>' + text + '</li>';
+                html += `<li>${text}</li>`;
                 const nextBlock = blocks[index + 1];
-                if (!nextBlock || nextBlock.listItem !== block.listItem) {
-                    html += block.listItem === 'bullet' ? '</ul>' : '</ol>';
+                if (!nextBlock || !nextBlock.listItem) {
+                    html += listType === 'bullet' ? '</ul>' : '</ol>';
                     inList = false;
+                    listType = '';
                 }
-            } else { html += '<p>' + text + '</p>'; }
+                return;
+            }
+
+            // Not a list item — close any open list
+            if (inList) { html += listType === 'bullet' ? '</ul>' : '</ol>'; inList = false; listType = ''; }
+
+            if (block.style === 'h1') html += `<h1>${text}</h1>`;
+            else if (block.style === 'h2') html += `<h2>${text}</h2>`;
+            else if (block.style === 'h3') html += `<h3>${text}</h3>`;
+            else if (block.style === 'h4') html += `<h4>${text}</h4>`;
+            else if (block.style === 'blockquote') html += `<blockquote>${text}</blockquote>`;
+            else html += `<p>${text}</p>`;
         });
+
+        // Close any unclosed lists
+        if (inList) html += listType === 'bullet' ? '</ul>' : '</ol>';
+
         return html;
     }
 
