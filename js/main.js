@@ -56,26 +56,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
+            const onMobile = window.innerWidth <= 768;
 
-            // Scrolled state (affects styling on all screen sizes)
+            // Scrolled state — triggers background on all screen sizes
             if (currentScrollY > 50) {
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
             }
 
-            // Hide/show on mobile only
-            if (window.innerWidth <= 768) {
-                const scrollingDown = currentScrollY > lastScrollY;
-                const pastThreshold = currentScrollY > 80;
+            // Hide on scroll-down / show on scroll-up — mobile only
+            if (onMobile) {
+                const scrollingDown = currentScrollY > lastScrollY + 4; // small deadzone
+                const scrollingUp  = currentScrollY < lastScrollY - 4;
+                const menuOpen     = navbar.classList.contains('nav-open');
 
-                if (scrollingDown && pastThreshold && !navbar.classList.contains('nav-open')) {
+                if (scrollingDown && currentScrollY > 60 && !menuOpen) {
                     navbar.classList.add('nav-hidden');
-                } else if (!scrollingDown) {
+                } else if (scrollingUp) {
+                    navbar.classList.remove('nav-hidden');
+                }
+
+                // Always show at very top
+                if (currentScrollY <= 10) {
                     navbar.classList.remove('nav-hidden');
                 }
             } else {
-                // Always visible on desktop
                 navbar.classList.remove('nav-hidden');
             }
 

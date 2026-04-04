@@ -87,28 +87,19 @@
     .navbar {
         height: var(--header-height);
         padding: 0;
-        opacity: 1 !important;
-        visibility: visible !important;
-        transform: translateY(0) !important;
-        background: rgba(253, 251, 247, 0.95) !important;
-        backdrop-filter: blur(10px) !important;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
         position: fixed;
+        /* transparent by default — ::before gradient + ::after white bg handle the rest */
     }
 
-    .navbar::before {
-        display: none !important;
-    }
-
-    .navbar::after {
-        opacity: 0 !important;
-    }
-
+    /* Row layout: logo left, hamburger right */
     .navbar .container {
-        flex-direction: column;
-        /* Stack logo on top of links */
+        flex-direction: row;
         align-items: center;
-        gap: 5px;
+    }
+
+    /* Hamburger bars white on transparent navbar, dark once scrolled */
+    .navbar:not(.scrolled) .hamburger span {
+        background: #ffffff;
     }
 
     #about-portrait-img {
