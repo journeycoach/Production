@@ -49,18 +49,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealElements.forEach(el => revealObserver.observe(el));
 
-    // 4. Navbar Scroll Effect
+    // 4. Navbar Scroll Effect + mobile hide-on-scroll-down
     const navbar = document.querySelector('.navbar');
     if (navbar) {
+        let lastScrollY = window.scrollY;
+
         const handleScroll = () => {
-            if (window.scrollY > 50) {
+            const currentScrollY = window.scrollY;
+
+            // Scrolled state (affects styling on all screen sizes)
+            if (currentScrollY > 50) {
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
             }
+
+            // Hide/show on mobile only
+            if (window.innerWidth <= 768) {
+                const scrollingDown = currentScrollY > lastScrollY;
+                const pastThreshold = currentScrollY > 80;
+
+                if (scrollingDown && pastThreshold && !navbar.classList.contains('nav-open')) {
+                    navbar.classList.add('nav-hidden');
+                } else if (!scrollingDown) {
+                    navbar.classList.remove('nav-hidden');
+                }
+            } else {
+                // Always visible on desktop
+                navbar.classList.remove('nav-hidden');
+            }
+
+            lastScrollY = currentScrollY;
         };
-        window.addEventListener('scroll', handleScroll);
-        handleScroll(); // Check on initial load
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        handleScroll();
     }
 
     // 4b. Hamburger Menu Toggle

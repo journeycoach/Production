@@ -20,13 +20,14 @@
         margin-left: auto;
     }
 
-    /* Keep logo image, hide brand text to save space */
+    /* Show logo image + brand text on mobile */
     .logo-brand {
-        display: none;
+        display: block;
+        font-size: 0.92rem;
     }
 
     .logo-img {
-        height: 36px;
+        height: 34px;
     }
 
     .nav-links {
