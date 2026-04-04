@@ -63,6 +63,28 @@ document.addEventListener('DOMContentLoaded', () => {
         handleScroll(); // Check on initial load
     }
 
+    // 4b. Hamburger Menu Toggle
+    const hamburger = document.getElementById('hamburger');
+    if (hamburger && navbar) {
+        hamburger.addEventListener('click', () => {
+            navbar.classList.toggle('nav-open');
+        });
+
+        // Close menu when a nav link is clicked
+        document.querySelectorAll('#nav-links-list a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbar.classList.remove('nav-open');
+            });
+        });
+
+        // Close menu when clicking outside the navbar
+        document.addEventListener('click', (e) => {
+            if (!navbar.contains(e.target)) {
+                navbar.classList.remove('nav-open');
+            }
+        });
+    }
+
 
     // 5. Dynamic Testimonials Rotation
     const testimonialsContainer = document.getElementById('testimonials-container');

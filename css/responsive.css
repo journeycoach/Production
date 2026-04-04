@@ -14,47 +14,75 @@
         font-size: 2.5rem;
     }
 
+    /* Show hamburger, hide nav links by default */
+    .hamburger {
+        display: flex !important;
+    }
+
     .nav-links {
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        position: absolute;
+        top: 100%;
+        left: 0;
         width: 100%;
-        gap: 0.8rem;
-        margin-top: 10px;
+        background: rgba(253, 251, 247, 0.98);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 0.35s ease, opacity 0.25s ease;
+        pointer-events: none;
+    }
+
+    /* Open state */
+    .navbar.nav-open .nav-links {
+        max-height: 400px;
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .nav-links li {
-        margin: 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .nav-links a {
-        font-size: 0.8rem;
-        /* Slightly smaller to fit better */
+        display: block;
+        padding: 1rem 1.5rem;
+        font-size: 0.95rem;
         color: var(--color-text-primary) !important;
         text-shadow: none !important;
+        letter-spacing: 0.5px;
     }
 
     .nav-links a.active {
         color: var(--color-accent-gold) !important;
     }
 
-    .hamburger {
-        display: none !important;
-        /* Hide hamburger entirely */
+    /* Make the CTA button full-width inside the menu */
+    .nav-links .btn-primary {
+        display: block;
+        margin: 1rem 1.5rem;
+        width: calc(100% - 3rem);
+        text-align: center;
+        border-radius: 4px;
     }
 
     .navbar {
-        height: auto;
-        /* Let navbar height grow to fit wrapped links */
-        padding: 10px 0;
+        height: var(--header-height);
+        padding: 0;
         opacity: 1 !important;
         visibility: visible !important;
         transform: translateY(0) !important;
         background: rgba(253, 251, 247, 0.95) !important;
         backdrop-filter: blur(10px) !important;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+        position: fixed;
     }
 
     .navbar::before {
