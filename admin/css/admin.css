@@ -648,7 +648,11 @@ textarea {
 .dashboard-card .card-icon svg {
   width: 24px;
   height: 24px;
-  fill: currentColor;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .dashboard-card .card-title {
