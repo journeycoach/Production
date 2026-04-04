@@ -301,6 +301,26 @@
             }
         }
 
+        @media (max-width: 768px) {
+            /* On mobile: reorder so "What You'll Discover" appears above
+               the form — this means the form is the last thing on the page,
+               so iframe scroll-capture doesn't block access to content below */
+            main {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .hc-header  { order: 1; }
+            .hc-form-section { order: 3; }
+            .hc-insights { order: 2; }
+
+            /* Shrink embed height on mobile — each form step fits in ~700px;
+               less empty space means less time with finger trapped on the iframe */
+            .formaloo--root-container {
+                height: 750px !important;
+            }
+        }
+
         @media (max-width: 640px) {
             .hc-header {
                 padding-top: 110px;
