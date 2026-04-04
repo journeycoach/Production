@@ -14,6 +14,14 @@
     .settings-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
     .settings-tab-panel { display: none; }
     .settings-tab-panel.is-active { display: block; }
+    .environment-bar { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 18px 20px; margin-bottom: 24px; }
+    .environment-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+    .environment-tab { background: transparent; color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .environment-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .environment-tab.is-active { background: rgba(199, 169, 107, 0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .environment-status { font-size: 0.85rem; color: var(--admin-muted); line-height: 1.5; }
+    .environment-status.is-warning { color: #d9a15e; }
+    .environment-status.is-error { color: #e07070; }
     .color-row { display: flex; align-items: center; gap: 12px; }
     .color-row input[type="color"] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--admin-border); border-radius: 4px; background: none; cursor: pointer; }
     .color-row input[type="text"] { flex: 1; font-family: monospace; }
@@ -47,7 +55,7 @@
       <div class="guide-box">
         <strong>About Site Settings</strong>
         Use the tabs below to switch between public website settings and admin-only appearance settings.
-        Website changes affect the live site. Admin changes only affect this admin interface.
+        Website settings can target either the Test or Production site. Admin appearance settings only affect this admin interface.
       </div>
 
       <div class="settings-tabs" role="tablist" aria-label="Settings sections">
@@ -56,6 +64,17 @@
       </div>
 
       <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
+        <div class="environment-bar">
+          <strong style="display:block;margin-bottom:4px;">Website Environment</strong>
+          <div class="environment-status" id="website_env_status">
+            Choose which site's public settings you want to edit.
+          </div>
+          <div class="environment-tabs" role="tablist" aria-label="Website environments">
+            <button type="button" class="environment-tab" data-environment="test">Test Site</button>
+            <button type="button" class="environment-tab" data-environment="production">Production Site</button>
+          </div>
+        </div>
+
         <!-- ── Brand Colors ───────────────────────────────────────────── -->
         <div class="card">
           <div class="card-title">Brand Colors</div>
@@ -342,7 +361,7 @@
       </section>
 
       <div class="save-bar">
-        <button class="btn btn-primary" onclick="saveAll()">Save All Settings</button>
+        <button class="btn btn-primary" id="save_button" onclick="saveAll()">Save Website Settings</button>
         <span id="save_status" style="color:#888;font-size:0.875rem;"></span>
       </div>
     </main>
@@ -352,8 +371,14 @@
   <script>
     requireAdminAuth();
 
-    let settings = {};
     let activeTab = 'website';
+    const currentSiteEnvironment = window.location.hostname.includes('journeycoach.co') &&
+      !window.location.hostname.includes('yourjourneycoach.com')
+      ? 'production'
+      : 'test';
+    let currentWebsiteEnvironment = localStorage.getItem('website_settings_environment') || currentSiteEnvironment;
+    let adminAppearanceSettings = {};
+    const websiteSettingsCache = {};
 
     // ── Color sync: picker ↔ text ↔ swatch ─────────────────────────────────
     const siteColorKeys = ['color_accent', 'color_green', 'color_bg', 'color_text'];
@@ -375,6 +400,16 @@
       'admin_font_heading',
       'admin_font_body',
       'admin_dashboard_columns'
+    ];
+    const websiteSettingKeys = [
+      ...siteColorKeys,
+      'font_heading',
+      'font_body',
+      'cta_primary_text',
+      'cta_primary_url',
+      'cta_secondary_text',
+      'cta_secondary_url',
+      'site_tagline'
     ];
     const adminAppearanceColorDefaults = {
       admin_color_accent: '#c7a96b',
@@ -448,6 +483,27 @@
       document.getElementById('cta_preview_secondary').style.display = sText ? 'inline-block' : 'none';
     }
 
+    function getEnvironmentLabel(environment) {
+      return environment === 'production' ? 'Production' : 'Test';
+    }
+
+    function setWebsiteEnvironmentStatus(message, tone = '') {
+      const el = document.getElementById('website_env_status');
+      el.textContent = message;
+      el.classList.remove('is-warning', 'is-error');
+      if (tone) el.classList.add(tone);
+    }
+
+    function updateSaveButtonLabel() {
+      const button = document.getElementById('save_button');
+      if (!button) return;
+      if (activeTab === 'admin') {
+        button.textContent = 'Save Admin Settings';
+        return;
+      }
+      button.textContent = `Save ${getEnvironmentLabel(currentWebsiteEnvironment)} Website Settings`;
+    }
+
     function setActiveTab(tabName) {
       activeTab = tabName;
       document.querySelectorAll('.settings-tab').forEach(button => {
@@ -458,10 +514,31 @@
       document.querySelectorAll('.settings-tab-panel').forEach(panel => {
         panel.classList.toggle('is-active', panel.dataset.tabPanel === tabName);
       });
+      updateSaveButtonLabel();
     }
 
     document.querySelectorAll('.settings-tab').forEach(button => {
       button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+    });
+
+    function setActiveEnvironment(environment) {
+      currentWebsiteEnvironment = environment;
+      localStorage.setItem('website_settings_environment', environment);
+      document.querySelectorAll('.environment-tab').forEach(button => {
+        button.classList.toggle('is-active', button.dataset.environment === environment);
+      });
+
+      const label = getEnvironmentLabel(environment);
+      const warning = environment === 'production'
+        ? 'Production changes update the live site.'
+        : 'Test changes stay isolated to the test site.';
+      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment === 'production' ? 'is-warning' : '');
+      updateSaveButtonLabel();
+      loadWebsiteSettings(environment);
+    }
+
+    document.querySelectorAll('.environment-tab').forEach(button => {
+      button.addEventListener('click', () => setActiveEnvironment(button.dataset.environment));
     });
 
     function setColorControl(key, value = '') {
@@ -474,7 +551,7 @@
       swatch.style.background = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
     }
 
-    async function persistSettings(payload, successMessage = 'Settings saved.') {
+    async function persistAdminSettings(payload, successMessage = 'Admin settings saved.') {
       const status = document.getElementById('save_status');
       status.textContent = 'Saving…';
       const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
@@ -492,6 +569,29 @@
       return false;
     }
 
+    async function persistWebsiteSettings(payload, environment) {
+      const status = document.getElementById('save_status');
+      const label = getEnvironmentLabel(environment);
+      status.textContent = `Saving ${label.toLowerCase()} settings…`;
+      const res = await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        websiteSettingsCache[environment] = { ...(websiteSettingsCache[environment] || {}), ...payload };
+        showFlash(`${label} website settings saved.`);
+        status.textContent = `${label} saved ✓`;
+        setTimeout(() => status.textContent = '', 3000);
+        return true;
+      }
+
+      const data = await res.json().catch(() => ({}));
+      showFlash(data.error || `Error saving ${label.toLowerCase()} settings.`, 'error');
+      status.textContent = '';
+      return false;
+    }
+
     async function resetAdminAppearance() {
       if (!confirm('Reset the admin appearance to the default look?')) return;
 
@@ -505,16 +605,11 @@
         key === 'admin_dashboard_columns' ? '3' : ''
       ]));
 
-      await persistSettings(payload, 'Admin appearance reset.');
+      await persistAdminSettings(payload, 'Admin appearance reset.');
     }
 
-    // ── Load settings ────────────────────────────────────────────────────────
-    async function loadSettings() {
-      const res  = await adminFetch('/api/admin/settings');
-      const data = await res.json();
-      settings = data.data || {};
-
-      colorKeys.forEach(key => {
+    function populateWebsiteSettings(settings) {
+      siteColorKeys.forEach(key => {
         const val = settings[key] || '';
         setColorControl(key, val);
         if (key === 'color_accent' && val) {
@@ -523,47 +618,90 @@
       });
 
       const fh = settings.font_heading || 'Playfair Display';
-      const fb = settings.font_body    || 'Inter';
+      const fb = settings.font_body || 'Inter';
       document.getElementById('font_heading').value = fh;
-      document.getElementById('font_body').value    = fb;
+      document.getElementById('font_body').value = fb;
       document.getElementById('heading_preview').style.fontFamily = `'${fh}', serif`;
-      document.getElementById('body_preview').style.fontFamily    = `'${fb}', sans-serif`;
+      document.getElementById('body_preview').style.fontFamily = `'${fb}', sans-serif`;
       loadGoogleFont(fh);
       loadGoogleFont(fb);
+
+      document.getElementById('cta_primary_text').value = settings.cta_primary_text || '';
+      document.getElementById('cta_primary_url').value = settings.cta_primary_url || '';
+      document.getElementById('cta_secondary_text').value = settings.cta_secondary_text || '';
+      document.getElementById('cta_secondary_url').value = settings.cta_secondary_url || '';
+      document.getElementById('site_tagline').value = settings.site_tagline || '';
+
+      updateCtaPreview();
+    }
+
+    function populateAdminSettings(settings) {
+      adminColorKeys.forEach(key => setColorControl(key, settings[key] || ''));
 
       document.getElementById('admin_font_heading').value      = settings.admin_font_heading || '';
       document.getElementById('admin_font_body').value         = settings.admin_font_body || '';
       document.getElementById('admin_dashboard_columns').value = settings.admin_dashboard_columns || '3';
-
-      document.getElementById('cta_primary_text').value   = settings.cta_primary_text   || '';
-      document.getElementById('cta_primary_url').value    = settings.cta_primary_url    || '';
-      document.getElementById('cta_secondary_text').value = settings.cta_secondary_text || '';
-      document.getElementById('cta_secondary_url').value  = settings.cta_secondary_url  || '';
-      document.getElementById('site_tagline').value       = settings.site_tagline       || '';
-
-      updateCtaPreview();
       applyAdminTheme(settings);
+    }
+
+    // ── Load settings ────────────────────────────────────────────────────────
+    async function loadWebsiteSettings(environment) {
+      const label = getEnvironmentLabel(environment);
+      const status = document.getElementById('save_status');
+      status.textContent = `Loading ${label.toLowerCase()} settings…`;
+      const res = await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setWebsiteEnvironmentStatus(data.error || `${label} settings are unavailable from this admin.`, 'is-error');
+        status.textContent = '';
+        showFlash(data.error || `Unable to load ${label.toLowerCase()} settings.`, 'error');
+        return;
+      }
+
+      websiteSettingsCache[environment] = data.data || {};
+      populateWebsiteSettings(websiteSettingsCache[environment]);
+      const warning = environment === 'production'
+        ? 'Production changes update the live site.'
+        : 'Test changes stay isolated to the test site.';
+      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment === 'production' ? 'is-warning' : '');
+      status.textContent = '';
+    }
+
+    async function loadAdminSettings() {
+      const res = await adminFetch('/api/admin/settings');
+      const data = await res.json();
+      adminAppearanceSettings = data.data || {};
+      populateAdminSettings(adminAppearanceSettings);
     }
 
     // ── Save ─────────────────────────────────────────────────────────────────
     async function saveAll() {
+      if (activeTab === 'admin') {
+        const payload = {};
+        payload.admin_font_heading = document.getElementById('admin_font_heading').value;
+        payload.admin_font_body = document.getElementById('admin_font_body').value;
+        payload.admin_dashboard_columns = document.getElementById('admin_dashboard_columns').value;
+        adminColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
+        await persistAdminSettings(payload);
+        return;
+      }
+
       const payload = {};
-      colorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
-      payload.font_heading       = document.getElementById('font_heading').value;
-      payload.font_body          = document.getElementById('font_body').value;
-      payload.cta_primary_text   = document.getElementById('cta_primary_text').value.trim();
-      payload.cta_primary_url    = document.getElementById('cta_primary_url').value.trim();
+      siteColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
+      payload.font_heading = document.getElementById('font_heading').value;
+      payload.font_body = document.getElementById('font_body').value;
+      payload.cta_primary_text = document.getElementById('cta_primary_text').value.trim();
+      payload.cta_primary_url = document.getElementById('cta_primary_url').value.trim();
       payload.cta_secondary_text = document.getElementById('cta_secondary_text').value.trim();
-      payload.cta_secondary_url  = document.getElementById('cta_secondary_url').value.trim();
-      payload.site_tagline       = document.getElementById('site_tagline').value.trim();
-      payload.admin_font_heading = document.getElementById('admin_font_heading').value;
-      payload.admin_font_body = document.getElementById('admin_font_body').value;
-      payload.admin_dashboard_columns = document.getElementById('admin_dashboard_columns').value;
-      adminColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
-      await persistSettings(payload);
+      payload.cta_secondary_url = document.getElementById('cta_secondary_url').value.trim();
+      payload.site_tagline = document.getElementById('site_tagline').value.trim();
+      await persistWebsiteSettings(payload, currentWebsiteEnvironment);
     }
 
-    loadSettings();
+    updateSaveButtonLabel();
+    loadAdminSettings();
+    setActiveEnvironment(currentWebsiteEnvironment);
   </script>
 </body>
 </html>
