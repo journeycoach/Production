@@ -3,7 +3,8 @@
   "rewrites": [
     { "source": "/api/content/:type", "destination": "/api/content?type=:type" },
     { "source": "/api/admin/sections/:page", "destination": "/api/admin/sections?page=:page" },
-    { "source": "/admin(.*)", "destination": "/admin/index.html" }
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/", "destination": "/admin/index.html" }
   ],
   "headers": [
     {
