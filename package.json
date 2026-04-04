@@ -1,12 +1,14 @@
 {
-  "name": "yjc-test",
+  "name": "journeycoach-production",
   "version": "1.0.0",
-  "description": "Your Journey Coach",
+  "description": "Journey Coach",
   "type": "module",
   "scripts": {
     "build": "mkdir -p public && cp -r * public/ || true"
   },
   "dependencies": {
-    "puppeteer": "^24.39.0"
+    "@neondatabase/serverless": "^0.10.4",
+    "@vercel/blob": "^2.3.3",
+    "nodemailer": "^6.9.16"
   }
 }

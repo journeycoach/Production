@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Submissions — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .submission-card {
+      background: var(--admin-card-bg);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    .submission-card.unread {
+      border-left: 3px solid var(--admin-accent);
+    }
+    .submission-card.read {
+      opacity: 0.7;
+    }
+    .submission-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .submission-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--admin-text);
+    }
+    .submission-date {
+      font-size: 0.8rem;
+      color: var(--admin-muted);
+      margin-left: auto;
+    }
+    .submission-detail {
+      font-size: 0.85rem;
+      color: var(--admin-muted);
+      margin-bottom: 0.25rem;
+    }
+    .submission-message {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: var(--admin-text);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    .submission-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .unread-badge {
+      background: var(--admin-accent);
+      color: #1a1d1e;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-bar span {
+      font-size: 0.85rem;
+      color: var(--admin-muted);
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--admin-muted);
+    }
+    .empty-state p { margin-top: 0.5rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Contact Submissions <span id="unreadCount" style="font-size:1rem;font-weight:400;color:var(--admin-accent);"></span></h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="filter-bar">
+        <button class="btn btn-secondary btn-sm" onclick="setFilter('all')" id="filterAll">All</button>
+        <button class="btn btn-secondary btn-sm" onclick="setFilter('unread')" id="filterUnread">Unread</button>
+        <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Mark All Read</button>
+        <span id="countLabel"></span>
+      </div>
+
+      <div id="submissionsContainer">
+        <div class="empty-state"><p>Loading...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    let allSubmissions = [];
+    let currentFilter = 'all';
+
+    async function loadSubmissions() {
+      const res = await adminFetch('/api/admin/contacts');
+      const data = await res.json();
+      allSubmissions = data.data || [];
+      render();
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      document.getElementById('filterAll').classList.toggle('btn-primary', f === 'all');
+      document.getElementById('filterUnread').classList.toggle('btn-primary', f === 'unread');
+      render();
+    }
+
+    function render() {
+      const container = document.getElementById('submissionsContainer');
+      const unread = allSubmissions.filter(s => !s.is_read);
+      document.getElementById('unreadCount').textContent = unread.length > 0 ? `(${unread.length} unread)` : '';
+
+      const filtered = currentFilter === 'unread'
+        ? allSubmissions.filter(s => !s.is_read)
+        : allSubmissions;
+
+      document.getElementById('countLabel').textContent = `${filtered.length} submission${filtered.length !== 1 ? 's' : ''}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+          <p>${currentFilter === 'unread' ? 'No unread submissions.' : 'No contact submissions yet.'}</p>
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => `
+        <div class="submission-card ${s.is_read ? 'read' : 'unread'}" id="card-${s.id}">
+          <div class="submission-meta">
+            <span class="submission-name">${escHtml(s.name)}</span>
+            ${!s.is_read ? '<span class="unread-badge">New</span>' : ''}
+            <span class="submission-date">${formatDate(s.submitted_at)}</span>
+          </div>
+          <div class="submission-detail">&#9993; <a href="mailto:${escHtml(s.email)}" style="color:var(--admin-accent)">${escHtml(s.email)}</a></div>
+          <div class="submission-detail">&#128222; ${escHtml(s.phone || '—')}</div>
+          <div class="submission-detail">&#127775; ${escHtml(s.interest || '—')}</div>
+          <div class="submission-message">${escHtml(s.message || '')}</div>
+          <div class="submission-actions">
+            <button class="btn btn-secondary btn-sm" onclick="toggleRead(${s.id}, ${s.is_read})">
+              ${s.is_read ? 'Mark Unread' : 'Mark Read'}
+            </button>
+            <a href="mailto:${escHtml(s.email)}?subject=Re: ${encodeURIComponent(s.interest || 'Your Inquiry')}" class="btn btn-primary btn-sm">Reply</a>
+            <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${s.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function toggleRead(id, currentlyRead) {
+      const res = await adminFetch('/api/admin/contacts', {
+        method: 'PUT',
+        body: JSON.stringify({ id, is_read: !currentlyRead })
+      });
+      if (res.ok) {
+        const s = allSubmissions.find(s => s.id === id);
+        if (s) s.is_read = !currentlyRead;
+        render();
+      }
+    }
+
+    async function markAllRead() {
+      const unread = allSubmissions.filter(s => !s.is_read);
+      await Promise.all(unread.map(s =>
+        adminFetch('/api/admin/contacts', {
+          method: 'PUT',
+          body: JSON.stringify({ id: s.id, is_read: true })
+        })
+      ));
+      allSubmissions.forEach(s => s.is_read = true);
+      render();
+    }
+
+    async function deleteSubmission(id) {
+      if (!confirm('Delete this submission? This cannot be undone.')) return;
+      const res = await adminFetch('/api/admin/contacts', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        allSubmissions = allSubmissions.filter(s => s.id !== id);
+        render();
+        showFlash('Submission deleted.');
+      }
+    }
+
+    loadSubmissions();
+    setFilter('all');
+  </script>
+</body>
+</html>

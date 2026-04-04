@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testimonials — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Testimonials</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="split-panel">
+        <div class="card">
+          <div class="card-title">All Testimonials</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Quote</th>
+                <th>Author</th>
+                <th>Order</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="testimonialsBody">
+              <tr><td colspan="4" class="table-empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title" id="formTitle">Add Testimonial</div>
+          <form id="testimonialForm">
+            <input type="hidden" id="testimonialId" />
+            <div class="form-group">
+              <label for="quote">Quote</label>
+              <textarea id="quote" rows="4" placeholder="Enter testimonial quote..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="author">Author</label>
+              <input type="text" id="author" placeholder="Author name" required />
+            </div>
+            <div class="form-group">
+              <label for="sortOrder">Sort Order</label>
+              <input type="number" id="sortOrder" value="0" min="0" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="saveBtn">Save Testimonial</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="cancelBtn" style="display:none;" onclick="resetForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    let allTestimonials = [];
+    let editingId = null;
+
+    async function loadTestimonials() {
+      const res  = await adminFetch('/api/admin/testimonials');
+      const data = await res.json();
+      allTestimonials = data.data || [];
+      const tbody = document.getElementById('testimonialsBody');
+      if (allTestimonials.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No testimonials yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allTestimonials.map(t => `
+        <tr>
+          <td>${escHtml(t.quote.substring(0, 70))}${t.quote.length > 70 ? '…' : ''}</td>
+          <td>${escHtml(t.author)}</td>
+          <td class="td-muted">${t.sort_order}</td>
+          <td class="td-actions">
+            <button class="btn btn-secondary btn-sm" onclick="editTestimonial(${t.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${t.id})">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function editTestimonial(id) {
+      const t = allTestimonials.find(r => r.id === id);
+      if (!t) return;
+      editingId = id;
+      document.getElementById('testimonialId').value  = id;
+      document.getElementById('quote').value          = t.quote;
+      document.getElementById('author').value         = t.author;
+      document.getElementById('sortOrder').value      = t.sort_order || 0;
+      document.getElementById('formTitle').textContent      = 'Edit Testimonial';
+      document.getElementById('saveBtn').textContent        = 'Update Testimonial';
+      document.getElementById('cancelBtn').style.display   = 'inline-flex';
+    }
+
+    function resetForm() {
+      editingId = null;
+      document.getElementById('testimonialId').value = '';
+      document.getElementById('testimonialForm').reset();
+      document.getElementById('formTitle').textContent    = 'Add Testimonial';
+      document.getElementById('saveBtn').textContent      = 'Save Testimonial';
+      document.getElementById('cancelBtn').style.display = 'none';
+    }
+
+    async function deleteTestimonial(id) {
+      if (!confirm('Delete this testimonial? This cannot be undone.')) return;
+      const res = await adminFetch('/api/admin/testimonials', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        showFlash('Testimonial deleted.');
+        loadTestimonials();
+      } else {
+        showFlash('Error deleting testimonial.', 'error');
+      }
+    }
+
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        quote:      document.getElementById('quote').value.trim(),
+        author:     document.getElementById('author').value.trim(),
+        sort_order: parseInt(document.getElementById('sortOrder').value) || 0
+      };
+      if (editingId) payload.id = editingId;
+
+      const res = await adminFetch('/api/admin/testimonials', {
+        method: editingId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showFlash(editingId ? 'Testimonial updated.' : 'Testimonial added.');
+        resetForm();
+        loadTestimonials();
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving testimonial.', 'error');
+      }
+    });
+
+    loadTestimonials();
+  </script>
+</body>
+</html>

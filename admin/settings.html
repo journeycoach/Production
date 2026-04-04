@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Site Settings — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 800px) { .settings-grid { grid-template-columns: 1fr; } }
+    .settings-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .settings-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .settings-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .settings-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .settings-tab-panel { display: none; }
+    .settings-tab-panel.is-active { display: block; }
+    .color-row { display: flex; align-items: center; gap: 12px; }
+    .color-row input[type="color"] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--admin-border); border-radius: 4px; background: none; cursor: pointer; }
+    .color-row input[type="text"] { flex: 1; font-family: monospace; }
+    .color-swatch { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--admin-border); flex-shrink: 0; }
+    .guide-box { background: var(--admin-notice-bg); border-left: 3px solid var(--admin-notice-accent); border-radius: 4px; padding: 14px 18px; margin-bottom: 24px; font-size: 0.875rem; color: var(--admin-notice-text); line-height: 1.6; }
+    .guide-box strong { color: var(--admin-notice-accent); display: block; margin-bottom: 4px; }
+    .section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--admin-muted); margin: 28px 0 12px; border-bottom: 1px solid var(--admin-border); padding-bottom: 6px; }
+    .cta-preview { background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 20px; margin-top: 8px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .preview-btn-primary { background: var(--preview-accent, #c7a96b); color: #1a1d1e; padding: 10px 24px; border-radius: 4px; font-weight: 600; font-size: 0.875rem; border: none; cursor: default; }
+    .preview-btn-secondary { background: transparent; color: var(--preview-accent, #c7a96b); padding: 10px 24px; border-radius: 4px; font-weight: 600; font-size: 0.875rem; border: 2px solid var(--preview-accent, #c7a96b); cursor: default; }
+    .font-preview { padding: 10px 0; font-size: 1.1rem; }
+    .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
+    .admin-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Site Settings</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="guide-box">
+        <strong>About Site Settings</strong>
+        Use the tabs below to switch between public website settings and admin-only appearance settings.
+        Website changes affect the live site. Admin changes only affect this admin interface.
+      </div>
+
+      <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+        <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true">Website Settings</button>
+        <button type="button" class="settings-tab" data-tab="admin" role="tab" aria-selected="false">Admin Settings</button>
+      </div>
+
+      <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
+        <!-- ── Brand Colors ───────────────────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Brand Colors</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>Tip</strong>
+            Use the color picker or type a hex value directly. The accent gold is your primary brand color —
+            it appears on buttons, links, and highlights. Keep changes subtle to maintain the premium feel.
+          </div>
+
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Accent / Gold</label>
+              <div class="color-row">
+                <input type="color" id="pick_color_accent" />
+                <input type="text"  id="color_accent" class="form-control" placeholder="#c7a96b" maxlength="7" />
+                <div class="color-swatch" id="sw_color_accent"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Green / Secondary</label>
+              <div class="color-row">
+                <input type="color" id="pick_color_green" />
+                <input type="text"  id="color_green" class="form-control" placeholder="#4a6741" maxlength="7" />
+                <div class="color-swatch" id="sw_color_green"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Page Background</label>
+              <div class="color-row">
+                <input type="color" id="pick_color_bg" />
+                <input type="text"  id="color_bg" class="form-control" placeholder="#fdfbf7" maxlength="7" />
+                <div class="color-swatch" id="sw_color_bg"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Body Text</label>
+              <div class="color-row">
+                <input type="color" id="pick_color_text" />
+                <input type="text"  id="color_text" class="form-control" placeholder="#1c2321" maxlength="7" />
+                <div class="color-swatch" id="sw_color_text"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Typography ─────────────────────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Typography</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>Tip</strong>
+            These fonts must be available on Google Fonts. The heading font appears in titles and section headers.
+            The body font is used for all paragraph text and UI elements. Changing fonts updates the entire site.
+          </div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Heading Font</label>
+              <select id="font_heading" class="form-control">
+                <option value="Playfair Display">Playfair Display (current)</option>
+                <option value="Cormorant Garamond">Cormorant Garamond</option>
+                <option value="Libre Baskerville">Libre Baskerville</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="EB Garamond">EB Garamond</option>
+              </select>
+              <div class="font-preview" id="heading_preview" style="font-family:'Playfair Display',serif;">
+                The quick brown fox — Executive Coaching
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Body Font</label>
+              <select id="font_body" class="form-control">
+                <option value="Inter">Inter (current)</option>
+                <option value="DM Sans">DM Sans</option>
+                <option value="Source Sans 3">Source Sans 3</option>
+                <option value="Nunito">Nunito</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+              </select>
+              <div class="font-preview" id="body_preview" style="font-family:'Inter',sans-serif;">
+                Helping leaders grow with clarity, purpose, and authentic confidence.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CTA Manager ────────────────────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Call-to-Action Manager</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About CTAs</strong>
+            The primary CTA is your main button — it appears in the navigation bar and hero sections.
+            The secondary CTA is optional and appears alongside the primary in some sections.
+            Leave the secondary fields blank to hide it. URLs can be internal (e.g. /#contact) or external.
+          </div>
+
+          <div class="section-label">Primary CTA</div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Button Label</label>
+              <input type="text" id="cta_primary_text" class="form-control" placeholder="Let's Talk" />
+            </div>
+            <div class="form-group">
+              <label>Destination URL</label>
+              <input type="text" id="cta_primary_url" class="form-control" placeholder="/#contact" />
+            </div>
+          </div>
+
+          <div class="section-label">Secondary CTA <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Button Label</label>
+              <input type="text" id="cta_secondary_text" class="form-control" placeholder="Learn More" />
+            </div>
+            <div class="form-group">
+              <label>Destination URL</label>
+              <input type="text" id="cta_secondary_url" class="form-control" placeholder="/enneagram.html" />
+            </div>
+          </div>
+
+          <div class="section-label">Preview</div>
+          <div class="cta-preview" id="cta_preview_box">
+            <button class="preview-btn-primary" id="cta_preview_primary">Let's Talk</button>
+            <button class="preview-btn-secondary" id="cta_preview_secondary" style="display:none;">Learn More</button>
+          </div>
+        </div>
+
+        <!-- ── Site Info ──────────────────────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Site Info</div>
+          <div class="form-group">
+            <label>Tagline <span style="color:#888;font-weight:400;">(shown in footer and meta)</span></label>
+            <input type="text" id="site_tagline" class="form-control" placeholder="Executive Coaching · Enneagram · Leadership" />
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-tab-panel" data-tab-panel="admin" role="tabpanel">
+        <div class="card">
+          <div class="card-title">Admin Panel Appearance</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About Admin Appearance</strong>
+            These settings change the look of the admin only. You can customize the admin accent color, background,
+            fonts, and dashboard card layout without affecting the public website. Leave any field blank to use the default admin style.
+          </div>
+
+          <div class="section-label">Admin Colors</div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Accent</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_accent" />
+                <input type="text" id="admin_color_accent" class="form-control" placeholder="#c7a96b" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_accent"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Background</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_bg" />
+                <input type="text" id="admin_color_bg" class="form-control" placeholder="#1a1d1e" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_bg"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Card Background</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_card" />
+                <input type="text" id="admin_color_card" class="form-control" placeholder="#22262a" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_card"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Text</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_text" />
+                <input type="text" id="admin_color_text" class="form-control" placeholder="#f0ece4" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_text"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Muted Text</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_muted" />
+                <input type="text" id="admin_color_muted" class="form-control" placeholder="#888888" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_muted"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Border</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_color_border" />
+                <input type="text" id="admin_color_border" class="form-control" placeholder="#333333" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_color_border"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Success Accent</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_success" />
+                <input type="text" id="admin_success" class="form-control" placeholder="#4caf7d" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_success"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Success Background</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_success_bg" />
+                <input type="text" id="admin_success_bg" class="form-control" placeholder="#1e3a2a" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_success_bg"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notice Background</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_notice_bg" />
+                <input type="text" id="admin_notice_bg" class="form-control" placeholder="#1e2a1e" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_notice_bg"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notice Text</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_notice_text" />
+                <input type="text" id="admin_notice_text" class="form-control" placeholder="#aacfaa" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_notice_text"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notice Accent</label>
+              <div class="color-row">
+                <input type="color" id="pick_admin_notice_accent" />
+                <input type="text" id="admin_notice_accent" class="form-control" placeholder="#4caf7d" maxlength="7" />
+                <div class="color-swatch" id="sw_admin_notice_accent"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">Admin Typography</div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Heading Font</label>
+              <select id="admin_font_heading" class="form-control">
+                <option value="">Default Serif</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Cormorant Garamond">Cormorant Garamond</option>
+                <option value="Libre Baskerville">Libre Baskerville</option>
+                <option value="Lora">Lora</option>
+                <option value="Merriweather">Merriweather</option>
+                <option value="EB Garamond">EB Garamond</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Body Font</label>
+              <select id="admin_font_body" class="form-control">
+                <option value="">System UI</option>
+                <option value="Inter">Inter</option>
+                <option value="DM Sans">DM Sans</option>
+                <option value="Source Sans 3">Source Sans 3</option>
+                <option value="Nunito">Nunito</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section-label">Dashboard Layout</div>
+          <div class="settings-grid">
+            <div class="form-group">
+              <label>Cards Per Row</label>
+              <select id="admin_dashboard_columns" class="form-control">
+                <option value="2">2 columns</option>
+                <option value="3">3 columns</option>
+                <option value="4">4 columns</option>
+              </select>
+              <div class="form-hint">Mobile widths still collapse automatically for readability.</div>
+            </div>
+          </div>
+
+          <div class="admin-actions">
+            <button type="button" class="btn btn-ghost" onclick="resetAdminAppearance()">Reset Admin Appearance</button>
+            <span style="color:var(--admin-muted);font-size:0.8rem;">Clears the admin-only theme settings and restores the default look.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="save-bar">
+        <button class="btn btn-primary" onclick="saveAll()">Save All Settings</button>
+        <span id="save_status" style="color:#888;font-size:0.875rem;"></span>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    let settings = {};
+    let activeTab = 'website';
+
+    // ── Color sync: picker ↔ text ↔ swatch ─────────────────────────────────
+    const siteColorKeys = ['color_accent', 'color_green', 'color_bg', 'color_text'];
+    const adminColorKeys = [
+      'admin_color_accent',
+      'admin_color_bg',
+      'admin_color_card',
+      'admin_color_text',
+      'admin_color_muted',
+      'admin_color_border',
+      'admin_success',
+      'admin_success_bg',
+      'admin_notice_bg',
+      'admin_notice_text',
+      'admin_notice_accent'
+    ];
+    const adminAppearanceKeys = [
+      ...adminColorKeys,
+      'admin_font_heading',
+      'admin_font_body',
+      'admin_dashboard_columns'
+    ];
+    const adminAppearanceColorDefaults = {
+      admin_color_accent: '#c7a96b',
+      admin_color_bg: '#1a1d1e',
+      admin_color_card: '#22262a',
+      admin_color_text: '#f0ece4',
+      admin_color_muted: '#888888',
+      admin_color_border: '#333333',
+      admin_success: '#4caf7d',
+      admin_success_bg: '#1e3a2a',
+      admin_notice_bg: '#1e2a1e',
+      admin_notice_text: '#aacfaa',
+      admin_notice_accent: '#4caf7d'
+    };
+    const colorKeys = [...siteColorKeys, ...adminColorKeys];
+    colorKeys.forEach(key => {
+      const picker = document.getElementById('pick_' + key);
+      const text   = document.getElementById(key);
+      const swatch = document.getElementById('sw_' + key);
+
+      function sync(val) {
+        if (!val.startsWith('#')) return;
+        picker.value = val;
+        text.value   = val;
+        swatch.style.background = val;
+        if (key === 'color_accent') {
+          document.documentElement.style.setProperty('--preview-accent', val);
+        }
+      }
+
+      picker.addEventListener('input',  () => sync(picker.value));
+      text.addEventListener('input', () => {
+        const v = text.value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(v)) sync(v);
+      });
+    });
+
+    // ── Font preview ─────────────────────────────────────────────────────────
+    document.getElementById('font_heading').addEventListener('change', e => {
+      const f = e.target.value;
+      const el = document.getElementById('heading_preview');
+      el.style.fontFamily = `'${f}', serif`;
+      loadGoogleFont(f);
+    });
+    document.getElementById('font_body').addEventListener('change', e => {
+      const f = e.target.value;
+      const el = document.getElementById('body_preview');
+      el.style.fontFamily = `'${f}', sans-serif`;
+      loadGoogleFont(f);
+    });
+
+    function loadGoogleFont(name) {
+      const id = 'gf-' + name.replace(/\s/g, '-');
+      if (document.getElementById(id)) return;
+      const link = document.createElement('link');
+      link.id   = id;
+      link.rel  = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@400;600;700&display=swap`;
+      document.head.appendChild(link);
+    }
+
+    // ── CTA preview ─────────────────────────────────────────────────────────
+    ['cta_primary_text', 'cta_secondary_text', 'cta_secondary_url'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateCtaPreview);
+    });
+    function updateCtaPreview() {
+      const pText = document.getElementById('cta_primary_text').value || "Let's Talk";
+      const sText = document.getElementById('cta_secondary_text').value;
+      document.getElementById('cta_preview_primary').textContent  = pText;
+      document.getElementById('cta_preview_secondary').textContent = sText;
+      document.getElementById('cta_preview_secondary').style.display = sText ? 'inline-block' : 'none';
+    }
+
+    function setActiveTab(tabName) {
+      activeTab = tabName;
+      document.querySelectorAll('.settings-tab').forEach(button => {
+        const isActive = button.dataset.tab === tabName;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      document.querySelectorAll('.settings-tab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.tabPanel === tabName);
+      });
+    }
+
+    document.querySelectorAll('.settings-tab').forEach(button => {
+      button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+    });
+
+    function setColorControl(key, value = '') {
+      const picker = document.getElementById('pick_' + key);
+      const text = document.getElementById(key);
+      const swatch = document.getElementById('sw_' + key);
+      const fallback = adminAppearanceColorDefaults[key] || '#000000';
+      picker.value = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+      text.value = value;
+      swatch.style.background = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+    }
+
+    async function persistSettings(payload, successMessage = 'Settings saved.') {
+      const status = document.getElementById('save_status');
+      status.textContent = 'Saving…';
+      const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+      if (res.ok) {
+        applyAdminTheme(payload);
+        cacheAdminTheme(payload);
+        showFlash(successMessage);
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+        return true;
+      }
+
+      showFlash('Error saving settings.', 'error');
+      status.textContent = '';
+      return false;
+    }
+
+    async function resetAdminAppearance() {
+      if (!confirm('Reset the admin appearance to the default look?')) return;
+
+      adminColorKeys.forEach(key => setColorControl(key, ''));
+      document.getElementById('admin_font_heading').value = '';
+      document.getElementById('admin_font_body').value = '';
+      document.getElementById('admin_dashboard_columns').value = '3';
+
+      const payload = Object.fromEntries(adminAppearanceKeys.map(key => [
+        key,
+        key === 'admin_dashboard_columns' ? '3' : ''
+      ]));
+
+      await persistSettings(payload, 'Admin appearance reset.');
+    }
+
+    // ── Load settings ────────────────────────────────────────────────────────
+    async function loadSettings() {
+      const res  = await adminFetch('/api/admin/settings');
+      const data = await res.json();
+      settings = data.data || {};
+
+      colorKeys.forEach(key => {
+        const val = settings[key] || '';
+        setColorControl(key, val);
+        if (key === 'color_accent' && val) {
+          document.documentElement.style.setProperty('--preview-accent', val);
+        }
+      });
+
+      const fh = settings.font_heading || 'Playfair Display';
+      const fb = settings.font_body    || 'Inter';
+      document.getElementById('font_heading').value = fh;
+      document.getElementById('font_body').value    = fb;
+      document.getElementById('heading_preview').style.fontFamily = `'${fh}', serif`;
+      document.getElementById('body_preview').style.fontFamily    = `'${fb}', sans-serif`;
+      loadGoogleFont(fh);
+      loadGoogleFont(fb);
+
+      document.getElementById('admin_font_heading').value      = settings.admin_font_heading || '';
+      document.getElementById('admin_font_body').value         = settings.admin_font_body || '';
+      document.getElementById('admin_dashboard_columns').value = settings.admin_dashboard_columns || '3';
+
+      document.getElementById('cta_primary_text').value   = settings.cta_primary_text   || '';
+      document.getElementById('cta_primary_url').value    = settings.cta_primary_url    || '';
+      document.getElementById('cta_secondary_text').value = settings.cta_secondary_text || '';
+      document.getElementById('cta_secondary_url').value  = settings.cta_secondary_url  || '';
+      document.getElementById('site_tagline').value       = settings.site_tagline       || '';
+
+      updateCtaPreview();
+      applyAdminTheme(settings);
+    }
+
+    // ── Save ─────────────────────────────────────────────────────────────────
+    async function saveAll() {
+      const payload = {};
+      colorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
+      payload.font_heading       = document.getElementById('font_heading').value;
+      payload.font_body          = document.getElementById('font_body').value;
+      payload.cta_primary_text   = document.getElementById('cta_primary_text').value.trim();
+      payload.cta_primary_url    = document.getElementById('cta_primary_url').value.trim();
+      payload.cta_secondary_text = document.getElementById('cta_secondary_text').value.trim();
+      payload.cta_secondary_url  = document.getElementById('cta_secondary_url').value.trim();
+      payload.site_tagline       = document.getElementById('site_tagline').value.trim();
+      payload.admin_font_heading = document.getElementById('admin_font_heading').value;
+      payload.admin_font_body = document.getElementById('admin_font_body').value;
+      payload.admin_dashboard_columns = document.getElementById('admin_dashboard_columns').value;
+      adminColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
+      await persistSettings(payload);
+    }
+
+    loadSettings();
+  </script>
+</body>
+</html>

@@ -2,9 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const toolsContainer = document.getElementById('tools-container');
     if (!toolsContainer) return;
 
-    sanityClient.fetch('*[_type == "tool"]{..., "fileUrl": file.asset->url}')
-        .then(resources => {
-            if (!resources || resources.length === 0) {
+    fetch('/api/content?type=tools')
+        .then(r => {
+            if (!r.ok) throw new Error(`Tools request failed: ${r.status}`);
+            return r.json();
+        })
+        .then(result => {
+            const resources = result.data || [];
+
+            if (resources.length === 0) {
                 toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
                 return;
             }
@@ -44,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 tools.forEach(tool => {
                     const isFile = tool.type === 'File Upload';
-                    const linkUrl = isFile ? tool.fileUrl : tool.external_url;
+                    const linkUrl = isFile ? tool.fileUrl : tool.externalUrl;
 
                     // Do not render empty cards if URL is broken
                     if (!linkUrl) return;

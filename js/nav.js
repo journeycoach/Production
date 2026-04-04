@@ -1,7 +1,7 @@
-// nav.js — Dynamically renders the navbar from Sanity CMS with a local fallback.
+// nav.js — Dynamically renders the navbar from the Neon API with a local fallback.
 
 (function () {
-    // Centralized fallback config (used if Sanity is unreachable or returns nothing)
+    // Centralized fallback config (used if API is unreachable or returns nothing)
     const FALLBACK_CONFIG = {
         brand_name: 'Your Journey Coach',
         nav_links: [
@@ -45,13 +45,17 @@
     }
 
     function init() {
-        // Race Sanity fetch against a 2-second timeout so the nav always renders quickly.
-        // If Sanity is unreachable or slow, the fallback config is used immediately.
+        // Race API fetch against a 2-second timeout so the nav always renders quickly.
+        // If API is unreachable or slow, the fallback config is used immediately.
         const timeout = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('nav timeout')), 2000)
         );
 
-        Promise.race([sanityClient.fetch('*[_type == "navigation"][0]'), timeout])
+        const apiFetch = fetch('/api/content?type=navigation')
+            .then(r => r.json())
+            .then(d => d.data);
+
+        Promise.race([apiFetch, timeout])
             .then(config => {
                 renderNav(config || FALLBACK_CONFIG);
             })

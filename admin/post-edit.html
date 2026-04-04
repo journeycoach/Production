@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Post — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1 id="pageTitle">New Post</h1>
+        <a href="posts.html" class="back-link">&#8592; All Posts</a>
+      </div>
+
+      <div class="card">
+        <form id="postForm">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" placeholder="Post title" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="postDate">Date</label>
+              <input type="datetime-local" id="postDate" />
+            </div>
+            <div class="form-group">
+              <label for="author">Author</label>
+              <input type="text" id="author" value="John Paine" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Featured Image</label>
+            <div class="upload-zone" id="imageUploadZone">
+              <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.gif,.webp,.svg" style="display:none;" />
+              <div class="upload-zone-icon" id="imageUploadIcon">🖼️</div>
+              <div class="upload-zone-label" id="imageUploadLabel">Click or drag an image here</div>
+              <div class="upload-zone-hint">JPG, PNG, GIF, WebP, or SVG — up to 10 MB</div>
+              <div class="upload-progress-bar" id="imageProgressBar" style="display:none;">
+                <div class="upload-progress-fill" id="imageProgressFill"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="imageUrl">Or paste an image URL</label>
+            <input type="url" id="imageUrl" placeholder="https://..." />
+            <div class="form-hint">Upload above or paste a URL. The URL field is filled automatically after upload.</div>
+          </div>
+          <div class="resource-image-preview" id="imagePreviewBox" hidden>
+            <div class="resource-image-preview-label">Preview</div>
+            <img id="imagePreview" alt="Featured image preview" />
+          </div>
+          <div class="form-group">
+            <label for="summary">Summary</label>
+            <textarea id="summary" rows="3" placeholder="Brief summary shown in post listing..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="body">Post Body — HTML supported</label>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+              <button type="button" class="btn btn-ghost btn-sm" id="previewToggle" onclick="togglePreview()">Show Preview</button>
+            </div>
+            <textarea id="body" rows="20" placeholder="Write your post content here. HTML tags are supported (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;a href=&quot;...&quot;&gt;)."></textarea>
+            <div class="preview-pane" id="previewPane" style="display:none;"></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="saveBtn">Publish Post</button>
+            <a href="posts.html" class="btn btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+
+  <script type="module">
+    import { upload } from 'https://esm.sh/@vercel/blob/client';
+
+    const zone  = document.getElementById('imageUploadZone');
+    const input = document.getElementById('imageInput');
+    const icon  = document.getElementById('imageUploadIcon');
+    const label = document.getElementById('imageUploadLabel');
+    const bar   = document.getElementById('imageProgressBar');
+    const fill  = document.getElementById('imageProgressFill');
+    const urlField = document.getElementById('imageUrl');
+
+    zone.addEventListener('click', () => { if (!zone.classList.contains('uploading')) input.click(); });
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleFile(file);
+    });
+    input.addEventListener('change', () => { if (input.files?.[0]) handleFile(input.files[0]); });
+
+    async function handleFile(file) {
+      const token = localStorage.getItem('admin_token');
+      if (!token) { showFlash('Not authenticated.', 'error'); return; }
+
+      zone.classList.add('uploading');
+      zone.classList.remove('has-file', 'drag-over');
+      icon.textContent  = '⏳';
+      label.textContent = `Uploading ${file.name}…`;
+      bar.style.display = 'block';
+      fill.style.width  = '0%';
+
+      try {
+        const blob = await upload(file.name, file, {
+          access: 'public',
+          handleUploadUrl: '/api/admin/posts?action=upload',
+          clientPayload: token,
+          onUploadProgress: ({ percentage }) => {
+            fill.style.width  = percentage + '%';
+            label.textContent = `Uploading ${file.name}… ${percentage}%`;
+          },
+        });
+
+        urlField.value = blob.url;
+        urlField.dispatchEvent(new Event('input', { bubbles: true }));
+        zone.classList.remove('uploading');
+        zone.classList.add('has-file');
+        icon.textContent  = '✅';
+        label.textContent = file.name;
+        bar.style.display = 'none';
+        showFlash('Image uploaded.');
+      } catch (err) {
+        zone.classList.remove('uploading');
+        icon.textContent  = '❌';
+        label.textContent = 'Upload failed — ' + (err.message || 'unknown error');
+        bar.style.display = 'none';
+        showFlash('Upload failed: ' + (err.message || 'unknown error'), 'error');
+      }
+      input.value = '';
+    }
+
+    // When editing a post that already has an image, reflect that in the zone
+    window._setImageZoneFromUrl = function(url) {
+      if (!url) return;
+      zone.classList.add('has-file');
+      icon.textContent  = '✅';
+      label.textContent = 'Image on record — upload a new image to replace';
+    };
+  </script>
+
+  <script>
+    requireAdminAuth();
+
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+    let previewVisible = false;
+
+    if (postId) {
+      document.getElementById('pageTitle').textContent = 'Edit Post';
+      document.getElementById('saveBtn').textContent = 'Update Post';
+      loadPost(postId);
+    }
+
+    async function loadPost(id) {
+      const res = await adminFetch('/api/admin/posts');
+      const data = await res.json();
+      const post = (data.data || []).find(p => String(p.id) === String(id));
+      if (!post) {
+        showFlash('Post not found.', 'error');
+        return;
+      }
+      document.getElementById('title').value = post.title || '';
+      document.getElementById('author').value = post.author || 'John Paine';
+      document.getElementById('imageUrl').value = post.image_url || '';
+      document.getElementById('summary').value = post.summary || '';
+      document.getElementById('body').value = post.body || '';
+      updateImagePreview();
+      if (post.image_url && window._setImageZoneFromUrl) window._setImageZoneFromUrl(post.image_url);
+      if (post.post_date) {
+        // Convert ISO date to datetime-local format
+        const d = new Date(post.post_date);
+        const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+          .toISOString().slice(0, 16);
+        document.getElementById('postDate').value = local;
+      }
+    }
+
+    function updateImagePreview() {
+      const url = document.getElementById('imageUrl').value.trim();
+      const box = document.getElementById('imagePreviewBox');
+      const img = document.getElementById('imagePreview');
+      if (url) { img.src = url; box.hidden = false; }
+      else { img.removeAttribute('src'); box.hidden = true; }
+    }
+
+    document.getElementById('imageUrl').addEventListener('input', updateImagePreview);
+
+    function togglePreview() {
+      previewVisible = !previewVisible;
+      const pane = document.getElementById('previewPane');
+      const btn = document.getElementById('previewToggle');
+      if (previewVisible) {
+        pane.style.display = 'block';
+        pane.innerHTML = document.getElementById('body').value;
+        btn.textContent = 'Hide Preview';
+      } else {
+        pane.style.display = 'none';
+        btn.textContent = 'Show Preview';
+      }
+    }
+
+    // Live update preview when body changes
+    document.getElementById('body').addEventListener('input', () => {
+      if (previewVisible) {
+        document.getElementById('previewPane').innerHTML = document.getElementById('body').value;
+      }
+    });
+
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      const postDateVal = document.getElementById('postDate').value;
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        post_date: postDateVal ? new Date(postDateVal).toISOString() : null,
+        author: document.getElementById('author').value.trim() || 'John Paine',
+        image_url: document.getElementById('imageUrl').value.trim() || null,
+        summary: document.getElementById('summary').value.trim() || null,
+        body: document.getElementById('body').value || null
+      };
+
+      if (postId) payload.id = parseInt(postId);
+
+      const res = await adminFetch('/api/admin/posts', {
+        method: postId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        showFlash(postId ? 'Post updated.' : 'Post created.');
+        if (!postId) {
+          const data = await res.json();
+          window.location.href = `post-edit.html?id=${data.data.id}`;
+          return;
+        }
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving post.', 'error');
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = postId ? 'Update Post' : 'Publish Post';
+    });
+  </script>
+</body>
+</html>

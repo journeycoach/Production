@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bookmarks — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Bookmarks</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <!-- ===== CATEGORIES ===== -->
+      <div class="split-panel">
+        <div class="card">
+          <div class="card-title">Categories</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Order</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="categoriesBody">
+              <tr><td colspan="3" class="table-empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title" id="catFormTitle">Add Category</div>
+          <form id="categoryForm">
+            <input type="hidden" id="catId" />
+            <div class="form-group">
+              <label for="catTitle">Title</label>
+              <input type="text" id="catTitle" placeholder="Category name" required />
+            </div>
+            <div class="form-group">
+              <label for="catSortOrder">Sort Order</label>
+              <input type="number" id="catSortOrder" value="0" min="0" />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="catSaveBtn">Add Category</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="catCancelBtn" style="display:none;" onclick="resetCatForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <hr class="section-sep" />
+
+      <!-- ===== BOOKMARKS ===== -->
+      <div class="split-panel">
+        <div class="card">
+          <div class="card-title">All Bookmarks</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookmarksBody">
+              <tr><td colspan="3" class="table-empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title" id="bmFormTitle">Add Bookmark</div>
+          <form id="bookmarkForm">
+            <input type="hidden" id="bmId" />
+            <div class="form-group">
+              <label for="bmTitle">Title</label>
+              <input type="text" id="bmTitle" placeholder="Bookmark title" required />
+            </div>
+            <div class="form-group">
+              <label for="bmUrl">URL</label>
+              <input type="url" id="bmUrl" placeholder="https://..." required />
+            </div>
+            <div class="form-group">
+              <label for="bmCategory">Category</label>
+              <select id="bmCategory">
+                <option value="">— No category —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="bmSortOrder">Sort Order</label>
+              <input type="number" id="bmSortOrder" value="0" min="0" />
+            </div>
+            <div class="form-group">
+              <label for="bmDescription">Description</label>
+              <textarea id="bmDescription" rows="2" placeholder="Optional description..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="bmSaveBtn">Add Bookmark</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="bmCancelBtn" style="display:none;" onclick="resetBmForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    let allCategories = [];
+    let allBookmarks = [];
+    let editingCatId = null;
+    let editingBmId = null;
+
+    // ===== CATEGORIES =====
+
+    function renderCategories() {
+      const tbody = document.getElementById('categoriesBody');
+      if (allCategories.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="table-empty">No categories yet.</td></tr>';
+      } else {
+        tbody.innerHTML = allCategories.map(c => `
+          <tr>
+            <td>${escHtml(c.title)}</td>
+            <td class="td-muted">${c.sort_order}</td>
+            <td class="td-actions">
+              <button class="btn btn-secondary btn-sm" onclick="editCategory(${c.id})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id})">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      const sel = document.getElementById('bmCategory');
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">— No category —</option>';
+      allCategories.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.title;
+        sel.appendChild(opt);
+      });
+      sel.value = currentVal;
+    }
+
+    function editCategory(id) {
+      const c = allCategories.find(r => r.id === id);
+      if (!c) return;
+      editingCatId = id;
+      document.getElementById('catId').value = id;
+      document.getElementById('catTitle').value = c.title;
+      document.getElementById('catSortOrder').value = c.sort_order || 0;
+      document.getElementById('catFormTitle').textContent = 'Edit Category';
+      document.getElementById('catSaveBtn').textContent = 'Update Category';
+      document.getElementById('catCancelBtn').style.display = 'inline-flex';
+    }
+
+    function resetCatForm() {
+      editingCatId = null;
+      document.getElementById('catId').value = '';
+      document.getElementById('categoryForm').reset();
+      document.getElementById('catFormTitle').textContent = 'Add Category';
+      document.getElementById('catSaveBtn').textContent = 'Add Category';
+      document.getElementById('catCancelBtn').style.display = 'none';
+    }
+
+    async function deleteCategory(id) {
+      const bookmarksInCat = allBookmarks.filter(b => b.category_id === id);
+      const msg = bookmarksInCat.length > 0
+        ? `Delete this category? ${bookmarksInCat.length} bookmark(s) will lose their category. This cannot be undone.`
+        : 'Delete this category? This cannot be undone.';
+      if (!confirm(msg)) return;
+      const res = await adminFetch('/api/admin/bookmark-categories', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        showFlash('Category deleted.');
+        await loadAll();
+      } else {
+        showFlash('Error deleting category.', 'error');
+      }
+    }
+
+    document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        title: document.getElementById('catTitle').value.trim(),
+        sort_order: parseInt(document.getElementById('catSortOrder').value) || 0
+      };
+      if (editingCatId) payload.id = editingCatId;
+
+      const res = await adminFetch('/api/admin/bookmark-categories', {
+        method: editingCatId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showFlash(editingCatId ? 'Category updated.' : 'Category added.');
+        resetCatForm();
+        await loadAll();
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving category.', 'error');
+      }
+    });
+
+    // ===== BOOKMARKS =====
+
+    function renderBookmarks() {
+      const tbody = document.getElementById('bookmarksBody');
+      if (allBookmarks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="table-empty">No bookmarks yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allBookmarks.map(b => `
+        <tr>
+          <td>
+            <div>${escHtml(b.title)}</div>
+            <div class="td-muted" style="font-size:0.75rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <a href="${escHtml(b.url)}" target="_blank" rel="noopener">${escHtml(b.url)}</a>
+            </div>
+          </td>
+          <td class="td-muted">${escHtml(b.category_title || '—')}</td>
+          <td class="td-actions">
+            <button class="btn btn-secondary btn-sm" onclick="editBookmark(${b.id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteBookmark(${b.id})">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function editBookmark(id) {
+      const b = allBookmarks.find(r => r.id === id);
+      if (!b) return;
+      editingBmId = id;
+      document.getElementById('bmId').value = id;
+      document.getElementById('bmTitle').value = b.title;
+      document.getElementById('bmUrl').value = b.url;
+      document.getElementById('bmCategory').value = b.category_id || '';
+      document.getElementById('bmSortOrder').value = b.sort_order || 0;
+      document.getElementById('bmDescription').value = b.description || '';
+      document.getElementById('bmFormTitle').textContent = 'Edit Bookmark';
+      document.getElementById('bmSaveBtn').textContent = 'Update Bookmark';
+      document.getElementById('bmCancelBtn').style.display = 'inline-flex';
+    }
+
+    function resetBmForm() {
+      editingBmId = null;
+      document.getElementById('bmId').value = '';
+      document.getElementById('bookmarkForm').reset();
+      document.getElementById('bmFormTitle').textContent = 'Add Bookmark';
+      document.getElementById('bmSaveBtn').textContent = 'Add Bookmark';
+      document.getElementById('bmCancelBtn').style.display = 'none';
+    }
+
+    async function deleteBookmark(id) {
+      if (!confirm('Delete this bookmark? This cannot be undone.')) return;
+      const res = await adminFetch('/api/admin/bookmarks', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        showFlash('Bookmark deleted.');
+        await loadAll();
+      } else {
+        showFlash('Error deleting bookmark.', 'error');
+      }
+    }
+
+    document.getElementById('bookmarkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const catVal = document.getElementById('bmCategory').value;
+      const payload = {
+        title: document.getElementById('bmTitle').value.trim(),
+        url: document.getElementById('bmUrl').value.trim(),
+        category_id: catVal ? parseInt(catVal) : null,
+        description: document.getElementById('bmDescription').value.trim() || null,
+        sort_order: parseInt(document.getElementById('bmSortOrder').value) || 0
+      };
+      if (editingBmId) payload.id = editingBmId;
+
+      const res = await adminFetch('/api/admin/bookmarks', {
+        method: editingBmId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showFlash(editingBmId ? 'Bookmark updated.' : 'Bookmark added.');
+        resetBmForm();
+        await loadAll();
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving bookmark.', 'error');
+      }
+    });
+
+    // ===== LOAD ALL =====
+
+    async function loadAll() {
+      const [catRes, bmRes] = await Promise.all([
+        adminFetch('/api/admin/bookmark-categories'),
+        adminFetch('/api/admin/bookmarks')
+      ]);
+      if (!catRes.ok || !bmRes.ok) {
+        showFlash('Error loading data.', 'error');
+        return;
+      }
+      const catData = await catRes.json();
+      const bmData  = await bmRes.json();
+      allCategories = catData.data || [];
+      allBookmarks  = bmData.data  || [];
+      renderCategories();
+      renderBookmarks();
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>

@@ -67,14 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Dynamic Testimonials Rotation
     const testimonialsContainer = document.getElementById('testimonials-container');
     if (testimonialsContainer) {
-        // Query all testimonial documents from Sanity
-        sanityClient.fetch('*[_type == "testimonial"]')
-            .then(testimonials => {
-                if (testimonials && testimonials.length > 0) {
+        fetch('/api/content?type=testimonials')
+            .then(res => {
+                if (!res.ok) throw new Error(`Testimonials request failed: ${res.status}`);
+                return res.json();
+            })
+            .then(payload => {
+                const testimonials = payload.data || [];
+                if (testimonials.length > 0) {
                     renderRotatingTestimonials(testimonials, testimonialsContainer);
                 }
             })
-            .catch(error => console.error('Error loading testimonials from Sanity:', error));
+            .catch(error => console.error('Error loading testimonials:', error));
     }
 
     function renderRotatingTestimonials(testimonials, container) {
@@ -101,12 +105,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 2. Wait for fade out to finish, then swap content and Fade In
             setTimeout(() => {
-                card.innerHTML = `
-                    <p class="quote" style="font-size: 1.5rem;">"${item.quote}"</p>
-                    <div class="author" style="justify-content: center; margin-top: 1.5rem;">
-                        <h4>${item.author}</h4>
-                    </div>
-                `;
+                const quoteEl = document.createElement('p');
+                quoteEl.className = 'quote';
+                quoteEl.style.fontSize = '1.5rem';
+                quoteEl.textContent = '\u201c' + item.quote + '\u201d';
+
+                const authorDiv = document.createElement('div');
+                authorDiv.className = 'author';
+                authorDiv.style.cssText = 'justify-content: center; margin-top: 1.5rem;';
+                const authorH4 = document.createElement('h4');
+                authorH4.textContent = item.author;
+                authorDiv.appendChild(authorH4);
+
+                card.innerHTML = '';
+                card.appendChild(quoteEl);
+                card.appendChild(authorDiv);
 
                 // Clear animation state and force reflow (fixes Safari caching render states)
                 card.style.animation = 'none';

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navigation — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Navigation</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <form id="navForm">
+        <!-- Brand -->
+        <div class="card">
+          <div class="card-title">Brand</div>
+          <div class="form-group">
+            <label for="brandName">Brand Name</label>
+            <input type="text" id="brandName" placeholder="Your Journey Coach" />
+          </div>
+        </div>
+
+        <!-- Nav Links -->
+        <div class="card">
+          <div class="card-title">Navigation Links</div>
+          <table id="navLinksTable" class="nav-links-table" style="margin-bottom:16px;">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>URL</th>
+                <th>Visible</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody id="navLinksBody">
+            </tbody>
+          </table>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addNavLink()">+ Add Link</button>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="card">
+          <div class="card-title">CTA Button</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ctaLabel">Label</label>
+              <input type="text" id="ctaLabel" placeholder="e.g. Let's Talk" />
+            </div>
+            <div class="form-group">
+              <label for="ctaUrl">URL</label>
+              <input type="text" id="ctaUrl" placeholder="e.g. index.html#contact" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input type="checkbox" id="ctaVisible" checked />
+              <label for="ctaVisible">Visible</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Navigation</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    let navLinks = [];
+
+    function renderNavLinks() {
+      const tbody = document.getElementById('navLinksBody');
+      if (navLinks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No links yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = navLinks.map((link, i) => `
+        <tr data-index="${i}">
+          <td><input type="text" value="${escHtml(link.label || '')}" onchange="updateLink(${i}, 'label', this.value)" placeholder="Label" /></td>
+          <td><input type="text" value="${escHtml(link.url || '')}" onchange="updateLink(${i}, 'url', this.value)" placeholder="URL" /></td>
+          <td style="text-align:center;">
+            <input type="checkbox" ${link.visible ? 'checked' : ''} onchange="updateLink(${i}, 'visible', this.checked)" />
+          </td>
+          <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeLink(${i})">&#x2715;</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function addNavLink() {
+      navLinks.push({ label: '', url: '', visible: true });
+      renderNavLinks();
+    }
+
+    function removeLink(i) {
+      navLinks.splice(i, 1);
+      renderNavLinks();
+    }
+
+    function updateLink(i, field, value) {
+      navLinks[i][field] = value;
+    }
+
+    async function loadNavigation() {
+      const res = await adminFetch('/api/admin/navigation');
+      const data = await res.json();
+      if (!data.data) return;
+      const nav = data.data;
+      document.getElementById('brandName').value = nav.brand_name || '';
+      navLinks = Array.isArray(nav.nav_links) ? nav.nav_links : [];
+      renderNavLinks();
+      if (nav.cta_button) {
+        document.getElementById('ctaLabel').value = nav.cta_button.label || '';
+        document.getElementById('ctaUrl').value = nav.cta_button.url || '';
+        document.getElementById('ctaVisible').checked = nav.cta_button.visible !== false;
+      }
+    }
+
+    // Collect current values from table inputs before save
+    function collectNavLinks() {
+      const rows = document.querySelectorAll('#navLinksBody tr[data-index]');
+      return Array.from(rows).map((row, i) => {
+        const inputs = row.querySelectorAll('input');
+        return {
+          label: inputs[0].value,
+          url: inputs[1].value,
+          visible: inputs[2].checked
+        };
+      });
+    }
+
+    document.getElementById('navForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        brand_name: document.getElementById('brandName').value.trim(),
+        nav_links: collectNavLinks(),
+        cta_button: {
+          label: document.getElementById('ctaLabel').value.trim(),
+          url: document.getElementById('ctaUrl').value.trim(),
+          visible: document.getElementById('ctaVisible').checked
+        }
+      };
+      const res = await adminFetch('/api/admin/navigation', {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showFlash('Navigation saved.');
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving navigation.', 'error');
+      }
+    });
+
+    loadNavigation();
+  </script>
+</body>
+</html>

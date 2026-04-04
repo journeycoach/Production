@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Dashboard</h1>
+        <button class="btn btn-ghost btn-sm" onclick="resetOrder()" title="Restore default card order">Reset Order</button>
+      </div>
+
+      <div class="dashboard-quick-actions">
+        <a href="post-edit.html" class="quick-action-pill">New Post</a>
+        <a href="tools.html" class="quick-action-pill">New Resource</a>
+        <a href="/index.html" class="quick-action-pill" target="_blank" rel="noopener noreferrer">View Site</a>
+      </div>
+
+      <div class="dashboard-grid" id="dashGrid"></div>
+
+      <section class="dashboard-summary">
+        <div class="dashboard-summary-header">
+          <h2>Activity Summary</h2>
+          <p>Quick counts from the current admin content and inbox.</p>
+        </div>
+        <div class="dashboard-summary-grid" id="summaryGrid">
+          <div class="summary-card">
+            <div class="summary-label">Loading</div>
+            <div class="summary-value">…</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-recent">
+        <div class="dashboard-summary-header">
+          <h2>Recently Used</h2>
+          <p>Jump back into the admin sections you opened most recently.</p>
+        </div>
+        <div class="recent-list" id="recentList">
+          <div class="recent-empty">No recent sections yet. Open a few admin pages and they'll show up here.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    const STORAGE_KEY = 'admin_dashboard_order';
+
+    function getIconMarkup(key) {
+      const icons = {
+        settings: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.28 7.28 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.49-.42h-3.84a.5.5 0 0 0-.49.42l-.36 2.54a7.28 7.28 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94 7.43 7.43 0 0 0 .05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.84a.5.5 0 0 0 .49-.42l.36-2.54c.58-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/>
+          </svg>
+        `,
+        sections: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16v3H4V5Zm0 5h10v3H4v-3Zm0 5h16v4H4v-4Zm12-5h4v3h-4v-3Z"/>
+          </svg>
+        `,
+        posts: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 3h10l4 4v14H5V3Zm9 1.5V8h3.5L14 4.5ZM8 11h8v1.8H8V11Zm0 4h8v1.8H8V15Z"/>
+          </svg>
+        `,
+        testimonials: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 6h6v6H7.75L6 14.5V6Zm8 0h6v6h-3.25L13 14.5V6Z"/>
+          </svg>
+        `,
+        tools: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m21.67 18.17-5.02-5.02a5.17 5.17 0 0 0-6.66-6.66l2.45 2.45-2.5 2.5-2.45-2.45a5.17 5.17 0 0 0 6.66 6.66l5.02 5.02a1.77 1.77 0 0 0 2.5-2.5ZM6.5 13 3 16.5V21h4.5L11 17.5 6.5 13Z"/>
+          </svg>
+        `,
+        navigation: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.59 13.41a1.99 1.99 0 0 0 2.82 0l3.59-3.59a2 2 0 1 0-2.82-2.82l-1.3 1.3 1.41 1.41 1.3-1.3a.5.5 0 0 1 .71.71l-3.59 3.59a.5.5 0 0 1-.71 0l-1.3-1.3-1.41 1.41 1.3 1.3Zm2.82-2.82a1.99 1.99 0 0 0-2.82 0L7 14.18A2 2 0 0 0 9.82 17l1.3-1.3-1.41-1.41-1.3 1.3a.5.5 0 0 1-.71-.71l3.59-3.59a.5.5 0 0 1 .71 0l1.3 1.3 1.41-1.41-1.3-1.3Z"/>
+          </svg>
+        `,
+        bookmarks: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/>
+          </svg>
+        `,
+        contacts: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm9 7 8-5H4l8 5Zm0 2-8-5v8h16V9l-8 5Z"/>
+          </svg>
+        `
+      };
+
+      return icons[key] || icons.settings;
+    }
+
+    const CARDS = [
+      { key: 'settings',     href: 'settings.html',     title: 'Site Settings',         desc: 'Control brand colors, fonts, global CTAs, and site tagline. Changes apply across the entire site instantly.' },
+      { key: 'sections',     href: 'sections.html',     title: 'Page Sections',          desc: 'Show, hide, reorder, and draft page sections. Add admin notes to any section as a reminder.' },
+      { key: 'posts',        href: 'posts.html',        title: 'Blog Posts',             desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
+      { key: 'testimonials', href: 'testimonials.html', title: 'Testimonials',           desc: 'Add and manage client testimonials displayed on the homepage.' },
+      { key: 'tools',        href: 'tools.html',        title: 'Tools & Resources',      desc: 'Manage downloadable files and resource links shown on the Resources page.' },
+      { key: 'navigation',   href: 'navigation.html',   title: 'Navigation',             desc: 'Edit the site brand name, nav links, and the CTA button in the header.' },
+      { key: 'bookmarks',    href: 'bookmarks.html',    title: 'Bookmarks',              desc: 'Organize curated links into categories for the bookmarks section.' },
+      { key: 'contacts',     href: 'contacts.html',     title: 'Contact Submissions',    desc: 'View and manage inquiries submitted through the contact form.' },
+    ];
+
+    function getSavedOrder() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const keys = JSON.parse(raw);
+        if (!Array.isArray(keys)) return null;
+        return keys;
+      } catch { return null; }
+    }
+
+    function saveOrder(keys) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+    }
+
+    function getOrderedCards() {
+      const saved = getSavedOrder();
+      if (!saved) return CARDS;
+      const cardMap = Object.fromEntries(CARDS.map(c => [c.key, c]));
+      const ordered = saved.map(k => cardMap[k]).filter(Boolean);
+      // Append any new cards not yet in saved order
+      CARDS.forEach(c => { if (!saved.includes(c.key)) ordered.push(c); });
+      return ordered;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('dashGrid');
+      grid.innerHTML = getOrderedCards().map(c => `
+        <a href="${c.href}" class="dashboard-card" data-key="${c.key}">
+          <div class="card-icon">${getIconMarkup(c.key)}</div>
+          <div class="card-title">${c.title}</div>
+          <div class="card-desc">${c.desc}</div>
+        </a>
+      `).join('');
+
+      Sortable.create(grid, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd() {
+          const keys = Array.from(grid.querySelectorAll('.dashboard-card')).map(el => el.dataset.key);
+          saveOrder(keys);
+        }
+      });
+    }
+
+    function renderSummary(items) {
+      const summaryGrid = document.getElementById('summaryGrid');
+      summaryGrid.innerHTML = items.map(item => `
+        <div class="summary-card">
+          <div class="summary-label">${item.label}</div>
+          <div class="summary-value">${item.value}</div>
+          <div class="summary-note">${item.note}</div>
+        </div>
+      `).join('');
+    }
+
+    function formatRelativeTime(timestamp) {
+      const diffMs = Date.now() - timestamp;
+      const minutes = Math.max(1, Math.floor(diffMs / 60000));
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+
+    function renderRecentItems() {
+      const recentList = document.getElementById('recentList');
+      const recentItems = getRecentAdminItems();
+
+      if (!recentItems.length) {
+        recentList.innerHTML = '<div class="recent-empty">No recent sections yet. Open a few admin pages and they'll show up here.</div>';
+        return;
+      }
+
+      recentList.innerHTML = recentItems.map(item => `
+        <a href="${item.path}" class="recent-item">
+          <div class="recent-item-main">
+            <span class="recent-item-title">${item.label}</span>
+            <span class="recent-item-meta">${formatRelativeTime(item.timestamp)}</span>
+          </div>
+          <span class="recent-item-arrow">↗</span>
+        </a>
+      `).join('');
+    }
+
+    async function loadSummary() {
+      const summaryGrid = document.getElementById('summaryGrid');
+
+      try {
+        const [contactsRes, postsRes, toolsRes, sectionsRes] = await Promise.all([
+          adminFetch('/api/admin/contacts'),
+          adminFetch('/api/admin/posts'),
+          adminFetch('/api/admin/tools'),
+          adminFetch('/api/admin/sections')
+        ]);
+
+        if (![contactsRes, postsRes, toolsRes, sectionsRes].every(res => res.ok)) {
+          throw new Error('Failed to load activity summary');
+        }
+
+        const [contactsData, postsData, toolsData, sectionsData] = await Promise.all([
+          contactsRes.json(),
+          postsRes.json(),
+          toolsRes.json(),
+          sectionsRes.json()
+        ]);
+
+        const contacts = contactsData.data || [];
+        const posts = postsData.data || [];
+        const tools = toolsData.data || [];
+        const sections = sectionsData.data || [];
+
+        renderSummary([
+          {
+            label: 'Unread Contacts',
+            value: contacts.filter(contact => !contact.is_read).length,
+            note: 'Messages waiting for follow-up'
+          },
+          {
+            label: 'Total Posts',
+            value: posts.length,
+            note: 'Published and drafted articles'
+          },
+          {
+            label: 'Hidden Resources',
+            value: tools.filter(tool => tool.is_hidden).length,
+            note: 'Resources currently off the site'
+          },
+          {
+            label: 'Draft Sections',
+            value: sections.filter(section => section.status === 'draft').length,
+            note: 'Sections not live yet'
+          }
+        ]);
+      } catch (error) {
+        console.error('Dashboard summary error:', error);
+        summaryGrid.innerHTML = `
+          <div class="summary-card summary-card-error">
+            <div class="summary-label">Activity Summary</div>
+            <div class="summary-note">Unable to load summary right now.</div>
+          </div>
+        `;
+      }
+    }
+
+    function resetOrder() {
+      localStorage.removeItem(STORAGE_KEY);
+      renderGrid();
+    }
+
+    renderGrid();
+    loadSummary();
+    renderRecentItems();
+  </script>
+</body>
+</html>

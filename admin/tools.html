@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tools &amp; Resources — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    .cat-filter-bar { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .cat-filter { padding: 5px 14px; border-radius: 999px; border: 1px solid var(--admin-border); background: var(--admin-card-bg);
+                  color: var(--admin-muted); cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.2s; }
+    .cat-filter.active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .cat-filter:hover:not(.active) { border-color: var(--admin-accent); color: var(--admin-accent); }
+    .reorder-intro { margin-bottom: 14px; color: var(--admin-muted); font-size: 0.8rem; }
+    .reorder-stack { display: grid; gap: 18px; }
+    .reorder-panel { border: 1px solid var(--admin-border); border-radius: 8px; padding: 14px; background: color-mix(in srgb, var(--admin-card-bg) 85%, black); }
+    .reorder-panel-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--admin-accent); margin: 0 0 10px; }
+    .reorder-panel-hint { margin: 0 0 10px; color: var(--admin-muted); font-size: 0.76rem; }
+    .category-order-list { display: grid; gap: 8px; }
+    .category-order-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; }
+    .category-order-name { flex: 1; color: var(--admin-text); font-weight: 500; }
+    .reorder-actions { display: flex; gap: 4px; align-items: center; }
+    .reorder-btn { min-width: 30px; padding: 4px 8px; justify-content: center; }
+    .tool-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--admin-card-bg);
+                border: 1px solid var(--admin-border); border-radius: 4px; margin-bottom: 4px; font-size: 0.85rem;
+                transition: box-shadow 0.15s; }
+    .tool-row:hover { background: #252a2e; }
+    .tool-row .drag-handle { color: #555; cursor: grab; font-size: 1rem; user-select: none; flex-shrink: 0; }
+    .tool-row .drag-handle:active { cursor: grabbing; }
+    .tool-row.sortable-ghost { opacity: 0.3; }
+    .tool-row.sortable-chosen { box-shadow: 0 0 0 2px var(--admin-accent), 0 4px 12px rgba(0,0,0,0.3); z-index: 10; }
+    .tool-row-title { flex: 1; color: var(--admin-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tool-row-meta { font-size: 0.75rem; color: var(--admin-muted); flex-shrink: 0; }
+    .save-order-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .order-changed-badge { font-size: 0.8rem; color: var(--admin-accent); display: none; }
+    .order-changed-badge.visible { display: inline; }
+    .reorder-section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+                             color: var(--admin-accent); margin: 0 0 10px; }
+    .row-move-actions { display: flex; gap: 4px; align-items: center; }
+    .row-move-btn { min-width: 30px; padding: 4px 8px; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Tools &amp; Resources</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="split-panel">
+        <!-- ── LEFT: Sortable list ──────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Reorder Resources</div>
+          <p class="reorder-intro">Use the category buttons to focus a section, then adjust the category order and the resource order independently.</p>
+          <div class="cat-filter-bar" id="catFilterBar"></div>
+          <div class="reorder-stack">
+            <div class="reorder-panel">
+              <div class="reorder-panel-title">Category Order</div>
+              <p class="reorder-panel-hint">This controls the order the categories appear on the public Resources page.</p>
+              <div class="category-order-list" id="categoryOrderList"></div>
+            </div>
+            <div class="reorder-panel">
+              <div class="reorder-panel-title" id="toolOrderTitle">Resources In Category</div>
+              <p class="reorder-panel-hint">Drag items or use the arrows to move resources within the selected category.</p>
+              <div id="toolsList">
+                <div class="table-empty">Loading...</div>
+              </div>
+            </div>
+          </div>
+          <div class="save-order-bar">
+            <button class="btn btn-secondary btn-sm" onclick="saveOrder()">Save Order</button>
+            <span class="order-changed-badge" id="orderBadge">&#9888; Unsaved order changes</span>
+          </div>
+        </div>
+
+        <!-- ── RIGHT: Add / Edit Form ──────────────────────────── -->
+        <div class="card">
+          <div class="card-title" id="formTitle">Add Tool</div>
+          <form id="toolForm">
+            <input type="hidden" id="toolId" />
+
+            <div class="form-group">
+              <label for="toolTitle">Title</label>
+              <input type="text" id="toolTitle" placeholder="Resource title" required />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category"></select>
+              </div>
+
+              <div class="form-group">
+                <label for="newCategory">New Category</label>
+                <div class="category-create-row">
+                  <input type="text" id="newCategory" placeholder="Create a new category" />
+                  <button type="button" class="btn btn-secondary btn-sm" id="addCategoryBtn">Add</button>
+                </div>
+                <div class="form-hint">New categories become reusable after you save a resource with them.</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" rows="2" placeholder="Brief description..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="toolType">Type</label>
+              <select id="toolType" onchange="onTypeChange()">
+                <option value="">— Select type —</option>
+                <option value="file">Document Upload</option>
+                <option value="link">Website Link</option>
+              </select>
+            </div>
+
+            <!-- File upload zone (shown when type = file) -->
+            <div class="form-group" id="fileUploadGroup" style="display:none;">
+              <label>Document</label>
+              <div class="upload-zone" id="uploadZone">
+                <input type="file" id="fileInput"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.rtf,.jpg,.jpeg,.png,.gif,.webp,.svg"
+                  style="display:none;" />
+                <div class="upload-zone-icon" id="uploadIcon">📄</div>
+                <div class="upload-zone-label" id="uploadLabel">Click or drag a document here</div>
+                <div class="upload-zone-hint">PDF, Word, Excel, PowerPoint, text, CSV, or image — up to 50 MB</div>
+                <div class="upload-progress-bar" id="progressBar" style="display:none;">
+                  <div class="upload-progress-fill" id="progressFill"></div>
+                </div>
+              </div>
+              <div class="form-hint">Upload a document directly, or paste a document URL in the field below.</div>
+            </div>
+
+            <!-- File URL (shown when type = file, populated by upload or manual paste) -->
+            <div class="form-group" id="fileUrlGroup" style="display:none;">
+              <label for="fileUrl">File URL</label>
+              <input type="url" id="fileUrl" placeholder="https://..." />
+            </div>
+
+            <!-- External URL (shown when type = link) -->
+            <div class="form-group" id="externalUrlGroup" style="display:none;">
+              <label for="externalUrl">External URL</label>
+              <input type="url" id="externalUrl" placeholder="https://..." />
+            </div>
+
+            <div class="form-group">
+              <label for="imageUrl">Cover Image URL <span style="color:#666;font-weight:normal;">(optional)</span></label>
+              <input type="url" id="imageUrl" placeholder="https://..." />
+            </div>
+
+            <div class="form-group">
+              <label>Cover Image Upload <span style="color:#666;font-weight:normal;">(optional)</span></label>
+              <div class="upload-zone" id="imageUploadZone">
+                <input type="file" id="imageInput"
+                  accept=".jpg,.jpeg,.png,.gif,.webp,.svg"
+                  style="display:none;" />
+                <div class="upload-zone-icon" id="imageUploadIcon">🖼️</div>
+                <div class="upload-zone-label" id="imageUploadLabel">Click or drag an image here</div>
+                <div class="upload-zone-hint">JPG, PNG, GIF, WebP, or SVG</div>
+                <div class="upload-progress-bar" id="imageProgressBar" style="display:none;">
+                  <div class="upload-progress-fill" id="imageProgressFill"></div>
+                </div>
+              </div>
+              <div class="form-hint">Uploading an image will fill the Cover Image URL field automatically.</div>
+            </div>
+
+            <div class="resource-image-preview" id="imagePreviewBox" hidden>
+              <div class="resource-image-preview-label">Cover Image Preview</div>
+              <img id="imagePreview" alt="Cover preview" />
+            </div>
+
+            <div class="form-group">
+              <label for="sortOrder">Sort Order</label>
+              <input type="number" id="sortOrder" value="0" min="0" />
+            </div>
+
+            <div class="form-group">
+              <div class="form-check">
+                <input type="checkbox" id="isHidden" />
+                <label for="isHidden">Hidden (not shown on site)</label>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="saveBtn">Save Tool</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="cancelBtn"
+                style="display:none;" onclick="resetForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+
+  <!-- Vercel Blob client upload (loaded on demand) -->
+  <script type="module">
+    import { upload } from 'https://esm.sh/@vercel/blob/client';
+
+    async function uploadBlob(file, options = {}) {
+      const token = localStorage.getItem('admin_token');
+      if (!token) throw new Error('Not authenticated.');
+
+      return upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/admin/tools?action=upload',
+        clientPayload: token,
+        ...options,
+      });
+    }
+
+    function setupUploadZone({
+      zoneId,
+      inputId,
+      iconId,
+      labelId,
+      barId,
+      fillId,
+      targetFieldId,
+      emptyIcon,
+      emptyLabel,
+      successMessage
+    }) {
+      const zone = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      const label = document.getElementById(labelId);
+      const bar = document.getElementById(barId);
+      const fill = document.getElementById(fillId);
+      const targetField = document.getElementById(targetFieldId);
+
+      async function handleFile(file) {
+        zone.classList.add('uploading');
+        zone.classList.remove('has-file', 'drag-over');
+        icon.textContent = '⏳';
+        label.textContent = `Uploading ${file.name}…`;
+        bar.style.display = 'block';
+        fill.style.width = '0%';
+
+        try {
+          const blob = await uploadBlob(file, {
+            onUploadProgress: ({ percentage }) => {
+              fill.style.width = percentage + '%';
+              label.textContent = `Uploading ${file.name}… ${percentage}%`;
+            }
+          });
+
+          targetField.value = blob.url;
+          targetField.dispatchEvent(new Event('input', { bubbles: true }));
+          targetField.dispatchEvent(new Event('change', { bubbles: true }));
+          zone.classList.remove('uploading');
+          zone.classList.add('has-file');
+          icon.textContent = '✅';
+          label.textContent = file.name;
+          bar.style.display = 'none';
+          fill.style.width = '0%';
+          showFlash(successMessage);
+        } catch (err) {
+          zone.classList.remove('uploading');
+          icon.textContent = '❌';
+          label.textContent = 'Upload failed — ' + (err.message || 'unknown error');
+          bar.style.display = 'none';
+          showFlash('Upload failed: ' + (err.message || 'unknown error'), 'error');
+        }
+
+        input.value = '';
+      }
+
+      zone.addEventListener('click', () => {
+        if (!zone.classList.contains('uploading')) input.click();
+      });
+
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) handleFile(file);
+      });
+
+      input.addEventListener('change', () => {
+        if (input.files?.[0]) handleFile(input.files[0]);
+      });
+
+      return function resetZone(customLabel) {
+        zone.classList.remove('uploading', 'has-file', 'drag-over');
+        icon.textContent = emptyIcon;
+        label.textContent = customLabel || emptyLabel;
+        bar.style.display = 'none';
+        fill.style.width = '0%';
+        input.value = '';
+      };
+    }
+
+    const resetFileZone = setupUploadZone({
+      zoneId: 'uploadZone',
+      inputId: 'fileInput',
+      iconId: 'uploadIcon',
+      labelId: 'uploadLabel',
+      barId: 'progressBar',
+      fillId: 'progressFill',
+      targetFieldId: 'fileUrl',
+      emptyIcon: '📄',
+      emptyLabel: 'Click or drag a document here',
+      successMessage: 'Document uploaded.'
+    });
+
+    const resetImageZone = setupUploadZone({
+      zoneId: 'imageUploadZone',
+      inputId: 'imageInput',
+      iconId: 'imageUploadIcon',
+      labelId: 'imageUploadLabel',
+      barId: 'imageProgressBar',
+      fillId: 'imageProgressFill',
+      targetFieldId: 'imageUrl',
+      emptyIcon: '🖼️',
+      emptyLabel: 'Click or drag an image here',
+      successMessage: 'Image uploaded.'
+    });
+
+    window._resetUploadZone = function () {
+      resetFileZone();
+      resetImageZone();
+    };
+
+    window._setUploadZoneState = function (kind, hasValue) {
+      if (kind === 'file') {
+        if (hasValue) {
+          resetFileZone('File on record — upload a new file to replace');
+          document.getElementById('uploadZone')?.classList.add('has-file');
+          document.getElementById('uploadIcon').textContent = '✅';
+        } else {
+          resetFileZone();
+        }
+      }
+
+      if (kind === 'image') {
+        if (hasValue) {
+          resetImageZone('Image on record — upload a new image to replace');
+          document.getElementById('imageUploadZone')?.classList.add('has-file');
+          document.getElementById('imageUploadIcon').textContent = '✅';
+        } else {
+          resetImageZone();
+        }
+      }
+    };
+  </script>
+
+  <script>
+    requireAdminAuth();
+
+    const DEFAULT_TOOL_CATEGORIES = ['General', 'Enneagram', 'Leadership', 'Books', 'Podcasts', 'Tools'];
+    let allTools  = [];
+    let editingId = null;
+    let toolCategories = [...DEFAULT_TOOL_CATEGORIES];
+    let categoryOrder = [];
+    let activeCategory = '';
+    let sortables = [];
+    let orderDirty = false;
+
+    function normalizeCategoryName(value) {
+      return String(value || '').trim().replace(/\s+/g, ' ');
+    }
+
+    function escHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getOrderedCategories() {
+      const map = new Map();
+      toolCategories.forEach(category => {
+        const normalized = normalizeCategoryName(category);
+        if (!normalized) return;
+        const key = normalized.toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, normalized);
+        }
+      });
+
+      const values = Array.from(map.values());
+      const defaultKeys = new Set(DEFAULT_TOOL_CATEGORIES.map(category => category.toLowerCase()));
+      const customCategories = values
+        .filter(category => !defaultKeys.has(category.toLowerCase()))
+        .sort((a, b) => a.localeCompare(b));
+
+      return [...DEFAULT_TOOL_CATEGORIES, ...customCategories];
+    }
+
+    function syncToolCategories(extraCategories = [], selectedCategory = '') {
+      toolCategories = [
+        ...DEFAULT_TOOL_CATEGORIES,
+        ...allTools.map(tool => tool.category),
+        ...extraCategories
+      ];
+
+      const select = document.getElementById('category');
+      const nextValue = normalizeCategoryName(selectedCategory || select.value || 'General') || 'General';
+      select.innerHTML = getOrderedCategories()
+        .map(category => `<option value="${escHtml(category)}">${escHtml(category)}</option>`)
+        .join('');
+
+      if ([...select.options].some(option => option.value === nextValue)) {
+        select.value = nextValue;
+      } else {
+        select.value = 'General';
+      }
+    }
+
+    function addCategoryToSelect() {
+      const input = document.getElementById('newCategory');
+      const newCategory = normalizeCategoryName(input.value);
+      if (!newCategory) {
+        showFlash('Enter a category name first.', 'error');
+        return;
+      }
+
+      syncToolCategories([newCategory], newCategory);
+      if (!categoryOrder.includes(newCategory)) {
+        categoryOrder.push(newCategory);
+      }
+      input.value = '';
+      showFlash(`Category "${newCategory}" added.`);
+      renderOrderingUi();
+    }
+
+    function setOrderDirty(isDirty) {
+      orderDirty = isDirty;
+      document.getElementById('orderBadge').classList.toggle('visible', isDirty);
+    }
+
+    function getSortedToolsForCategory(category) {
+      return allTools
+        .filter(tool => (tool.category || 'General') === category)
+        .sort((a, b) => {
+          const orderDiff = (a.sort_order ?? 0) - (b.sort_order ?? 0);
+          if (orderDiff !== 0) return orderDiff;
+          return (a.created_at || '').localeCompare(b.created_at || '');
+        });
+    }
+
+    function getAvailableCategories() {
+      return getOrderedCategories().filter(category =>
+        allTools.some(tool => (tool.category || 'General') === category)
+      );
+    }
+
+    function getEffectiveCategoryOrder() {
+      const categoriesWithTools = getAvailableCategories();
+      const ordered = categoryOrder.filter(category => categoriesWithTools.includes(category));
+      const remaining = categoriesWithTools.filter(category => !ordered.includes(category));
+      return [...ordered, ...remaining];
+    }
+
+    function renderCategoryFilters() {
+      const categories = getEffectiveCategoryOrder();
+      if (!categories.length) {
+        activeCategory = '';
+        document.getElementById('catFilterBar').innerHTML = '';
+        return;
+      }
+
+      if (!activeCategory || (activeCategory !== 'All' && !categories.includes(activeCategory))) {
+        activeCategory = 'All';
+      }
+
+      document.getElementById('catFilterBar').innerHTML = ['All', ...categories].map(category => `
+        <button
+          type="button"
+          class="cat-filter${category === activeCategory ? ' active' : ''}"
+          onclick='setActiveCategory(${JSON.stringify(category)})'
+        >${escHtml(category)}</button>
+      `).join('');
+    }
+
+    function moveCategory(category, direction) {
+      const categories = getEffectiveCategoryOrder();
+      const index = categories.indexOf(category);
+      const nextIndex = index + direction;
+      if (index === -1 || nextIndex < 0 || nextIndex >= categories.length) return;
+
+      const reordered = [...categories];
+      [reordered[index], reordered[nextIndex]] = [reordered[nextIndex], reordered[index]];
+      categoryOrder = reordered;
+      setOrderDirty(true);
+      renderOrderingUi();
+    }
+
+    function renderCategoryOrderList() {
+      const categories = getEffectiveCategoryOrder();
+      const list = document.getElementById('categoryOrderList');
+      if (!categories.length) {
+        list.innerHTML = '<div class="table-empty">No categories yet.</div>';
+        return;
+      }
+
+      list.innerHTML = categories.map((category, index) => `
+        <div class="category-order-row">
+          <div class="category-order-name">${escHtml(category)}</div>
+          <div class="reorder-actions">
+            <button class="btn btn-ghost btn-sm reorder-btn" type="button" onclick='moveCategory(${JSON.stringify(category)}, -1)' ${index === 0 ? 'disabled' : ''} title="Move category up">↑</button>
+            <button class="btn btn-ghost btn-sm reorder-btn" type="button" onclick='moveCategory(${JSON.stringify(category)}, 1)' ${index === categories.length - 1 ? 'disabled' : ''} title="Move category down">↓</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function destroySortables() {
+      sortables.forEach(sortable => sortable.destroy());
+      sortables = [];
+    }
+
+    function renderToolsList() {
+      const toolsList = document.getElementById('toolsList');
+      document.getElementById('toolOrderTitle').textContent = activeCategory === 'All'
+        ? 'Resources In All Categories'
+        : activeCategory
+          ? `Resources In ${activeCategory}`
+          : 'Resources In Category';
+      if (allTools.length === 0) {
+        destroySortables();
+        toolsList.innerHTML = '<div class="table-empty">No tools yet.</div>';
+        return;
+      }
+
+      const categoriesToRender = activeCategory === 'All'
+        ? getEffectiveCategoryOrder()
+        : activeCategory
+          ? [activeCategory]
+          : [];
+
+      if (categoriesToRender.length === 0) {
+        destroySortables();
+        toolsList.innerHTML = '<div class="table-empty">No tools in this category yet.</div>';
+        return;
+      }
+
+      toolsList.innerHTML = categoriesToRender.map(category => {
+        const tools = getSortedToolsForCategory(category);
+        return `
+          <div class="tool-category-block">
+            <div class="reorder-section-label">${escHtml(category)}</div>
+            <div class="tool-category-list" data-category="${escHtml(category)}">
+              ${tools.map((tool, index) => `
+                <div class="tool-row" data-id="${tool.id}">
+                  <span class="drag-handle" title="Drag to reorder">&#9776;</span>
+                  <div class="tool-row-title">${escHtml(tool.title)}</div>
+                  <div class="tool-row-meta">${tool.type === 'file' ? 'Document' : tool.type === 'link' ? 'Link' : '—'}</div>
+                  <div class="tool-row-meta">${tool.is_hidden ? 'Hidden' : 'Visible'}</div>
+                  <div class="row-move-actions">
+                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${tool.id}, -1)" ${index === 0 ? 'disabled' : ''} title="Move up">↑</button>
+                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${tool.id}, 1)" ${index === tools.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
+                  </div>
+                  <div class="td-actions">
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="editTool(${tool.id})">Edit</button>
+                    <button class="btn btn-danger btn-sm" type="button" onclick="deleteTool(${tool.id})">Delete</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      destroySortables();
+      document.querySelectorAll('.tool-category-list').forEach(listEl => {
+        sortables.push(new Sortable(listEl, {
+          animation: 150,
+          handle: '.drag-handle',
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          onEnd: () => {
+            [...listEl.children].forEach((row, index) => {
+              const tool = allTools.find(item => item.id === parseInt(row.dataset.id, 10));
+              if (tool) tool.sort_order = index;
+            });
+            setOrderDirty(true);
+            renderToolsList();
+          },
+        }));
+      });
+    }
+
+    function renderOrderingUi() {
+      renderCategoryFilters();
+      renderCategoryOrderList();
+      renderToolsList();
+    }
+
+    function moveToolInActiveCategory(id, direction) {
+      const tool = allTools.find(item => item.id === id);
+      const category = tool?.category || 'General';
+      if (!category) return;
+
+      const toolsInCategory = getSortedToolsForCategory(category);
+      const currentIndex = toolsInCategory.findIndex(tool => tool.id === id);
+      const nextIndex = currentIndex + direction;
+
+      if (currentIndex === -1 || nextIndex < 0 || nextIndex >= toolsInCategory.length) {
+        return;
+      }
+
+      const reordered = [...toolsInCategory];
+      [reordered[currentIndex], reordered[nextIndex]] = [reordered[nextIndex], reordered[currentIndex]];
+      reordered.forEach((tool, index) => {
+        tool.sort_order = index;
+      });
+
+      setOrderDirty(true);
+      renderToolsList();
+    }
+
+    function setActiveCategory(category) {
+      activeCategory = category;
+      renderOrderingUi();
+    }
+
+    async function saveOrder() {
+      const updates = allTools.map(tool => ({
+        id: tool.id,
+        sort_order: tool.sort_order ?? 0
+      }));
+
+      if (updates.length === 0) {
+        showFlash('Nothing to reorder.', 'error');
+        return;
+      }
+
+      try {
+        const [toolsRes, settingsRes] = await Promise.all([
+          adminFetch('/api/admin/tools', {
+            method: 'PATCH',
+            body: JSON.stringify({ orders: updates })
+          }),
+          adminFetch('/api/admin/settings', {
+            method: 'PUT',
+            body: JSON.stringify({
+              tools_category_order: JSON.stringify(getEffectiveCategoryOrder())
+            })
+          })
+        ]);
+
+        if (!toolsRes.ok || !settingsRes.ok) {
+          throw new Error('Failed to save ordering changes');
+        }
+        showFlash('Resource order saved.');
+        setOrderDirty(false);
+        await loadTools();
+      } catch (err) {
+        console.error('Error saving tool order:', err);
+        showFlash('Error saving order.', 'error');
+      }
+    }
+
+    function updateImagePreview() {
+      const url = document.getElementById('imageUrl').value.trim();
+      const previewBox = document.getElementById('imagePreviewBox');
+      const previewImage = document.getElementById('imagePreview');
+      if (!url) {
+        previewImage.removeAttribute('src');
+        previewBox.hidden = true;
+        return;
+      }
+      previewImage.src = url;
+      previewBox.hidden = false;
+    }
+
+    function onTypeChange() {
+      const type = document.getElementById('toolType').value;
+      document.getElementById('fileUploadGroup').style.display  = type === 'file' ? 'block' : 'none';
+      document.getElementById('fileUrlGroup').style.display     = type === 'file' ? 'block' : 'none';
+      document.getElementById('externalUrlGroup').style.display = type === 'link' ? 'block' : 'none';
+    }
+
+    async function loadTools() {
+      const [toolsRes, settingsRes] = await Promise.all([
+        adminFetch('/api/admin/tools'),
+        adminFetch('/api/admin/settings')
+      ]);
+      const toolsData = await toolsRes.json();
+      const settingsData = await settingsRes.json();
+      allTools = toolsData.data || [];
+      try {
+        categoryOrder = JSON.parse(settingsData.data?.tools_category_order || '[]');
+        if (!Array.isArray(categoryOrder)) categoryOrder = [];
+      } catch {
+        categoryOrder = [];
+      }
+      syncToolCategories();
+      setOrderDirty(false);
+      renderOrderingUi();
+    }
+
+    function editTool(id) {
+      const t = allTools.find(r => r.id === id);
+      if (!t) return;
+      editingId = id;
+      syncToolCategories([t.category], t.category || 'General');
+      document.getElementById('toolId').value      = id;
+      document.getElementById('toolTitle').value   = t.title || '';
+      document.getElementById('category').value    = t.category || 'General';
+      document.getElementById('newCategory').value = '';
+      document.getElementById('description').value = t.description || '';
+      document.getElementById('toolType').value    = t.type || '';
+      document.getElementById('fileUrl').value     = t.file_url || '';
+      document.getElementById('externalUrl').value = t.external_url || '';
+      document.getElementById('imageUrl').value    = t.image_url || '';
+      document.getElementById('isHidden').checked  = t.is_hidden || false;
+      document.getElementById('sortOrder').value   = t.sort_order || 0;
+      onTypeChange();
+      if (window._setUploadZoneState) {
+        window._setUploadZoneState('file', t.type === 'file' && !!t.file_url);
+        window._setUploadZoneState('image', !!t.image_url);
+      }
+      updateImagePreview();
+      document.getElementById('formTitle').textContent    = 'Edit Tool';
+      document.getElementById('saveBtn').textContent      = 'Update Tool';
+      document.getElementById('cancelBtn').style.display = 'inline-flex';
+    }
+
+    function resetForm() {
+      editingId = null;
+      document.getElementById('toolId').value = '';
+      document.getElementById('toolForm').reset();
+      document.getElementById('formTitle').textContent    = 'Add Tool';
+      document.getElementById('saveBtn').textContent      = 'Save Tool';
+      document.getElementById('cancelBtn').style.display = 'none';
+      syncToolCategories([], 'General');
+      onTypeChange();
+      if (window._resetUploadZone) window._resetUploadZone();
+      updateImagePreview();
+    }
+
+    async function deleteTool(id) {
+      if (!confirm('Delete this tool? This cannot be undone.')) return;
+      const res = await adminFetch('/api/admin/tools', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        showFlash('Tool deleted.');
+        loadTools();
+      } else {
+        showFlash('Error deleting tool.', 'error');
+      }
+    }
+
+    document.getElementById('toolForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        title:        document.getElementById('toolTitle').value.trim(),
+        category:     document.getElementById('category').value,
+        description:  document.getElementById('description').value.trim() || null,
+        type:         document.getElementById('toolType').value || null,
+        file_url:     document.getElementById('fileUrl').value.trim() || null,
+        external_url: document.getElementById('externalUrl').value.trim() || null,
+        image_url:    document.getElementById('imageUrl').value.trim() || null,
+        is_hidden:    document.getElementById('isHidden').checked,
+        sort_order:   parseInt(document.getElementById('sortOrder').value) || 0,
+      };
+      if (editingId) payload.id = editingId;
+
+      const res = await adminFetch('/api/admin/tools', {
+        method: editingId ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showFlash(editingId ? 'Tool updated.' : 'Tool added.');
+        resetForm();
+        loadTools();
+      } else {
+        const err = await res.json();
+        showFlash(err.error || 'Error saving tool.', 'error');
+      }
+    });
+
+    document.getElementById('addCategoryBtn').addEventListener('click', addCategoryToSelect);
+    document.getElementById('newCategory').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCategoryToSelect();
+      }
+    });
+    document.getElementById('imageUrl').addEventListener('input', updateImagePreview);
+    document.getElementById('imageUrl').addEventListener('change', updateImagePreview);
+
+    syncToolCategories([], 'General');
+    updateImagePreview();
+    loadTools();
+
+    window.editTool = editTool;
+    window.deleteTool = deleteTool;
+    window.saveOrder = saveOrder;
+    window.setActiveCategory = setActiveCategory;
+    window.moveToolInActiveCategory = moveToolInActiveCategory;
+    window.moveCategory = moveCategory;
+  </script>
+</body>
+</html>
