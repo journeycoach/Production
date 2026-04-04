@@ -314,6 +314,24 @@
             .hc-form-section { order: 3; }
             .hc-insights { order: 2; }
 
+            .hc-form-wrapper {
+                order: 1;
+            }
+
+            .hc-trust {
+                order: 2;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.75rem;
+                margin-top: 1rem;
+                padding: 1rem;
+            }
+
+            .hc-trust-item {
+                font-size: 0.78rem;
+                align-items: flex-start;
+            }
+
             /* Shrink embed height on mobile — each form step fits in ~700px;
                less empty space means less time with finger trapped on the iframe */
             .formaloo--root-container {
@@ -330,6 +348,10 @@
             .hc-form-card {
                 padding: 1.75rem 1.25rem 1.5rem;
                 border-radius: 8px;
+            }
+
+            .hc-trust {
+                grid-template-columns: 1fr 1fr;
             }
 
             .hc-form-intro {
