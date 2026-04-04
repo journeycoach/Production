@@ -71,11 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Close menu when a nav link is clicked
-        document.querySelectorAll('#nav-links-list a').forEach(link => {
-            link.addEventListener('click', () => {
-                navbar.classList.remove('nav-open');
+        // Use delegation on the parent since nav.js adds links dynamically
+        const navLinksList = document.getElementById('nav-links-list');
+        if (navLinksList) {
+            navLinksList.addEventListener('click', (e) => {
+                if (e.target.closest('a')) {
+                    navbar.classList.remove('nav-open');
+                }
             });
-        });
+        }
 
         // Close menu when clicking outside the navbar
         document.addEventListener('click', (e) => {
