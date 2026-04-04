@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Edit Post — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
 </head>
 <body>
   <div class="admin-wrapper">
@@ -57,6 +58,7 @@
           <div class="resource-image-preview" id="imagePreviewBox" hidden>
             <div class="resource-image-preview-label">Preview</div>
             <img id="imagePreview" alt="Featured image preview" />
+            <button type="button" class="btn btn-ghost btn-sm crop-edit-btn" id="cropEditBtn">✂ Edit &amp; Crop</button>
           </div>
           <div class="form-group">
             <label for="summary">Summary</label>
@@ -79,7 +81,32 @@
     </main>
   </div>
 
+  <!-- Crop Modal -->
+  <div id="cropModal" class="crop-modal" role="dialog" aria-modal="true" aria-label="Edit &amp; Crop Image">
+    <div class="crop-modal-inner">
+      <div class="crop-modal-header">
+        <span class="crop-modal-title">✂ Edit &amp; Crop Image</span>
+        <div class="crop-toolbar">
+          <button type="button" class="btn btn-ghost btn-sm crop-ratio-btn active" data-ratio="">Free</button>
+          <button type="button" class="btn btn-ghost btn-sm crop-ratio-btn" data-ratio="1">1:1</button>
+          <button type="button" class="btn btn-ghost btn-sm crop-ratio-btn" data-ratio="1.7778">16:9</button>
+          <button type="button" class="btn btn-ghost btn-sm crop-ratio-btn" data-ratio="1.3333">4:3</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cropRotateL" title="Rotate left">↺</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="cropRotateR" title="Rotate right">↻</button>
+        </div>
+      </div>
+      <div class="crop-canvas-area">
+        <img id="cropImage" alt="Crop area" />
+      </div>
+      <div class="crop-modal-footer">
+        <button type="button" class="btn btn-secondary" id="cropCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="cropApply">✓ Apply</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/admin.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
   <script type="module">
     import { upload } from 'https://esm.sh/@vercel/blob/client';
@@ -150,6 +177,77 @@
       icon.textContent  = '✅';
       label.textContent = 'Image on record — upload a new image to replace';
     };
+
+    // ── Image Crop ───────────────────────────────────────────────────────
+    let _cropper = null;
+    const _cropModal    = document.getElementById('cropModal');
+    const _cropImg      = document.getElementById('cropImage');
+    const _cropEditBtn  = document.getElementById('cropEditBtn');
+    const _cropApplyBtn = document.getElementById('cropApply');
+    const _cropCancel   = document.getElementById('cropCancel');
+
+    function _openCrop() {
+      const src = document.getElementById('imagePreview').src;
+      if (!src) return;
+      _cropImg.src = '';
+      _cropImg.src = src;
+      _cropModal.classList.add('active');
+      _cropImg.onload = () => {
+        if (_cropper) { _cropper.destroy(); _cropper = null; }
+        _cropper = new Cropper(_cropImg, { viewMode: 1, autoCropArea: 1, movable: true, zoomable: true });
+      };
+    }
+
+    function _closeCrop() {
+      if (_cropper) { _cropper.destroy(); _cropper = null; }
+      _cropModal.classList.remove('active');
+      _cropImg.src = '';
+      _cropModal.querySelectorAll('.crop-ratio-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+    }
+
+    _cropEditBtn.addEventListener('click', _openCrop);
+    _cropCancel.addEventListener('click', _closeCrop);
+    _cropModal.addEventListener('click', e => { if (e.target === _cropModal) _closeCrop(); });
+
+    _cropApplyBtn.addEventListener('click', () => {
+      if (!_cropper) return;
+      const canvas = _cropper.getCroppedCanvas({ maxWidth: 2048, maxHeight: 2048 });
+      _cropApplyBtn.disabled = true;
+      _cropApplyBtn.textContent = 'Uploading…';
+      canvas.toBlob(async blob => {
+        try {
+          const orig = urlField.value.split('/').pop() || 'image.jpg';
+          const ext  = (orig.split('.').pop() || 'jpg').split('?')[0];
+          const fname = `cropped-${Date.now()}.${ext}`;
+          const file  = new File([blob], fname, { type: blob.type || 'image/jpeg' });
+          const token = localStorage.getItem('admin_token');
+          const result = await upload(fname, file, {
+            access: 'public',
+            handleUploadUrl: '/api/admin/posts?action=upload',
+            clientPayload: token,
+          });
+          urlField.value = result.url;
+          urlField.dispatchEvent(new Event('input', { bubbles: true }));
+          _closeCrop();
+          showFlash('Image cropped and saved.');
+        } catch (err) {
+          showFlash('Crop upload failed: ' + (err.message || 'unknown error'), 'error');
+        }
+        _cropApplyBtn.disabled = false;
+        _cropApplyBtn.textContent = '✓ Apply';
+      }, 'image/jpeg', 0.92);
+    });
+
+    _cropModal.querySelectorAll('.crop-ratio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _cropModal.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const ratio = parseFloat(btn.dataset.ratio);
+        if (_cropper) _cropper.setAspectRatio(isNaN(ratio) ? NaN : ratio);
+      });
+    });
+    document.getElementById('cropRotateL').addEventListener('click', () => _cropper?.rotate(-90));
+    document.getElementById('cropRotateR').addEventListener('click', () => _cropper?.rotate(90));
   </script>
 
   <script>

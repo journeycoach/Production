@@ -992,6 +992,97 @@ a.summary-card-link:hover {
   object-fit: cover;
 }
 
+/* --- Image Crop Modal --- */
+.crop-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.78);
+  align-items: center;
+  justify-content: center;
+}
+
+.crop-modal.active {
+  display: flex;
+}
+
+.crop-modal-inner {
+  background: var(--admin-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  width: min(94vw, 820px);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.crop-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--admin-border);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.crop-modal-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--admin-text);
+  white-space: nowrap;
+}
+
+.crop-toolbar {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.crop-toolbar .btn {
+  font-size: 0.76rem;
+  padding: 3px 9px;
+  min-width: unset;
+}
+
+.crop-ratio-btn.active {
+  background: var(--admin-accent-faint);
+  color: var(--admin-accent);
+  border-color: var(--admin-accent);
+}
+
+.crop-canvas-area {
+  flex: 1;
+  overflow: hidden;
+  max-height: 58vh;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crop-canvas-area > img {
+  display: block;
+  max-width: 100%;
+  max-height: 58vh;
+}
+
+.crop-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.crop-edit-btn {
+  margin-top: 10px;
+  font-size: 0.8rem;
+}
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .admin-main {
