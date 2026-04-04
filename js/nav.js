@@ -40,8 +40,14 @@
         const navList = document.getElementById('nav-links-list');
         if (!logoEl || !navList) return;
 
-        // Brand name
-        logoEl.textContent = config.brand_name || FALLBACK_CONFIG.brand_name;
+        // Keep the logo image, add brand name text alongside it
+        const existingImg = logoEl.querySelector('img');
+        logoEl.innerHTML = '';
+        if (existingImg) logoEl.appendChild(existingImg);
+        const brandSpan = document.createElement('span');
+        brandSpan.className = 'logo-brand';
+        brandSpan.textContent = config.brand_name || FALLBACK_CONFIG.brand_name;
+        logoEl.appendChild(brandSpan);
 
         // Detect current page for active-state highlighting
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';

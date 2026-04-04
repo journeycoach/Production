@@ -259,6 +259,7 @@ ul {
 .logo {
     display: flex;
     align-items: center;
+    gap: 10px;
     transition: opacity 0.35s ease;
 }
 
@@ -267,19 +268,32 @@ ul {
 }
 
 .logo-img {
-    height: 52px;
+    height: 44px;
     width: auto;
     display: block;
     transition: height 0.35s ease, filter 0.4s ease;
-    /* On dark hero: logo has navy/grey tones that show clearly */
+    /* On dark hero: white tint to show on dark backgrounds */
     filter: brightness(0) invert(1);
-    /* White-tinted for dark background at top */
 }
 
 .navbar.scrolled .logo-img {
-    height: 40px;
+    height: 34px;
     filter: none;
     /* Full colour on white scrolled navbar */
+}
+
+.logo-brand {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    transition: color 0.4s ease;
+    white-space: nowrap;
+}
+
+.navbar.scrolled .logo-brand {
+    color: var(--color-text-primary);
 }
 
 .footer-logo {

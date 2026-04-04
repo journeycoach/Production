@@ -20,6 +20,15 @@
         margin-left: auto;
     }
 
+    /* Keep logo image, hide brand text to save space */
+    .logo-brand {
+        display: none;
+    }
+
+    .logo-img {
+        height: 36px;
+    }
+
     .nav-links {
         display: flex;
         flex-direction: column;
