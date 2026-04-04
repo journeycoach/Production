@@ -58,7 +58,7 @@
         });
 
         if (hasValidAdminSession()) {
-            html += `<li><a href="admin/dashboard.html">Admin</a></li>`;
+            html += `<li><a href="/admin">Admin</a></li>`;
         }
 
         // CTA button
