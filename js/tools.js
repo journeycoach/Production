@@ -1,103 +1,136 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const toolsContainer = document.getElementById('tools-container');
     if (!toolsContainer) return;
 
-    fetch('/api/content?type=tools')
-        .then(r => {
-            if (!r.ok) throw new Error(`Tools request failed: ${r.status}`);
-            return r.json();
-        })
-        .then(result => {
-            const resources = result.data || [];
+    function normalizeTool(tool) {
+        return {
+            ...tool,
+            fileUrl: tool.fileUrl || tool.file_url || null,
+            externalUrl: tool.externalUrl || tool.external_url || null,
+            imageUrl: tool.imageUrl || tool.image_url || null,
+            isHidden: Boolean(tool.isHidden ?? tool.is_hidden),
+        };
+    }
 
-            if (resources.length === 0) {
-                toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
-                return;
+    try {
+        const [toolsRes, settingsRes] = await Promise.all([
+            fetch('/api/content?type=tools'),
+            fetch('/api/content?type=settings')
+        ]);
+
+        if (!toolsRes.ok) {
+            throw new Error(`Tools request failed: ${toolsRes.status}`);
+        }
+
+        const result = await toolsRes.json();
+        const settingsPayload = settingsRes.ok ? await settingsRes.json() : { data: {} };
+        const resources = (result.data || []).map(normalizeTool);
+        let categoryOrder = [];
+
+        try {
+            categoryOrder = JSON.parse(settingsPayload.data?.tools_category_order || '[]');
+            if (!Array.isArray(categoryOrder)) categoryOrder = [];
+        } catch {
+            categoryOrder = [];
+        }
+
+        if (resources.length === 0) {
+            toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
+            return;
+        }
+
+        const visibleResources = resources.filter(resource => !resource.isHidden);
+
+        if (visibleResources.length === 0) {
+            toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
+            return;
+        }
+
+        const categories = {};
+        visibleResources.forEach(resource => {
+            const category = resource.category || 'General';
+            if (!categories[category]) {
+                categories[category] = [];
+            }
+            categories[category].push(resource);
+        });
+
+        const orderedCategoryNames = [
+            ...categoryOrder.filter(category => categories[category]),
+            ...Object.keys(categories).filter(category => !categoryOrder.includes(category))
+        ];
+
+        toolsContainer.innerHTML = '';
+
+        for (const categoryName of orderedCategoryNames) {
+            const tools = categories[categoryName];
+            const section = document.createElement('div');
+            section.className = 'category-section fade-in-up';
+            if ((categoryName || '').toLowerCase() === 'books') {
+                section.classList.add('books-section');
             }
 
-            // Filter out hidden resources and the "Tools" category before grouping
-            const visibleResources = resources.filter(res => !res.isHidden && res.category !== 'Tools');
+            section.innerHTML = `
+                <h2 class="category-title">${categoryName}</h2>
+                <div class="tools-grid"></div>
+            `;
 
-            if (visibleResources.length === 0) {
-                toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
-                return;
-            }
+            const grid = section.querySelector('.tools-grid');
 
-            // Group resources by category
-            const categories = {};
-            visibleResources.forEach(res => {
-                const cat = res.category || 'General';
-                if (!categories[cat]) {
-                    categories[cat] = [];
-                }
-                categories[cat].push(res);
-            });
+            tools.forEach(tool => {
+                const isFile = tool.type === 'file' || tool.type === 'File Upload';
+                const linkUrl = isFile ? tool.fileUrl : tool.externalUrl;
+                const isBooksCategory = (categoryName || '').toLowerCase() === 'books';
+                const renderImageOnly = isBooksCategory && !!tool.imageUrl;
+                const renderTextAboveImage = !renderImageOnly && !!tool.imageUrl;
 
-            toolsContainer.innerHTML = ''; // Clear loading text
+                if (!linkUrl) return;
 
-            // Render each category section
-            for (const [categoryName, tools] of Object.entries(categories)) {
+                const card = document.createElement('a');
+                card.className = `tool-card${renderImageOnly ? ' image-only' : ''}${renderTextAboveImage ? ' link-with-image' : ''}`;
+                card.href = linkUrl;
+                card.target = '_blank';
+                card.rel = 'noopener noreferrer';
+                card.setAttribute('aria-label', tool.title);
+                card.title = tool.title;
 
-                const section = document.createElement('div');
-                section.className = 'category-section fade-in-up';
-
-                section.innerHTML = `
-                    <h2 class="category-title">${categoryName}</h2>
-                    <div class="tools-grid"></div>
-                `;
-
-                const grid = section.querySelector('.tools-grid');
-
-                tools.forEach(tool => {
-                    const isFile = tool.type === 'File Upload';
-                    const linkUrl = isFile ? tool.fileUrl : tool.externalUrl;
-
-                    // Do not render empty cards if URL is broken
-                    if (!linkUrl) return;
-
-                    const badgeClass = isFile ? 'pdf' : 'link';
-                    const badgeText = isFile ? 'PDF Download' : 'External Link';
-
-                    const actionText = isFile ? 'Download File' : 'Visit Site';
-                    const actionIcon = isFile
-                        ? `<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>`
-                        : `<svg viewBox="0 0 24 24"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>`;
-
-                    const card = document.createElement('a');
-                    card.className = 'tool-card';
-                    card.href = linkUrl;
-                    card.target = "_blank"; // Always open tools in a new tab
-                    card.rel = "noopener noreferrer";
-
+                if (renderImageOnly) {
                     card.innerHTML = `
-                        <div>
-                            <span class="tool-type-badge ${badgeClass}">${badgeText}</span>
+                        <img class="tool-card-image" src="${tool.imageUrl}" alt="${tool.title}" loading="lazy">
+                    `;
+                } else {
+                    const imageMarkup = tool.imageUrl
+                        ? `<img class="tool-card-image" src="${tool.imageUrl}" alt="${tool.title}" loading="lazy">`
+                        : '';
+                    const badgeMarkup = isFile
+                        ? '<span class="tool-type-badge pdf">Download Resource</span>'
+                        : '';
+                    const bodyMarkup = `
+                        <div class="tool-card-body">
+                            ${badgeMarkup}
                             <h3>${tool.title}</h3>
-                            <p>${tool.description || ''}</p>
+                            ${tool.description ? `<p>${tool.description}</p>` : ''}
                         </div>
-                        <span class="tool-action">
-                            ${actionIcon}
-                            ${actionText}
-                        </span>
                     `;
 
-                    grid.appendChild(card);
-                });
-
-                // Only append the section if it has valid cards
-                if (grid.children.length > 0) {
-                    toolsContainer.appendChild(section);
+                    card.innerHTML = renderTextAboveImage
+                        ? `${bodyMarkup}${imageMarkup}`
+                        : `${imageMarkup}${bodyMarkup}`;
                 }
+
+                grid.appendChild(card);
+            });
+
+            if (grid.children.length > 0) {
+                toolsContainer.appendChild(section);
             }
+        }
 
-            // Trigger reveal animations
-            setTimeout(() => {
-                document.querySelectorAll('.category-section').forEach(el => el.classList.add('is-visible'));
-            }, 100);
-
-        })
-        .catch(err => {
-            console.error('Error fetching tools:', err);
-            toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">Unable to load resources at this time.</p>';
-        });
+        setTimeout(() => {
+            document.querySelectorAll('.category-section').forEach(el => el.classList.add('is-visible'));
+        }, 100);
+    } catch (err) {
+        console.error('Error fetching tools:', err);
+        toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">Unable to load resources at this time.</p>';
+    }
 });
