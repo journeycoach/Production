@@ -13,6 +13,28 @@
         cta_button: { label: "Let's Talk", url: "index.html#contact", visible: true }
     };
 
+    function hasValidAdminSession() {
+        const token = localStorage.getItem('admin_token');
+        if (!token) return false;
+
+        try {
+            const [payload] = token.split('.');
+            if (!payload) return false;
+
+            const expires = parseInt(atob(payload), 10);
+            const isValid = Number.isFinite(expires) && Date.now() < expires;
+
+            if (!isValid) {
+                localStorage.removeItem('admin_token');
+            }
+
+            return isValid;
+        } catch {
+            localStorage.removeItem('admin_token');
+            return false;
+        }
+    }
+
     function renderNav(config) {
         const logoEl  = document.getElementById('nav-logo');
         const navList = document.getElementById('nav-links-list');
@@ -34,6 +56,10 @@
             const cls = isActive ? ' class="active"' : '';
             html += `<li><a href="${link.url}"${cls}>${link.label}</a></li>`;
         });
+
+        if (hasValidAdminSession()) {
+            html += `<li><a href="admin/dashboard.html">Admin</a></li>`;
+        }
 
         // CTA button
         const cta = config.cta_button;
