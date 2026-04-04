@@ -1,5 +1,8 @@
 {
   "outputDirectory": ".",
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/content/:type", "destination": "/api/content?type=:type" },
     { "source": "/api/admin/sections/:page", "destination": "/api/admin/sections?page=:page" },
