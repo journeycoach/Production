@@ -39,8 +39,8 @@
     <style>
         /* ── Page Header ──────────────────────────────────────────── */
         .hc-header {
-            padding-top: 150px;
-            padding-bottom: 60px;
+            padding-top: 120px;
+            padding-bottom: 36px;
             text-align: center;
             background: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -48,7 +48,6 @@
             overflow: hidden;
         }
 
-        /* Subtle radial glow behind the heading */
         .hc-header::before {
             content: '';
             position: absolute;
@@ -56,122 +55,157 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 600px;
-            height: 400px;
+            height: 300px;
             background: radial-gradient(ellipse at center, rgba(201, 169, 110, 0.07) 0%, transparent 70%);
             pointer-events: none;
         }
 
         .hc-header .eyebrow {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--color-accent-gold);
-            margin-bottom: 1.25rem;
+            margin-bottom: 0.9rem;
         }
 
         .hc-header h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
-            margin-bottom: 1.25rem;
+            font-size: clamp(1.9rem, 4vw, 3rem);
+            margin-bottom: 0.9rem;
             line-height: 1.15;
         }
 
         .hc-header p {
             color: var(--color-text-secondary);
-            font-size: 1.1rem;
-            max-width: 620px;
-            margin: 0 auto 2rem auto;
-            line-height: 1.75;
+            font-size: 1rem;
+            max-width: 580px;
+            margin: 0 auto;
+            line-height: 1.7;
         }
 
-        /* Decorative divider line with diamond */
-        .hc-divider {
+        /* ── Two-column body ──────────────────────────────────────── */
+        .hc-body {
+            background: var(--color-bg-primary);
+            padding: 2.5rem 0 3rem;
+        }
+
+        .hc-body-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* ── Left panel ───────────────────────────────────────────── */
+        .hc-left {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin: 0 auto 0;
-            max-width: 300px;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
-        .hc-divider::before,
-        .hc-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(to right, transparent, rgba(201, 169, 110, 0.4), transparent);
-        }
-
-        .hc-divider span {
-            width: 8px;
-            height: 8px;
-            background: var(--color-accent-gold);
-            transform: rotate(45deg);
-            display: block;
-            flex-shrink: 0;
-        }
-
-        /* ── Trust badges strip ───────────────────────────────────── */
+        /* Trust badges */
         .hc-trust {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2.5rem;
-            flex-wrap: wrap;
-            padding: 2.5rem 1rem;
+            flex-direction: column;
+            gap: 0.85rem;
             background: var(--color-bg-secondary);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.4rem 1.25rem;
         }
 
         .hc-trust-item {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.65rem;
             color: var(--color-text-muted);
             font-size: 0.82rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
 
         .hc-trust-item svg {
-            width: 18px;
-            height: 18px;
+            width: 17px;
+            height: 17px;
             fill: var(--color-accent-gold);
             flex-shrink: 0;
         }
 
-        /* ── Form section ─────────────────────────────────────────── */
-        .hc-form-section {
-            padding: 4rem 0 5rem;
-            background: var(--color-bg-primary);
+        /* Insight cards */
+        .hc-insights-label {
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--color-accent-gold);
+            margin-bottom: 0.75rem;
+            display: block;
         }
 
-        .hc-form-wrapper {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
+        .hc-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1.1rem 1.1rem 1rem;
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+            transition: border-color 0.3s ease;
         }
 
+        .hc-card + .hc-card {
+            margin-top: 0.75rem;
+        }
+
+        .hc-card:hover {
+            border-color: rgba(201, 169, 110, 0.25);
+        }
+
+        .hc-card-icon {
+            width: 22px;
+            height: 22px;
+            fill: var(--color-accent-gold);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .hc-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: var(--color-text-primary);
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        .hc-card p {
+            font-size: 0.82rem;
+            color: var(--color-text-muted);
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        /* ── Right panel: form card ───────────────────────────────── */
         .hc-form-card {
             background: var(--color-bg-secondary);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 12px;
-            padding: 2.5rem 2.5rem 2rem;
+            padding: 2rem 2rem 1.5rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .hc-form-intro {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .hc-form-icon {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             flex-shrink: 0;
             background: rgba(201, 169, 110, 0.1);
             border: 1px solid rgba(201, 169, 110, 0.25);
@@ -182,120 +216,69 @@
         }
 
         .hc-form-icon svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: var(--color-accent-gold);
         }
 
         .hc-form-intro-text h2 {
-            font-size: 1.25rem;
-            margin-bottom: 0.2rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.15rem;
             color: var(--color-text-primary);
         }
 
         .hc-form-intro-text p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--color-text-muted);
             line-height: 1.5;
         }
 
-        /* Override Formaloo defaults to fill the card */
         .formaloo--root-container {
             border-radius: 8px;
             overflow: hidden;
         }
 
-        /* ── What you'll discover strip ───────────────────────────── */
-        .hc-insights {
-            padding: 4rem 0;
-            background: var(--color-bg-secondary);
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .hc-insights-inner {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-
-        .hc-insights-heading {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .hc-insights-heading .eyebrow {
-            display: block;
-            font-size: 0.72rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--color-accent-gold);
-            margin-bottom: 0.75rem;
-        }
-
-        .hc-insights-heading h2 {
-            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-        }
-
-        .hc-cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .hc-card {
-            background: var(--color-bg-primary);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1.75rem 1.5rem;
-            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .hc-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(201, 169, 110, 0.25);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .hc-card-icon {
-            width: 40px;
-            height: 40px;
-            fill: var(--color-accent-gold);
-            margin-bottom: 1.1rem;
-        }
-
-        .hc-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 0.6rem;
-            color: var(--color-text-primary);
-            font-family: var(--font-body);
-            font-weight: 600;
-        }
-
-        .hc-card p {
-            font-size: 0.9rem;
-            color: var(--color-text-muted);
-            line-height: 1.6;
-        }
-
         /* ── Responsive ──────────────────────────────────────────── */
-        @media (max-width: 640px) {
+        @media (max-width: 860px) {
+            .hc-body-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .hc-left {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .hc-trust {
+                flex: 1 1 260px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.75rem 1.5rem;
+            }
+
+            .hc-cards-group {
+                flex: 1 1 260px;
+            }
+        }
+
+        @media (max-width: 560px) {
             .hc-header {
-                padding-top: 110px;
-                padding-bottom: 40px;
+                padding-top: 100px;
+                padding-bottom: 28px;
+            }
+
+            .hc-left {
+                flex-direction: column;
             }
 
             .hc-form-card {
-                padding: 1.75rem 1.25rem 1.5rem;
+                padding: 1.5rem 1.1rem 1.25rem;
                 border-radius: 8px;
             }
 
             .hc-form-intro {
                 flex-direction: column;
                 align-items: flex-start;
-            }
-
-            .hc-trust {
-                gap: 1.5rem;
             }
         }
     </style>
@@ -331,115 +314,93 @@
                 <span class="eyebrow reveal-text">LEADERSHIP ASSESSMENT</span>
                 <h1 class="reveal-text delay-100">Discover Your<br><em>Hidden Ceiling</em></h1>
                 <p class="reveal-text delay-200">
-                    Every leader has a blindspot — a pattern of behavior that once served them well but now quietly
-                    limits their impact. This short assessment helps you identify yours.
+                    Every leader has a blindspot — a pattern that once served them well but now quietly limits their impact.
+                    This short assessment helps you identify yours.
                 </p>
-                <div class="hc-divider reveal-text delay-300">
-                    <span></span>
-                </div>
             </div>
         </header>
 
-        <!-- Trust Strip -->
-        <div class="hc-trust fade-in-scroll">
-            <div class="hc-trust-item">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.25C17.25 21.15 21 16.25 21 11V5l-9-4zm-2 15l-4-4 1.41-1.41L10 13.17l6.59-6.59L18 8l-8 8z" />
-                </svg>
-                Confidential &amp; Secure
-            </div>
-            <div class="hc-trust-item">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" />
-                </svg>
-                ICF Certified Framework
-            </div>
-            <div class="hc-trust-item">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
-                Enneagram-Grounded
-            </div>
-            <div class="hc-trust-item">
-                <svg viewBox="0 0 24 24">
-                    <path
-                        d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.05M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37Z" />
-                </svg>
-                Takes ~5 Minutes
-            </div>
-        </div>
+        <!-- Two-column body -->
+        <div class="hc-body">
+            <div class="hc-body-inner">
 
-        <!-- Form Section -->
-        <section class="hc-form-section">
-            <div class="hc-form-wrapper">
-                <div class="hc-form-card fade-in-scroll">
-                    <div class="hc-form-intro">
-                        <div class="hc-form-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                            </svg>
+                <!-- Left: trust + what you'll discover -->
+                <aside class="hc-left fade-in-scroll">
+
+                    <!-- Trust badges -->
+                    <div class="hc-trust">
+                        <div class="hc-trust-item">
+                            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.25C17.25 21.15 21 16.25 21 11V5l-9-4zm-2 15l-4-4 1.41-1.41L10 13.17l6.59-6.59L18 8l-8 8z"/></svg>
+                            Confidential &amp; Secure
                         </div>
-                        <div class="hc-form-intro-text">
-                            <h2>Your Hidden Ceiling Assessment</h2>
-                            <p>Answer honestly — there are no right or wrong responses. Your results are private and
-                                will be used solely to inform a personalized coaching conversation.</p>
+                        <div class="hc-trust-item">
+                            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+                            ICF Certified Framework
+                        </div>
+                        <div class="hc-trust-item">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            Enneagram-Grounded
+                        </div>
+                        <div class="hc-trust-item">
+                            <svg viewBox="0 0 24 24"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.05M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06M4.26 5.67C3 7.19 2.25 9.04 2.05 11H4.05C4.24 9.58 4.8 8.23 5.69 7.1L4.26 5.67M2.06 13C2.26 14.96 3.03 16.81 4.27 18.33L5.69 16.9C4.81 15.77 4.24 14.42 4.06 13H2.06M7.1 18.37L5.67 19.74C7.18 21 9.04 21.79 11 22V20C9.58 19.82 8.23 19.25 7.1 18.37Z"/></svg>
+                            Takes ~5 Minutes
                         </div>
                     </div>
 
-                    <!-- Formaloo Embed — source hidden field appended via data attribute -->
+                    <!-- What you'll discover -->
+                    <div class="hc-cards-group">
+                        <span class="hc-insights-label">What You'll Uncover</span>
+
+                        <div class="hc-card">
+                            <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                            <div>
+                                <h3>Your Core Blindspot</h3>
+                                <p>The unconscious pattern quietly capping your leadership effectiveness and team trust.</p>
+                            </div>
+                        </div>
+
+                        <div class="hc-card">
+                            <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                            <div>
+                                <h3>Your Stress Triggers</h3>
+                                <p>Situations that push you into reactive, less effective leadership behaviors.</p>
+                            </div>
+                        </div>
+
+                        <div class="hc-card">
+                            <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                            <div>
+                                <h3>Your Growth Edge</h3>
+                                <p>The single most impactful shift you can make to expand your leadership range.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </aside>
+
+                <!-- Right: form -->
+                <div class="hc-form-card fade-in-scroll">
+                    <div class="hc-form-intro">
+                        <div class="hc-form-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        </div>
+                        <div class="hc-form-intro-text">
+                            <h2>Your Hidden Ceiling Assessment</h2>
+                            <p>Answer honestly — there are no right or wrong responses. Your results are private.</p>
+                        </div>
+                    </div>
+
+                    <!-- Formaloo Embed -->
                     <div
                         class="formaloo--root-container"
                         data-form-slug="QRnupgkh"
                         data-prefill="source=website"
-                        style="width:100%;height:750px">
+                        style="width:100%;min-height:900px;">
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- What You'll Discover -->
-        <section class="hc-insights">
-            <div class="hc-insights-inner">
-                <div class="hc-insights-heading">
-                    <span class="eyebrow reveal-text">WHAT YOU'LL UNCOVER</span>
-                    <h2 class="reveal-text delay-100">Awareness is the first step to change</h2>
                 </div>
 
-                <div class="hc-cards-grid">
-                    <div class="hc-card fade-in-scroll">
-                        <svg class="hc-card-icon" viewBox="0 0 24 24">
-                            <path
-                                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                        </svg>
-                        <h3>Your Core Blindspot</h3>
-                        <p>Identify the unconscious pattern that is quietly capping your leadership effectiveness and
-                            team trust.</p>
-                    </div>
-                    <div class="hc-card fade-in-scroll delay-1">
-                        <svg class="hc-card-icon" viewBox="0 0 24 24">
-                            <path
-                                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                        </svg>
-                        <h3>Your Stress Triggers</h3>
-                        <p>Understand the specific situations that push you into reactive, less effective leadership
-                            behaviors.</p>
-                    </div>
-                    <div class="hc-card fade-in-scroll delay-2">
-                        <svg class="hc-card-icon" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" />
-                        </svg>
-                        <h3>Your Growth Edge</h3>
-                        <p>Pinpoint the single most impactful shift you can make right now to expand your leadership
-                            range.</p>
-                    </div>
-                </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer style="padding: 3rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.05);">
