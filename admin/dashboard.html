@@ -172,13 +172,18 @@
 
     function renderSummary(items) {
       const summaryGrid = document.getElementById('summaryGrid');
-      summaryGrid.innerHTML = items.map(item => `
-        <div class="summary-card${item.alert ? ' summary-card-alert' : ''}">
-          <div class="summary-label">${item.label}</div>
-          <div class="summary-value">${item.value}</div>
-          <div class="summary-note">${item.note}</div>
-        </div>
-      `).join('');
+      summaryGrid.innerHTML = items.map(item => {
+        const tag = item.href ? 'a' : 'div';
+        const linkAttr = item.href ? `href="${item.href}"` : '';
+        const linkClass = item.href ? ' summary-card-link' : '';
+        return `
+          <${tag} ${linkAttr} class="summary-card${item.alert ? ' summary-card-alert' : ''}${linkClass}">
+            <div class="summary-label">${item.label}</div>
+            <div class="summary-value">${item.value}</div>
+            <div class="summary-note">${item.note}</div>
+          </${tag}>
+        `;
+      }).join('');
     }
 
     function formatRelativeTime(timestamp) {
@@ -243,7 +248,8 @@
             label: 'Unread Contacts',
             value: contacts.filter(contact => !contact.is_read).length,
             note: 'Messages waiting for follow-up',
-            alert: contacts.some(contact => !contact.is_read)
+            alert: contacts.some(contact => !contact.is_read),
+            href: 'contacts.html'
           },
           {
             label: 'Total Posts',

@@ -763,6 +763,18 @@ textarea {
   color: #f1b0b0;
 }
 
+a.summary-card-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+a.summary-card-link:hover {
+  border-color: var(--admin-accent);
+  background-color: color-mix(in srgb, var(--admin-accent) 8%, var(--admin-card-bg));
+  text-decoration: none;
+}
+
 .recent-list {
   display: grid;
   grid-template-columns: 1fr;
