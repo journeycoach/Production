@@ -22,36 +22,42 @@
         <button class="btn btn-ghost btn-sm" onclick="resetOrder()" title="Restore default card order">Reset Order</button>
       </div>
 
-      <div class="dashboard-quick-actions">
-        <a href="post-edit.html" class="quick-action-pill">New Post</a>
-        <a href="tools.html" class="quick-action-pill">New Resource</a>
-        <a href="/index.html" class="quick-action-pill" target="_blank" rel="noopener noreferrer">View Site</a>
-      </div>
+      <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+          <section class="dashboard-summary">
+            <div class="dashboard-summary-header">
+              <h2>Activity Summary</h2>
+              <p>Quick counts from the current admin content and inbox.</p>
+            </div>
+            <div class="dashboard-summary-grid" id="summaryGrid">
+              <div class="summary-card">
+                <div class="summary-label">Loading</div>
+                <div class="summary-value">…</div>
+              </div>
+            </div>
+          </section>
 
-      <div class="dashboard-grid" id="dashGrid"></div>
+          <section class="dashboard-recent">
+            <div class="dashboard-summary-header">
+              <h2>Recently Used</h2>
+              <p>Jump back into the admin sections you opened most recently.</p>
+            </div>
+            <div class="recent-list" id="recentList">
+              <div class="recent-empty">No recent sections yet. Open a few admin pages and they’ll show up here.</div>
+            </div>
+          </section>
+        </aside>
 
-      <section class="dashboard-summary">
-        <div class="dashboard-summary-header">
-          <h2>Activity Summary</h2>
-          <p>Quick counts from the current admin content and inbox.</p>
-        </div>
-        <div class="dashboard-summary-grid" id="summaryGrid">
-          <div class="summary-card">
-            <div class="summary-label">Loading</div>
-            <div class="summary-value">…</div>
+        <section class="dashboard-main-content">
+          <div class="dashboard-quick-actions">
+            <a href="post-edit.html" class="quick-action-pill">New Post</a>
+            <a href="tools.html" class="quick-action-pill">New Resource</a>
+            <a href="/index.html" class="quick-action-pill" target="_blank" rel="noopener noreferrer">View Site</a>
           </div>
-        </div>
-      </section>
 
-      <section class="dashboard-recent">
-        <div class="dashboard-summary-header">
-          <h2>Recently Used</h2>
-          <p>Jump back into the admin sections you opened most recently.</p>
-        </div>
-        <div class="recent-list" id="recentList">
-          <div class="recent-empty">No recent sections yet. Open a few admin pages and they'll show up here.</div>
-        </div>
-      </section>
+          <div class="dashboard-grid" id="dashGrid"></div>
+        </section>
+      </div>
     </main>
   </div>
 
@@ -167,7 +173,7 @@
     function renderSummary(items) {
       const summaryGrid = document.getElementById('summaryGrid');
       summaryGrid.innerHTML = items.map(item => `
-        <div class="summary-card">
+        <div class="summary-card${item.alert ? ' summary-card-alert' : ''}">
           <div class="summary-label">${item.label}</div>
           <div class="summary-value">${item.value}</div>
           <div class="summary-note">${item.note}</div>
@@ -236,7 +242,8 @@
           {
             label: 'Unread Contacts',
             value: contacts.filter(contact => !contact.is_read).length,
-            note: 'Messages waiting for follow-up'
+            note: 'Messages waiting for follow-up',
+            alert: contacts.some(contact => !contact.is_read)
           },
           {
             label: 'Total Posts',
