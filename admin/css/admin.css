@@ -672,6 +672,7 @@ textarea {
 
 .dashboard-recent {
   margin-top: 32px;
+  display: none;
 }
 
 .dashboard-shell {
