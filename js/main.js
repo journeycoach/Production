@@ -3,6 +3,34 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Executive Coach Site Loaded');
 
+    function getContactScrollOffset() {
+        return window.innerWidth <= 768 ? 56 : 92;
+    }
+
+    function scrollToHashTarget(hash, behavior = 'smooth') {
+        if (!hash || hash === '#') return;
+
+        const targetElement = document.querySelector(hash);
+        if (!targetElement) return;
+
+        if (hash === '#contact') {
+            const navbar = document.querySelector('.navbar');
+            const navbarHeight = navbar ? navbar.offsetHeight : 0;
+            const top = targetElement.getBoundingClientRect().top + window.scrollY - navbarHeight + getContactScrollOffset();
+
+            window.scrollTo({
+                top: Math.max(top, 0),
+                behavior
+            });
+            return;
+        }
+
+        targetElement.scrollIntoView({
+            behavior,
+            block: 'start'
+        });
+    }
+
     // 1. Page Loader Logic
     const loader = document.querySelector('.loader-wrapper');
     if (loader) {
@@ -11,23 +39,30 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('hidden');
             // Allow body scroll after loader vanishes
             document.body.style.overflow = 'auto';
+
+            if (window.location.hash) {
+                scrollToHashTarget(window.location.hash, 'auto');
+            }
         }, 1500);
+    } else if (window.location.hash) {
+        setTimeout(() => scrollToHashTarget(window.location.hash, 'auto'), 50);
     }
 
     // 2. Smooth Scrolling for Anchor Links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    document.querySelectorAll('a[href*="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
+            const href = this.getAttribute('href');
+            if (!href || href === '#') return;
 
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+            const url = new URL(href, window.location.href);
+            const isSamePage = url.origin === window.location.origin &&
+                url.pathname === window.location.pathname;
+
+            if (!isSamePage || !url.hash) return;
+
+            e.preventDefault();
+            history.replaceState(null, '', url.hash);
+            scrollToHashTarget(url.hash);
         });
     });
 

@@ -68,12 +68,16 @@
         }
 
         // CTA button
-        const cta = config.cta_button;
+        const ctaState = window.__yjcCtaState;
+        const cta = ctaState?.active
+            ? { label: ctaState.active.label, url: ctaState.active.url, visible: true }
+            : config.cta_button;
         if (cta && cta.visible) {
-            html += `<li><a href="${cta.url}" class="btn-primary">${cta.label}</a></li>`;
+            html += `<li><a href="${cta.url}" class="btn-primary" data-site-cta="smart">${cta.label}</a></li>`;
         }
 
         navList.innerHTML = html;
+        window.applySiteCtaTargets?.();
     }
 
     function init() {
@@ -94,6 +98,15 @@
             .catch(() => {
                 renderNav(FALLBACK_CONFIG);
             });
+
+        window.addEventListener('site-settings-loaded', () => {
+            const navList = document.getElementById('nav-links-list');
+            if (!navList?.children.length) return;
+            const ctaLink = navList.querySelector('[data-site-cta="smart"]');
+            if (ctaLink) {
+                window.applySiteCtaTargets?.();
+            }
+        });
     }
 
     // Run after DOM is ready so getElementById is guaranteed to work
