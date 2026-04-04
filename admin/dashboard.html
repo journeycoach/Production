@@ -254,17 +254,20 @@
           {
             label: 'Total Posts',
             value: posts.length,
-            note: 'Published and drafted articles'
+            note: 'Published and drafted articles',
+            href: 'posts.html'
           },
           {
             label: 'Hidden Resources',
             value: tools.filter(tool => tool.is_hidden).length,
-            note: 'Resources currently off the site'
+            note: 'Resources currently off the site',
+            href: 'tools.html'
           },
           {
             label: 'Draft Sections',
             value: sections.filter(section => section.status === 'draft').length,
-            note: 'Sections not live yet'
+            note: 'Sections not live yet',
+            href: 'sections.html'
           }
         ]);
       } catch (error) {
