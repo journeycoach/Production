@@ -14,9 +14,10 @@
         font-size: 2.5rem;
     }
 
-    /* Show hamburger, hide nav links by default */
+    /* Show hamburger pinned to the right */
     .hamburger {
         display: flex !important;
+        margin-left: auto;
     }
 
     .nav-links {
