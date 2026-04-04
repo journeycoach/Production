@@ -59,7 +59,7 @@
       </div>
 
       <div class="settings-tabs" role="tablist" aria-label="Settings sections">
-        <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true">Website Settings</button>
+        <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true" id="website_settings_tab">Website Settings</button>
         <button type="button" class="settings-tab" data-tab="admin" role="tab" aria-selected="false">Admin Settings</button>
       </div>
 
@@ -504,6 +504,12 @@
       button.textContent = `Save ${getEnvironmentLabel(currentWebsiteEnvironment)} Website Settings`;
     }
 
+    function updateWebsiteTabLabel() {
+      const tab = document.getElementById('website_settings_tab');
+      if (!tab) return;
+      tab.textContent = `${getEnvironmentLabel(currentWebsiteEnvironment)} Settings`;
+    }
+
     function setActiveTab(tabName) {
       activeTab = tabName;
       document.querySelectorAll('.settings-tab').forEach(button => {
@@ -533,6 +539,7 @@
         ? 'Production changes update the live site.'
         : 'Test changes stay isolated to the test site.';
       setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment === 'production' ? 'is-warning' : '');
+      updateWebsiteTabLabel();
       updateSaveButtonLabel();
       loadWebsiteSettings(environment);
     }
@@ -699,6 +706,7 @@
       await persistWebsiteSettings(payload, currentWebsiteEnvironment);
     }
 
+    updateWebsiteTabLabel();
     updateSaveButtonLabel();
     loadAdminSettings();
     setActiveEnvironment(currentWebsiteEnvironment);
