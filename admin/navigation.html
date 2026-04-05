@@ -49,6 +49,24 @@
           <button type="button" class="btn btn-secondary btn-sm" onclick="addNavLink()">+ Add Link</button>
         </div>
 
+        <!-- Footer Links -->
+        <div class="card">
+          <div class="card-title">Footer Links</div>
+          <table id="footerLinksTable" class="nav-links-table" style="margin-bottom:16px;">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>URL</th>
+                <th>Visible</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody id="footerLinksBody">
+            </tbody>
+          </table>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addFooterLink()">+ Add Link</button>
+        </div>
+
         <!-- CTA Button -->
         <div class="card">
           <div class="card-title">CTA Button</div>
@@ -82,6 +100,7 @@
     requireAdminAuth();
 
     let navLinks = [];
+    let footerLinks = [];
 
     function renderNavLinks() {
       const tbody = document.getElementById('navLinksBody');
@@ -91,13 +110,33 @@
       }
       tbody.innerHTML = navLinks.map((link, i) => `
         <tr data-index="${i}">
-          <td><input type="text" value="${escHtml(link.label || '')}" onchange="updateLink(${i}, 'label', this.value)" placeholder="Label" /></td>
-          <td><input type="text" value="${escHtml(link.url || '')}" onchange="updateLink(${i}, 'url', this.value)" placeholder="URL" /></td>
+          <td><input type="text" value="${escHtml(link.label || '')}" onchange="updateNavLink(${i}, 'label', this.value)" placeholder="Label" /></td>
+          <td><input type="text" value="${escHtml(link.url || '')}" onchange="updateNavLink(${i}, 'url', this.value)" placeholder="URL" /></td>
           <td style="text-align:center;">
-            <input type="checkbox" ${link.visible ? 'checked' : ''} onchange="updateLink(${i}, 'visible', this.checked)" />
+            <input type="checkbox" ${link.visible ? 'checked' : ''} onchange="updateNavLink(${i}, 'visible', this.checked)" />
           </td>
           <td>
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeLink(${i})">&#x2715;</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeNavLink(${i})">&#x2715;</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderFooterLinks() {
+      const tbody = document.getElementById('footerLinksBody');
+      if (footerLinks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No footer links yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = footerLinks.map((link, i) => `
+        <tr data-index="${i}">
+          <td><input type="text" value="${escHtml(link.label || '')}" onchange="updateFooterLink(${i}, 'label', this.value)" placeholder="Label" /></td>
+          <td><input type="text" value="${escHtml(link.url || '')}" onchange="updateFooterLink(${i}, 'url', this.value)" placeholder="URL" /></td>
+          <td style="text-align:center;">
+            <input type="checkbox" ${link.visible ? 'checked' : ''} onchange="updateFooterLink(${i}, 'visible', this.checked)" />
+          </td>
+          <td>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeFooterLink(${i})">&#x2715;</button>
           </td>
         </tr>
       `).join('');
@@ -108,13 +147,27 @@
       renderNavLinks();
     }
 
-    function removeLink(i) {
+    function removeNavLink(i) {
       navLinks.splice(i, 1);
       renderNavLinks();
     }
 
-    function updateLink(i, field, value) {
+    function updateNavLink(i, field, value) {
       navLinks[i][field] = value;
+    }
+
+    function addFooterLink() {
+      footerLinks.push({ label: '', url: '', visible: true });
+      renderFooterLinks();
+    }
+
+    function removeFooterLink(i) {
+      footerLinks.splice(i, 1);
+      renderFooterLinks();
+    }
+
+    function updateFooterLink(i, field, value) {
+      footerLinks[i][field] = value;
     }
 
     async function loadNavigation() {
@@ -124,7 +177,9 @@
       const nav = data.data;
       document.getElementById('brandName').value = nav.brand_name || '';
       navLinks = Array.isArray(nav.nav_links) ? nav.nav_links : [];
+      footerLinks = Array.isArray(nav.footer_links) ? nav.footer_links : [];
       renderNavLinks();
+      renderFooterLinks();
       if (nav.cta_button) {
         document.getElementById('ctaLabel').value = nav.cta_button.label || '';
         document.getElementById('ctaUrl').value = nav.cta_button.url || '';
@@ -132,16 +187,19 @@
       }
     }
 
-    // Collect current values from table inputs before save
     function collectNavLinks() {
       const rows = document.querySelectorAll('#navLinksBody tr[data-index]');
-      return Array.from(rows).map((row, i) => {
+      return Array.from(rows).map(row => {
         const inputs = row.querySelectorAll('input');
-        return {
-          label: inputs[0].value,
-          url: inputs[1].value,
-          visible: inputs[2].checked
-        };
+        return { label: inputs[0].value, url: inputs[1].value, visible: inputs[2].checked };
+      });
+    }
+
+    function collectFooterLinks() {
+      const rows = document.querySelectorAll('#footerLinksBody tr[data-index]');
+      return Array.from(rows).map(row => {
+        const inputs = row.querySelectorAll('input');
+        return { label: inputs[0].value, url: inputs[1].value, visible: inputs[2].checked };
       });
     }
 
@@ -150,6 +208,7 @@
       const payload = {
         brand_name: document.getElementById('brandName').value.trim(),
         nav_links: collectNavLinks(),
+        footer_links: collectFooterLinks(),
         cta_button: {
           label: document.getElementById('ctaLabel').value.trim(),
           url: document.getElementById('ctaUrl').value.trim(),

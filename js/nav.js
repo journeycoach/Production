@@ -80,6 +80,17 @@
         window.applySiteCtaTargets?.();
     }
 
+    function renderFooter(config) {
+        const footerNav = document.getElementById('footer-nav-links');
+        if (!footerNav) return;
+        const links = Array.isArray(config.footer_links) ? config.footer_links : [];
+        const visible = links.filter(l => l.visible !== false);
+        if (visible.length === 0) return;
+        footerNav.innerHTML = visible.map(l =>
+            `<a href="${l.url}" style="color:var(--color-text-muted);font-size:0.8rem;text-decoration:none;transition:color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">${l.label}</a>`
+        ).join('');
+    }
+
     function init() {
         // Race API fetch against a 2-second timeout so the nav always renders quickly.
         // If API is unreachable or slow, the fallback config is used immediately.
@@ -94,9 +105,11 @@
         Promise.race([apiFetch, timeout])
             .then(config => {
                 renderNav(config || FALLBACK_CONFIG);
+                renderFooter(config || FALLBACK_CONFIG);
             })
             .catch(() => {
                 renderNav(FALLBACK_CONFIG);
+                renderFooter(FALLBACK_CONFIG);
             });
 
         window.addEventListener('site-settings-loaded', () => {

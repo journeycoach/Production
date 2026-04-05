@@ -1,12 +1,17 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 
+async function ensureFooterLinksColumn() {
+  await sql`ALTER TABLE navigation ADD COLUMN IF NOT EXISTS footer_links jsonb DEFAULT '[]'::jsonb`;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
 
   if (req.method === 'GET') {
     try {
+      await ensureFooterLinksColumn();
       const rows = await sql`SELECT * FROM navigation LIMIT 1`;
       return res.status(200).json({ data: rows[0] || null });
     } catch (err) {
@@ -16,19 +21,22 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { brand_name, nav_links, cta_button } = req.body || {};
+    const { brand_name, nav_links, cta_button, footer_links } = req.body || {};
     try {
+      await ensureFooterLinksColumn();
       const existing = await sql`SELECT id FROM navigation LIMIT 1`;
       let row;
       if (existing.length > 0) {
         const navLinksJson = JSON.stringify(nav_links || []);
         const ctaButtonJson = JSON.stringify(cta_button || {});
+        const footerLinksJson = JSON.stringify(footer_links || []);
         const rows = await sql`
           UPDATE navigation
           SET
             brand_name = COALESCE(${brand_name}, brand_name),
             nav_links = ${navLinksJson}::jsonb,
-            cta_button = ${ctaButtonJson}::jsonb
+            cta_button = ${ctaButtonJson}::jsonb,
+            footer_links = ${footerLinksJson}::jsonb
           WHERE id = ${existing[0].id}
           RETURNING *
         `;
@@ -36,12 +44,14 @@ export default async function handler(req, res) {
       } else {
         const navLinksJson = JSON.stringify(nav_links || []);
         const ctaButtonJson = JSON.stringify(cta_button || {});
+        const footerLinksJson = JSON.stringify(footer_links || []);
         const rows = await sql`
-          INSERT INTO navigation (brand_name, nav_links, cta_button)
+          INSERT INTO navigation (brand_name, nav_links, cta_button, footer_links)
           VALUES (
             ${brand_name || 'Your Journey Coach'},
             ${navLinksJson}::jsonb,
-            ${ctaButtonJson}::jsonb
+            ${ctaButtonJson}::jsonb,
+            ${footerLinksJson}::jsonb
           )
           RETURNING *
         `;
