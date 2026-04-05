@@ -1,8 +1,6 @@
 // Main JavaScript for Executive Coach Website
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Executive Coach Site Loaded');
-
     function getContactScrollOffset() {
         return window.innerWidth <= 768 ? 56 : 92;
     }
