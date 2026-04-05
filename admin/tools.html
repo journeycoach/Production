@@ -31,6 +31,11 @@
     .tool-row .drag-handle:active { cursor: grabbing; }
     .tool-row.sortable-ghost { opacity: 0.3; }
     .tool-row.sortable-chosen { box-shadow: 0 0 0 2px var(--admin-accent), 0 4px 12px rgba(0,0,0,0.3); z-index: 10; }
+    @media (pointer: coarse), (max-width: 768px) {
+      .tool-row .drag-handle {
+        display: none;
+      }
+    }
     .tool-row-title { flex: 1; color: var(--admin-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tool-row-meta { font-size: 0.75rem; color: var(--admin-muted); flex-shrink: 0; }
     .save-order-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -620,6 +625,7 @@
     }
 
     function renderToolsList() {
+      const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
       const toolsList = document.getElementById('toolsList');
       document.getElementById('toolOrderTitle').textContent = activeCategory === 'All'
         ? 'Resources In All Categories'
@@ -652,7 +658,7 @@
             <div class="tool-category-list" data-category="${escHtml(category)}">
               ${tools.map((tool, index) => `
                 <div class="tool-row" data-id="${tool.id}">
-                  <span class="drag-handle" title="Drag to reorder">&#9776;</span>
+                  <span class="drag-handle" title="${dragSortingEnabled ? 'Drag to reorder' : 'Use arrows to reorder'}">&#9776;</span>
                   <div class="tool-row-title">${escHtml(tool.title)}</div>
                   <div class="tool-row-meta">${tool.type === 'file' ? 'Document' : tool.type === 'link' ? 'Link' : '—'}</div>
                   <div class="tool-row-meta">${tool.is_hidden ? 'Hidden' : 'Visible'}</div>
@@ -672,6 +678,7 @@
       }).join('');
 
       destroySortables();
+      if (!dragSortingEnabled) return;
       document.querySelectorAll('.tool-category-list').forEach(listEl => {
         sortables.push(new Sortable(listEl, {
           animation: 150,
