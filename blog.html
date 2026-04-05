@@ -183,6 +183,77 @@
             border-radius: 4px;
             margin: 2rem 0;
         }
+
+        .post-share {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            flex-wrap: wrap;
+        }
+
+        .post-share-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+            margin-right: 0.25rem;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 1rem;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            background: none;
+            transition: opacity 0.2s, background 0.2s;
+        }
+
+        .share-btn svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .share-btn-linkedin {
+            background: #0A66C2;
+            color: #ffffff;
+        }
+
+        .share-btn-linkedin:hover { opacity: 0.88; }
+
+        .share-btn-x {
+            background: #000000;
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .share-btn-x:hover { opacity: 0.82; }
+
+        .share-btn-copy {
+            background: rgba(255,255,255,0.06);
+            color: var(--color-text-secondary);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .share-btn-copy:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--color-text-primary);
+        }
+
+        .share-btn-copy.copied {
+            color: #6fcf97;
+            border-color: rgba(111, 207, 151, 0.3);
+        }
     </style>
 </head>
 
@@ -248,7 +319,29 @@
             </div>
 
             <div class="post-content fade-in-up delay-1" id="post-content">
-                <!-- Markdown content will be injected here -->
+                <!-- Post content injected by blog.js -->
+            </div>
+
+            <div class="post-share">
+                <span class="post-share-label">Share</span>
+                <a id="share-linkedin" href="#" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-linkedin">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.23 0z"/>
+                    </svg>
+                    LinkedIn
+                </a>
+                <a id="share-x" href="#" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-x">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    X
+                </a>
+                <button id="share-copy" class="share-btn share-btn-copy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy Link
+                </button>
             </div>
         </div>
     </main>

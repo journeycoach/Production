@@ -92,6 +92,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const bodyContainer = document.createElement('div');
         bodyContainer.innerHTML = bodyHtml;
         postContent.appendChild(bodyContainer);
+
+        // Wire up share buttons
+        const shareUrl  = encodeURIComponent('https://journeycoach.co/blog.html#post-' + index);
+        const shareText = encodeURIComponent(post.title + ' — Your Journey Coach');
+
+        document.getElementById('share-linkedin').href =
+            'https://www.linkedin.com/sharing/share-offsite/?url=' + shareUrl;
+
+        document.getElementById('share-x').href =
+            'https://twitter.com/intent/tweet?url=' + shareUrl + '&text=' + shareText;
+
+        const copyBtn = document.getElementById('share-copy');
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = copyBtn.innerHTML.replace(/Copy Link|Copied!/, 'Copy Link');
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(decodeURIComponent(shareUrl)).then(() => {
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = copyBtn.innerHTML.replace('Copy Link', 'Copied!');
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = copyBtn.innerHTML.replace('Copied!', 'Copy Link');
+                }, 2500);
+            });
+        };
     }
 
     backBtn.addEventListener('click', () => {
