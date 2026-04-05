@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | Your Journey Coach</title>
+    <meta name="robots" content="noindex">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
+
+    <style>
+        .error-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            background: var(--color-bg-primary);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .error-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+            z-index: -1;
+        }
+
+        .error-box {
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem 3rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--color-accent-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem auto;
+            border: 2px solid var(--color-accent-gold);
+        }
+
+        .error-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .error-code {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-accent-gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .error-title {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .error-text {
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .error-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-wrapper">
+        <div class="error-box">
+            <div class="error-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2.5"/>
+                </svg>
+            </div>
+            <div class="error-code">404</div>
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-text">This page doesn't exist or may have moved. Let's get you back on track.</p>
+            <div class="error-links">
+                <a href="/" class="btn-primary">Go Home</a>
+                <a href="/#contact" class="btn-primary-outline">Get in Touch</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
