@@ -377,6 +377,7 @@
       ? 'production'
       : 'test';
     let currentWebsiteEnvironment = localStorage.getItem('website_settings_environment') || currentSiteEnvironment;
+    let websiteSettingsReady = false;
     let adminAppearanceSettings = {};
     const websiteSettingsCache = {};
 
@@ -499,9 +500,11 @@
       if (!button) return;
       if (activeTab === 'admin') {
         button.textContent = 'Save Admin Settings';
+        button.disabled = false;
         return;
       }
       button.textContent = `Save ${getEnvironmentLabel(currentWebsiteEnvironment)} Website Settings`;
+      button.disabled = !websiteSettingsReady;
     }
 
     function updateWebsiteTabLabel() {
@@ -529,6 +532,7 @@
 
     function setActiveEnvironment(environment) {
       currentWebsiteEnvironment = environment;
+      websiteSettingsReady = false;
       localStorage.setItem('website_settings_environment', environment);
       document.querySelectorAll('.environment-tab').forEach(button => {
         button.classList.toggle('is-active', button.dataset.environment === environment);
@@ -556,6 +560,20 @@
       picker.value = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
       text.value = value;
       swatch.style.background = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+    }
+
+    function clearWebsiteSettingsForm() {
+      siteColorKeys.forEach(key => setColorControl(key, ''));
+      document.getElementById('font_heading').value = 'Playfair Display';
+      document.getElementById('font_body').value = 'Inter';
+      document.getElementById('heading_preview').style.fontFamily = "'Playfair Display', serif";
+      document.getElementById('body_preview').style.fontFamily = "'Inter', sans-serif";
+      document.getElementById('cta_primary_text').value = '';
+      document.getElementById('cta_primary_url').value = '';
+      document.getElementById('cta_secondary_text').value = '';
+      document.getElementById('cta_secondary_url').value = '';
+      document.getElementById('site_tagline').value = '';
+      updateCtaPreview();
     }
 
     async function persistAdminSettings(payload, successMessage = 'Admin settings saved.') {
@@ -660,7 +678,10 @@
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        websiteSettingsReady = false;
+        clearWebsiteSettingsForm();
         setWebsiteEnvironmentStatus(data.error || `${label} settings are unavailable from this admin.`, 'is-error');
+        updateSaveButtonLabel();
         status.textContent = '';
         showFlash(data.error || `Unable to load ${label.toLowerCase()} settings.`, 'error');
         return;
@@ -668,10 +689,12 @@
 
       websiteSettingsCache[environment] = data.data || {};
       populateWebsiteSettings(websiteSettingsCache[environment]);
+      websiteSettingsReady = true;
       const warning = environment === 'production'
         ? 'Production changes update the live site.'
         : 'Test changes stay isolated to the test site.';
       setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment === 'production' ? 'is-warning' : '');
+      updateSaveButtonLabel();
       status.textContent = '';
     }
 
@@ -691,6 +714,11 @@
         payload.admin_dashboard_columns = document.getElementById('admin_dashboard_columns').value;
         adminColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
         await persistAdminSettings(payload);
+        return;
+      }
+
+      if (!websiteSettingsReady) {
+        showFlash('Load the selected site settings successfully before saving.', 'error');
         return;
       }
 

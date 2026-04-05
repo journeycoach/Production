@@ -1,7 +1,16 @@
 import { sql, sqlForDatabaseUrl } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 
+function getConfiguredSiteEnvironment() {
+  return process.env.SITE_ENV === 'production' || process.env.SITE_ENV === 'test'
+    ? process.env.SITE_ENV
+    : null;
+}
+
 function resolveCurrentEnvironment(req) {
+  const configuredEnvironment = getConfiguredSiteEnvironment();
+  if (configuredEnvironment) return configuredEnvironment;
+
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase();
   if (host.includes('journeycoach.co') && !host.includes('yourjourneycoach.com')) {
     return 'production';
