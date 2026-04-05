@@ -166,6 +166,32 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+                gap: 0.9rem;
+            }
+
+            .category-section.books-section .tools-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+
+            .tool-card.link-with-image .tool-card-body,
+            .tool-card-body {
+                padding: 0.7rem;
+            }
+
+            .tool-card h3 {
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+
+            .tool-card p {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 
