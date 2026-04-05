@@ -10,7 +10,13 @@
             { label: 'Blog',        url: 'blog.html',             visible: true  },
             { label: 'Resources',   url: 'tools.html',            visible: true  }
         ],
-        cta_button: { label: "Let's Talk", url: "index.html#contact", visible: true }
+        cta_button: { label: "Let's Talk", url: "index.html#contact", visible: true },
+        footer_links: [
+            { label: 'Blog',                     url: '/blog.html',           visible: true },
+            { label: 'Tools & Resources',        url: '/tools.html',          visible: true },
+            { label: 'The Enneagram',            url: '/enneagram.html',      visible: true },
+            { label: 'Hidden Ceiling Assessment',url: '/Hidden-Ceiling.html', visible: true }
+        ]
     };
 
     function hasValidAdminSession() {

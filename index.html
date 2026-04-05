@@ -641,13 +641,8 @@
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
             </div>
 
-            <!-- Footer Nav Links -->
-            <nav style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-                <a href="/blog.html" style="color: var(--color-text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Blog</a>
-                <a href="/tools.html" style="color: var(--color-text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Tools &amp; Resources</a>
-                <a href="/enneagram.html" style="color: var(--color-text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">The Enneagram</a>
-                <a href="/Hidden-Ceiling.html" style="color: var(--color-text-muted); font-size: 0.85rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Hidden Ceiling Assessment</a>
-            </nav>
+            <!-- Footer Nav Links (dynamic via nav.js) -->
+            <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
 
             <a href="https://www.linkedin.com/in/john-paine/" target="_blank" rel="noopener noreferrer"
                 style="color: var(--color-text-secondary); transition: color 0.3s ease; display: flex; align-items: center; gap: 8px; text-decoration: none;"
@@ -660,7 +655,6 @@
                 <span style="font-size: 0.95rem; font-weight: 500;">Connect with me</span>
             </a>
             <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: -10px;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
-            <nav id="footer-nav-links" style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;"></nav>
             <div style="display: flex; gap: 1.5rem;">
                 <a href="/privacy.html" style="color: var(--color-text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Privacy Policy</a>
                 <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"

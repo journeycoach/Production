@@ -177,7 +177,14 @@
       const nav = data.data;
       document.getElementById('brandName').value = nav.brand_name || '';
       navLinks = Array.isArray(nav.nav_links) ? nav.nav_links : [];
-      footerLinks = Array.isArray(nav.footer_links) ? nav.footer_links : [];
+      footerLinks = Array.isArray(nav.footer_links) && nav.footer_links.length > 0
+        ? nav.footer_links
+        : [
+            { label: 'Blog',                     url: '/blog.html',           visible: true },
+            { label: 'Tools & Resources',        url: '/tools.html',          visible: true },
+            { label: 'The Enneagram',            url: '/enneagram.html',      visible: true },
+            { label: 'Hidden Ceiling Assessment',url: '/Hidden-Ceiling.html', visible: true }
+          ];
       renderNavLinks();
       renderFooterLinks();
       if (nav.cta_button) {
