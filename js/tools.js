@@ -102,12 +102,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const imageMarkup = tool.imageUrl
                         ? `<img class="tool-card-image" src="${tool.imageUrl}" alt="${tool.title}" loading="lazy">`
                         : '';
-                    const badgeMarkup = isFile
-                        ? '<span class="tool-type-badge pdf">Download Resource</span>'
-                        : '';
                     const bodyMarkup = `
                         <div class="tool-card-body">
-                            ${badgeMarkup}
                             <h3>${tool.title}</h3>
                             ${tool.description ? `<p>${tool.description}</p>` : ''}
                         </div>
