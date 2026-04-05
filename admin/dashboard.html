@@ -164,6 +164,7 @@
 
     function renderGrid() {
       const grid = document.getElementById('dashGrid');
+      const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
       grid.innerHTML = getOrderedCards().map(c => `
         <a href="${c.href}" class="dashboard-card" data-key="${c.key}">
           <div class="card-icon">${getIconMarkup(c.key)}</div>
@@ -171,6 +172,8 @@
           <div class="card-desc">${c.desc}</div>
         </a>
       `).join('');
+
+      if (!dragSortingEnabled) return;
 
       Sortable.create(grid, {
         animation: 150,
