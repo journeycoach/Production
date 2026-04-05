@@ -93,6 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
         bodyContainer.innerHTML = bodyHtml;
         postContent.appendChild(bodyContainer);
 
+        // Update OG meta tags for this post
+        const postUrl = 'https://journeycoach.co/blog.html#post-' + index;
+        const setMeta = (prop, val) => {
+            const el = document.querySelector(`meta[property="${prop}"]`);
+            if (el) el.setAttribute('content', val);
+        };
+        setMeta('og:title', post.title + ' | Your Journey Coach');
+        setMeta('og:description', post.summary || 'Insights on leadership and Enneagram from Your Journey Coach.');
+        setMeta('og:image', post.image_url || 'https://journeycoach.co/assets/images/about_john.jpg');
+        setMeta('og:url', postUrl);
+        const canonical = document.getElementById('canonical-url');
+        if (canonical) canonical.setAttribute('href', postUrl);
+
         // Wire up share buttons
         const shareUrl  = encodeURIComponent('https://journeycoach.co/blog.html#post-' + index);
         const shareText = encodeURIComponent(post.title + ' — Your Journey Coach');
