@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('click', () => {
                 renderSinglePost(index);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                window.location.hash = 'post-' + index;
+                window.location.hash = 'post-' + (post.id || index);
             });
 
             blogGrid.appendChild(card);
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         postContent.appendChild(bodyContainer);
 
         // Update OG meta tags for this post
-        const postUrl = 'https://journeycoach.co/blog.html#post-' + index;
+        const postUrl = 'https://journeycoach.co/blog.html#post-' + (post.id || index);
         const setMeta = (prop, val) => {
             const el = document.querySelector(`meta[property="${prop}"]`);
             if (el) el.setAttribute('content', val);
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (canonical) canonical.setAttribute('href', postUrl);
 
         // Wire up share buttons
-        const shareUrl  = encodeURIComponent('https://journeycoach.co/blog.html#post-' + index);
+        const shareUrl  = encodeURIComponent('https://journeycoach.co/blog.html#post-' + (post.id || index));
         const shareText = encodeURIComponent(post.title + ' — Your Journey Coach');
 
         document.getElementById('share-linkedin').href =
@@ -148,8 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const hash = window.location.hash;
             if (hash.startsWith('#post-')) {
-                const idx = parseInt(hash.replace('#post-', ''), 10);
-                if (!isNaN(idx) && allPosts[idx]) renderSinglePost(idx);
+                const id = parseInt(hash.replace('#post-', ''), 10);
+                if (!isNaN(id)) {
+                    // Try to find by stable post.id first, fall back to array index
+                    let idx = allPosts.findIndex(p => p.id === id);
+                    if (idx === -1 && allPosts[id]) idx = id;
+                    if (idx !== -1) renderSinglePost(idx);
+                }
             }
         } catch (error) {
             console.error('Error fetching blog posts:', error);

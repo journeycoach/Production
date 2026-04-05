@@ -28,6 +28,13 @@
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <link rel="apple-touch-icon" href="assets/images/favicon.png">
     <link rel="canonical" href="https://journeycoach.co/enneagram.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Enneagram | Your Journey Coach">
+    <meta property="og:description" content="Discover the power of the Enneagram for profound self-awareness, leadership development, and team dynamics.">
+    <meta property="og:image" content="https://journeycoach.co/assets/images/about_john.jpg">
+    <meta property="og:url" content="https://journeycoach.co/enneagram.html">
 </head>
 
 <body>
@@ -45,7 +52,7 @@
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
             </ul>
-            <div class="hamburger" id="hamburger">
+            <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -181,18 +188,22 @@
                 style="display: flex; justify-content: center; align-items: center; gap: 3rem; flex-wrap: wrap; opacity: 0.85; filter: grayscale(100%); transition: all 0.3s ease;">
                 <img src="assets/images/credential-icf.png" alt="ICF Professional Certified Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
+                    loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
                 <img src="assets/images/credential-ieq9.jpg" alt="iEQ9 Accredited Practitioner"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
+                    loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
                 <img src="assets/images/credential-ipec.png" alt="iPEC Certified Professional Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
+                    loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
                 <img src="assets/images/credential-ipec-cpc.png" alt="iPEC Certified Professional Coach (CPC)"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
+                    loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
             </div>
@@ -207,18 +218,21 @@
                 </svg>
                 <span style="font-size: 0.95rem; font-weight: 500;">Connect with me</span>
             </a>
-            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: -10px;">&copy; 2026 Your Journey
-                Coach. All Rights
-                Reserved.</p>
-            <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"
-                onmouseover="this.style.color='var(--color-accent-gold)'"
-                onmouseout="this.style.color='var(--color-text-muted)'">Admin Login</a>
+            <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
+            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: -10px;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="/privacy.html" style="color: var(--color-text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Privacy Policy</a>
+                <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"
+                    onmouseover="this.style.color='var(--color-accent-gold)'"
+                    onmouseout="this.style.color='var(--color-text-muted)'">Admin Login</a>
+            </div>
         </div>
     </footer>
 
 
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 
 </html>

@@ -220,7 +220,7 @@
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
             </ul>
-            <div class="hamburger" id="hamburger">
+            <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -257,11 +257,14 @@
             <a href="index.html">
                 <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
             </a>
-            <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; 2026 Your Journey Coach. All Rights
-                Reserved.</p>
-            <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"
-                onmouseover="this.style.color='var(--color-accent-gold)'"
-                onmouseout="this.style.color='var(--color-text-muted)'">Admin Login</a>
+            <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
+            <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="/privacy.html" style="color: var(--color-text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Privacy Policy</a>
+                <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"
+                    onmouseover="this.style.color='var(--color-accent-gold)'"
+                    onmouseout="this.style.color='var(--color-text-muted)'">Admin Login</a>
+            </div>
         </div>
     </footer>
 
@@ -269,6 +272,7 @@
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script src="js/tools.js"></script>
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 
 </html>
