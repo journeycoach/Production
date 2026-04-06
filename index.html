@@ -256,6 +256,26 @@
             </div>
         </section>
 
+        <!-- Email Opt-in -->
+        <section style="padding: 4.5rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04);">
+            <div class="container" style="max-width: 760px; display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; justify-content: space-between;">
+                <div style="flex: 1; min-width: 260px;">
+                    <span style="display: block; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent-gold); margin-bottom: 0.6rem;">Free Guide</span>
+                    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.45rem; color: var(--color-text-primary); margin: 0 0 0.6rem; line-height: 1.35;">The Five Hidden Ceilings</h3>
+                    <p style="color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.65; margin: 0;">The patterns that quietly limit senior leaders — and the first step to breaking through yours. Sent once, no follow-up.</p>
+                </div>
+                <form id="home-subscribe-form" style="flex: 1; min-width: 260px; display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                    <input type="email" id="home-sub-email" placeholder="Your email address" required
+                        style="flex: 1; min-width: 180px; padding: 0.7rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: var(--color-text-primary); font-size: 0.9rem; outline: none;">
+                    <button type="submit"
+                        style="padding: 0.7rem 1.5rem; background: var(--color-accent-gold); color: #fff; border: none; border-radius: 4px; font-size: 0.85rem; letter-spacing: 0.04em; cursor: pointer; white-space: nowrap; font-family: Inter, sans-serif; transition: opacity 0.2s;">
+                        Get the Guide
+                    </button>
+                    <p id="home-subscribe-msg" style="margin: 0.4rem 0 0; font-size: 0.82rem; color: var(--color-accent-gold); display: none; width: 100%;"></p>
+                </form>
+            </div>
+        </section>
+
         <!-- About Section -->
         <section id="about" class="section-padding">
             <div class="container split-layout reverse">
@@ -668,6 +688,45 @@
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+    <script>
+        document.getElementById('home-subscribe-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const msg = document.getElementById('home-subscribe-msg');
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+            try {
+                const res = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('home-sub-email').value.trim(),
+                        source: 'homepage'
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    msg.textContent = 'Check your inbox — the guide is on its way.';
+                    msg.style.color = 'var(--color-accent-gold)';
+                    msg.style.display = 'block';
+                    document.getElementById('home-sub-email').value = '';
+                    btn.textContent = 'Sent!';
+                } else {
+                    msg.textContent = data.error || 'Something went wrong. Please try again.';
+                    msg.style.color = '#e07070';
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Get the Guide';
+                }
+            } catch {
+                msg.textContent = 'Network error. Please try again.';
+                msg.style.color = '#e07070';
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Get the Guide';
+            }
+        });
+    </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </body>
 

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribers — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Subscribers</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Email List</span>
+          <span id="sub-count" style="font-size:0.85rem; font-weight:400; color:var(--admin-text-muted);">Loading…</span>
+        </div>
+        <table class="nav-links-table" id="subTable">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Source</th>
+              <th>Date</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody id="subBody">
+            <tr><td colspan="5" class="table-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    async function loadSubscribers() {
+      const res = await adminFetch('/api/admin/subscribers');
+      const data = await res.json();
+      const rows = data.data || [];
+      const tbody = document.getElementById('subBody');
+      const countEl = document.getElementById('sub-count');
+
+      countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No subscribers yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const date = r.created_at
+          ? new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          : '—';
+        return `
+          <tr>
+            <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
+            <td>${escHtml(r.name || '—')}</td>
+            <td style="color:var(--admin-text-muted); font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
+            <td style="color:var(--admin-text-muted); font-size:0.85rem; white-space:nowrap;">${date}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function removeSubscriber(id, btn) {
+      if (!confirm('Remove this subscriber?')) return;
+      btn.disabled = true;
+      const res = await adminFetch('/api/admin/subscribers?id=' + id, { method: 'DELETE' });
+      if (res.ok) {
+        loadSubscribers();
+      } else {
+        btn.disabled = false;
+        showFlash('Could not remove subscriber.', 'error');
+      }
+    }
+
+    loadSubscribers();
+  </script>
+</body>
+</html>
