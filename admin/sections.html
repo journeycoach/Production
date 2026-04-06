@@ -23,6 +23,9 @@
     .section-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: default; }
     .drag-handle { color: #555; cursor: grab; font-size: 1.1rem; user-select: none; padding: 0 4px; }
     .drag-handle:active { cursor: grabbing; }
+    @media (pointer: coarse), (max-width: 768px) {
+      .drag-handle { display: none; }
+    }
     .section-label-text { flex: 1; font-weight: 600; color: var(--admin-text); }
     .section-key-badge { font-size: 0.7rem; color: var(--admin-muted); font-family: monospace; background: var(--admin-bg);
                          padding: 2px 6px; border-radius: 3px; }
@@ -117,6 +120,7 @@
     let allSections = [];
     let orderDirty  = false;
     let sortable    = null;
+    const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
 
     // ── Tabs ─────────────────────────────────────────────────────────────────
     function renderTabs() {
@@ -197,6 +201,10 @@
 
       // Init SortableJS
       if (sortable) sortable.destroy();
+      if (!dragSortingEnabled) {
+        sortable = null;
+        return;
+      }
       sortable = Sortable.create(list, {
         handle: '.drag-handle',
         animation: 150,
