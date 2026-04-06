@@ -642,31 +642,15 @@
                     </p>
                     <h2>Ready to identify<br>your ceiling?</h2>
                     <p>This short assessment will help surface the pattern most limiting your leadership right now.</p>
-                    <button id="open-assessment" class="hc-open-btn" aria-haspopup="dialog">
+                    <a href="https://yourjourneycoach.formaloo.me/hidden-ceiling?source=website" target="_blank" rel="noopener noreferrer" class="hc-open-btn">
                         Take the Assessment
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </button>
+                    </a>
                     <p class="hc-cta-note">Confidential &amp; secure. Results inform your coaching conversation.</p>
                 </div>
                 </div><!-- /.hc-form-wrapper -->
             </div><!-- /.hc-layout -->
         </section>
-
-        <!-- Assessment Modal -->
-        <div id="assessment-modal" role="dialog" aria-modal="true" aria-label="Hidden Ceiling Assessment" style="display:none;">
-            <div class="modal-backdrop" id="modal-backdrop"></div>
-            <div class="modal-panel">
-                <div class="modal-header">
-                    <span class="modal-title">Hidden Ceiling Assessment</span>
-                    <button class="modal-close" id="close-assessment" aria-label="Close assessment">
-                        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div id="formaloo-modal-container"></div>
-                </div>
-            </div>
-        </div>
 
         <!-- Lead Magnet: Email Capture (hidden until lead_magnet_enabled in Admin Settings) -->
         <section id="lead-magnet-hc" style="display:none;padding: 5rem 0; background: var(--color-bg-secondary); border-top: 1px solid rgba(255,255,255,0.05);">
@@ -712,58 +696,6 @@
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
-    <script>
-        (function () {
-            const modal    = document.getElementById('assessment-modal');
-            const backdrop = document.getElementById('modal-backdrop');
-            const closeBtn = document.getElementById('close-assessment');
-            const openBtn  = document.getElementById('open-assessment');
-            const container = document.getElementById('formaloo-modal-container');
-            let formalooLoaded = false;
-
-            function openModal() {
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                closeBtn.focus();
-
-                // Lazy-load Formaloo only on first open
-                if (!formalooLoaded) {
-                    formalooLoaded = true;
-                    container.innerHTML = '<div class="formaloo--root-container" data-form-slug="QRnupgkh" data-prefill="source=website" style="width:100%;min-height:600px;"></div>';
-                    const script = document.createElement('script');
-                    script.src = 'https://embed.formaloo.me/v1/main.js';
-                    script.defer = true;
-                    document.body.appendChild(script);
-                }
-            }
-
-            function closeModal() {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
-                openBtn.focus();
-            }
-
-            openBtn.addEventListener('click', openModal);
-            closeBtn.addEventListener('click', closeModal);
-            backdrop.addEventListener('click', closeModal);
-
-            // Keyboard: Escape closes, Tab stays trapped inside modal
-            document.addEventListener('keydown', function (e) {
-                if (modal.style.display !== 'flex') return;
-                if (e.key === 'Escape') { closeModal(); return; }
-                if (e.key === 'Tab') {
-                    const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                    const first = focusable[0];
-                    const last  = focusable[focusable.length - 1];
-                    if (e.shiftKey && document.activeElement === first) {
-                        e.preventDefault(); last.focus();
-                    } else if (!e.shiftKey && document.activeElement === last) {
-                        e.preventDefault(); first.focus();
-                    }
-                }
-            });
-        })();
-    </script>
     <script>
         document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
             e.preventDefault();
