@@ -49,7 +49,7 @@
     requireAdminAuth();
 
     async function loadSubscribers() {
-      const res = await adminFetch('/api/admin/subscribers');
+      const res = await adminFetch('/api/admin/contacts?type=subscribers');
       const data = await res.json();
       const rows = data.data || [];
       const tbody = document.getElementById('subBody');
@@ -81,7 +81,7 @@
     async function removeSubscriber(id, btn) {
       if (!confirm('Remove this subscriber?')) return;
       btn.disabled = true;
-      const res = await adminFetch('/api/admin/subscribers?id=' + id, { method: 'DELETE' });
+      const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, { method: 'DELETE' });
       if (res.ok) {
         loadSubscribers();
       } else {

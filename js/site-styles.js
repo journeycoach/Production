@@ -91,6 +91,14 @@
     if (headingFont) root.style.setProperty('--font-heading', `'${headingFont}', serif`);
     if (bodyFont) root.style.setProperty('--font-body', `'${bodyFont}', sans-serif`);
 
+    // Show lead magnet sections if enabled
+    if (data.lead_magnet_enabled === 'true') {
+      const strip = document.getElementById('lead-magnet-strip');
+      const hc    = document.getElementById('lead-magnet-hc');
+      if (strip) strip.style.display = '';
+      if (hc)    hc.style.display    = '';
+    }
+
     applyCtas();
     window.dispatchEvent(new CustomEvent('site-settings-loaded', {
       detail: {

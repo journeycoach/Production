@@ -256,8 +256,8 @@
             </div>
         </section>
 
-        <!-- Email Opt-in -->
-        <section style="padding: 4.5rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04);">
+        <!-- Email Opt-in (hidden until lead_magnet_enabled in Admin Settings) -->
+        <section id="lead-magnet-strip" style="display:none;padding: 4.5rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.04);">
             <div class="container" style="max-width: 760px; display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; justify-content: space-between;">
                 <div style="flex: 1; min-width: 260px;">
                     <span style="display: block; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent-gold); margin-bottom: 0.6rem;">Free Guide</span>
@@ -696,10 +696,11 @@
             btn.disabled = true;
             btn.textContent = 'Sending…';
             try {
-                const res = await fetch('/api/subscribe', {
+                const res = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        action: 'subscribe',
                         email: document.getElementById('home-sub-email').value.trim(),
                         source: 'homepage'
                     })

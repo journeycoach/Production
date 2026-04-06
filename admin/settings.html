@@ -209,6 +209,17 @@
             <input type="text" id="site_tagline" class="form-control" placeholder="Executive Coaching · Enneagram · Leadership" />
           </div>
         </div>
+
+        <!-- ── Features ───────────────────────────────────────────────── -->
+        <div class="card">
+          <div class="card-title">Features</div>
+          <div class="form-group">
+            <div class="form-check">
+              <input type="checkbox" id="lead_magnet_enabled" />
+              <label for="lead_magnet_enabled">Show email opt-in forms <span style="color:#888;font-weight:400;">(The Five Hidden Ceilings guide on homepage &amp; assessment page)</span></label>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section class="settings-tab-panel" data-tab-panel="admin" role="tabpanel">
@@ -410,7 +421,8 @@
       'cta_primary_url',
       'cta_secondary_text',
       'cta_secondary_url',
-      'site_tagline'
+      'site_tagline',
+      'lead_magnet_enabled'
     ];
     const adminAppearanceColorDefaults = {
       admin_color_accent: '#c7a96b',
@@ -573,6 +585,7 @@
       document.getElementById('cta_secondary_text').value = '';
       document.getElementById('cta_secondary_url').value = '';
       document.getElementById('site_tagline').value = '';
+      document.getElementById('lead_magnet_enabled').checked = false;
       updateCtaPreview();
     }
 
@@ -656,6 +669,7 @@
       document.getElementById('cta_secondary_text').value = settings.cta_secondary_text || '';
       document.getElementById('cta_secondary_url').value = settings.cta_secondary_url || '';
       document.getElementById('site_tagline').value = settings.site_tagline || '';
+      document.getElementById('lead_magnet_enabled').checked = settings.lead_magnet_enabled === 'true';
 
       updateCtaPreview();
     }
@@ -731,6 +745,7 @@
       payload.cta_secondary_text = document.getElementById('cta_secondary_text').value.trim();
       payload.cta_secondary_url = document.getElementById('cta_secondary_url').value.trim();
       payload.site_tagline = document.getElementById('site_tagline').value.trim();
+      payload.lead_magnet_enabled = document.getElementById('lead_magnet_enabled').checked ? 'true' : 'false';
       await persistWebsiteSettings(payload, currentWebsiteEnvironment);
     }
 

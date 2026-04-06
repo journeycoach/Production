@@ -496,8 +496,8 @@
                 </div>
             </div>
         </section>
-        <!-- Lead Magnet: Email Capture -->
-        <section style="padding: 5rem 0; background: var(--color-bg-secondary); border-top: 1px solid rgba(255,255,255,0.05);">
+        <!-- Lead Magnet: Email Capture (hidden until lead_magnet_enabled in Admin Settings) -->
+        <section id="lead-magnet-hc" style="display:none;padding: 5rem 0; background: var(--color-bg-secondary); border-top: 1px solid rgba(255,255,255,0.05);">
             <div class="container" style="max-width: 580px; text-align: center;">
                 <span style="display: block; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent-gold); margin-bottom: 1rem;">Free Guide</span>
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--color-text-primary); margin: 0 0 1rem;">The Five Hidden Ceilings</h2>
@@ -548,10 +548,11 @@
             btn.disabled = true;
             btn.textContent = 'Sending…';
             try {
-                const res = await fetch('/api/subscribe', {
+                const res = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        action: 'subscribe',
                         name: document.getElementById('sub-name').value.trim(),
                         email: document.getElementById('sub-email').value.trim(),
                         source: 'hidden-ceiling'
