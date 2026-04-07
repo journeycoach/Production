@@ -157,7 +157,6 @@
     const stepContainer = document.getElementById('hc-step-container');
     const errorEl = document.getElementById('hc-form-error');
     const nextBtn = document.getElementById('hc-next-btn');
-    const submitBtn = document.getElementById('hc-submit-btn');
     const progressLabel = document.getElementById('hc-progress-label');
     const progressCaption = document.getElementById('hc-progress-caption');
     const progressBar = document.getElementById('hc-progress-bar');
@@ -176,7 +175,6 @@
         const isLast = state.stepIndex === totalSteps - 1;
         nextBtn.hidden = false;
         nextBtn.textContent = isLast ? 'Get My Results' : 'Continue';
-        submitBtn.hidden = true;
 
         if (step.type === 'intro') {
             stepContainer.innerHTML = `
