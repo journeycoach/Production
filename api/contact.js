@@ -1,5 +1,5 @@
 import { sql } from './_db.js';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 async function handleSubscribe(req, res) {
   const { email, name, source } = req.body || {};
@@ -27,14 +27,11 @@ async function handleSubscribe(req, res) {
     return res.status(500).json({ error: 'Could not save your subscription.' });
   }
   try {
-    const smtpPassword = process.env.SMTP_PASSWORD;
-    if (smtpPassword) {
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
       const firstName = (name || '').trim().split(' ')[0] || 'there';
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.forwardemail.net', port: 465, secure: true,
-        auth: { user: 'hello@journeycoach.co', pass: smtpPassword },
-      });
-      await transporter.sendMail({
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
         from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
         to: email,
         subject: 'Understanding Your Hidden Ceiling',
@@ -124,16 +121,13 @@ async function handleHiddenCeiling(req, res) {
   let emailSent = false;
   let emailError = null;
   try {
-    const smtpPassword = process.env.SMTP_PASSWORD;
-    if (!smtpPassword) {
-      emailError = 'SMTP_PASSWORD environment variable is not set in Vercel.';
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) {
+      emailError = 'RESEND_API_KEY environment variable is not set in Vercel.';
     } else {
       const firstName = name.trim().split(' ')[0] || 'there';
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.forwardemail.net', port: 465, secure: true,
-        auth: { user: 'hello@journeycoach.co', pass: smtpPassword },
-      });
-      await transporter.sendMail({
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
         from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
         to: email,
         subject: 'Your Hidden Ceiling Assessment Result',
@@ -217,11 +211,11 @@ export default async function handler(req, res) {
 
     // Attempt email notification — failure does NOT affect the 200 response
     try {
-      const smtpPassword = process.env.SMTP_PASSWORD;
+      const resendKey = process.env.RESEND_API_KEY;
       const toEmail = process.env.CONTACT_EMAIL;
 
-      if (!smtpPassword || !toEmail) {
-        console.error('Missing SMTP_PASSWORD or CONTACT_EMAIL — skipping email notification.');
+      if (!resendKey || !toEmail) {
+        console.error('Missing RESEND_API_KEY or CONTACT_EMAIL — skipping email notification.');
       } else {
         const html = `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1d1e; background: #fff; padding: 32px; border-radius: 8px;">
@@ -256,14 +250,8 @@ export default async function handler(req, res) {
           </div>
         `;
 
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.forwardemail.net',
-          port: 465,
-          secure: true,
-          auth: { user: 'hello@journeycoach.co', pass: smtpPassword },
-        });
-
-        await transporter.sendMail({
+        const resend = new Resend(resendKey);
+        await resend.emails.send({
           from: 'Journey Coach <hello@journeycoach.co>',
           to: toEmail,
           replyTo: email,

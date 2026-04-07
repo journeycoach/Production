@@ -204,10 +204,7 @@
                 ${step.options.map((option, index) => `
                     <label class="hc-choice ${selected === index ? 'is-selected' : ''}">
                         <input type="radio" name="${step.id}" value="${index}" ${selected === index ? 'checked' : ''}>
-                        <div>
-                            <strong>${option.title}</strong>
-                            <span>${option.text}</span>
-                        </div>
+                        <span>${option.text}</span>
                     </label>
                 `).join('')}
             </div>
