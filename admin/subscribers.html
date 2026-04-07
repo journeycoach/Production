@@ -31,13 +31,14 @@
             <tr>
               <th>Email</th>
               <th>Name</th>
+              <th>Assessment Result</th>
               <th>Source</th>
               <th>Date</th>
               <th>Remove</th>
             </tr>
           </thead>
           <tbody id="subBody">
-            <tr><td colspan="5" class="table-empty">Loading…</td></tr>
+            <tr><td colspan="6" class="table-empty">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -58,18 +59,32 @@
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
 
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No subscribers yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No subscribers yet.</td></tr>';
         return;
       }
+
+      const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' };
+      const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82' };
 
       tbody.innerHTML = rows.map(r => {
         const date = r.created_at
           ? new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
           : '—';
+
+        let resultCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
+        if (r.result_center) {
+          const label = CENTER_LABELS[r.result_center] || r.result_center;
+          const color = CENTER_COLORS[r.result_center] || '#c7a96b';
+          resultCell = `
+            <span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>
+            <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>`;
+        }
+
         return `
           <tr>
             <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
             <td>${escHtml(r.name || '—')}</td>
+            <td>${resultCell}</td>
             <td style="color:var(--admin-text-muted); font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
             <td style="color:var(--admin-text-muted); font-size:0.85rem; white-space:nowrap;">${date}</td>
             <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>

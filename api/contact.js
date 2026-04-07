@@ -82,21 +82,39 @@ async function handleHiddenCeiling(req, res) {
   const center = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
   const result = { center };
 
-  // Save to subscribers (best-effort)
+  // Save to subscribers with assessment result (best-effort)
   try {
     await sql`
       CREATE TABLE IF NOT EXISTS subscribers (
-        id         SERIAL PRIMARY KEY,
-        email      TEXT UNIQUE NOT NULL,
-        name       TEXT,
-        source     TEXT DEFAULT 'website',
-        created_at TIMESTAMPTZ DEFAULT NOW()
+        id             SERIAL PRIMARY KEY,
+        email          TEXT UNIQUE NOT NULL,
+        name           TEXT,
+        source         TEXT DEFAULT 'website',
+        created_at     TIMESTAMPTZ DEFAULT NOW(),
+        result_center  TEXT,
+        score_heart    INT,
+        score_head     INT,
+        score_action   INT
       )
     `;
     await sql`
-      INSERT INTO subscribers (email, name, source)
-      VALUES (${email.toLowerCase().trim()}, ${name.trim() || null}, ${source || 'hidden-ceiling'})
-      ON CONFLICT (email) DO NOTHING
+      ALTER TABLE subscribers
+        ADD COLUMN IF NOT EXISTS result_center TEXT,
+        ADD COLUMN IF NOT EXISTS score_heart   INT,
+        ADD COLUMN IF NOT EXISTS score_head    INT,
+        ADD COLUMN IF NOT EXISTS score_action  INT
+    `;
+    await sql`
+      INSERT INTO subscribers (email, name, source, result_center, score_heart, score_head, score_action)
+      VALUES (
+        ${email.toLowerCase().trim()}, ${name.trim() || null}, ${source || 'hidden-ceiling'},
+        ${center}, ${scores.heart}, ${scores.head}, ${scores.action}
+      )
+      ON CONFLICT (email) DO UPDATE SET
+        result_center = EXCLUDED.result_center,
+        score_heart   = EXCLUDED.score_heart,
+        score_head    = EXCLUDED.score_head,
+        score_action  = EXCLUDED.score_action
     `;
   } catch (dbErr) {
     console.error('hidden ceiling subscriber save error:', dbErr);
