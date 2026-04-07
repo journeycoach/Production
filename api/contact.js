@@ -122,9 +122,12 @@ async function handleHiddenCeiling(req, res) {
 
   // Send personalised result email (best-effort)
   let emailSent = false;
+  let emailError = null;
   try {
     const smtpPassword = process.env.SMTP_PASSWORD;
-    if (smtpPassword) {
+    if (!smtpPassword) {
+      emailError = 'SMTP_PASSWORD environment variable is not set in Vercel.';
+    } else {
       const firstName = name.trim().split(' ')[0] || 'there';
       const transporter = nodemailer.createTransport({
         host: 'smtp.forwardemail.net', port: 465, secure: true,
@@ -139,10 +142,11 @@ async function handleHiddenCeiling(req, res) {
       emailSent = true;
     }
   } catch (emailErr) {
+    emailError = emailErr.message;
     console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
-  return res.status(200).json({ ok: true, result, scores, emailSent });
+  return res.status(200).json({ ok: true, result, scores, emailSent, emailError });
 }
 
 export default async function handler(req, res) {
