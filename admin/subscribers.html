@@ -68,7 +68,7 @@
 
       tbody.innerHTML = rows.map(r => {
         const date = r.created_at
-          ? new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+          ? new Date(r.created_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
           : '—';
 
         let resultCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
