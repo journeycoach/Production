@@ -13,8 +13,8 @@
             title: 'When a high-stakes project hits a major roadblock, what is your first internal reaction?',
             options: [
                 { title: 'Option 1', text: 'I pull back to analyze the data and find where the logic failed.' },
-                { title: 'Option 2', text: 'I immediately look for who is responsible and how to fix the momentum.' },
-                { title: 'Option 3', text: 'I worry about how this failure reflects on the team\'s reputation.' },
+                { title: 'Option 2', text: 'I move quickly to take charge and get things back on track.' },
+                { title: 'Option 3', text: 'I worry about how this failure reflects on the team and how others will respond.' },
             ],
         },
         {
@@ -22,9 +22,9 @@
             eyebrow: 'Question 2 of 7',
             title: 'What does your team likely wish you did more of?',
             options: [
-                { title: 'Option 1', text: 'Trusted your gut and took a risk without needing a 20-page report.' },
-                { title: 'Option 2', text: 'Focused on the bottom line instead of trying to keep everyone happy.' },
-                { title: 'Option 3', text: 'Paused to consider the emotional impact of fast decisions.' },
+                { title: 'Option 1', text: 'Move forward with less over-analysis and trust your judgment sooner.' },
+                { title: 'Option 2', text: 'Be more direct about priorities instead of managing everyone\'s feelings first.' },
+                { title: 'Option 3', text: 'Slow down long enough to consider how decisions are affecting people.' },
             ],
         },
         {
@@ -32,9 +32,9 @@
             eyebrow: 'Question 3 of 7',
             title: 'In strategic meetings, you feel most in your element when discussing:',
             options: [
-                { title: 'Option 1', text: 'Systems, long-term strategy, and potential risk mitigation.' },
-                { title: 'Option 2', text: 'Culture, vision, and how the brand is perceived externally.' },
-                { title: 'Option 3', text: 'Execution, clear boundaries, and immediate next steps.' },
+                { title: 'Option 1', text: 'Systems, long-term implications, and what risks others may be missing.' },
+                { title: 'Option 2', text: 'How people will experience the decision and what it will mean relationally.' },
+                { title: 'Option 3', text: 'What needs to happen next, who owns it, and how to keep momentum.' },
             ],
         },
         {
@@ -42,9 +42,9 @@
             eyebrow: 'Question 4 of 7',
             title: 'When you receive critical feedback from a peer, what is your instinct?',
             options: [
-                { title: 'Option 1', text: 'Wonder if they still like you or if the relationship is damaged.' },
-                { title: 'Option 2', text: 'Process it privately and look for the objective truth in their statement.' },
-                { title: 'Option 3', text: 'Challenge it immediately with proof of results.' },
+                { title: 'Option 1', text: 'Wonder what it means about the relationship or how you are being perceived.' },
+                { title: 'Option 2', text: 'Step back and assess whether the feedback is accurate and logically sound.' },
+                { title: 'Option 3', text: 'Push back immediately if the feedback feels unfair or unsupported.' },
             ],
         },
         {
@@ -52,9 +52,9 @@
             eyebrow: 'Question 5 of 7',
             title: 'In a team meeting, what do you value most in others\' contributions?',
             options: [
-                { title: 'Option 1', text: 'Objectivity and the clarity of thought behind their arguments.' },
-                { title: 'Option 2', text: 'Empathy and the consideration of how decisions affect everyone.' },
-                { title: 'Option 3', text: 'Decisiveness and the ability to move the group from talk to action.' },
+                { title: 'Option 1', text: 'Clear thinking, objectivity, and well-reasoned ideas.' },
+                { title: 'Option 2', text: 'Awareness of people, tone, and how decisions affect the room.' },
+                { title: 'Option 3', text: 'Directness, conviction, and the ability to move toward action.' },
             ],
         },
         {
@@ -62,9 +62,9 @@
             eyebrow: 'Question 6 of 7',
             title: 'How do you feel about working with a complex, detailed spreadsheet?',
             options: [
-                { title: 'Option 1', text: 'It feels impersonal; I\'d rather talk to the people behind the numbers.' },
-                { title: 'Option 2', text: 'It\'s satisfying; I love finding the patterns and stories the data tells.' },
-                { title: 'Option 3', text: 'It\'s a waste of time unless it shows immediate ROI.' },
+                { title: 'Option 1', text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.' },
+                { title: 'Option 2', text: 'I enjoy it when it helps me understand patterns, structure, and what is really going on.' },
+                { title: 'Option 3', text: 'I lose patience if it slows decisions down or gets in the way of moving forward.' },
             ],
         },
         {
@@ -72,9 +72,9 @@
             eyebrow: 'Question 7 of 7',
             title: 'Ultimately, what is the "true north" for your leadership style?',
             options: [
-                { title: 'Option 1', text: 'Connection; it\'s about the people and the common goal.' },
-                { title: 'Option 2', text: 'Logic; it\'s about the data and the objective truth.' },
-                { title: 'Option 3', text: 'Momentum; things must keep moving forward.' },
+                { title: 'Option 1', text: 'Connection: staying aligned with people, meaning, and shared purpose.' },
+                { title: 'Option 2', text: 'Truth: understanding what is accurate, objective, and really happening.' },
+                { title: 'Option 3', text: 'Integrity in action: moving with conviction, clarity, and grounded instinct.' },
             ],
         }
     ];
@@ -109,8 +109,8 @@
             guideLabel: 'Hidden Ceiling Guide for the Thinking-Oriented Leader'
         },
         action: {
-            centerLabel: 'Action Center',
-            title: 'You lead like an Action-Oriented Leader',
+            centerLabel: 'Gut Center',
+            title: 'You lead from the Gut Center',
             summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
             description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
             blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
@@ -318,7 +318,7 @@
         document.getElementById('hc-score-grid').innerHTML = [
             { label: 'Heart', value: scores.heart },
             { label: 'Head', value: scores.head },
-            { label: 'Action', value: scores.action }
+            { label: 'Gut', value: scores.action }
         ].map((score) => `
             <div class="hc-score-card">
                 <strong>${score.label} score</strong>
