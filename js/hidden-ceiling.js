@@ -176,7 +176,7 @@
 
         backBtn.hidden = state.stepIndex === 0;
         nextBtn.hidden = state.stepIndex === totalSteps - 1;
-        submitBtn.hidden = state.stepIndex !== totalSteps - 1;
+        submitBtn.hidden = true;
 
         if (step.type === 'intro') {
             stepContainer.innerHTML = `
@@ -215,10 +215,14 @@
             </div>
         `;
 
+        const isLastQuestion = state.stepIndex === ASSESSMENT_STEPS.length - 1;
         stepContainer.querySelectorAll(`input[name="${step.id}"]`).forEach((input) => {
             input.addEventListener('change', () => {
                 state.answers[step.id] = Number(input.value);
                 render();
+                if (isLastQuestion) {
+                    setTimeout(() => submitAssessment(), 350);
+                }
             });
         });
     }
@@ -259,10 +263,13 @@
     async function submitAssessment() {
         if (!validateCurrentStep()) return;
 
-        submitBtn.disabled = true;
         nextBtn.disabled = true;
         backBtn.disabled = true;
-        submitBtn.textContent = 'Scoring...';
+        stepContainer.innerHTML = `
+            <div style="text-align:center;padding:2.5rem 1rem;">
+                <div style="width:36px;height:36px;border:3px solid rgba(201,169,110,0.2);border-top-color:var(--color-accent-gold);border-radius:50%;animation:hc-spin 0.7s linear infinite;margin:0 auto 1.25rem;"></div>
+                <p style="color:var(--color-text-muted);font-size:0.9rem;margin:0;">Scoring your results…</p>
+            </div>`;
 
         try {
             const response = await fetch('/api/contact', {
@@ -286,10 +293,9 @@
             showResult(data);
         } catch (error) {
             errorEl.textContent = error.message || 'Something went wrong while submitting your assessment.';
-            submitBtn.disabled = false;
             nextBtn.disabled = false;
             backBtn.disabled = false;
-            submitBtn.textContent = 'See My Result';
+            render();
         }
     }
 
@@ -308,9 +314,6 @@
 
         const actionsList = document.getElementById('hc-result-actions');
         actionsList.innerHTML = meta.nextSteps.map((item) => `<li>${item}</li>`).join('');
-
-        document.getElementById('hc-download-btn').href = meta.guideUrl;
-        document.getElementById('hc-download-btn').setAttribute('download', '');
 
         document.getElementById('hc-score-grid').innerHTML = [
             { label: 'Heart', value: scores.heart },

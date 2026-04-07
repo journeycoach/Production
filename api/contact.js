@@ -285,6 +285,8 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         "Name the decision before you manage everyone's reaction to it.",
         'Use the guide to spot the situations where connection quietly turns into self-protection.',
       ],
+      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf',
+      guideLabel: 'Download Your Guide: The Connection-Oriented Leader',
     },
     head: {
       centerLabel: 'Head Center',
@@ -297,6 +299,8 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         'Pair your analysis with a visible relational read on the team.',
         'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.',
       ],
+      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf',
+      guideLabel: 'Download Your Guide: The Thinking-Oriented Leader',
     },
     action: {
       centerLabel: 'Action Center',
@@ -309,6 +313,8 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         'Slow down long enough to separate momentum from reactivity.',
         'Use the guide to spot where force and clarity are getting conflated inside your leadership.',
       ],
+      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
+      guideLabel: 'Download Your Guide: The Action-Oriented Leader',
     },
   };
 
@@ -331,9 +337,12 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   <ul style="margin-top:0;padding-left:1.25em;color:#333;">${stepsHtml}</ul>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: ${scores.heart} &nbsp;·&nbsp; Head: ${scores.head} &nbsp;·&nbsp; Action: ${scores.action}</p>
+  <p style="margin-top:1.5rem;">
+    <a href="${m.guideUrl}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">${esc(m.guideLabel)} ↓</a>
+  </p>
   <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
-  <p style="margin-top:2rem;">
-    <a href="https://journeycoach.co/index.html#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+  <p style="margin-top:1rem;">
+    <a href="https://journeycoach.co/index.html#contact" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book an Alignment Call →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>

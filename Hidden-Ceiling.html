@@ -575,6 +575,10 @@
 
         .hc-result-list li + li { margin-top: 0.45rem; }
 
+        @keyframes hc-spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* ── Responsive ──────────────────────────────────────────── */
         @media (max-width: 860px) {
             .hc-layout {
@@ -776,7 +780,7 @@
                                     <button type="button" class="hc-btn hc-btn-secondary" id="hc-back-btn">Back</button>
                                     <div class="hc-btn-group">
                                         <button type="button" class="hc-btn hc-btn-primary" id="hc-next-btn">Continue</button>
-                                        <button type="submit" class="hc-btn hc-btn-primary" id="hc-submit-btn" hidden>See My Result</button>
+                                        <button type="submit" class="hc-btn hc-btn-primary" id="hc-submit-btn" hidden aria-hidden="true"></button>
                                     </div>
                                 </div>
                             </form>
