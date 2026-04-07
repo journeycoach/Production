@@ -47,6 +47,86 @@ async function handleSubscribe(req, res) {
   return res.status(200).json({ ok: true });
 }
 
+async function handleHiddenCeiling(req, res) {
+  const { name, email, company, source, answers } = req.body || {};
+
+  // Honeypot — bots fill the company field
+  if (company) {
+    return res.status(200).json({ ok: true, result: { center: 'heart' }, scores: { heart: 0, head: 0, action: 0 }, emailSent: false });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!name?.trim()) return res.status(400).json({ error: 'Please enter your name.' });
+  if (!email || !emailRegex.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
+  if (!answers || typeof answers !== 'object') return res.status(400).json({ error: 'Assessment answers are required.' });
+
+  // Score: each question maps answer index → center
+  const SCORE_MAP = {
+    q1: ['head', 'action', 'heart'],
+    q2: ['head', 'heart', 'action'],
+    q3: ['head', 'heart', 'action'],
+    q4: ['heart', 'head', 'action'],
+    q5: ['head', 'heart', 'action'],
+    q6: ['heart', 'head', 'action'],
+    q7: ['heart', 'head', 'action'],
+  };
+
+  const scores = { heart: 0, head: 0, action: 0 };
+  for (const [qId, centers] of Object.entries(SCORE_MAP)) {
+    const idx = answers[qId];
+    if (idx !== null && idx !== undefined && centers[idx]) {
+      scores[centers[idx]]++;
+    }
+  }
+
+  const center = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const result = { center };
+
+  // Save to subscribers (best-effort)
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS subscribers (
+        id         SERIAL PRIMARY KEY,
+        email      TEXT UNIQUE NOT NULL,
+        name       TEXT,
+        source     TEXT DEFAULT 'website',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    await sql`
+      INSERT INTO subscribers (email, name, source)
+      VALUES (${email.toLowerCase().trim()}, ${name.trim() || null}, ${source || 'hidden-ceiling'})
+      ON CONFLICT (email) DO NOTHING
+    `;
+  } catch (dbErr) {
+    console.error('hidden ceiling subscriber save error:', dbErr);
+  }
+
+  // Send personalised result email (best-effort)
+  let emailSent = false;
+  try {
+    const smtpPassword = process.env.SMTP_PASSWORD;
+    if (smtpPassword) {
+      const firstName = name.trim().split(' ')[0] || 'there';
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.forwardemail.net', port: 465, secure: true,
+        auth: { user: 'hello@journeycoach.co', pass: smtpPassword },
+      });
+      await transporter.sendMail({
+        from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
+        to: email,
+        subject: 'Your Hidden Ceiling Assessment Result',
+        html: buildHiddenCeilingEmail(firstName, center, scores),
+      });
+      emailSent = true;
+    }
+  } catch (emailErr) {
+    console.error('Hidden ceiling email failed:', emailErr.message);
+  }
+
+  return res.status(200).json({ ok: true, result, scores, emailSent });
+}
+
 export default async function handler(req, res) {
   try {
     // Only allow POST
@@ -58,6 +138,9 @@ export default async function handler(req, res) {
 
     // Route subscribe action
     if (action === 'subscribe') return handleSubscribe(req, res);
+
+    // Route hidden ceiling assessment
+    if (action === 'hidden_ceiling') return handleHiddenCeiling(req, res);
 
     // Honeypot check — bots fill hidden fields; humans leave them blank
     if (_honey) {
@@ -186,6 +269,79 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function buildHiddenCeilingEmail(firstName, center, scores) {
+  const esc = escapeHtml;
+  const meta = {
+    heart: {
+      centerLabel: 'Heart Center',
+      title: 'You lead like a Connection-Oriented Leader',
+      summary: 'Your responses point to a leadership pattern that instinctively tracks people, morale, and the emotional temperature of the room.',
+      description: 'You are often the person who can sense the undercurrent nobody else is naming. That makes you a stabilizing presence in culture, trust, and relationship repair.',
+      blindspot: 'Under pressure, that same strength can turn into over-identifying with how others are feeling, over-functioning relationally, or softening hard decisions until the moment has passed.',
+      nextSteps: [
+        'Notice where harmony is becoming more important than clarity.',
+        "Name the decision before you manage everyone's reaction to it.",
+        'Use the guide to spot the situations where connection quietly turns into self-protection.',
+      ],
+    },
+    head: {
+      centerLabel: 'Head Center',
+      title: 'You lead like a Thinking-Oriented Leader',
+      summary: 'Your responses point to a leadership pattern that instinctively searches for clarity, logic, and the cleanest explanation of what is happening.',
+      description: 'You likely bring rigor, objectivity, and strong pattern recognition to complex systems. People rely on you to see risk, ask the smart question, and think around corners.',
+      blindspot: 'Under pressure, that strength can become over-analysis, emotional distance, or a subtle dependence on certainty before moving. The room can feel managed by logic but not fully led through tension.',
+      nextSteps: [
+        'Watch for the moment information-gathering becomes a delay tactic.',
+        'Pair your analysis with a visible relational read on the team.',
+        'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.',
+      ],
+    },
+    action: {
+      centerLabel: 'Action Center',
+      title: 'You lead like an Action-Oriented Leader',
+      summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
+      description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
+      blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
+      nextSteps: [
+        'Notice where urgency is outrunning reflection or buy-in.',
+        'Slow down long enough to separate momentum from reactivity.',
+        'Use the guide to spot where force and clarity are getting conflated inside your leadership.',
+      ],
+    },
+  };
+
+  const m = meta[center] || meta.heart;
+  const stepsHtml = m.nextSteps.map(s => `<li style="margin-bottom:0.5em;">${esc(s)}</li>`).join('');
+
+  return `
+<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">${esc(m.centerLabel)}</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">${esc(m.title)}</h1>
+  <p>Hi ${esc(firstName)},</p>
+  <p>${esc(m.summary)}</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">What this says about you</h2>
+  <p style="margin-top:0;">${esc(m.description)}</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Watch for this pattern</h2>
+  <p style="margin-top:0;">${esc(m.blindspot)}</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Start here this week</h2>
+  <ul style="margin-top:0;padding-left:1.25em;color:#333;">${stepsHtml}</ul>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: ${scores.heart} &nbsp;·&nbsp; Head: ${scores.head} &nbsp;·&nbsp; Action: ${scores.action}</p>
+  <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
+  <p style="margin-top:2rem;">
+    <a href="https://journeycoach.co/index.html#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
+</div>`;
 }
 
 function buildGuideEmail(firstName) {
