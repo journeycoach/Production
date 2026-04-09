@@ -5,12 +5,12 @@
     const FALLBACK_CONFIG = {
         brand_name: 'Your Journey Coach',
         nav_links: [
-            { label: 'About',       url: 'index.html#welcome',    visible: true  },
+            { label: 'About',       url: '/#welcome',             visible: true  },
             { label: 'Enneagram',   url: 'enneagram.html',        visible: true  },
             { label: 'Blog',        url: 'blog.html',             visible: true  },
             { label: 'Resources',   url: 'tools.html',            visible: true  }
         ],
-        cta_button: { label: "Let's Talk", url: "index.html#contact", visible: true },
+        cta_button: { label: "Let's Talk", url: "/#contact", visible: true },
         footer_links: [
             { label: 'Blog',                     url: '/blog.html',           visible: true },
             { label: 'Tools & Resources',        url: '/tools.html',          visible: true },
@@ -64,7 +64,8 @@
         (config.nav_links || []).forEach(link => {
             if (!link.visible) return;
             const isActive = (link.url === currentPage) ||
-                             (link.url === '/' && currentPage === 'index.html');
+                             (link.url === '/' && currentPage === 'index.html') ||
+                             (link.url.startsWith('/#') && currentPage === 'index.html');
             const cls = isActive ? ' class="active"' : '';
             html += `<li><a href="${link.url}"${cls}>${link.label}</a></li>`;
         });

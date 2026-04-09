@@ -352,7 +352,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   </p>
   <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
   <p style="margin-top:1rem;">
-    <a href="https://journeycoach.co/index.html#contact" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book an Alignment Call →</a>
+    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book an Alignment Call →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
@@ -388,7 +388,7 @@ function buildGuideEmail(firstName) {
   <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
   <p>If you'd like to explore what your results mean in the context of your specific situation, I'd be glad to have a conversation.</p>
   <p style="margin-top:2rem;">
-    <a href="https://journeycoach.co/index.html#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
