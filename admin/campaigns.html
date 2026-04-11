@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drip Campaigns — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <div>
+          <h1>Automated Sequences</h1>
+          <p style="color:var(--admin-text-muted); font-size:0.9rem; margin-top:0.3rem;">Manage the scheduled emails sent to subscribers.</p>
+        </div>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 0.5rem; color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
+        <p style="font-size: 0.9rem; color:var(--admin-text-muted); margin-bottom: 2rem;">
+          This 5-step drip campaign is automatically sent to leaders after they complete the assessment. 
+          Use <code>{{firstName}}</code> to inject their name automatically.
+        </p>
+
+        <div id="campaign-list">
+          <p class="table-empty">Loading sequence...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <template id="step-template">
+    <div class="setting-group" style="padding-bottom: 2rem; border-bottom: 1px solid var(--admin-border); margin-bottom: 2rem;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 1rem;">
+        <h3 class="step-title" style="margin:0;">Step X</h3>
+        <span class="step-status" style="display:inline-block;background:#8faa8222;color:#8faa82;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:999px;">Active</span>
+      </div>
+      
+      <div class="form-row">
+        <label>Wait before sending (Days)</label>
+        <input type="number" class="form-control field-delay" min="1" step="1" style="max-width:100px;">
+        <span style="font-size: 0.8rem; color:var(--admin-text-muted); display:block; margin-top:0.3rem;">How many days to wait after the previous email was sent.</span>
+      </div>
+
+      <div class="form-row">
+        <label>Subject Line</label>
+        <input type="text" class="form-control field-subject" placeholder="Email Subject">
+      </div>
+
+      <div class="form-row">
+        <label>Email Body (HTML)</label>
+        <textarea class="form-control field-body" rows="8" style="font-family:monospace; font-size:0.9rem;" placeholder="<p>Hi {{firstName}},</p>"></textarea>
+      </div>
+
+      <div style="text-align: right;">
+        <button class="btn btn-primary btn-save">Save Changes</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    async function loadCampaign() {
+      const listEl = document.getElementById('campaign-list');
+      
+      try {
+        const res = await adminFetch('/api/admin/campaigns?campaign=hidden-ceiling');
+        const data = await res.json();
+        
+        if (!res.ok || !data.data) throw new Error(data.error || 'Failed to load');
+
+        listEl.innerHTML = '';
+        const template = document.getElementById('step-template').content;
+
+        data.data.forEach(step => {
+          const clone = document.importNode(template, true);
+          
+          clone.querySelector('.step-title').textContent = `Email ${step.step_number}`;
+          clone.querySelector('.field-delay').value = step.delay_days;
+          clone.querySelector('.field-subject').value = step.subject;
+          clone.querySelector('.field-body').value = step.body_html;
+
+          const btn = clone.querySelector('.btn-save');
+          btn.addEventListener('click', () => saveStep(step.id, btn));
+
+          listEl.appendChild(clone);
+        });
+
+      } catch (err) {
+        listEl.innerHTML = `<p class="table-empty" style="color:red;">Error loading sequence: ${err.message}</p>`;
+      }
+    }
+
+    async function saveStep(id, btnElement) {
+      btnElement.disabled = true;
+      btnElement.textContent = 'Saving...';
+      const container = btnElement.closest('.setting-group');
+
+      const payload = {
+        id: id,
+        delay_days: parseInt(container.querySelector('.field-delay').value, 10),
+        subject: container.querySelector('.field-subject').value,
+        body_html: container.querySelector('.field-body').value
+      };
+
+      try {
+        const res = await adminFetch('/api/admin/campaigns', {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          showFlash('Sequence step saved successfully.', 'success');
+        } else {
+          showFlash('Failed to save step.', 'error');
+        }
+      } catch (err) {
+        showFlash('Network error.', 'error');
+      } finally {
+        btnElement.disabled = false;
+        btnElement.textContent = 'Save Changes';
+      }
+    }
+
+    loadCampaign();
+  </script>
+</body>
+</html>
