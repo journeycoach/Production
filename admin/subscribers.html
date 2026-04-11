@@ -33,12 +33,13 @@
               <th>Name</th>
               <th>Assessment Result</th>
               <th>Source</th>
+              <th>Campaign Status</th>
               <th>Date</th>
               <th>Remove</th>
             </tr>
           </thead>
           <tbody id="subBody">
-            <tr><td colspan="6" class="table-empty">Loading…</td></tr>
+            <tr><td colspan="7" class="table-empty">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -59,7 +60,7 @@
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
 
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No subscribers yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No subscribers yet.</td></tr>';
         return;
       }
 
@@ -80,12 +81,21 @@
             <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>`;
         }
 
+        let campaignCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
+        if (r.result_center && r.drip_step !== undefined) {
+           const dripDate = r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Pending';
+           campaignCell = `
+             <span style="display:block;font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
+             <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>`;
+        }
+
         return `
           <tr>
             <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
             <td>${escHtml(r.name || '—')}</td>
             <td>${resultCell}</td>
             <td style="color:var(--admin-text-muted); font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
+            <td>${campaignCell}</td>
             <td style="color:var(--admin-text-muted); font-size:0.85rem; white-space:nowrap;">${date}</td>
             <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>
           </tr>

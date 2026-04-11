@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       try {
         await sql`CREATE TABLE IF NOT EXISTS subscribers (id SERIAL PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT, source TEXT DEFAULT 'website', created_at TIMESTAMPTZ DEFAULT NOW(), result_center TEXT, score_heart INT, score_head INT, score_action INT)`;
         await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS result_center TEXT, ADD COLUMN IF NOT EXISTS score_heart INT, ADD COLUMN IF NOT EXISTS score_head INT, ADD COLUMN IF NOT EXISTS score_action INT`;
-        const rows = await sql`SELECT id, email, name, source, created_at, result_center, score_heart, score_head, score_action FROM subscribers ORDER BY created_at DESC`;
+        const rows = await sql`SELECT id, email, name, source, created_at, result_center, score_heart, score_head, score_action, drip_step, last_email_sent_at FROM subscribers ORDER BY created_at DESC`;
         return res.status(200).json({ data: rows });
       } catch (err) {
         console.error('subscribers GET error:', err);
