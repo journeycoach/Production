@@ -21,7 +21,7 @@
   ],
   "crons": [
     {
-      "path": "/api/cron/drip",
+      "path": "/api/contact?action=cron_drip",
       "schedule": "0 13 * * *"
     }
   ]

@@ -63,6 +63,37 @@ export default async function handler(req, res) {
 
   // GET — return all settings as { key: value } map
   if (req.method === 'GET') {
+    if (req.query?.resource === 'campaigns') {
+      try {
+        await sql`
+          CREATE TABLE IF NOT EXISTS campaign_emails (
+            id SERIAL PRIMARY KEY,
+            campaign_name TEXT NOT NULL,
+            step_number INT NOT NULL,
+            subject TEXT,
+            body_html TEXT,
+            delay_days INT DEFAULT 2,
+            UNIQUE(campaign_name, step_number)
+          )
+        `;
+        const existing = await db.client`SELECT COUNT(*) as count FROM campaign_emails WHERE campaign_name = 'hidden-ceiling'`;
+        if (parseInt(existing[0].count, 10) === 0) {
+          for (let i = 1; i <= 5; i++) {
+              await db.client`
+                INSERT INTO campaign_emails (campaign_name, step_number, subject, body_html, delay_days)
+                VALUES ('hidden-ceiling', ${i}, ${'Follow-up Email ' + i}, '<p>This is your automated email content.</p>', 2)
+              `;
+          }
+        }
+        const campaignName = req.query.campaign || 'hidden-ceiling';
+        const steps = await db.client`SELECT * FROM campaign_emails WHERE campaign_name = ${campaignName} ORDER BY step_number ASC`;
+        return res.status(200).json({ ok: true, data: steps });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to load campaigns' });
+      }
+    }
+
     try {
       const rows = await db.client`SELECT setting_key, setting_value FROM site_settings ORDER BY setting_key`;
       const data = Object.fromEntries(rows.map(r => [r.setting_key, r.setting_value]));
@@ -75,6 +106,23 @@ export default async function handler(req, res) {
 
   // PUT — upsert one or more settings { key: value, ... }
   if (req.method === 'PUT') {
+    if (req.query?.resource === 'campaigns') {
+      try {
+        const { id, subject, body_html, delay_days } = req.body;
+        if (!id) return res.status(400).json({ error: 'Missing step ID' });
+
+        await db.client`
+          UPDATE campaign_emails
+          SET subject = ${subject}, body_html = ${body_html}, delay_days = ${delay_days}
+          WHERE id = ${id}
+        `;
+        return res.status(200).json({ ok: true });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to update campaign template' });
+      }
+    }
+
     const updates = { ...(req.body || {}) };
     delete updates.environment;
     const entries = Object.entries(updates).filter(([k]) => k && k.length <= 100);

@@ -143,8 +143,94 @@ async function handleHiddenCeiling(req, res) {
   return res.status(200).json({ ok: true, result, scores, emailSent, emailError });
 }
 
+async function handleCronDrip(req, res) {
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS campaign_emails (
+        id SERIAL PRIMARY KEY,
+        campaign_name TEXT NOT NULL,
+        step_number INT NOT NULL,
+        subject TEXT,
+        body_html TEXT,
+        delay_days INT DEFAULT 2,
+        UNIQUE(campaign_name, step_number)
+      )
+    `;
+
+    await sql`
+      ALTER TABLE subscribers
+        ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW()
+    `;
+
+    const templates = await sql`SELECT * FROM campaign_emails WHERE campaign_name = 'hidden-ceiling' ORDER BY step_number ASC`;
+    if (!templates || templates.length === 0) return res.status(200).json({ skipped: true, reason: 'No templates set up yet.' });
+    
+    const templateMap = {};
+    let maxStep = 0;
+    for (const t of templates) {
+      templateMap[t.step_number] = t;
+      if (t.step_number > maxStep) maxStep = t.step_number;
+    }
+
+    const eligibleSubscribers = await sql`
+      SELECT id, name, email, drip_step, last_email_sent_at 
+      FROM subscribers 
+      WHERE result_center IS NOT NULL AND drip_step < ${maxStep}
+    `;
+
+    if (eligibleSubscribers.length === 0) return res.status(200).json({ processed: 0, reason: 'No eligible subscribers found.' });
+
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) throw new Error('Missing RESEND_API_KEY');
+    const resend = new Resend(resendKey);
+
+    let sentCount = 0;
+    const nowMs = Date.now();
+    for (const sub of eligibleSubscribers) {
+      const nextStep = (sub.drip_step || 0) + 1;
+      const template = templateMap[nextStep];
+      if (!template) continue;
+
+      const lastSentTime = sub.last_email_sent_at ? new Date(sub.last_email_sent_at).getTime() : nowMs;
+      const thresholdTime = lastSentTime + (template.delay_days * 24 * 60 * 60 * 1000);
+
+      if (nowMs >= thresholdTime) {
+        try {
+          const firstName = (sub.name || '').trim().split(' ')[0] || 'there';
+          const personalizedBody = template.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName);
+
+          await resend.emails.send({
+            from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
+            to: sub.email,
+            subject: template.subject,
+            html: personalizedBody
+          });
+
+          await sql`
+            UPDATE subscribers 
+            SET drip_step = ${nextStep}, last_email_sent_at = NOW() 
+            WHERE id = ${sub.id}
+          `;
+          sentCount++;
+        } catch (emailErr) {
+          console.error(`Failed to send step ${nextStep} to ${sub.email}:`, emailErr.message);
+        }
+      }
+    }
+    return res.status(200).json({ ok: true, processed: eligibleSubscribers.length, sent: sentCount });
+  } catch (err) {
+    console.error('Cron drip error:', err);
+    return res.status(500).json({ error: 'Internal cron error' });
+  }
+}
+
 export default async function handler(req, res) {
   try {
+    // Route cron drip (Vercel Cron triggers via GET usually)
+    if (req.query?.action === 'cron_drip' || req.headers['user-agent'] === 'vercel-cron/1.0') {
+      return handleCronDrip(req, res);
+    }
     // Only allow POST
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
