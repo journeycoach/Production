@@ -136,7 +136,8 @@
 
     const state = {
         stepIndex: 0,
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         company: '',
         answers: {
@@ -183,16 +184,20 @@
                 <p class="hc-step-copy">${step.copy}</p>
                 <div class="hc-field-grid">
                     <div class="hc-field">
-                        <label for="hc-name">Name</label>
-                        <input class="hc-input" id="hc-name" name="name" type="text" value="${escapeAttr(state.name)}" autocomplete="name" placeholder="Your name">
+                        <label for="hc-firstName">First Name</label>
+                        <input class="hc-input" id="hc-firstName" type="text" value="${escapeAttr(state.firstName)}" autocomplete="given-name" placeholder="First">
                     </div>
                     <div class="hc-field">
+                        <label for="hc-lastName">Last Name</label>
+                        <input class="hc-input" id="hc-lastName" type="text" value="${escapeAttr(state.lastName)}" autocomplete="family-name" placeholder="Last">
+                    </div>
+                    <div class="hc-field" style="grid-column: 1 / -1;">
                         <label for="hc-email">Email</label>
-                        <input class="hc-input" id="hc-email" name="email" type="email" value="${escapeAttr(state.email)}" autocomplete="email" placeholder="you@example.com">
+                        <input class="hc-input" id="hc-email" type="email" value="${escapeAttr(state.email)}" autocomplete="email" placeholder="you@example.com">
                     </div>
                 </div>
             `;
-            document.getElementById('hc-name')?.focus();
+            document.getElementById('hc-firstName')?.focus();
             return;
         }
 
@@ -223,17 +228,20 @@
         errorEl.textContent = '';
 
         if (step.type === 'intro') {
-            const nameInput = document.getElementById('hc-name');
+            const firstNameInput = document.getElementById('hc-firstName');
+            const lastNameInput = document.getElementById('hc-lastName');
             const emailInput = document.getElementById('hc-email');
             const companyInput = document.getElementById('hc-company');
-            state.name = nameInput.value.trim();
+            state.firstName = firstNameInput.value.trim();
+            state.lastName = lastNameInput.value.trim();
             state.email = emailInput.value.trim();
             state.company = companyInput?.value?.trim() || '';
 
             if (state.company) return false;
-            if (!state.name) {
-                errorEl.textContent = 'Please enter your name.';
-                nameInput.focus();
+            if (!state.firstName || !state.lastName) {
+                errorEl.textContent = 'Please enter your first and last name.';
+                if (!state.firstName) firstNameInput.focus();
+                else lastNameInput.focus();
                 return false;
             }
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email)) {
@@ -267,7 +275,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'hidden_ceiling',
-                    name: state.name,
+                    name: `${state.firstName} ${state.lastName}`.trim(),
                     email: state.email,
                     company: state.company,
                     source: new URLSearchParams(window.location.search).get('source') || 'website',
