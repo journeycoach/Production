@@ -31,6 +31,16 @@
           Use <code>{{firstName}}</code> to inject their name automatically.
         </p>
 
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem; padding: 1.5rem; background: rgba(0,0,0,0.02); border: 1px solid var(--admin-border); border-radius: 6px;">
+          <div>
+            <h3 style="margin:0; font-size: 1rem; color:var(--admin-text);">Campaign Master Switch</h3>
+            <p style="margin:0.2rem 0 0 0; font-size:0.85rem; color:var(--admin-text-muted);">When turned off, the daily schedule pauses and no emails are sent. Subscribers will resume exactly where they left off when re-enabled.</p>
+          </div>
+          <div style="text-align: right; min-width: 120px;">
+            <button id="campaign-toggle-btn" class="btn btn-primary" onclick="toggleMasterCampaign()" style="width:100%;">Loading...</button>
+          </div>
+        </div>
+
         <div id="campaign-list">
           <p class="table-empty">Loading sequence...</p>
         </div>
@@ -75,10 +85,22 @@
       const listEl = document.getElementById('campaign-list');
       
       try {
-        const res = await adminFetch('/api/admin/settings?resource=campaigns&campaign=hidden-ceiling');
-        const data = await res.json();
+        const [seqRes, settingsRes] = await Promise.all([
+          adminFetch('/api/admin/settings?resource=campaigns&campaign=hidden-ceiling'),
+          adminFetch('/api/admin/settings')
+        ]);
         
-        if (!res.ok || !data.data) throw new Error(data.error || 'Failed to load');
+        const data = await seqRes.json();
+        const settingsData = await settingsRes.json();
+        
+        if (!seqRes.ok || !data.data) throw new Error(data.error || 'Failed to load');
+
+        // Setup master toggle
+        const isMasterActive = settingsData.data?.campaign_hidden_ceiling_active === 'true';
+        const toggleBtn = document.getElementById('campaign-toggle-btn');
+        toggleBtn.dataset.active = isMasterActive;
+        toggleBtn.textContent = isMasterActive ? 'Pause Campaign' : 'Resume Campaign';
+        toggleBtn.className = isMasterActive ? 'btn btn-danger' : 'btn btn-primary';
 
         listEl.innerHTML = '';
         const template = document.getElementById('step-template').content;
@@ -130,6 +152,35 @@
       } finally {
         btnElement.disabled = false;
         btnElement.textContent = 'Save Changes';
+      }
+    }
+
+    async function toggleMasterCampaign() {
+      const btn = document.getElementById('campaign-toggle-btn');
+      const currentlyActive = btn.dataset.active === 'true';
+      const newState = !currentlyActive;
+      
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+
+      try {
+        const res = await adminFetch('/api/admin/settings', {
+          method: 'PUT',
+          body: JSON.stringify({ campaign_hidden_ceiling_active: newState ? 'true' : 'false' })
+        });
+        
+        if (res.ok) {
+          btn.dataset.active = newState;
+          btn.textContent = newState ? 'Pause Campaign' : 'Resume Campaign';
+          btn.className = newState ? 'btn btn-danger' : 'btn btn-primary';
+          showFlash(`Campaign has been ${newState ? 'resumed' : 'paused'}.`, 'success');
+        } else {
+          showFlash('Failed to toggle campaign.', 'error');
+        }
+      } catch (err) {
+        showFlash('Network error formatting switch.', 'error');
+      } finally {
+        btn.disabled = false;
       }
     }
 

@@ -163,6 +163,19 @@ async function handleCronDrip(req, res) {
         ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW()
     `;
 
+    // Check Master Switch
+    let isActive = false;
+    try {
+        const activeSetting = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'campaign_hidden_ceiling_active'`;
+        isActive = activeSetting.length > 0 && activeSetting[0].setting_value === 'true';
+    } catch(e) {
+        // Table doesn't exist or setting missing, default to false
+    }
+
+    if (!isActive) {
+      return res.status(200).json({ skipped: true, reason: 'Campaign is currently paused in the Admin dashboard.' });
+    }
+
     const templates = await sql`SELECT * FROM campaign_emails WHERE campaign_name = 'hidden-ceiling' ORDER BY step_number ASC`;
     if (!templates || templates.length === 0) return res.status(200).json({ skipped: true, reason: 'No templates set up yet.' });
     
