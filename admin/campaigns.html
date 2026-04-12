@@ -25,17 +25,30 @@
       </div>
 
       <!-- Test Send Panel -->
-      <div class="card" style="margin-bottom: 1.5rem; border-color: rgba(201,169,110,0.3);">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
-          <div>
-            <h2 style="font-size: 1rem; margin:0 0 0.3rem; color:var(--admin-accent);">&#9993; Send Test Emails</h2>
-            <p style="font-size:0.85rem; color:var(--admin-text-muted); margin:0;">Send all active emails to an inbox right now so you can see how each one looks. A yellow banner will be prepended to each email indicating it is a test.</p>
+      <div class="card" style="margin-bottom: 1.5rem; border-left: 3px solid var(--admin-accent);">
+        <h2 style="font-size: 1rem; margin:0 0 1.25rem; color:var(--admin-accent);">&#9993; Send Test Emails</h2>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1.5rem; margin-bottom: 1.25rem;">
+          <div class="form-row" style="margin:0;">
+            <label style="font-size:0.78rem;">First Name (for {{firstName}} substitution)</label>
+            <input type="text" id="test-first-name" placeholder="e.g. John" class="form-control" style="margin:0;">
           </div>
-          <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0; flex-wrap:wrap;">
-            <input type="text" id="test-first-name" placeholder="First name (e.g. John)" class="form-control" style="max-width:160px; margin:0;">
-            <input type="email" id="test-email-addr" placeholder="your@email.com" class="form-control" style="max-width:220px; margin:0;">
-            <button class="btn btn-primary" onclick="sendTestEmails()" id="test-send-btn" style="white-space:nowrap;">Send All Emails Now</button>
+          <div class="form-row" style="margin:0;">
+            <label style="font-size:0.78rem;">Send To Email Address</label>
+            <input type="email" id="test-email-addr" placeholder="your@email.com" class="form-control" style="margin:0;">
           </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size:0.78rem; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--admin-text-muted); display:block; margin-bottom:0.6rem;">Select Emails to Send</label>
+          <div id="test-step-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.5rem 1rem;">
+            <span style="font-size:0.85rem; color:var(--admin-text-muted);">Loading steps...</span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+          <p style="font-size:0.82rem; color:var(--admin-text-muted); margin:0;">Each email will include a <strong style="color:var(--admin-text);">⚠️ TEST SEND</strong> banner at the top.</p>
+          <button class="btn btn-primary" onclick="sendTestEmails()" id="test-send-btn" style="white-space:nowrap;">Send Selected Emails</button>
         </div>
         <p id="test-send-result" style="margin:0.75rem 0 0; font-size:0.85rem; display:none;"></p>
       </div>
@@ -167,6 +180,15 @@
           listEl.appendChild(clone);
         });
 
+        // Populate test step checkboxes
+        const checkboxContainer = document.getElementById('test-step-checkboxes');
+        checkboxContainer.innerHTML = data.data.map(step => `
+          <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.88rem; color:${step.is_active !== false ? 'var(--admin-text)' : 'var(--admin-text-muted)'};">
+            <input type="checkbox" data-step-id="${step.step_number}" ${step.is_active !== false ? 'checked' : ''} style="accent-color:var(--admin-accent); width:14px; height:14px;">
+            Email ${step.step_number}${step.is_active === false ? ' <em style="font-size:0.75rem;">(paused)</em>' : ''}
+          </label>`).join('');
+
+
       } catch (err) {
         listEl.innerHTML = `<p class="table-empty" style="color:red;">Error loading sequence: ${err.message}</p>`;
       }
@@ -209,6 +231,17 @@
       const btn = document.getElementById('test-send-btn');
       const resultEl = document.getElementById('test-send-result');
 
+      const selectedSteps = Array.from(
+        document.querySelectorAll('#test-step-checkboxes input[type="checkbox"]:checked')
+      ).map(cb => parseInt(cb.dataset.stepId, 10));
+
+      if (selectedSteps.length === 0) {
+        resultEl.textContent = 'Please select at least one email to send.';
+        resultEl.style.color = '#e48d8d';
+        resultEl.style.display = 'block';
+        return;
+      }
+
       if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
         resultEl.textContent = 'Please enter a valid email address.';
         resultEl.style.color = '#e48d8d';
@@ -223,7 +256,7 @@
       try {
         const res = await adminFetch('/api/admin/settings?resource=campaigns&action=test', {
           method: 'POST',
-          body: JSON.stringify({ toEmail, firstName })
+          body: JSON.stringify({ toEmail, firstName, steps: selectedSteps })
         });
         const data = await res.json();
 

@@ -155,27 +155,32 @@ export default async function handler(req, res) {
   // POST — handle campaign test sends
   if (req.method === 'POST') {
     if (req.query?.resource === 'campaigns' && req.query?.action === 'test') {
-      const { toEmail, firstName = 'there' } = req.body || {};
+      const { toEmail, firstName = 'there', steps } = req.body || {};
       if (!toEmail) return res.status(400).json({ error: 'toEmail is required' });
 
       const resendKey = process.env.RESEND_API_KEY;
       if (!resendKey) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
 
       try {
-        const steps = await db.client`
+        let allSteps = await db.client`
           SELECT * FROM campaign_emails
-          WHERE campaign_name = 'hidden-ceiling' AND is_active = true
+          WHERE campaign_name = 'hidden-ceiling'
           ORDER BY step_number ASC
         `;
-        if (!steps || steps.length === 0) {
-          return res.status(200).json({ ok: true, sent: 0, reason: 'No active steps found.' });
+        // Filter to selected steps if provided, otherwise send all active
+        const filteredSteps = (steps && steps.length > 0)
+          ? allSteps.filter(s => steps.includes(s.step_number))
+          : allSteps.filter(s => s.is_active !== false);
+
+        if (!filteredSteps || filteredSteps.length === 0) {
+          return res.status(200).json({ ok: true, sent: 0, reason: 'No matching steps found.' });
         }
 
         const resend = new Resend(resendKey);
         let sent = 0;
         const errors = [];
 
-        for (const step of steps) {
+        for (const step of filteredSteps) {
           const personalizedBody = step.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName);
           try {
             await resend.emails.send({
@@ -190,7 +195,7 @@ export default async function handler(req, res) {
           }
         }
 
-        return res.status(200).json({ ok: true, sent, total: steps.length, errors });
+        return res.status(200).json({ ok: true, sent, total: filteredSteps.length, errors });
       } catch (err) {
         console.error('Campaign test send error:', err);
         return res.status(500).json({ error: 'Failed to send test emails' });
