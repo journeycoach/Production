@@ -113,6 +113,12 @@
             <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem; height:auto; color:var(--admin-accent);" onclick="insertMarkup(this, '<ul>\n  <li>', '</li>\n</ul>')">List</button>
             <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem; height:auto; color:var(--admin-accent);" onclick="insertMarkup(this, '<li>', '</li>')">&lt;li&gt;</button>
             <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem; height:auto; color:var(--admin-accent);" onclick="insertMarkup(this, '<a href=\'URL\'>', '</a>')">Link</button>
+            <span style="display:inline-flex; align-items:center; position:relative;">
+              <button type="button" class="btn btn-ghost btn-sm btn-color-pick" style="padding:0.1rem 0.4rem; height:auto; color:var(--admin-accent); display:inline-flex; align-items:center; gap:0.25rem;" onclick="openColorPicker(this)">
+                <span class="color-swatch" style="display:inline-block; width:12px; height:12px; border-radius:2px; border:1px solid var(--admin-border); background:#e74c3c; vertical-align:middle;"></span> Color
+              </button>
+              <input type="color" class="field-color-input" value="#e74c3c" style="position:absolute; bottom:0; left:0; width:0; height:0; padding:0; border:none; opacity:0; pointer-events:none;" onchange="applyColor(this)">
+            </span>
           </div>
         </div>
         <textarea class="form-control field-body" rows="18" style="font-family:monospace; font-size:0.95rem; width:100%; max-width:100%; resize:vertical;" placeholder="<p>Hi {{firstName}},</p>"></textarea>
@@ -343,6 +349,38 @@
       
       textarea.focus();
       // Keep selection gracefully highlighted over the injected content text for easy typing over links
+      textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+    }
+
+    function openColorPicker(btnElement) {
+      const container = btnElement.closest('.setting-group');
+      const textarea = container.querySelector('.field-body');
+      const colorInput = container.querySelector('.field-color-input');
+      // Store current selection before the color picker steals focus
+      colorInput.dataset.selStart = textarea.selectionStart;
+      colorInput.dataset.selEnd = textarea.selectionEnd;
+      colorInput.click();
+    }
+
+    function applyColor(colorInput) {
+      const container = colorInput.closest('.setting-group');
+      const textarea = container.querySelector('.field-body');
+      const swatch = container.querySelector('.color-swatch');
+      const color = colorInput.value;
+
+      // Update the swatch preview
+      swatch.style.background = color;
+
+      const start = parseInt(colorInput.dataset.selStart, 10) || 0;
+      const end = parseInt(colorInput.dataset.selEnd, 10) || 0;
+      const text = textarea.value;
+      const selectedText = text.substring(start, end);
+
+      const openTag = `<span style="color:${color}">`;
+      const closeTag = '</span>';
+      textarea.value = text.substring(0, start) + openTag + selectedText + closeTag + text.substring(end);
+
+      textarea.focus();
       textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
     }
 
