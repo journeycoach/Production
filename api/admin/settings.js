@@ -1,5 +1,6 @@
 import { sql, sqlForDatabaseUrl } from '../_db.js';
 import { requireAuth } from '../_auth.js';
+import { Resend } from 'resend';
 
 function getConfiguredSiteEnvironment() {
   return process.env.SITE_ENV === 'production' || process.env.SITE_ENV === 'test'
@@ -148,6 +149,52 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error('settings PUT error:', err);
       return res.status(500).json({ error: 'Database error' });
+    }
+  }
+
+  // POST — handle campaign test sends
+  if (req.method === 'POST') {
+    if (req.query?.resource === 'campaigns' && req.query?.action === 'test') {
+      const { toEmail, firstName = 'there' } = req.body || {};
+      if (!toEmail) return res.status(400).json({ error: 'toEmail is required' });
+
+      const resendKey = process.env.RESEND_API_KEY;
+      if (!resendKey) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+
+      try {
+        const steps = await db.client`
+          SELECT * FROM campaign_emails
+          WHERE campaign_name = 'hidden-ceiling' AND is_active = true
+          ORDER BY step_number ASC
+        `;
+        if (!steps || steps.length === 0) {
+          return res.status(200).json({ ok: true, sent: 0, reason: 'No active steps found.' });
+        }
+
+        const resend = new Resend(resendKey);
+        let sent = 0;
+        const errors = [];
+
+        for (const step of steps) {
+          const personalizedBody = step.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName);
+          try {
+            await resend.emails.send({
+              from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
+              to: toEmail,
+              subject: `[TEST – Email ${step.step_number}] ${step.subject}`,
+              html: `<div style="background:#fffbe6;border:2px solid #f0c040;padding:0.75rem 1.25rem;margin-bottom:1.5rem;border-radius:6px;font-family:sans-serif;font-size:0.85rem;color:#7a5c00;"><strong>⚠️ TEST SEND</strong> — This is Step ${step.step_number} of the Hidden Ceiling drip sequence. It would normally be sent ${step.delay_days} day(s) after the previous email.</div>${personalizedBody}`
+            });
+            sent++;
+          } catch (e) {
+            errors.push(`Step ${step.step_number}: ${e.message}`);
+          }
+        }
+
+        return res.status(200).json({ ok: true, sent, total: steps.length, errors });
+      } catch (err) {
+        console.error('Campaign test send error:', err);
+        return res.status(500).json({ error: 'Failed to send test emails' });
+      }
     }
   }
 

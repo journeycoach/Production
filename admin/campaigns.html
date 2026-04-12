@@ -24,6 +24,22 @@
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
+      <!-- Test Send Panel -->
+      <div class="card" style="margin-bottom: 1.5rem; border-color: rgba(201,169,110,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <h2 style="font-size: 1rem; margin:0 0 0.3rem; color:var(--admin-accent);">&#9993; Send Test Emails</h2>
+            <p style="font-size:0.85rem; color:var(--admin-text-muted); margin:0;">Send all active emails to an inbox right now so you can see how each one looks. A yellow banner will be prepended to each email indicating it is a test.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-shrink:0; flex-wrap:wrap;">
+            <input type="text" id="test-first-name" placeholder="First name (e.g. John)" class="form-control" style="max-width:160px; margin:0;">
+            <input type="email" id="test-email-addr" placeholder="your@email.com" class="form-control" style="max-width:220px; margin:0;">
+            <button class="btn btn-primary" onclick="sendTestEmails()" id="test-send-btn" style="white-space:nowrap;">Send All Emails Now</button>
+          </div>
+        </div>
+        <p id="test-send-result" style="margin:0.75rem 0 0; font-size:0.85rem; display:none;"></p>
+      </div>
+
       <div class="card">
         <h2 style="font-size: 1.1rem; margin-bottom: 0.5rem; color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
         <p style="font-size: 0.9rem; color:var(--admin-text-muted); margin-bottom: 2rem;">
@@ -184,6 +200,48 @@
       } finally {
         btnElement.disabled = false;
         btnElement.textContent = 'Save Changes';
+      }
+    }
+
+    async function sendTestEmails() {
+      const toEmail = document.getElementById('test-email-addr').value.trim();
+      const firstName = document.getElementById('test-first-name').value.trim() || 'John';
+      const btn = document.getElementById('test-send-btn');
+      const resultEl = document.getElementById('test-send-result');
+
+      if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
+        resultEl.textContent = 'Please enter a valid email address.';
+        resultEl.style.color = '#e48d8d';
+        resultEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      resultEl.style.display = 'none';
+
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=campaigns&action=test', {
+          method: 'POST',
+          body: JSON.stringify({ toEmail, firstName })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          const errNote = data.errors?.length ? ` (${data.errors.length} failed: ${data.errors.join('; ')})` : '';
+          resultEl.textContent = `✓ Sent ${data.sent} of ${data.total} emails to ${toEmail}.${errNote}`;
+          resultEl.style.color = 'var(--admin-accent)';
+        } else {
+          resultEl.textContent = `Error: ${data.error || 'Unknown error'}`;
+          resultEl.style.color = '#e48d8d';
+        }
+      } catch (err) {
+        resultEl.textContent = 'Network error. Please try again.';
+        resultEl.style.color = '#e48d8d';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send All Emails Now';
+        resultEl.style.display = 'block';
       }
     }
 
