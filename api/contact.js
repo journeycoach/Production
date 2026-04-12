@@ -182,6 +182,7 @@ async function handleCronDrip(req, res) {
     const templateMap = {};
     let maxStep = 0;
     for (const t of templates) {
+      if (t.is_active === false) continue; // skip disabled steps
       templateMap[t.step_number] = t;
       if (t.step_number > maxStep) maxStep = t.step_number;
     }

@@ -73,9 +73,11 @@ export default async function handler(req, res) {
             subject TEXT,
             body_html TEXT,
             delay_days INT DEFAULT 2,
+            is_active BOOLEAN DEFAULT TRUE,
             UNIQUE(campaign_name, step_number)
           )
         `;
+        await db.client`ALTER TABLE campaign_emails ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE`;
         const existing = await db.client`SELECT COUNT(*) as count FROM campaign_emails WHERE campaign_name = 'hidden-ceiling'`;
         if (parseInt(existing[0].count, 10) === 0) {
           for (let i = 1; i <= 5; i++) {
@@ -108,14 +110,19 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     if (req.query?.resource === 'campaigns') {
       try {
-        const { id, subject, body_html, delay_days } = req.body;
+        const { id, subject, body_html, delay_days, is_active } = req.body;
         if (!id) return res.status(400).json({ error: 'Missing step ID' });
 
-        await db.client`
-          UPDATE campaign_emails
-          SET subject = ${subject}, body_html = ${body_html}, delay_days = ${delay_days}
-          WHERE id = ${id}
-        `;
+        // If only toggling is_active, allow partial update
+        if (is_active !== undefined && subject === undefined) {
+          await db.client`UPDATE campaign_emails SET is_active = ${is_active} WHERE id = ${id}`;
+        } else {
+          await db.client`
+            UPDATE campaign_emails
+            SET subject = ${subject}, body_html = ${body_html}, delay_days = ${delay_days}
+            WHERE id = ${id}
+          `;
+        }
         return res.status(200).json({ ok: true });
       } catch (err) {
         console.error(err);

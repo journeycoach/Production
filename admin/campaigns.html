@@ -50,8 +50,16 @@
 
   <template id="step-template">
     <div class="setting-group" style="padding-bottom: 2rem; border-bottom: 1px solid var(--admin-border); margin-bottom: 2rem;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 1rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
         <h3 class="step-title" style="margin:0;">Step X</h3>
+        <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; color:var(--admin-text-muted);">
+          <span class="step-status-label">Active</span>
+          <span style="position:relative; display:inline-block; width:36px; height:20px;">
+            <input type="checkbox" class="field-active" style="opacity:0; width:0; height:0; position:absolute;" checked>
+            <span class="step-toggle-track" style="position:absolute; inset:0; border-radius:999px; background:var(--admin-border); transition:background 0.2s; cursor:pointer;"></span>
+            <span class="step-toggle-thumb" style="position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform 0.2s;"></span>
+          </span>
+        </label>
       </div>
       
       <div class="form-row">
@@ -123,6 +131,20 @@
           clone.querySelector('.field-subject').value = step.subject;
           clone.querySelector('.field-body').value = step.body_html;
 
+          // Populate the active toggle
+          const isActive = step.is_active !== false; // default true
+          const checkbox = clone.querySelector('.field-active');
+          const track = clone.querySelector('.step-toggle-track');
+          const thumb = clone.querySelector('.step-toggle-thumb');
+          const label = clone.querySelector('.step-status-label');
+          checkbox.checked = isActive;
+          track.style.background = isActive ? 'var(--admin-accent)' : 'var(--admin-border)';
+          thumb.style.transform = isActive ? 'translateX(16px)' : 'translateX(0)';
+          label.textContent = isActive ? 'Active' : 'Paused';
+          label.style.color = isActive ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
+
+          checkbox.addEventListener('change', () => toggleStep(step.id, checkbox, track, thumb, label));
+
           const btn = clone.querySelector('.btn-save');
           btn.addEventListener('click', () => saveStep(step.id, btn));
 
@@ -162,6 +184,28 @@
       } finally {
         btnElement.disabled = false;
         btnElement.textContent = 'Save Changes';
+      }
+    }
+
+    async function toggleStep(id, checkbox, track, thumb, label) {
+      const newState = checkbox.checked;
+      track.style.background = newState ? 'var(--admin-accent)' : 'var(--admin-border)';
+      thumb.style.transform = newState ? 'translateX(16px)' : 'translateX(0)';
+      label.textContent = newState ? 'Active' : 'Paused';
+      label.style.color = newState ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
+
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=campaigns', {
+          method: 'PUT',
+          body: JSON.stringify({ id, is_active: newState })
+        });
+        if (res.ok) {
+          showFlash(`Email ${newState ? 'enabled' : 'paused'} successfully.`, 'success');
+        } else {
+          showFlash('Failed to update step status.', 'error');
+        }
+      } catch (err) {
+        showFlash('Network error.', 'error');
       }
     }
 
