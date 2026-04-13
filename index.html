@@ -30,7 +30,6 @@
       "description": "ICF-certified executive coach helping high-impact leaders navigate transitions, unlock potential, and drive organizational success through Enneagram-grounded coaching.",
       "url": "https://journeycoach.co",
       "image": "https://journeycoach.co/assets/images/about_john.jpg",
-      "email": "hello@journeycoach.co",
       "sameAs": [
         "https://www.linkedin.com/in/john-paine/"
       ],
@@ -444,9 +443,7 @@
                     </div>
                     <div id="cf-error"
                         style="display:none; padding:1rem 1.25rem; border-radius:4px; background:rgba(220,80,80,0.1); border:1px solid rgba(220,80,80,0.3); color:#e07070; font-size:0.95rem; line-height:1.6;">
-                        Something went wrong sending your message. Please email me directly at
-                        <a href="mailto:hello@journeycoach.co"
-                            style="color:inherit; text-decoration:underline;">hello@journeycoach.co</a>.
+                        Something went wrong sending your message. Please try again in a moment or use the contact form below.
                     </div>
                 </form>
             </div>
@@ -611,7 +608,7 @@
                             successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         } else {
                             const data = await res.json().catch(() => ({}));
-                            errorEl.textContent = data.error || 'Something went wrong. Please email me directly at hello@journeycoach.co.';
+                            errorEl.textContent = data.error || 'Something went wrong. Please try again in a moment or use the contact form below.';
                             errorEl.style.display = 'block';
                         }
                     } catch (err) {
