@@ -124,16 +124,6 @@
         }
     };
 
-    const SCORE_MAP = {
-        q1: ['head', 'action', 'heart'],
-        q2: ['head', 'heart', 'action'],
-        q3: ['head', 'heart', 'action'],
-        q4: ['heart', 'head', 'action'],
-        q5: ['head', 'heart', 'action'],
-        q6: ['heart', 'head', 'action'],
-        q7: ['heart', 'head', 'action']
-    };
-
     const state = {
         stepIndex: 0,
         firstName: '',
