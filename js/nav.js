@@ -41,6 +41,50 @@
         }
     }
 
+    function safeUrl(value) {
+        if (!value) return '';
+        try {
+            const url = new URL(String(value).trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(url.protocol)) {
+                return '';
+            }
+            if (url.origin === window.location.origin) {
+                return `${url.pathname}${url.search}${url.hash}`;
+            }
+            return url.href;
+        } catch {
+            return '';
+        }
+    }
+
+    function normalizedPathname(value) {
+        const safe = safeUrl(value);
+        if (!safe) return '';
+        const url = new URL(safe, window.location.origin);
+        let path = url.pathname || '/';
+        if (path === '/index.html') path = '/';
+        return path.replace(/\/+$/, '') || '/';
+    }
+
+    function createNavLink(link, currentPath) {
+        const href = safeUrl(link.url);
+        if (!href) return null;
+
+        const listItem = document.createElement('li');
+        const anchor = document.createElement('a');
+        anchor.href = href;
+        anchor.textContent = link.label || '';
+
+        const linkPath = normalizedPathname(link.url);
+        const isHashLink = href.includes('#') && linkPath === '/';
+        if (linkPath === currentPath || (isHashLink && currentPath === '/')) {
+            anchor.classList.add('active');
+        }
+
+        listItem.appendChild(anchor);
+        return listItem;
+    }
+
     function renderNav(config) {
         const logoEl  = document.getElementById('nav-logo');
         const navList = document.getElementById('nav-links-list');
@@ -56,22 +100,23 @@
         logoEl.appendChild(brandSpan);
 
         // Detect current page for active-state highlighting
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-
-        let html = '';
+        const currentPath = normalizedPathname(window.location.pathname);
+        navList.textContent = '';
 
         // Nav links (only visible ones)
         (config.nav_links || []).forEach(link => {
             if (!link.visible) return;
-            const isActive = (link.url === currentPage) ||
-                             (link.url === '/' && currentPage === 'index.html') ||
-                             (link.url.startsWith('/#') && currentPage === 'index.html');
-            const cls = isActive ? ' class="active"' : '';
-            html += `<li><a href="${link.url}"${cls}>${link.label}</a></li>`;
+            const listItem = createNavLink(link, currentPath);
+            if (listItem) {
+                navList.appendChild(listItem);
+            }
         });
 
         if (hasValidAdminSession()) {
-            html += `<li><a href="/admin">Admin</a></li>`;
+            const adminItem = createNavLink({ label: 'Admin', url: '/admin' }, currentPath);
+            if (adminItem) {
+                navList.appendChild(adminItem);
+            }
         }
 
         // CTA button
@@ -80,10 +125,19 @@
             ? { label: ctaState.active.label, url: ctaState.active.url, visible: true }
             : config.cta_button;
         if (cta && cta.visible) {
-            html += `<li><a href="${cta.url}" class="btn-primary" data-site-cta="smart">${cta.label}</a></li>`;
+            const href = safeUrl(cta.url);
+            if (href) {
+                const listItem = document.createElement('li');
+                const anchor = document.createElement('a');
+                anchor.href = href;
+                anchor.className = 'btn-primary';
+                anchor.dataset.siteCta = 'smart';
+                anchor.textContent = cta.label || '';
+                listItem.appendChild(anchor);
+                navList.appendChild(listItem);
+            }
         }
 
-        navList.innerHTML = html;
         window.applySiteCtaTargets?.();
     }
 
@@ -93,9 +147,27 @@
         const links = Array.isArray(config.footer_links) ? config.footer_links : [];
         const visible = links.filter(l => l.visible !== false);
         if (visible.length === 0) return;
-        footerNav.innerHTML = visible.map(l =>
-            `<a href="${l.url}" style="color:var(--color-text-muted);font-size:0.8rem;text-decoration:none;transition:color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">${l.label}</a>`
-        ).join('');
+        footerNav.textContent = '';
+
+        visible.forEach(link => {
+            const href = safeUrl(link.url);
+            if (!href) return;
+
+            const anchor = document.createElement('a');
+            anchor.href = href;
+            anchor.textContent = link.label || '';
+            anchor.style.color = 'var(--color-text-muted)';
+            anchor.style.fontSize = '0.8rem';
+            anchor.style.textDecoration = 'none';
+            anchor.style.transition = 'color 0.3s ease';
+            anchor.addEventListener('mouseenter', () => {
+                anchor.style.color = 'var(--color-accent-gold)';
+            });
+            anchor.addEventListener('mouseleave', () => {
+                anchor.style.color = 'var(--color-text-muted)';
+            });
+            footerNav.appendChild(anchor);
+        });
     }
 
     function init() {

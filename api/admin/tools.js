@@ -18,7 +18,7 @@ export default async function handler(req, res) {
           return {
             allowedContentTypes: [
               'application/pdf',
-              'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+              'image/jpeg', 'image/png', 'image/gif', 'image/webp',
               'text/plain',
               'text/csv',
               'application/rtf',

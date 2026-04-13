@@ -2,6 +2,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toolsContainer = document.getElementById('tools-container');
     if (!toolsContainer) return;
 
+    function safeUrl(value) {
+        if (!value) return '';
+        try {
+            const url = new URL(String(value).trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(url.protocol)) {
+                return '';
+            }
+            return url.href;
+        } catch {
+            return '';
+        }
+    }
+
+    function renderEmptyState(message) {
+        toolsContainer.textContent = '';
+        const paragraph = document.createElement('p');
+        paragraph.style.textAlign = 'center';
+        paragraph.style.marginTop = '4rem';
+        paragraph.textContent = message;
+        toolsContainer.appendChild(paragraph);
+    }
+
     function normalizeTool(tool) {
         return {
             ...tool,
@@ -35,14 +57,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (resources.length === 0) {
-            toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
+            renderEmptyState('No resources available yet. Check back soon!');
             return;
         }
 
         const visibleResources = resources.filter(resource => !resource.isHidden);
 
         if (visibleResources.length === 0) {
-            toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">No resources available yet. Check back soon!</p>';
+            renderEmptyState('No resources available yet. Check back soon!');
             return;
         }
 
@@ -70,19 +92,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 section.classList.add('books-section');
             }
 
-            section.innerHTML = `
-                <h2 class="category-title">${categoryName}</h2>
-                <div class="tools-grid"></div>
-            `;
+            const title = document.createElement('h2');
+            title.className = 'category-title';
+            title.textContent = categoryName;
 
-            const grid = section.querySelector('.tools-grid');
+            const grid = document.createElement('div');
+            grid.className = 'tools-grid';
+
+            section.appendChild(title);
+            section.appendChild(grid);
 
             tools.forEach(tool => {
                 const isFile = tool.type === 'file' || tool.type === 'File Upload';
-                const linkUrl = isFile ? tool.fileUrl : tool.externalUrl;
+                const linkUrl = safeUrl(isFile ? tool.fileUrl : tool.externalUrl);
                 const isBooksCategory = (categoryName || '').toLowerCase() === 'books';
-                const renderImageOnly = isBooksCategory && !!tool.imageUrl;
-                const renderTextAboveImage = !renderImageOnly && !!tool.imageUrl;
+                const imageUrl = safeUrl(tool.imageUrl);
+                const renderImageOnly = isBooksCategory && !!imageUrl;
+                const renderTextAboveImage = !renderImageOnly && !!imageUrl;
 
                 if (!linkUrl) return;
 
@@ -95,23 +121,42 @@ document.addEventListener('DOMContentLoaded', async () => {
                 card.title = tool.title;
 
                 if (renderImageOnly) {
-                    card.innerHTML = `
-                        <img class="tool-card-image" src="${tool.imageUrl}" alt="${tool.title}" loading="lazy">
-                    `;
+                    const image = document.createElement('img');
+                    image.className = 'tool-card-image';
+                    image.src = imageUrl;
+                    image.alt = tool.title || '';
+                    image.loading = 'lazy';
+                    card.appendChild(image);
                 } else {
-                    const imageMarkup = tool.imageUrl
-                        ? `<img class="tool-card-image" src="${tool.imageUrl}" alt="${tool.title}" loading="lazy">`
-                        : '';
-                    const bodyMarkup = `
-                        <div class="tool-card-body">
-                            <h3>${tool.title}</h3>
-                            ${tool.description ? `<p>${tool.description}</p>` : ''}
-                        </div>
-                    `;
+                    const body = document.createElement('div');
+                    body.className = 'tool-card-body';
 
-                    card.innerHTML = renderTextAboveImage
-                        ? `${bodyMarkup}${imageMarkup}`
-                        : `${imageMarkup}${bodyMarkup}`;
+                    const heading = document.createElement('h3');
+                    heading.textContent = tool.title || '';
+                    body.appendChild(heading);
+
+                    if (tool.description) {
+                        const description = document.createElement('p');
+                        description.textContent = tool.description;
+                        body.appendChild(description);
+                    }
+
+                    let image = null;
+                    if (imageUrl) {
+                        image = document.createElement('img');
+                        image.className = 'tool-card-image';
+                        image.src = imageUrl;
+                        image.alt = tool.title || '';
+                        image.loading = 'lazy';
+                    }
+
+                    if (renderTextAboveImage) {
+                        card.appendChild(body);
+                        if (image) card.appendChild(image);
+                    } else {
+                        if (image) card.appendChild(image);
+                        card.appendChild(body);
+                    }
                 }
 
                 grid.appendChild(card);
@@ -127,6 +172,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 100);
     } catch (err) {
         console.error('Error fetching tools:', err);
-        toolsContainer.innerHTML = '<p style="text-align: center; margin-top: 4rem;">Unable to load resources at this time.</p>';
+        renderEmptyState('Unable to load resources at this time.');
     }
 });

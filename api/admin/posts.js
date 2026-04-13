@@ -14,7 +14,7 @@ export default async function handler(req, res) {
           if (!verifyToken(clientPayload || '')) throw new Error('Unauthorized');
           return {
             allowedContentTypes: [
-              'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+              'image/jpeg', 'image/png', 'image/gif', 'image/webp',
             ],
             addRandomSuffix: true,
             maximumSizeInBytes: 10 * 1024 * 1024, // 10 MB

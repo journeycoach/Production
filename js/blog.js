@@ -9,6 +9,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const postContent = document.getElementById('post-content');
     let allPosts = [];
 
+    function safeUrl(value) {
+        if (!value) return '';
+        try {
+            const url = new URL(String(value).trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(url.protocol)) {
+                return '';
+            }
+            return url.href;
+        } catch {
+            return '';
+        }
+    }
+
+    function sanitizeHtml(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+        const allowedTags = new Set(['P', 'BR', 'STRONG', 'B', 'EM', 'I', 'UL', 'OL', 'LI', 'A', 'H1', 'H2', 'H3', 'H4', 'BLOCKQUOTE', 'HR', 'IMG']);
+
+        function sanitizeNode(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return document.createTextNode(node.textContent || '');
+            }
+
+            if (node.nodeType !== Node.ELEMENT_NODE) {
+                return document.createDocumentFragment();
+            }
+
+            const tagName = node.tagName.toUpperCase();
+            if (!allowedTags.has(tagName)) {
+                const fragment = document.createDocumentFragment();
+                Array.from(node.childNodes).forEach(child => {
+                    fragment.appendChild(sanitizeNode(child));
+                });
+                return fragment;
+            }
+
+            const clean = document.createElement(tagName.toLowerCase());
+
+            if (tagName === 'A') {
+                const href = safeUrl(node.getAttribute('href'));
+                if (href) {
+                    clean.setAttribute('href', href);
+                    clean.setAttribute('rel', 'noopener noreferrer');
+                    if (href.startsWith('http')) {
+                        clean.setAttribute('target', '_blank');
+                    }
+                }
+            }
+
+            if (tagName === 'IMG') {
+                const src = safeUrl(node.getAttribute('src'));
+                if (!src) {
+                    return document.createDocumentFragment();
+                }
+                clean.setAttribute('src', src);
+                clean.setAttribute('alt', node.getAttribute('alt') || '');
+                clean.setAttribute('loading', 'lazy');
+            }
+
+            Array.from(node.childNodes).forEach(child => {
+                clean.appendChild(sanitizeNode(child));
+            });
+
+            return clean;
+        }
+
+        const wrapper = document.createElement('div');
+        Array.from(doc.body.firstChild?.childNodes || []).forEach(child => {
+            wrapper.appendChild(sanitizeNode(child));
+        });
+        return wrapper;
+    }
+
     function renderList(posts) {
         blogGrid.innerHTML = '';
         if (posts.length === 0) {
@@ -22,8 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.animationDelay = (index * 0.1) + 's';
 
             if (post.image_url) {
+                const safeImageUrl = safeUrl(post.image_url);
+                if (safeImageUrl) {
                 const img = document.createElement('img');
-                img.src = post.image_url;
+                img.src = safeImageUrl;
                 img.alt = post.title || '';
                 img.style.width = '100%';
                 img.style.maxHeight = '200px';
@@ -31,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.style.borderRadius = '8px';
                 img.style.marginBottom = '1rem';
                 card.appendChild(img);
+                }
             }
 
             const date = document.createElement('span');
@@ -78,19 +154,21 @@ document.addEventListener('DOMContentLoaded', () => {
         postContent.innerHTML = '';
 
         if (post.image_url) {
+            const safeImageUrl = safeUrl(post.image_url);
+            if (safeImageUrl) {
             const img = document.createElement('img');
-            img.src = post.image_url;
+            img.src = safeImageUrl;
             img.alt = post.title || '';
             img.style.cssText = 'width:100%;max-height:400px;object-fit:cover;border-radius:8px;margin-bottom:2rem;';
             postContent.appendChild(img);
+            }
         }
 
         const bodyHtml = typeof post.body === 'string' && post.body.trim()
             ? post.body
             : '<p><em>Content could not be loaded.</em></p>';
 
-        const bodyContainer = document.createElement('div');
-        bodyContainer.innerHTML = bodyHtml;
+        const bodyContainer = sanitizeHtml(bodyHtml);
         postContent.appendChild(bodyContainer);
 
         // Update OG meta tags for this post

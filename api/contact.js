@@ -1,5 +1,88 @@
+import crypto from 'crypto';
 import { sql } from './_db.js';
 import { Resend } from 'resend';
+
+const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET || 'journeycoach-rate-limit';
+
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function getClientIp(req) {
+  const forwarded = String(
+    req.headers['x-forwarded-for']
+    || req.headers['x-real-ip']
+    || req.socket?.remoteAddress
+    || ''
+  );
+  return forwarded.split(',')[0].trim() || 'unknown';
+}
+
+function hashRateLimitValue(value) {
+  return crypto.createHash('sha256').update(`${RATE_LIMIT_SALT}:${value}`).digest('hex');
+}
+
+async function ensureSubmissionAttemptTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS submission_attempts (
+      id SERIAL PRIMARY KEY,
+      action TEXT NOT NULL,
+      ip_hash TEXT NOT NULL,
+      email_hash TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+}
+
+async function enforceSubmissionRateLimit(req, action, email, { maxPerHour = 8, maxPerDayPerEmail = 3 } = {}) {
+  try {
+    await ensureSubmissionAttemptTable();
+
+    const ipHash = hashRateLimitValue(getClientIp(req));
+    const emailHash = email ? hashRateLimitValue(normalizeEmail(email)) : null;
+
+    const [hourlyCountRow] = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM submission_attempts
+      WHERE action = ${action}
+        AND ip_hash = ${ipHash}
+        AND created_at > NOW() - INTERVAL '1 hour'
+    `;
+
+    if ((hourlyCountRow?.count || 0) >= maxPerHour) {
+      return { allowed: false, error: 'Too many requests from this device. Please wait a bit and try again.' };
+    }
+
+    if (emailHash) {
+      const [dailyCountRow] = await sql`
+        SELECT COUNT(*)::int AS count
+        FROM submission_attempts
+        WHERE action = ${action}
+          AND email_hash = ${emailHash}
+          AND created_at > NOW() - INTERVAL '1 day'
+      `;
+
+      if ((dailyCountRow?.count || 0) >= maxPerDayPerEmail) {
+        return { allowed: false, error: 'That email has reached the daily submission limit. Please try again tomorrow.' };
+      }
+    }
+
+    await sql`
+      INSERT INTO submission_attempts (action, ip_hash, email_hash)
+      VALUES (${action}, ${ipHash}, ${emailHash})
+    `;
+
+    await sql`
+      DELETE FROM submission_attempts
+      WHERE created_at < NOW() - INTERVAL '7 days'
+    `;
+
+    return { allowed: true };
+  } catch (err) {
+    console.error('submission rate limit error:', err);
+    return { allowed: true };
+  }
+}
 
 async function handleSubscribe(req, res) {
   const { email, name, source } = req.body || {};
@@ -7,6 +90,15 @@ async function handleSubscribe(req, res) {
   if (!email || !emailRegex.test(email)) {
     return res.status(400).json({ error: 'A valid email address is required.' });
   }
+
+  const limit = await enforceSubmissionRateLimit(req, 'subscribe', email, {
+    maxPerHour: 6,
+    maxPerDayPerEmail: 2,
+  });
+  if (!limit.allowed) {
+    return res.status(429).json({ error: limit.error });
+  }
+
   try {
     await sql`
       CREATE TABLE IF NOT EXISTS subscribers (
@@ -56,6 +148,14 @@ async function handleHiddenCeiling(req, res) {
   if (!name?.trim()) return res.status(400).json({ error: 'Please enter your name.' });
   if (!email || !emailRegex.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
   if (!answers || typeof answers !== 'object') return res.status(400).json({ error: 'Assessment answers are required.' });
+
+  const limit = await enforceSubmissionRateLimit(req, 'hidden_ceiling', email, {
+    maxPerHour: 8,
+    maxPerDayPerEmail: 3,
+  });
+  if (!limit.allowed) {
+    return res.status(429).json({ error: limit.error });
+  }
 
   // Score: each question maps answer index → center
   const SCORE_MAP = {
@@ -296,6 +396,14 @@ export default async function handler(req, res) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: 'Please provide a valid email address.' });
+    }
+
+    const limit = await enforceSubmissionRateLimit(req, 'contact', email, {
+      maxPerHour: 6,
+      maxPerDayPerEmail: 3,
+    });
+    if (!limit.allowed) {
+      return res.status(429).json({ error: limit.error });
     }
 
     // Save to database — this is the source of truth; email is best-effort
