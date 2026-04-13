@@ -383,8 +383,8 @@
     requireAdminAuth();
 
     let activeTab = 'website';
-    const currentSiteEnvironment = window.location.hostname.includes('journeycoach.co') &&
-      !window.location.hostname.includes('yourjourneycoach.com')
+    const currentHost = window.location.hostname.toLowerCase();
+    const currentSiteEnvironment = currentHost === 'journeycoach.co' || currentHost.endsWith('.journeycoach.co')
       ? 'production'
       : 'test';
     let currentWebsiteEnvironment = localStorage.getItem('website_settings_environment') || currentSiteEnvironment;

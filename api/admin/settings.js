@@ -13,7 +13,7 @@ function resolveCurrentEnvironment(req) {
   if (configuredEnvironment) return configuredEnvironment;
 
   const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase();
-  if (host.includes('journeycoach.co') && !host.includes('yourjourneycoach.com')) {
+  if (host === 'journeycoach.co' || host.endsWith('.journeycoach.co')) {
     return 'production';
   }
   return 'test';
