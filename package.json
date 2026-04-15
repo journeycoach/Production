@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Journey Coach",
   "type": "module",
-  "scripts": {
-    "build": "mkdir -p public && cp -r * public/ || true"
-  },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@vercel/blob": "^2.3.3",
