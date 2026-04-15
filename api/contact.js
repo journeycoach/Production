@@ -240,7 +240,7 @@ async function handleHiddenCeiling(req, res) {
     console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
-  return res.status(200).json({ ok: true, result, scores, emailSent, emailError });
+  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: 'https://calendly.com/johnpaine/hidden-ceiling-debrief' });
 }
 
 async function handleCronDrip(req, res) {

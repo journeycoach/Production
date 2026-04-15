@@ -287,7 +287,7 @@
     }
 
     function showResult(data) {
-        const { result, scores, emailSent } = data;
+        const { result, scores, emailSent, calendly_url } = data;
         const meta = RESULT_META[result.center];
         if (!meta) return;
 
@@ -312,6 +312,12 @@
                 <span>${score.value}</span>
             </div>
         `).join('');
+
+        if (calendly_url) {
+            const btn = document.getElementById('hc-calendly-btn');
+            btn.href = calendly_url;
+            btn.style.display = '';
+        }
 
         form.hidden = true;
         resultCard.classList.add('is-visible');
