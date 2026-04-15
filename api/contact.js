@@ -472,6 +472,69 @@ export default async function handler(req, res) {
       console.error('Email notification failed (submission was saved):', emailErr.message);
     }
 
+    // Auto-reply to the submitter — best-effort, does not affect the 200 response
+    try {
+      const resendKey = process.env.RESEND_API_KEY;
+      if (resendKey) {
+        const firstName = escapeHtml(name.split(' ')[0]);
+        const autoReplyHtml = `
+          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1a1d1e; background: #fff; padding: 0;">
+
+            <div style="background: #1a1d1e; padding: 32px 40px; border-radius: 8px 8px 0 0;">
+              <p style="margin: 0; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: #c7a96b; font-family: Inter, sans-serif;">Your Journey Coach</p>
+            </div>
+
+            <div style="padding: 40px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid #eee; border-top: none;">
+              <h2 style="margin: 0 0 24px; font-size: 1.6rem; color: #1a1d1e; font-weight: 400; line-height: 1.3;">
+                ${firstName}, I got your message.
+              </h2>
+
+              <p style="color: #444; line-height: 1.8; margin: 0 0 20px;">
+                Thank you for reaching out. I'll read through what you shared and reply personally — usually within a business day or two.
+              </p>
+
+              <p style="color: #444; line-height: 1.8; margin: 0 0 20px;">
+                In the meantime, here's a bit about how I work: my coaching is grounded in the Enneagram — a framework that goes beyond personality typing to reveal the deeper motivations and blind spots that shape how leaders show up under pressure. Most of my clients are senior leaders navigating transitions, managing teams through complexity, or simply hitting a ceiling they can't see clearly from the inside.
+              </p>
+
+              <p style="color: #444; line-height: 1.8; margin: 0 0 32px;">
+                My approach is direct but exploratory. I'm less interested in giving you a playbook and more interested in helping you see what's actually going on — and then figuring out what to do about it together.
+              </p>
+
+              <div style="background: #f9f6ef; border-left: 3px solid #c7a96b; padding: 24px 28px; margin-bottom: 32px; border-radius: 0 4px 4px 0;">
+                <p style="margin: 0 0 8px; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: #c7a96b; font-family: Inter, sans-serif;">If you'd rather not wait</p>
+                <p style="margin: 0 0 16px; color: #1a1d1e; line-height: 1.7;">
+                  You're welcome to book a 30-minute strategy call directly on my calendar. No pitch — just a real conversation about where you are and what you're working through.
+                </p>
+                <a href="https://calendly.com/johnpaine/hidden-ceiling-debrief"
+                   style="display: inline-block; padding: 12px 28px; background: #1a1d1e; color: #c7a96b; text-decoration: none; border-radius: 4px; font-family: Inter, sans-serif; font-size: 0.9rem; letter-spacing: 0.04em;">
+                  Book a Strategy Call →
+                </a>
+              </div>
+
+              <p style="color: #888; font-size: 0.9rem; line-height: 1.6; margin: 0;">
+                Talk soon,<br>
+                <strong style="color: #444;">John Paine</strong><br>
+                <span style="font-size: 0.82rem;">Your Journey Coach · journeycoach.co</span>
+              </p>
+            </div>
+
+          </div>
+        `;
+
+        const resend = new Resend(resendKey);
+        await resend.emails.send({
+          from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
+          to: email,
+          replyTo: 'hello@journeycoach.co',
+          subject: `Got your message, ${firstName}`,
+          html: autoReplyHtml,
+        });
+      }
+    } catch (autoReplyErr) {
+      console.error('Auto-reply failed (submission was saved):', autoReplyErr.message);
+    }
+
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('Unexpected error in /api/contact:', err);
