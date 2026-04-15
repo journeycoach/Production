@@ -35,6 +35,11 @@
     .font-preview { padding: 10px 0; font-size: 1.1rem; }
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .admin-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+    .email-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .email-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .email-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .email-subtab-panel { display: none; }
+    .email-subtab-panel.is-active { display: block; }
   </style>
 </head>
 <body>
@@ -61,7 +66,7 @@
       <div class="settings-tabs" role="tablist" aria-label="Settings sections">
         <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true" id="website_settings_tab">Website Settings</button>
         <button type="button" class="settings-tab" data-tab="admin" role="tab" aria-selected="false">Admin Settings</button>
-        <button type="button" class="settings-tab" data-tab="contact-reply" role="tab" aria-selected="false">Contact Auto-Reply</button>
+        <button type="button" class="settings-tab" data-tab="email-templates" role="tab" aria-selected="false">Email Templates</button>
       </div>
 
       <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
@@ -211,16 +216,6 @@
           </div>
         </div>
 
-        <!-- ── Features ───────────────────────────────────────────────── -->
-        <div class="card">
-          <div class="card-title">Features</div>
-          <div class="form-group">
-            <div class="form-check">
-              <input type="checkbox" id="lead_magnet_enabled" />
-              <label for="lead_magnet_enabled">Show email opt-in forms <span style="color:#888;font-weight:400;">(The Five Hidden Ceilings guide on homepage &amp; assessment page)</span></label>
-            </div>
-          </div>
-        </div>
       </section>
 
       <section class="settings-tab-panel" data-tab-panel="admin" role="tabpanel">
@@ -372,29 +367,95 @@
         </div>
       </section>
 
-      <section class="settings-tab-panel" data-tab-panel="contact-reply" role="tabpanel">
-        <div class="card">
-          <div class="card-title">Contact Form Auto-Reply</div>
-          <div class="guide-box" style="margin-bottom:20px;">
-            <strong>About the Auto-Reply</strong>
-            This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> anywhere in the subject or body to personalize it. The body accepts plain HTML.
-          </div>
+      <section class="settings-tab-panel" data-tab-panel="email-templates" role="tabpanel">
+        <div class="settings-tabs" role="tablist" aria-label="Email template type" style="margin-bottom:20px;">
+          <button type="button" class="email-subtab is-active" data-subtab="contact-reply" role="tab" aria-selected="true">Contact Auto-Reply</button>
+          <button type="button" class="email-subtab" data-subtab="free-guide" role="tab" aria-selected="false">Free Guide</button>
+        </div>
 
-          <div class="form-group" style="margin-bottom:20px;">
-            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
-              <input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
-              <span>Send auto-reply email when someone submits the contact form</span>
-            </label>
-          </div>
+        <!-- Contact Auto-Reply sub-panel -->
+        <div class="email-subtab-panel is-active" data-subtab-panel="contact-reply">
+          <div class="card">
+            <div class="card-title">Contact Form Auto-Reply</div>
+            <div class="guide-box" style="margin-bottom:20px;">
+              <strong>About the Auto-Reply</strong>
+              This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> anywhere in the subject or body to personalize it. The body accepts plain HTML.
+            </div>
 
-          <div class="form-group" style="margin-bottom:20px;">
-            <label for="contact_reply_subject">Subject Line</label>
-            <input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}">
-          </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                <input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
+                <span>Send auto-reply email when someone submits the contact form</span>
+              </label>
+            </div>
 
-          <div class="form-group">
-            <label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-            <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="contact_reply_subject">Subject Line</label>
+              <input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}">
+            </div>
+
+            <div class="form-group">
+              <label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+              <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Free Guide sub-panel -->
+        <div class="email-subtab-panel" data-subtab-panel="free-guide">
+          <div class="card">
+            <div class="card-title">Free Guide Email</div>
+            <div class="guide-box" style="margin-bottom:20px;">
+              <strong>About the Free Guide Email</strong>
+              This email is sent when someone signs up via the homepage opt-in form. Use <code>{{firstName}}</code> to personalize it. The body accepts plain HTML. If the body is left blank, a built-in default email will be sent.
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px;">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                <input type="checkbox" id="lead_magnet_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
+                <span>Show the Free Guide opt-in form on the homepage</span>
+              </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="guide_email_subject">Subject Line</label>
+              <input type="text" id="guide_email_subject" class="form-control" placeholder="Understanding Your Hidden Ceiling">
+            </div>
+
+            <div class="form-group">
+              <label for="guide_email_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+              <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default. Use {{firstName}} to personalise."><div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
+  <p>Hi {{firstName}},</p>
+  <p>Thank you for requesting the guide. Here's the core idea — and the five patterns I see most often in the leaders I work with.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
+  <p>A Hidden Ceiling isn't a skill gap or a knowledge gap. It's an identity gap — the distance between who you've learned to be as a professional, and who you'll need to become to lead with full impact.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever's Ceiling</h2>
+  <p style="margin-top:0;">You've built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building. You keep driving harder at a game that has quietly changed.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert's Ceiling</h2>
+  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains. Being the smartest person in the room is no longer the point.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
+  <p style="margin-top:0;">You've built real trust by keeping the peace and making people feel heard. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
+  <p style="margin-top:0;">You built your reputation through personal execution. True delegation — letting others own things that matter — feels like risk rather than leverage. The ceiling is reached when your span of responsibility exceeds what any one person can personally oversee.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
+  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes or a major transition looms, you find yourself without a stable internal foundation. Success begins to feel fragile.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
+  <p>If you'd like to explore what your results mean in the context of your specific situation, I'd be glad to have a conversation.</p>
+  <p style="margin-top:2rem;">
+    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co. No further emails unless you reach out.</p>
+</div></textarea>
+            </div>
           </div>
         </div>
       </section>
@@ -449,8 +510,7 @@
       'cta_primary_url',
       'cta_secondary_text',
       'cta_secondary_url',
-      'site_tagline',
-      'lead_magnet_enabled'
+      'site_tagline'
     ];
     const adminAppearanceColorDefaults = {
       admin_color_accent: '#c7a96b',
@@ -543,8 +603,8 @@
         button.disabled = false;
         return;
       }
-      if (activeTab === 'contact-reply') {
-        button.textContent = 'Save Auto-Reply Settings';
+      if (activeTab === 'email-templates') {
+        button.textContent = 'Save Email Settings';
         button.disabled = false;
         return;
       }
@@ -573,6 +633,22 @@
 
     document.querySelectorAll('.settings-tab').forEach(button => {
       button.addEventListener('click', () => setActiveTab(button.dataset.tab));
+    });
+
+    // ── Email template sub-tabs ──────────────────────────────────────────────
+    function setActiveEmailSubtab(subtab) {
+      document.querySelectorAll('.email-subtab').forEach(btn => {
+        const isActive = btn.dataset.subtab === subtab;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      document.querySelectorAll('.email-subtab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.subtabPanel === subtab);
+      });
+    }
+
+    document.querySelectorAll('.email-subtab').forEach(btn => {
+      btn.addEventListener('click', () => setActiveEmailSubtab(btn.dataset.subtab));
     });
 
     function setActiveEnvironment(environment) {
@@ -618,7 +694,6 @@
       document.getElementById('cta_secondary_text').value = '';
       document.getElementById('cta_secondary_url').value = '';
       document.getElementById('site_tagline').value = '';
-      document.getElementById('lead_magnet_enabled').checked = false;
       updateCtaPreview();
     }
 
@@ -702,10 +777,41 @@
       document.getElementById('cta_secondary_text').value = settings.cta_secondary_text || '';
       document.getElementById('cta_secondary_url').value = settings.cta_secondary_url || '';
       document.getElementById('site_tagline').value = settings.site_tagline || '';
-      document.getElementById('lead_magnet_enabled').checked = settings.lead_magnet_enabled === 'true';
 
       updateCtaPreview();
     }
+
+    const DEFAULT_GUIDE_EMAIL_BODY = `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
+  <p>Hi {{firstName}},</p>
+  <p>Thank you for requesting the guide. Here&#39;s the core idea — and the five patterns I see most often in the leaders I work with.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
+  <p>A Hidden Ceiling isn&#39;t a skill gap or a knowledge gap. It&#39;s an identity gap — the distance between who you&#39;ve learned to be as a professional, and who you&#39;ll need to become to lead with full impact.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building. You keep driving harder at a game that has quietly changed.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains. Being the smartest person in the room is no longer the point.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built real trust by keeping the peace and making people feel heard. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
+  <p style="margin-top:0;">You built your reputation through personal execution. True delegation — letting others own things that matter — feels like risk rather than leverage. The ceiling is reached when your span of responsibility exceeds what any one person can personally oversee.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
+  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes or a major transition looms, you find yourself without a stable internal foundation. Success begins to feel fragile.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
+  <p>If you&#39;d like to explore what your results mean in the context of your specific situation, I&#39;d be glad to have a conversation.</p>
+  <p style="margin-top:2rem;">
+    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co. No further emails unless you reach out.</p>
+</div>`;
 
     function populateAdminSettings(settings) {
       adminColorKeys.forEach(key => setColorControl(key, settings[key] || ''));
@@ -719,6 +825,10 @@
       document.getElementById('contact_reply_enabled').checked = settings.contact_reply_enabled === 'true';
       document.getElementById('contact_reply_subject').value   = settings.contact_reply_subject || 'Got your message, {{firstName}}';
       document.getElementById('contact_reply_body').value      = settings.contact_reply_body    || '';
+      // Free guide email
+      document.getElementById('lead_magnet_enabled').checked = settings.lead_magnet_enabled === 'true';
+      document.getElementById('guide_email_subject').value   = settings.guide_email_subject || 'Understanding Your Hidden Ceiling';
+      document.getElementById('guide_email_body').value      = settings.guide_email_body    || DEFAULT_GUIDE_EMAIL_BODY;
     }
 
     // ── Load settings ────────────────────────────────────────────────────────
@@ -759,13 +869,16 @@
 
     // ── Save ─────────────────────────────────────────────────────────────────
     async function saveAll() {
-      if (activeTab === 'contact-reply') {
+      if (activeTab === 'email-templates') {
         const payload = {
           contact_reply_enabled: document.getElementById('contact_reply_enabled').checked ? 'true' : 'false',
           contact_reply_subject: document.getElementById('contact_reply_subject').value.trim(),
           contact_reply_body:    document.getElementById('contact_reply_body').value.trim(),
+          lead_magnet_enabled:   document.getElementById('lead_magnet_enabled').checked ? 'true' : 'false',
+          guide_email_subject:   document.getElementById('guide_email_subject').value.trim(),
+          guide_email_body:      document.getElementById('guide_email_body').value.trim(),
         };
-        await persistAdminSettings(payload, 'Contact auto-reply settings saved.');
+        await persistAdminSettings(payload, 'Email settings saved.');
         return;
       }
 
@@ -793,7 +906,6 @@
       payload.cta_secondary_text = document.getElementById('cta_secondary_text').value.trim();
       payload.cta_secondary_url = document.getElementById('cta_secondary_url').value.trim();
       payload.site_tagline = document.getElementById('site_tagline').value.trim();
-      payload.lead_magnet_enabled = document.getElementById('lead_magnet_enabled').checked ? 'true' : 'false';
       await persistWebsiteSettings(payload, currentWebsiteEnvironment);
     }
 
@@ -801,6 +913,10 @@
     updateSaveButtonLabel();
     loadAdminSettings();
     setActiveEnvironment(currentWebsiteEnvironment);
+
+    // Deep-link support: settings.html?tab=email-templates
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) setActiveTab(urlTab);
   </script>
 </body>
 </html>

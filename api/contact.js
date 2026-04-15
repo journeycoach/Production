@@ -122,12 +122,21 @@ async function handleSubscribe(req, res) {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
       const firstName = (name || '').trim().split(' ')[0] || 'there';
+      const guideSettings = await sql`
+        SELECT setting_key, setting_value FROM site_settings
+        WHERE setting_key IN ('guide_email_subject', 'guide_email_body')
+      `;
+      const gs = Object.fromEntries(guideSettings.map(r => [r.setting_key, r.setting_value]));
+      const subject = (gs.guide_email_subject || 'Understanding Your Hidden Ceiling').replace(/\{\{firstName\}\}/g, firstName);
+      const html = gs.guide_email_body
+        ? gs.guide_email_body.replace(/\{\{firstName\}\}/g, firstName)
+        : buildGuideEmail(firstName);
       const resend = new Resend(resendKey);
       await resend.emails.send({
         from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
         to: email,
-        subject: 'Understanding Your Hidden Ceiling',
-        html: buildGuideEmail(firstName),
+        subject,
+        html,
       });
     }
   } catch (emailErr) {

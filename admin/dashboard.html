@@ -6,6 +6,17 @@
   <title>Dashboard — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    .dashboard-card-group { cursor: default; display: flex; flex-direction: column; }
+    .dashboard-card-group:hover { border-color: var(--admin-border); box-shadow: none; transform: none; }
+    .card-group-items { display: flex; flex-direction: column; margin-top: auto; padding-top: 4px; }
+    .card-group-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 10px 0; border-top: 1px solid var(--admin-border); text-decoration: none; color: inherit; transition: color 0.15s; }
+    .card-group-item:hover .card-group-item-title { color: var(--admin-accent); }
+    .card-group-item-body { flex: 1; }
+    .card-group-item-title { display: block; font-weight: 600; font-size: 0.85rem; color: var(--admin-text); margin-bottom: 2px; }
+    .card-group-item-desc { display: block; font-size: 0.78rem; color: var(--admin-muted); line-height: 1.4; }
+    .card-group-item-arrow { color: var(--admin-muted); font-size: 0.8rem; margin-top: 2px; flex-shrink: 0; }
+  </style>
 </head>
 <body>
   <div class="admin-wrapper">
@@ -141,16 +152,32 @@
     }
 
     const CARDS = [
-      { key: 'settings',     href: 'settings.html',     title: 'Site Settings',         desc: 'Control brand colors, fonts, global CTAs, and site tagline. Changes apply across the entire site instantly.' },
-      { key: 'sections',     href: 'sections.html',     title: 'Page Sections',          desc: 'Show, hide, reorder, and draft page sections. Add admin notes to any section as a reminder.' },
-      { key: 'posts',        href: 'posts.html',        title: 'Blog Posts',             desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
-      { key: 'testimonials', href: 'testimonials.html', title: 'Testimonials',           desc: 'Add and manage client testimonials displayed on the homepage.' },
-      { key: 'tools',        href: 'tools.html',        title: 'Tools & Resources',      desc: 'Manage downloadable files and resource links shown on the Resources page.' },
-      { key: 'navigation',   href: 'navigation.html',   title: 'Navigation',             desc: 'Edit the site brand name, nav links, and the CTA button in the header.' },
-      { key: 'bookmarks',    href: 'bookmarks.html',    title: 'Bookmarks',              desc: 'Organize curated links into categories for the bookmarks section.' },
-      { key: 'contacts',     href: 'contacts.html',     title: 'Contact Submissions',    desc: 'View and manage inquiries submitted through the contact form.' },
-      { key: 'subscribers',  href: 'subscribers.html',  title: 'Subscribers',            desc: 'View and manage email subscribers who requested the Hidden Ceiling guide.' },
-      { key: 'campaigns',    href: 'campaigns.html',    title: 'Drip Campaigns',         desc: 'Manage and fully edit the automated email sequences sent to subscribers.' },
+      { key: 'settings',     href: 'settings.html',     title: 'Site Settings',    desc: 'Control brand colors, fonts, global CTAs, and site tagline.' },
+      { key: 'posts',        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
+      { key: 'testimonials', href: 'testimonials.html', title: 'Testimonials',     desc: 'Add and manage client testimonials displayed on the homepage.' },
+      { key: 'tools',        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links shown on the Resources page.' },
+      { key: 'bookmarks',    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories for the bookmarks section.' },
+      {
+        key: 'site_structure', type: 'group', icon: 'sections', title: 'Site Structure',
+        items: [
+          { href: 'sections.html',   title: 'Page Sections', desc: 'Show, hide, reorder, and draft page sections.' },
+          { href: 'navigation.html', title: 'Navigation',    desc: 'Edit the header brand name, nav links, and CTA button.' }
+        ]
+      },
+      {
+        key: 'contacts_email', type: 'group', icon: 'contacts', title: 'Contacts & Email',
+        items: [
+          { href: 'contacts.html',                      title: 'Contact Submissions', desc: 'View and manage inquiries submitted through the contact form.' },
+          { href: 'settings.html?tab=email-templates',  title: 'Auto-Reply & Guide',  desc: 'Edit the contact auto-reply and Free Guide email templates.' }
+        ]
+      },
+      {
+        key: 'subscribers_campaigns', type: 'group', icon: 'subscribers', title: 'Subscribers & Campaigns',
+        items: [
+          { href: 'subscribers.html', title: 'Subscribers',    desc: 'View and manage email subscribers from the Hidden Ceiling assessment.' },
+          { href: 'campaigns.html',   title: 'Drip Campaigns', desc: 'Manage the automated email sequences sent to subscribers.' }
+        ]
+      }
     ];
 
     function getSavedOrder() {
@@ -180,13 +207,32 @@
     function renderGrid() {
       const grid = document.getElementById('dashGrid');
       const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
-      grid.innerHTML = getOrderedCards().map(c => `
-        <a href="${c.href}" class="dashboard-card" data-key="${c.key}">
-          <div class="card-icon">${getIconMarkup(c.key)}</div>
-          <div class="card-title">${c.title}</div>
-          <div class="card-desc">${c.desc}</div>
-        </a>
-      `).join('');
+      grid.innerHTML = getOrderedCards().map(c => {
+        if (c.type === 'group') {
+          return `
+            <div class="dashboard-card dashboard-card-group" data-key="${c.key}">
+              <div class="card-icon">${getIconMarkup(c.icon)}</div>
+              <div class="card-title">${c.title}</div>
+              <div class="card-group-items">
+                ${c.items.map(item => `
+                  <a href="${item.href}" class="card-group-item">
+                    <div class="card-group-item-body">
+                      <span class="card-group-item-title">${item.title}</span>
+                      <span class="card-group-item-desc">${item.desc}</span>
+                    </div>
+                    <span class="card-group-item-arrow">↗</span>
+                  </a>
+                `).join('')}
+              </div>
+            </div>`;
+        }
+        return `
+          <a href="${c.href}" class="dashboard-card" data-key="${c.key}">
+            <div class="card-icon">${getIconMarkup(c.key)}</div>
+            <div class="card-title">${c.title}</div>
+            <div class="card-desc">${c.desc}</div>
+          </a>`;
+      }).join('');
 
       if (!dragSortingEnabled) return;
 
