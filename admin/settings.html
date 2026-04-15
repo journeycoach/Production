@@ -61,6 +61,7 @@
       <div class="settings-tabs" role="tablist" aria-label="Settings sections">
         <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true" id="website_settings_tab">Website Settings</button>
         <button type="button" class="settings-tab" data-tab="admin" role="tab" aria-selected="false">Admin Settings</button>
+        <button type="button" class="settings-tab" data-tab="contact-reply" role="tab" aria-selected="false">Contact Auto-Reply</button>
       </div>
 
       <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
@@ -371,6 +372,33 @@
         </div>
       </section>
 
+      <section class="settings-tab-panel" data-tab-panel="contact-reply" role="tabpanel">
+        <div class="card">
+          <div class="card-title">Contact Form Auto-Reply</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About the Auto-Reply</strong>
+            This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> anywhere in the subject or body to personalize it. The body accepts plain HTML.
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
+              <span>Send auto-reply email when someone submits the contact form</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="contact_reply_subject">Subject Line</label>
+            <input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}">
+          </div>
+
+          <div class="form-group">
+            <label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+            <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+          </div>
+        </div>
+      </section>
+
       <div class="save-bar">
         <button class="btn btn-primary" id="save_button" onclick="saveAll()">Save Website Settings</button>
         <span id="save_status" style="color:#888;font-size:0.875rem;"></span>
@@ -512,6 +540,11 @@
       if (!button) return;
       if (activeTab === 'admin') {
         button.textContent = 'Save Admin Settings';
+        button.disabled = false;
+        return;
+      }
+      if (activeTab === 'contact-reply') {
+        button.textContent = 'Save Auto-Reply Settings';
         button.disabled = false;
         return;
       }
@@ -681,6 +714,11 @@
       document.getElementById('admin_font_body').value         = settings.admin_font_body || '';
       document.getElementById('admin_dashboard_columns').value = settings.admin_dashboard_columns || '3';
       applyAdminTheme(settings);
+
+      // Contact reply
+      document.getElementById('contact_reply_enabled').checked = settings.contact_reply_enabled === 'true';
+      document.getElementById('contact_reply_subject').value   = settings.contact_reply_subject || 'Got your message, {{firstName}}';
+      document.getElementById('contact_reply_body').value      = settings.contact_reply_body    || '';
     }
 
     // ── Load settings ────────────────────────────────────────────────────────
@@ -721,6 +759,16 @@
 
     // ── Save ─────────────────────────────────────────────────────────────────
     async function saveAll() {
+      if (activeTab === 'contact-reply') {
+        const payload = {
+          contact_reply_enabled: document.getElementById('contact_reply_enabled').checked ? 'true' : 'false',
+          contact_reply_subject: document.getElementById('contact_reply_subject').value.trim(),
+          contact_reply_body:    document.getElementById('contact_reply_body').value.trim(),
+        };
+        await persistAdminSettings(payload, 'Contact auto-reply settings saved.');
+        return;
+      }
+
       if (activeTab === 'admin') {
         const payload = {};
         payload.admin_font_heading = document.getElementById('admin_font_heading').value;
