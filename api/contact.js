@@ -383,8 +383,8 @@ export default async function handler(req, res) {
     const verifyData = await verifyResponse.json();
 
     if (!verifyData.success) {
-      // Cloudflare says the token is fake or expired. Reject it.
-      return res.status(400).json({ error: "CAPTCHA verification failed." });
+      const codes = (verifyData['error-codes'] || []).join(', ') || 'none';
+      return res.status(400).json({ error: `CAPTCHA verification failed. [${codes}]` });
     }
 
     // Basic validation
