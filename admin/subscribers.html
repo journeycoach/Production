@@ -56,7 +56,7 @@
                 <th>Email</th>
                 <th>Name</th>
                 <th>Assessment Result</th>
-                <th>Source</th>
+                <th>Signed Up For</th>
                 <th>Campaign Status</th>
                 <th>Date</th>
                 <th>Remove</th>
@@ -664,6 +664,9 @@
       const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' };
       const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82' };
 
+      const SOURCE_LABELS = { 'hidden-ceiling': 'Assessment', 'website': 'Free Guide', 'contact': 'Contact Form' };
+      const SOURCE_COLORS = { 'hidden-ceiling': '#c7a96b',    'website': '#7b9eb8',     'contact': '#8faa82' };
+
       tbody.innerHTML = rows.map(r => {
         const date = r.created_at
           ? new Date(r.created_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
@@ -693,7 +696,7 @@
             <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
             <td>${escHtml(r.name || '—')}</td>
             <td>${resultCell}</td>
-            <td style="color:var(--admin-text-muted);font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
+            <td>${(s => `<span style="display:inline-block;background:${(SOURCE_COLORS[s]||'#888')}22;color:${(SOURCE_COLORS[s]||'#888')};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(SOURCE_LABELS[s]||s)}</span>`)(r.source||'website')}</td>
             <td>${campaignCell}</td>
             <td style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
             <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>
