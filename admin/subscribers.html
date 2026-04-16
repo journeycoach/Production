@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Subscribers — Admin</title>
+  <title>Subscribers &amp; Campaigns — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <style>
     .page-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
@@ -33,13 +33,14 @@
 
     <main class="admin-main">
       <div class="admin-page-title">
-        <h1>Subscribers</h1>
+        <h1>Subscribers &amp; Campaigns</h1>
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
       <div class="page-tabs" role="tablist">
-        <button type="button" class="page-tab is-active" data-tab="subscribers" role="tab" aria-selected="true">Subscribers</button>
-        <button type="button" class="page-tab" data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
+        <button type="button" class="page-tab is-active" data-tab="subscribers"       role="tab" aria-selected="true">Subscribers</button>
+        <button type="button" class="page-tab"           data-tab="drip-campaigns"    role="tab" aria-selected="false">Drip Campaigns</button>
+        <button type="button" class="page-tab"           data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
       </div>
 
       <!-- ── Subscribers tab ─────────────────────────────────────────── -->
@@ -68,6 +69,62 @@
         </div>
       </div>
 
+      <!-- ── Drip Campaigns tab ─────────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="drip-campaigns">
+
+        <!-- Test Send Panel -->
+        <div class="card" style="margin-bottom:1.5rem;border-left:3px solid var(--admin-accent);">
+          <h2 style="font-size:1rem;margin:0 0 1.25rem;color:var(--admin-accent);">&#9993; Send Test Emails</h2>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;margin-bottom:1.25rem;">
+            <div class="form-row" style="margin:0;">
+              <label style="font-size:0.78rem;">First Name (for {{firstName}} substitution)</label>
+              <input type="text" id="test-first-name" placeholder="e.g. John" class="form-control" style="margin:0;">
+            </div>
+            <div class="form-row" style="margin:0;">
+              <label style="font-size:0.78rem;">Send To Email Address</label>
+              <input type="email" id="test-email-addr" placeholder="your@email.com" class="form-control" style="margin:0;">
+            </div>
+          </div>
+
+          <div style="margin-bottom:1.25rem;">
+            <label style="font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--admin-text-muted);display:block;margin-bottom:0.6rem;">Select Emails to Send</label>
+            <div id="test-step-checkboxes" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;">
+              <span style="font-size:0.85rem;color:var(--admin-text-muted);">Loading steps...</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+            <p style="font-size:0.82rem;color:var(--admin-text-muted);margin:0;">Each email will include a <strong style="color:var(--admin-text);">⚠️ TEST SEND</strong> banner at the top.</p>
+            <button class="btn btn-primary" onclick="sendTestEmails()" id="test-send-btn" style="white-space:nowrap;">Send Selected Emails</button>
+          </div>
+          <p id="test-send-result" style="margin:0.75rem 0 0;font-size:0.85rem;display:none;"></p>
+        </div>
+
+        <!-- Campaign card -->
+        <div class="card">
+          <h2 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
+          <p style="font-size:0.9rem;color:var(--admin-text-muted);margin-bottom:2rem;">
+            This 5-step drip campaign is automatically sent to leaders after they complete the assessment.
+            Use <code>{{firstName}}</code> to inject their name automatically.
+          </p>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;padding:1.5rem;background:rgba(0,0,0,0.02);border:1px solid var(--admin-border);border-radius:6px;">
+            <div>
+              <h3 style="margin:0;font-size:1rem;color:var(--admin-text);">Campaign Master Switch</h3>
+              <p style="margin:0.2rem 0 0;font-size:0.85rem;color:var(--admin-text-muted);">When turned off, the daily schedule pauses and no emails are sent. Subscribers resume where they left off when re-enabled.</p>
+            </div>
+            <div style="text-align:right;flex-shrink:0;margin-left:1.5rem;">
+              <button id="campaign-toggle-btn" class="btn btn-primary" onclick="toggleMasterCampaign()" style="white-space:nowrap;">Loading...</button>
+            </div>
+          </div>
+
+          <div id="campaign-list">
+            <p class="table-empty">Loading sequence...</p>
+          </div>
+        </div>
+      </div>
+
       <!-- ── Assessment Emails tab ───────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="assessment-emails">
         <div class="card">
@@ -80,9 +137,9 @@
           </div>
 
           <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
-            <button type="button" class="center-subtab is-active" data-center="heart" role="tab" aria-selected="true">Heart Center</button>
-            <button type="button" class="center-subtab" data-center="head" role="tab" aria-selected="false">Head Center</button>
-            <button type="button" class="center-subtab" data-center="action" role="tab" aria-selected="false">Gut Center</button>
+            <button type="button" class="center-subtab is-active" data-center="heart"  role="tab" aria-selected="true">Heart Center</button>
+            <button type="button" class="center-subtab"           data-center="head"   role="tab" aria-selected="false">Head Center</button>
+            <button type="button" class="center-subtab"           data-center="action" role="tab" aria-selected="false">Gut Center</button>
           </div>
 
           <!-- Heart -->
@@ -115,7 +172,7 @@
             </div>
           </div>
 
-          <!-- Action -->
+          <!-- Action / Gut -->
           <div class="center-subtab-panel" data-center-panel="action">
             <div class="form-group" style="margin-bottom:20px;">
               <label for="hc_email_action_subject">Subject Line</label>
@@ -139,11 +196,65 @@
     </main>
   </div>
 
+  <!-- Step editor template (used by Drip Campaigns tab) -->
+  <template id="step-template">
+    <div class="setting-group" style="padding-bottom:2rem;border-bottom:1px solid var(--admin-border);margin-bottom:2rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <h3 class="step-title" style="margin:0;">Step X</h3>
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.85rem;color:var(--admin-text-muted);">
+          <span class="step-status-label">Active</span>
+          <span style="position:relative;display:inline-block;width:36px;height:20px;">
+            <input type="checkbox" class="field-active" style="opacity:0;width:0;height:0;position:absolute;" checked>
+            <span class="step-toggle-track" style="position:absolute;inset:0;border-radius:999px;background:var(--admin-border);transition:background 0.2s;cursor:pointer;"></span>
+            <span class="step-toggle-thumb" style="position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform 0.2s;"></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <label>Wait before sending (Days)</label>
+        <input type="number" class="form-control field-delay" min="1" step="1" style="max-width:100px;">
+        <span style="font-size:0.8rem;color:var(--admin-text-muted);display:block;margin-top:0.3rem;">How many days to wait after the previous email was sent.</span>
+      </div>
+
+      <div class="form-row">
+        <label>Subject Line</label>
+        <input type="text" class="form-control field-subject" placeholder="Email Subject">
+      </div>
+
+      <div style="margin-bottom:2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.8rem;">
+          <label style="margin:0;font-size:0.9rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--admin-text-muted);">Email Body (HTML)</label>
+          <div style="font-size:0.8rem;background:var(--admin-bg-alt);padding:0.2rem 0.4rem;border-radius:4px;border:1px solid var(--admin-border);">
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<p>','</p>')">&lt;p&gt;</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<b>','</b>')">&lt;b&gt;</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<em>','</em>')">&lt;em&gt;</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<br>','')">&lt;br&gt;</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<ul>\n  <li>','</li>\n</ul>')">List</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,'<li>','</li>')">&lt;li&gt;</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);" onclick="insertMarkup(this,&quot;<a href='URL'>&quot;,'</a>')">Link</button>
+            <span style="display:inline-flex;align-items:center;position:relative;">
+              <button type="button" class="btn btn-ghost btn-sm btn-color-pick" style="padding:0.1rem 0.4rem;height:auto;color:var(--admin-accent);display:inline-flex;align-items:center;gap:0.25rem;" onclick="openColorPicker(this)">
+                <span class="color-swatch" style="display:inline-block;width:12px;height:12px;border-radius:2px;border:1px solid var(--admin-border);background:#e74c3c;vertical-align:middle;"></span> Color
+              </button>
+              <input type="color" class="field-color-input" value="#e74c3c" style="position:absolute;bottom:0;left:0;width:0;height:0;padding:0;border:none;opacity:0;pointer-events:none;" onchange="applyColor(this)">
+            </span>
+          </div>
+        </div>
+        <textarea class="form-control field-body" rows="18" style="font-family:monospace;font-size:0.95rem;width:100%;max-width:100%;resize:vertical;" placeholder="<p>Hi {{firstName}},</p>"></textarea>
+      </div>
+
+      <div style="text-align:right;">
+        <button class="btn btn-primary btn-save">Save Changes</button>
+      </div>
+    </div>
+  </template>
+
   <script src="js/admin.js"></script>
   <script>
     requireAdminAuth();
 
-    // ── Default templates ────────────────────────────────────────────────────
+    // ── Default HC email templates ───────────────────────────────────────────
     const DEFAULT_SUBJECT = 'Your Hidden Ceiling Assessment Result';
 
     const DEFAULT_HC_BODIES = {
@@ -251,6 +362,9 @@
     };
 
     // ── Tab switching ────────────────────────────────────────────────────────
+    let campaignLoaded = false;
+    let emailSettingsLoaded = false;
+
     function setPageTab(tab) {
       document.querySelectorAll('.page-tab').forEach(btn => {
         const active = btn.dataset.tab === tab;
@@ -260,7 +374,8 @@
       document.querySelectorAll('.page-tab-panel').forEach(panel => {
         panel.classList.toggle('is-active', panel.dataset.panel === tab);
       });
-      if (tab === 'assessment-emails' && !emailSettingsLoaded) loadEmailSettings();
+      if (tab === 'drip-campaigns'    && !campaignLoaded)      loadCampaign();
+      if (tab === 'assessment-emails' && !emailSettingsLoaded)  loadEmailSettings();
     }
 
     function setCenterSubtab(center) {
@@ -279,18 +394,20 @@
     document.querySelectorAll('.center-subtab').forEach(btn =>
       btn.addEventListener('click', () => setCenterSubtab(btn.dataset.center)));
 
-    // ── Load Default ─────────────────────────────────────────────────────────
+    // Deep-link: ?tab=drip-campaigns etc.
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) setPageTab(urlTab);
+
+    // ── Assessment Emails: Load Default ──────────────────────────────────────
     function loadCenterDefault(center) {
       document.getElementById(`hc_email_${center}_subject`).value = DEFAULT_SUBJECT;
-      document.getElementById(`hc_email_${center}_body`).value = DEFAULT_HC_BODIES[center];
+      document.getElementById(`hc_email_${center}_body`).value    = DEFAULT_HC_BODIES[center];
     }
 
-    // ── Load email settings from DB ──────────────────────────────────────────
-    let emailSettingsLoaded = false;
     async function loadEmailSettings() {
-      const res = await adminFetch('/api/admin/settings');
+      const res  = await adminFetch('/api/admin/settings');
       const data = await res.json().catch(() => ({}));
-      const s = data.data || {};
+      const s    = data.data || {};
       ['heart', 'head', 'action'].forEach(center => {
         document.getElementById(`hc_email_${center}_subject`).value = s[`hc_email_${center}_subject`] || DEFAULT_SUBJECT;
         document.getElementById(`hc_email_${center}_body`).value    = s[`hc_email_${center}_body`]    || DEFAULT_HC_BODIES[center];
@@ -298,7 +415,6 @@
       emailSettingsLoaded = true;
     }
 
-    // ── Save email settings ──────────────────────────────────────────────────
     async function saveEmailSettings() {
       const status = document.getElementById('email-save-status');
       status.textContent = 'Saving…';
@@ -318,12 +434,224 @@
       }
     }
 
-    // ── Subscribers ──────────────────────────────────────────────────────────
+    // ── Drip Campaigns ───────────────────────────────────────────────────────
+    async function loadCampaign() {
+      const listEl = document.getElementById('campaign-list');
+      try {
+        const [seqRes, settingsRes] = await Promise.all([
+          adminFetch('/api/admin/settings?resource=campaigns&campaign=hidden-ceiling'),
+          adminFetch('/api/admin/settings')
+        ]);
+        const data        = await seqRes.json();
+        const settingsData = await settingsRes.json();
+        if (!seqRes.ok || !data.data) throw new Error(data.error || 'Failed to load');
+
+        const isMasterActive = settingsData.data?.campaign_hidden_ceiling_active === 'true';
+        const toggleBtn = document.getElementById('campaign-toggle-btn');
+        toggleBtn.dataset.active = isMasterActive;
+        toggleBtn.textContent    = isMasterActive ? 'Pause Campaign' : 'Resume Campaign';
+        toggleBtn.className      = isMasterActive ? 'btn btn-danger' : 'btn btn-primary';
+
+        listEl.innerHTML = '';
+        const template   = document.getElementById('step-template').content;
+
+        data.data.forEach(step => {
+          const clone    = document.importNode(template, true);
+          const isActive = step.is_active !== false;
+
+          clone.querySelector('.step-title').textContent   = `Email ${step.step_number}`;
+          clone.querySelector('.field-delay').value        = step.delay_days;
+          clone.querySelector('.field-subject').value      = step.subject;
+          clone.querySelector('.field-body').value         = step.body_html;
+
+          const checkbox = clone.querySelector('.field-active');
+          const track    = clone.querySelector('.step-toggle-track');
+          const thumb    = clone.querySelector('.step-toggle-thumb');
+          const label    = clone.querySelector('.step-status-label');
+          checkbox.checked         = isActive;
+          track.style.background   = isActive ? 'var(--admin-accent)' : 'var(--admin-border)';
+          thumb.style.transform    = isActive ? 'translateX(16px)' : 'translateX(0)';
+          label.textContent        = isActive ? 'Active' : 'Paused';
+          label.style.color        = isActive ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
+
+          checkbox.addEventListener('change', () => toggleStep(step.id, checkbox, track, thumb, label));
+          clone.querySelector('.btn-save').addEventListener('click', function() { saveStep(step.id, this); });
+
+          listEl.appendChild(clone);
+        });
+
+        // Populate test-send checkboxes
+        const checkboxContainer = document.getElementById('test-step-checkboxes');
+        checkboxContainer.innerHTML = data.data.map(step => `
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;font-size:0.88rem;color:${step.is_active !== false ? 'var(--admin-text)' : 'var(--admin-text-muted)'};">
+            <input type="checkbox" data-step-id="${step.step_number}" ${step.is_active !== false ? 'checked' : ''} style="accent-color:var(--admin-accent);width:14px;height:14px;">
+            Email ${step.step_number}${step.is_active === false ? ' <em style="font-size:0.75rem;">(paused)</em>' : ''}
+          </label>`).join('');
+
+        campaignLoaded = true;
+      } catch (err) {
+        listEl.innerHTML = `<p class="table-empty" style="color:red;">Error loading sequence: ${err.message}</p>`;
+      }
+    }
+
+    async function saveStep(id, btnElement) {
+      btnElement.disabled    = true;
+      btnElement.textContent = 'Saving...';
+      const container = btnElement.closest('.setting-group');
+      const payload   = {
+        id,
+        delay_days: parseInt(container.querySelector('.field-delay').value, 10),
+        subject:    container.querySelector('.field-subject').value,
+        body_html:  container.querySelector('.field-body').value
+      };
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=campaigns', {
+          method: 'PUT',
+          body:   JSON.stringify(payload)
+        });
+        showFlash(res.ok ? 'Sequence step saved successfully.' : 'Failed to save step.', res.ok ? 'success' : 'error');
+      } catch {
+        showFlash('Network error.', 'error');
+      } finally {
+        btnElement.disabled    = false;
+        btnElement.textContent = 'Save Changes';
+      }
+    }
+
+    async function toggleStep(id, checkbox, track, thumb, label) {
+      const newState           = checkbox.checked;
+      track.style.background   = newState ? 'var(--admin-accent)' : 'var(--admin-border)';
+      thumb.style.transform    = newState ? 'translateX(16px)' : 'translateX(0)';
+      label.textContent        = newState ? 'Active' : 'Paused';
+      label.style.color        = newState ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=campaigns', {
+          method: 'PUT',
+          body:   JSON.stringify({ id, is_active: newState })
+        });
+        showFlash(res.ok ? `Email ${newState ? 'enabled' : 'paused'} successfully.` : 'Failed to update step status.', res.ok ? 'success' : 'error');
+      } catch {
+        showFlash('Network error.', 'error');
+      }
+    }
+
+    async function toggleMasterCampaign() {
+      const btn            = document.getElementById('campaign-toggle-btn');
+      const currentlyActive = btn.dataset.active === 'true';
+      const newState        = !currentlyActive;
+      btn.disabled          = true;
+      btn.textContent       = 'Updating...';
+      try {
+        const res = await adminFetch('/api/admin/settings', {
+          method: 'PUT',
+          body:   JSON.stringify({ campaign_hidden_ceiling_active: newState ? 'true' : 'false' })
+        });
+        if (res.ok) {
+          btn.dataset.active = newState;
+          btn.textContent    = newState ? 'Pause Campaign' : 'Resume Campaign';
+          btn.className      = newState ? 'btn btn-danger' : 'btn btn-primary';
+          showFlash(`Campaign has been ${newState ? 'resumed' : 'paused'}.`, 'success');
+        } else {
+          showFlash('Failed to toggle campaign.', 'error');
+        }
+      } catch {
+        showFlash('Network error.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function sendTestEmails() {
+      const toEmail     = document.getElementById('test-email-addr').value.trim();
+      const firstName   = document.getElementById('test-first-name').value.trim() || 'John';
+      const btn         = document.getElementById('test-send-btn');
+      const resultEl    = document.getElementById('test-send-result');
+      const selectedSteps = Array.from(
+        document.querySelectorAll('#test-step-checkboxes input[type="checkbox"]:checked')
+      ).map(cb => parseInt(cb.dataset.stepId, 10));
+
+      if (selectedSteps.length === 0) {
+        resultEl.textContent   = 'Please select at least one email to send.';
+        resultEl.style.color   = '#e48d8d';
+        resultEl.style.display = 'block';
+        return;
+      }
+      if (!toEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(toEmail)) {
+        resultEl.textContent   = 'Please enter a valid email address.';
+        resultEl.style.color   = '#e48d8d';
+        resultEl.style.display = 'block';
+        return;
+      }
+      btn.disabled           = true;
+      btn.textContent        = 'Sending…';
+      resultEl.style.display = 'none';
+      try {
+        const res  = await adminFetch('/api/admin/settings?resource=campaigns&action=test', {
+          method: 'POST',
+          body:   JSON.stringify({ toEmail, firstName, steps: selectedSteps })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          const errNote      = data.errors?.length ? ` (${data.errors.length} failed: ${data.errors.join('; ')})` : '';
+          resultEl.textContent = `✓ Sent ${data.sent} of ${data.total} emails to ${toEmail}.${errNote}`;
+          resultEl.style.color = 'var(--admin-accent)';
+        } else {
+          resultEl.textContent = `Error: ${data.error || 'Unknown error'}`;
+          resultEl.style.color = '#e48d8d';
+        }
+      } catch {
+        resultEl.textContent = 'Network error. Please try again.';
+        resultEl.style.color = '#e48d8d';
+      } finally {
+        btn.disabled           = false;
+        btn.textContent        = 'Send Selected Emails';
+        resultEl.style.display = 'block';
+      }
+    }
+
+    // ── Drip Campaigns: HTML toolbar helpers ─────────────────────────────────
+    function insertMarkup(btnElement, openTag, closeTag) {
+      const container    = btnElement.closest('.setting-group');
+      const textarea     = container.querySelector('.field-body');
+      const start        = textarea.selectionStart;
+      const end          = textarea.selectionEnd;
+      const selectedText = textarea.value.substring(start, end);
+      textarea.value     = textarea.value.substring(0, start) + openTag + selectedText + closeTag + textarea.value.substring(end);
+      textarea.focus();
+      textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+    }
+
+    function openColorPicker(btnElement) {
+      const container  = btnElement.closest('.setting-group');
+      const textarea   = container.querySelector('.field-body');
+      const colorInput = container.querySelector('.field-color-input');
+      colorInput.dataset.selStart = textarea.selectionStart;
+      colorInput.dataset.selEnd   = textarea.selectionEnd;
+      colorInput.click();
+    }
+
+    function applyColor(colorInput) {
+      const container    = colorInput.closest('.setting-group');
+      const textarea     = container.querySelector('.field-body');
+      const swatch       = container.querySelector('.color-swatch');
+      const color        = colorInput.value;
+      swatch.style.background = color;
+      const start        = parseInt(colorInput.dataset.selStart, 10) || 0;
+      const end          = parseInt(colorInput.dataset.selEnd,   10) || 0;
+      const selectedText = textarea.value.substring(start, end);
+      const openTag      = `<span style="color:${color}">`;
+      const closeTag     = '</span>';
+      textarea.value     = textarea.value.substring(0, start) + openTag + selectedText + closeTag + textarea.value.substring(end);
+      textarea.focus();
+      textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+    }
+
+    // ── Subscribers list ─────────────────────────────────────────────────────
     async function loadSubscribers() {
-      const res = await adminFetch('/api/admin/contacts?type=subscribers');
+      const res  = await adminFetch('/api/admin/contacts?type=subscribers');
       const data = await res.json();
       const rows = data.data || [];
-      const tbody = document.getElementById('subBody');
+      const tbody   = document.getElementById('subBody');
       const countEl = document.getElementById('sub-count');
 
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
@@ -352,7 +680,9 @@
 
         let campaignCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
         if (r.result_center && r.drip_step !== undefined) {
-          const dripDate = r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Pending';
+          const dripDate = r.last_email_sent_at
+            ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            : 'Pending';
           campaignCell = `
             <span style="display:block;font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
             <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>`;

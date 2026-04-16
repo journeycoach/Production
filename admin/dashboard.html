@@ -185,8 +185,9 @@
       {
         key: CARD_KEYS.SUBSCRIBERS_CAMPAIGNS, type: CARD_TYPE.GROUP, icon: 'subscribers', title: 'Subscribers & Campaigns',
         items: [
-          { href: 'subscribers.html', title: 'Subscribers',    desc: 'View and manage email subscribers from the Hidden Ceiling assessment.' },
-          { href: 'campaigns.html',   title: 'Drip Campaigns', desc: 'Manage the automated email sequences sent to subscribers.' }
+          { href: 'subscribers.html',                      title: 'Subscribers',          desc: 'View and manage email subscribers from the Hidden Ceiling assessment.' },
+          { href: 'subscribers.html?tab=drip-campaigns',  title: 'Drip Campaigns',       desc: 'Manage the automated email sequences sent to subscribers.' },
+          { href: 'subscribers.html?tab=assessment-emails', title: 'Assessment Emails',  desc: 'Edit the personalized result emails sent after the Hidden Ceiling Assessment.' }
         ]
       }
     ];
