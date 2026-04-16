@@ -255,6 +255,7 @@ async function handleHiddenCeiling(req, res) {
         ${center}, ${scores.heart}, ${scores.head}, ${scores.action}
       )
       ON CONFLICT (email) DO UPDATE SET
+        source        = EXCLUDED.source,
         result_center = EXCLUDED.result_center,
         score_heart   = EXCLUDED.score_heart,
         score_head    = EXCLUDED.score_head,
