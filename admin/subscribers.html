@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subscribers — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .page-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .page-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .page-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .page-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .page-tab-panel { display: none; }
+    .page-tab-panel.is-active { display: block; }
+    .center-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .center-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .center-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .center-subtab-panel { display: none; }
+    .center-subtab-panel.is-active { display: block; }
+    .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
+    .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+    .field-row label { margin: 0; }
+  </style>
 </head>
 <body>
   <div class="admin-wrapper">
@@ -21,27 +37,104 @@
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
-      <div class="card">
-        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>Email List</span>
-          <span id="sub-count" style="font-size:0.85rem; font-weight:400; color:var(--admin-text-muted);">Loading…</span>
+      <div class="page-tabs" role="tablist">
+        <button type="button" class="page-tab is-active" data-tab="subscribers" role="tab" aria-selected="true">Subscribers</button>
+        <button type="button" class="page-tab" data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
+      </div>
+
+      <!-- ── Subscribers tab ─────────────────────────────────────────── -->
+      <div class="page-tab-panel is-active" data-panel="subscribers">
+        <div class="card">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>Email List</span>
+            <span id="sub-count" style="font-size:0.85rem;font-weight:400;color:var(--admin-text-muted);">Loading…</span>
+          </div>
+          <table class="nav-links-table" id="subTable">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Assessment Result</th>
+                <th>Source</th>
+                <th>Campaign Status</th>
+                <th>Date</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody id="subBody">
+              <tr><td colspan="7" class="table-empty">Loading…</td></tr>
+            </tbody>
+          </table>
         </div>
-        <table class="nav-links-table" id="subTable">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Assessment Result</th>
-              <th>Source</th>
-              <th>Campaign Status</th>
-              <th>Date</th>
-              <th>Remove</th>
-            </tr>
-          </thead>
-          <tbody id="subBody">
-            <tr><td colspan="7" class="table-empty">Loading…</td></tr>
-          </tbody>
-        </table>
+      </div>
+
+      <!-- ── Assessment Emails tab ───────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="assessment-emails">
+        <div class="card">
+          <div class="card-title">Hidden Ceiling Result Emails</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About these emails</strong>
+            Each email is sent immediately after a subscriber completes the assessment, personalised to their result center.
+            Use <code>{{firstName}}</code>, <code>{{scoreHeart}}</code>, <code>{{scoreHead}}</code>, <code>{{scoreAction}}</code>, and <code>{{calendlyUrl}}</code> as placeholders.
+            The body accepts plain HTML. Leave blank to use the built-in default.
+          </div>
+
+          <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
+            <button type="button" class="center-subtab is-active" data-center="heart" role="tab" aria-selected="true">Heart Center</button>
+            <button type="button" class="center-subtab" data-center="head" role="tab" aria-selected="false">Head Center</button>
+            <button type="button" class="center-subtab" data-center="action" role="tab" aria-selected="false">Gut Center</button>
+          </div>
+
+          <!-- Heart -->
+          <div class="center-subtab-panel is-active" data-center-panel="heart">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_heart_subject">Subject Line</label>
+              <input type="text" id="hc_email_heart_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_heart_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+              </div>
+              <textarea id="hc_email_heart_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+            </div>
+          </div>
+
+          <!-- Head -->
+          <div class="center-subtab-panel" data-center-panel="head">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_head_subject">Subject Line</label>
+              <input type="text" id="hc_email_head_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_head_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('head')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+              </div>
+              <textarea id="hc_email_head_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+            </div>
+          </div>
+
+          <!-- Action -->
+          <div class="center-subtab-panel" data-center-panel="action">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_action_subject">Subject Line</label>
+              <input type="text" id="hc_email_action_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_action_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+              </div>
+              <textarea id="hc_email_action_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="saveEmailSettings()">Save Email Settings</button>
+          <span id="email-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
+        </div>
       </div>
     </main>
   </div>
@@ -50,6 +143,182 @@
   <script>
     requireAdminAuth();
 
+    // ── Default templates ────────────────────────────────────────────────────
+    const DEFAULT_SUBJECT = 'Your Hidden Ceiling Assessment Result';
+
+    const DEFAULT_HC_BODIES = {
+      heart: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">Heart Center</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">You lead like a Connection-Oriented Leader</h1>
+  <p>Hi {{firstName}},</p>
+  <p>Your responses point to a leadership pattern that instinctively tracks people, morale, and the emotional temperature of the room. Your personalized guide is already on its way to your inbox.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">What this says about you</h2>
+  <p style="margin-top:0;">You are often the person who can sense the undercurrent nobody else is naming. That makes you a stabilizing presence in culture, trust, and relationship repair.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Watch for this pattern</h2>
+  <p style="margin-top:0;">Under pressure, that same strength can turn into over-identifying with how others are feeling, over-functioning relationally, or softening hard decisions until the moment has passed.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Start here this week</h2>
+  <ul style="margin-top:0;padding-left:1.25em;color:#333;">
+    <li style="margin-bottom:0.5em;">Notice where harmony is becoming more important than clarity.</li>
+    <li style="margin-bottom:0.5em;">Name the decision before you manage everyone&#39;s reaction to it.</li>
+    <li style="margin-bottom:0.5em;">Use the guide to spot the situations where connection quietly turns into self-protection.</li>
+  </ul>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: {{scoreHeart}} &nbsp;·&nbsp; Head: {{scoreHead}} &nbsp;·&nbsp; Action: {{scoreAction}}</p>
+  <p style="margin-top:1.5rem;">
+    <a href="https://journeycoach.co/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Download Your Guide: The Connection-Oriented Leader ↓</a>
+  </p>
+  <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
+  <p style="margin-top:1rem;">
+    <a href="{{calendlyUrl}}" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book a 20-Minute Alignment Call →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
+</div>`,
+
+      head: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">Head Center</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">You lead like a Thinking-Oriented Leader</h1>
+  <p>Hi {{firstName}},</p>
+  <p>Your responses point to a leadership pattern that instinctively searches for clarity, logic, and the cleanest explanation of what is happening. Your personalized guide is already on its way to your inbox.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">What this says about you</h2>
+  <p style="margin-top:0;">You likely bring rigor, objectivity, and strong pattern recognition to complex systems. People rely on you to see risk, ask the smart question, and think around corners.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Watch for this pattern</h2>
+  <p style="margin-top:0;">Under pressure, that strength can become over-analysis, emotional distance, or a subtle dependence on certainty before moving. The room can feel managed by logic but not fully led through tension.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Start here this week</h2>
+  <ul style="margin-top:0;padding-left:1.25em;color:#333;">
+    <li style="margin-bottom:0.5em;">Watch for the moment information-gathering becomes a delay tactic.</li>
+    <li style="margin-bottom:0.5em;">Pair your analysis with a visible relational read on the team.</li>
+    <li style="margin-bottom:0.5em;">Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.</li>
+  </ul>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: {{scoreHeart}} &nbsp;·&nbsp; Head: {{scoreHead}} &nbsp;·&nbsp; Action: {{scoreAction}}</p>
+  <p style="margin-top:1.5rem;">
+    <a href="https://journeycoach.co/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Download Your Guide: The Thinking-Oriented Leader ↓</a>
+  </p>
+  <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
+  <p style="margin-top:1rem;">
+    <a href="{{calendlyUrl}}" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book a 20-Minute Alignment Call →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
+</div>`,
+
+      action: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">Gut Center</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">You lead from the Gut Center</h1>
+  <p>Hi {{firstName}},</p>
+  <p>Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results. Your personalized guide is already on its way to your inbox.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">What this says about you</h2>
+  <p style="margin-top:0;">You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Watch for this pattern</h2>
+  <p style="margin-top:0;">Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Start here this week</h2>
+  <ul style="margin-top:0;padding-left:1.25em;color:#333;">
+    <li style="margin-bottom:0.5em;">Notice where urgency is outrunning reflection or buy-in.</li>
+    <li style="margin-bottom:0.5em;">Slow down long enough to separate momentum from reactivity.</li>
+    <li style="margin-bottom:0.5em;">Use the guide to spot where force and clarity are getting conflated inside your leadership.</li>
+  </ul>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: {{scoreHeart}} &nbsp;·&nbsp; Head: {{scoreHead}} &nbsp;·&nbsp; Action: {{scoreAction}}</p>
+  <p style="margin-top:1.5rem;">
+    <a href="https://journeycoach.co/assets/downloads/hidden_ceiling_action_oriented_leader.pdf" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Download Your Guide: The Action-Oriented Leader ↓</a>
+  </p>
+  <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
+  <p style="margin-top:1rem;">
+    <a href="{{calendlyUrl}}" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book a 20-Minute Alignment Call →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
+</div>`
+    };
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    function setPageTab(tab) {
+      document.querySelectorAll('.page-tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.page-tab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.panel === tab);
+      });
+      if (tab === 'assessment-emails' && !emailSettingsLoaded) loadEmailSettings();
+    }
+
+    function setCenterSubtab(center) {
+      document.querySelectorAll('.center-subtab').forEach(btn => {
+        const active = btn.dataset.center === center;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.center-subtab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.centerPanel === center);
+      });
+    }
+
+    document.querySelectorAll('.page-tab').forEach(btn =>
+      btn.addEventListener('click', () => setPageTab(btn.dataset.tab)));
+    document.querySelectorAll('.center-subtab').forEach(btn =>
+      btn.addEventListener('click', () => setCenterSubtab(btn.dataset.center)));
+
+    // ── Load Default ─────────────────────────────────────────────────────────
+    function loadCenterDefault(center) {
+      document.getElementById(`hc_email_${center}_subject`).value = DEFAULT_SUBJECT;
+      document.getElementById(`hc_email_${center}_body`).value = DEFAULT_HC_BODIES[center];
+    }
+
+    // ── Load email settings from DB ──────────────────────────────────────────
+    let emailSettingsLoaded = false;
+    async function loadEmailSettings() {
+      const res = await adminFetch('/api/admin/settings');
+      const data = await res.json().catch(() => ({}));
+      const s = data.data || {};
+      ['heart', 'head', 'action'].forEach(center => {
+        document.getElementById(`hc_email_${center}_subject`).value = s[`hc_email_${center}_subject`] || DEFAULT_SUBJECT;
+        document.getElementById(`hc_email_${center}_body`).value    = s[`hc_email_${center}_body`]    || DEFAULT_HC_BODIES[center];
+      });
+      emailSettingsLoaded = true;
+    }
+
+    // ── Save email settings ──────────────────────────────────────────────────
+    async function saveEmailSettings() {
+      const status = document.getElementById('email-save-status');
+      status.textContent = 'Saving…';
+      const payload = {};
+      ['heart', 'head', 'action'].forEach(center => {
+        payload[`hc_email_${center}_subject`] = document.getElementById(`hc_email_${center}_subject`).value.trim();
+        payload[`hc_email_${center}_body`]    = document.getElementById(`hc_email_${center}_body`).value.trim();
+      });
+      const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+      if (res.ok) {
+        showFlash('Assessment email settings saved.');
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+      } else {
+        showFlash('Error saving settings.', 'error');
+        status.textContent = '';
+      }
+    }
+
+    // ── Subscribers ──────────────────────────────────────────────────────────
     async function loadSubscribers() {
       const res = await adminFetch('/api/admin/contacts?type=subscribers');
       const data = await res.json();
@@ -83,10 +352,10 @@
 
         let campaignCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
         if (r.result_center && r.drip_step !== undefined) {
-           const dripDate = r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Pending';
-           campaignCell = `
-             <span style="display:block;font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
-             <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>`;
+          const dripDate = r.last_email_sent_at ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Pending';
+          campaignCell = `
+            <span style="display:block;font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
+            <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>`;
         }
 
         return `
@@ -94,12 +363,11 @@
             <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
             <td>${escHtml(r.name || '—')}</td>
             <td>${resultCell}</td>
-            <td style="color:var(--admin-text-muted); font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
+            <td style="color:var(--admin-text-muted);font-size:0.85rem;">${escHtml(r.source || 'website')}</td>
             <td>${campaignCell}</td>
-            <td style="color:var(--admin-text-muted); font-size:0.85rem; white-space:nowrap;">${date}</td>
+            <td style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
             <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>
-          </tr>
-        `;
+          </tr>`;
       }).join('');
     }
 

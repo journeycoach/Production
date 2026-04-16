@@ -273,12 +273,37 @@ async function handleHiddenCeiling(req, res) {
       emailError = 'RESEND_API_KEY environment variable is not set in Vercel.';
     } else {
       const firstName = name.trim().split(' ')[0] || 'there';
+
+      // Load DB-overridden email template (if set in Admin → Subscribers → Assessment Emails)
+      const dbKeys = [`hc_email_${center}_subject`, `hc_email_${center}_body`];
+      const es = await getEmailSettings(dbKeys);
+      const dbBody = es[`hc_email_${center}_body`];
+      const dbSubject = es[`hc_email_${center}_subject`];
+
+      let subject, html;
+      if (dbBody) {
+        // Use the admin-edited template; interpolate all supported placeholders
+        const calendlyUrl = process.env.CALENDLY_URL || '#';
+        subject = dbSubject || 'Your Hidden Ceiling Assessment Result';
+        html = dbBody;
+        html = interpolateEmail(html, 'firstName',    firstName);
+        html = interpolateEmail(html, 'scoreHeart',   String(scores.heart));
+        html = interpolateEmail(html, 'scoreHead',    String(scores.head));
+        html = interpolateEmail(html, 'scoreAction',  String(scores.action));
+        html = interpolateEmail(html, 'calendlyUrl',  calendlyUrl);
+        subject = interpolateEmail(subject, 'firstName', firstName);
+      } else {
+        // Fall back to the hardcoded template
+        subject = 'Your Hidden Ceiling Assessment Result';
+        html = buildHiddenCeilingEmail(firstName, center, scores);
+      }
+
       const resend = new Resend(resendKey);
       await resend.emails.send({
         from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
         to: email,
-        subject: 'Your Hidden Ceiling Assessment Result',
-        html: buildHiddenCeilingEmail(firstName, center, scores),
+        subject,
+        html,
       });
       emailSent = true;
     }
