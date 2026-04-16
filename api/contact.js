@@ -23,6 +23,26 @@ function interpolateEmail(template, placeholder, value) {
   return template.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
 }
 
+// Helper: generate a signed unsubscribe token for a subscriber ID
+function unsubscribeToken(subscriberId) {
+  const secret = process.env.ADMIN_JWT_SECRET || 'journeycoach-unsub';
+  return crypto.createHmac('sha256', secret).update(String(subscriberId)).digest('hex');
+}
+
+// Helper: append unsubscribe footer to drip email HTML
+function withUnsubscribeFooter(html, subscriberId) {
+  const token = unsubscribeToken(subscriberId);
+  const url = `https://journeycoach.co/api/unsubscribe?id=${subscriberId}&token=${token}`;
+  const footer = `
+<div style="text-align:center;padding:24px 0 0;margin-top:24px;border-top:1px solid #eee;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;line-height:1.8;">
+    You're receiving this because you completed the Hidden Ceiling Assessment at journeycoach.co.<br>
+    <a href="${url}" style="color:#bbb;text-decoration:underline;">Unsubscribe</a>
+  </p>
+</div>`;
+  return html + footer;
+}
+
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
@@ -314,10 +334,14 @@ async function handleCronDrip(req, res) {
       if (t.step_number > maxStep) maxStep = t.step_number;
     }
 
+    await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_unsubscribed BOOLEAN DEFAULT FALSE`;
+
     const eligibleSubscribers = await sql`
-      SELECT id, name, email, drip_step, last_email_sent_at 
-      FROM subscribers 
-      WHERE result_center IS NOT NULL AND drip_step < ${maxStep}
+      SELECT id, name, email, drip_step, last_email_sent_at
+      FROM subscribers
+      WHERE result_center IS NOT NULL
+        AND drip_step < ${maxStep}
+        AND (is_unsubscribed IS NULL OR is_unsubscribed = FALSE)
     `;
 
     if (eligibleSubscribers.length === 0) return res.status(200).json({ processed: 0, reason: 'No eligible subscribers found.' });
@@ -339,7 +363,10 @@ async function handleCronDrip(req, res) {
       if (nowMs >= thresholdTime) {
         try {
           const firstName = (sub.name || '').trim().split(' ')[0] || 'there';
-          const personalizedBody = template.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName);
+          const personalizedBody = withUnsubscribeFooter(
+            template.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName),
+            sub.id
+          );
 
           await resend.emails.send({
             from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
