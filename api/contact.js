@@ -55,6 +55,9 @@ async function ensureSubmissionAttemptTable() {
 
 async function enforceSubmissionRateLimit(req, action, email, { maxPerHour = 8, maxPerDayPerEmail = 3 } = {}) {
   try {
+    const limitDisabled = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'rate_limit_disabled'`;
+    if (limitDisabled[0]?.setting_value === 'true') return { allowed: true };
+
     await ensureSubmissionAttemptTable();
 
     const ipHash = hashRateLimitValue(getClientIp(req));

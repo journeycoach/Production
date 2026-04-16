@@ -365,6 +365,20 @@
             <span style="color:var(--admin-muted);font-size:0.8rem;">Clears the admin-only theme settings and restores the default look.</span>
           </div>
         </div>
+
+        <div class="card" style="border-color: #d9a15e;">
+          <div class="card-title" style="color:#d9a15e;">Testing</div>
+          <div class="guide-box" style="margin-bottom:20px;border-left-color:#d9a15e;background:rgba(217,161,94,0.06);">
+            <strong style="color:#d9a15e;">⚠ Testing Mode</strong>
+            When enabled, all submission rate limits are bypassed so you can test forms repeatedly with the same email and IP. Turn this off before going live.
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" id="rate_limit_disabled" style="width:18px;height:18px;accent-color:#d9a15e;cursor:pointer;">
+              <span>Disable rate limiting on all forms <span style="color:var(--admin-muted);font-weight:400;">(contact, subscribe, assessment)</span></span>
+            </label>
+          </div>
+        </div>
       </section>
 
       <section class="settings-tab-panel" data-tab-panel="email-templates" role="tabpanel">
@@ -782,6 +796,7 @@
       document.getElementById('admin_font_heading').value      = settings.admin_font_heading || '';
       document.getElementById('admin_font_body').value         = settings.admin_font_body || '';
       document.getElementById('admin_dashboard_columns').value = settings.admin_dashboard_columns || '3';
+      document.getElementById('rate_limit_disabled').checked   = settings.rate_limit_disabled === 'true';
       applyAdminTheme(settings);
 
       // Contact reply
@@ -847,9 +862,10 @@
 
       if (activeTab === 'admin') {
         const payload = {};
-        payload.admin_font_heading = document.getElementById('admin_font_heading').value;
-        payload.admin_font_body = document.getElementById('admin_font_body').value;
+        payload.admin_font_heading   = document.getElementById('admin_font_heading').value;
+        payload.admin_font_body      = document.getElementById('admin_font_body').value;
         payload.admin_dashboard_columns = document.getElementById('admin_dashboard_columns').value;
+        payload.rate_limit_disabled  = document.getElementById('rate_limit_disabled').checked ? 'true' : 'false';
         adminColorKeys.forEach(key => { payload[key] = document.getElementById(key).value.trim(); });
         await persistAdminSettings(payload);
         return;
