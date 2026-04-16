@@ -163,34 +163,20 @@
     }
 
     const CARDS = [
-      { key: CARD_KEYS.SETTINGS,     href: 'settings.html',     title: 'Site Settings',    desc: 'Control brand colors, fonts, global CTAs, and site tagline.' },
-      { key: CARD_KEYS.POSTS,        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
-      { key: CARD_KEYS.TESTIMONIALS, href: 'testimonials.html', title: 'Testimonials',     desc: 'Add and manage client testimonials displayed on the homepage.' },
-      { key: CARD_KEYS.TOOLS,        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links shown on the Resources page.' },
-      { key: CARD_KEYS.BOOKMARKS,    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories for the bookmarks section.' },
+      { key: CARD_KEYS.SETTINGS,     href: 'settings.html',     title: 'Site Settings',    desc: 'Colors, fonts, CTAs, and site tagline.' },
+      { key: CARD_KEYS.POSTS,        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write and manage blog articles.' },
+      { key: CARD_KEYS.TESTIMONIALS, href: 'testimonials.html', title: 'Testimonials',     desc: 'Manage client testimonials on the homepage.' },
+      { key: CARD_KEYS.TOOLS,        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links.' },
+      { key: CARD_KEYS.BOOKMARKS,    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories.' },
       {
         key: CARD_KEYS.SITE_STRUCTURE, type: CARD_TYPE.GROUP, icon: 'sections', title: 'Site Structure',
         items: [
-          { href: 'sections.html',   title: 'Page Sections', desc: 'Show, hide, reorder, and draft page sections.' },
-          { href: 'navigation.html', title: 'Navigation',    desc: 'Edit the header brand name, nav links, and CTA button.' }
+          { href: 'sections.html',   title: 'Page Sections', desc: 'Show, hide, and reorder page sections.' },
+          { href: 'navigation.html', title: 'Navigation',    desc: 'Edit nav links and the header CTA.' }
         ]
       },
-      {
-        key: CARD_KEYS.CONTACTS_EMAIL, type: CARD_TYPE.GROUP, icon: 'contacts', title: 'Contacts & Email',
-        items: [
-          { href: 'contacts.html',                     title: 'Contact Submissions', desc: 'View and manage inquiries submitted through the contact form.' },
-          { href: 'contacts.html?tab=auto-reply',      title: 'Auto-Reply Email',    desc: 'Edit the email automatically sent to anyone who submits the contact form.' },
-          { href: 'subscribers.html?tab=free-guide',    title: 'Free Guide Email',    desc: 'Edit the Free Guide opt-in email and manage the homepage lead magnet.' }
-        ]
-      },
-      {
-        key: CARD_KEYS.SUBSCRIBERS_CAMPAIGNS, type: CARD_TYPE.GROUP, icon: 'subscribers', title: 'Subscribers & Campaigns',
-        items: [
-          { href: 'subscribers.html',                      title: 'Subscribers',          desc: 'View and manage email subscribers from the Hidden Ceiling assessment.' },
-          { href: 'subscribers.html?tab=drip-campaigns',  title: 'Drip Campaigns',       desc: 'Manage the automated email sequences sent to subscribers.' },
-          { href: 'subscribers.html?tab=assessment-emails', title: 'Assessment Emails',  desc: 'Edit the personalized result emails sent after the Hidden Ceiling Assessment.' }
-        ]
-      }
+      { key: CARD_KEYS.CONTACTS_EMAIL,         href: 'contacts.html',     icon: 'contacts',    title: 'Contacts & Email',         desc: 'Contact submissions and auto-reply email.' },
+      { key: CARD_KEYS.SUBSCRIBERS_CAMPAIGNS,  href: 'subscribers.html',  icon: 'subscribers', title: 'Subscribers & Campaigns',  desc: 'Subscribers, drip campaigns, assessment emails, and the Free Guide.' }
     ];
 
     function getSavedOrder() {
@@ -241,7 +227,7 @@
         }
         return `
           <a href="${c.href}" class="dashboard-card" data-key="${c.key}">
-            <div class="card-icon">${getIconMarkup(c.key)}</div>
+            <div class="card-icon">${getIconMarkup(c.icon || c.key)}</div>
             <div class="card-title">${c.title}</div>
             <div class="card-desc">${c.desc}</div>
           </a>`;
