@@ -3,87 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Submissions — Admin</title>
+  <title>Contacts &amp; Email — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <style>
-    .submission-card {
-      background: var(--admin-card-bg);
-      border: 1px solid var(--admin-border);
-      border-radius: 6px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.2s;
-    }
-    .submission-card.unread {
-      border-left: 3px solid var(--admin-accent);
-    }
-    .submission-card.read {
-      opacity: 0.7;
-    }
-    .submission-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.75rem;
-    }
-    .submission-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--admin-text);
-    }
-    .submission-date {
-      font-size: 0.8rem;
-      color: var(--admin-muted);
-      margin-left: auto;
-    }
-    .submission-detail {
-      font-size: 0.85rem;
-      color: var(--admin-muted);
-      margin-bottom: 0.25rem;
-    }
-    .submission-message {
-      margin-top: 0.75rem;
-      padding: 0.75rem;
-      background: rgba(255,255,255,0.03);
-      border-radius: 4px;
-      font-size: 0.9rem;
-      color: var(--admin-text);
-      white-space: pre-wrap;
-      line-height: 1.6;
-    }
-    .submission-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .unread-badge {
-      background: var(--admin-accent);
-      color: #1a1d1e;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 2px 8px;
-      border-radius: 20px;
-    }
-    .filter-bar {
-      display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .filter-bar span {
-      font-size: 0.85rem;
-      color: var(--admin-muted);
-    }
-    .empty-state {
-      text-align: center;
-      padding: 4rem 1rem;
-      color: var(--admin-muted);
-    }
+    /* ── Page tabs (same pattern as subscribers.html) ── */
+    .page-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .page-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .page-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .page-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .page-tab-panel { display: none; }
+    .page-tab-panel.is-active { display: block; }
+    .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
+    .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+    .field-row label { margin: 0; }
+    /* ── Submissions styles ── */
+    .submission-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+    .submission-card.unread { border-left: 3px solid var(--admin-accent); }
+    .submission-card.read { opacity: 0.7; }
+    .submission-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .submission-name { font-weight: 600; font-size: 1rem; color: var(--admin-text); }
+    .submission-date { font-size: 0.8rem; color: var(--admin-muted); margin-left: auto; }
+    .submission-detail { font-size: 0.85rem; color: var(--admin-muted); margin-bottom: 0.25rem; }
+    .submission-message { margin-top: 0.75rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 4px; font-size: 0.9rem; color: var(--admin-text); white-space: pre-wrap; line-height: 1.6; }
+    .submission-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .unread-badge { background: var(--admin-accent); color: #1a1d1e; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 20px; }
+    .filter-bar { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .filter-bar span { font-size: 0.85rem; color: var(--admin-muted); }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--admin-muted); }
     .empty-state p { margin-top: 0.5rem; font-size: 0.9rem; }
+    .guide-box { background: var(--admin-notice-bg); border-left: 3px solid var(--admin-notice-accent); border-radius: 4px; padding: 14px 18px; margin-bottom: 24px; font-size: 0.875rem; color: var(--admin-notice-text); line-height: 1.6; }
+    .guide-box strong { color: var(--admin-notice-accent); display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -97,19 +46,64 @@
 
     <main class="admin-main">
       <div class="admin-page-title">
-        <h1>Contact Submissions <span id="unreadCount" style="font-size:1rem;font-weight:400;color:var(--admin-accent);"></span></h1>
+        <h1>Contacts &amp; Email <span id="unreadCount" style="font-size:1rem;font-weight:400;color:var(--admin-accent);"></span></h1>
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
-      <div class="filter-bar">
-        <button class="btn btn-secondary btn-sm" onclick="setFilter('all')" id="filterAll">All</button>
-        <button class="btn btn-secondary btn-sm" onclick="setFilter('unread')" id="filterUnread">Unread</button>
-        <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Mark All Read</button>
-        <span id="countLabel"></span>
+      <div class="page-tabs" role="tablist">
+        <button type="button" class="page-tab is-active" data-tab="submissions" role="tab" aria-selected="true">Contact Submissions</button>
+        <button type="button" class="page-tab"           data-tab="auto-reply"  role="tab" aria-selected="false">Auto-Reply Email</button>
       </div>
 
-      <div id="submissionsContainer">
-        <div class="empty-state"><p>Loading...</p></div>
+      <!-- ── Contact Submissions tab ──────────────────────────────────── -->
+      <div class="page-tab-panel is-active" data-panel="submissions">
+        <div class="filter-bar">
+          <button class="btn btn-secondary btn-sm" onclick="setFilter('all')"    id="filterAll">All</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFilter('unread')" id="filterUnread">Unread</button>
+          <button class="btn btn-secondary btn-sm" onclick="markAllRead()">Mark All Read</button>
+          <span id="countLabel"></span>
+        </div>
+        <div id="submissionsContainer">
+          <div class="empty-state"><p>Loading...</p></div>
+        </div>
+      </div>
+
+      <!-- ── Auto-Reply Email tab ─────────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="auto-reply">
+        <div class="card">
+          <div class="card-title">Contact Form Auto-Reply</div>
+          <div class="guide-box">
+            <strong>About the Auto-Reply</strong>
+            This email is sent automatically to anyone who submits the contact form.
+            Use <code>{{firstName}}</code> anywhere in the subject or body to personalise it.
+            The body accepts plain HTML. Toggle the switch below to enable or disable.
+          </div>
+
+          <div class="form-group" style="margin-bottom:24px;">
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
+              <span>Send auto-reply email when someone submits the contact form</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="contact_reply_subject">Subject Line</label>
+            <input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}">
+          </div>
+
+          <div class="form-group">
+            <div class="field-row">
+              <label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="loadAutoReplyDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+            </div>
+            <textarea id="contact_reply_body" class="form-control" rows="20" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="saveAutoReply()">Save Auto-Reply Settings</button>
+          <span id="auto-reply-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
+        </div>
       </div>
     </main>
   </div>
@@ -118,11 +112,87 @@
   <script>
     requireAdminAuth();
 
+    // ── Default auto-reply template ──────────────────────────────────────────
+    const DEFAULT_AUTO_REPLY_SUBJECT = 'Got your message, {{firstName}}';
+    const DEFAULT_AUTO_REPLY_BODY = `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">Got your message, {{firstName}}.</h1>
+  <p>Thank you for reaching out. I&#39;ve received your inquiry and will be in touch within one business day.</p>
+  <p>If your situation feels time-sensitive, feel free to book a time directly on my calendar:</p>
+  <p style="margin-top:1.5rem;">
+    <a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book a 20-Minute Alignment Call →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you submitted an inquiry at journeycoach.co.</p>
+</div>`;
+
+    // ── Tab switching ────────────────────────────────────────────────────────
+    let autoReplyLoaded = false;
+
+    function setPageTab(tab) {
+      document.querySelectorAll('.page-tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.page-tab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.panel === tab);
+      });
+      if (tab === 'auto-reply' && !autoReplyLoaded) loadAutoReplySettings();
+    }
+
+    document.querySelectorAll('.page-tab').forEach(btn =>
+      btn.addEventListener('click', () => setPageTab(btn.dataset.tab)));
+
+    // Deep-link: ?tab=auto-reply
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) setPageTab(urlTab);
+
+    // ── Auto-Reply: load / save / default ───────────────────────────────────
+    function loadAutoReplyDefault() {
+      document.getElementById('contact_reply_subject').value = DEFAULT_AUTO_REPLY_SUBJECT;
+      document.getElementById('contact_reply_body').value    = DEFAULT_AUTO_REPLY_BODY;
+    }
+
+    async function loadAutoReplySettings() {
+      const res  = await adminFetch('/api/admin/settings');
+      const data = await res.json().catch(() => ({}));
+      const s    = data.data || {};
+      document.getElementById('contact_reply_enabled').checked = s.contact_reply_enabled === 'true';
+      document.getElementById('contact_reply_subject').value   = s.contact_reply_subject || DEFAULT_AUTO_REPLY_SUBJECT;
+      document.getElementById('contact_reply_body').value      = s.contact_reply_body    || DEFAULT_AUTO_REPLY_BODY;
+      autoReplyLoaded = true;
+    }
+
+    async function saveAutoReply() {
+      const status = document.getElementById('auto-reply-save-status');
+      status.textContent = 'Saving…';
+      const payload = {
+        contact_reply_enabled: document.getElementById('contact_reply_enabled').checked ? 'true' : 'false',
+        contact_reply_subject: document.getElementById('contact_reply_subject').value.trim(),
+        contact_reply_body:    document.getElementById('contact_reply_body').value.trim(),
+      };
+      const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+      if (res.ok) {
+        showFlash('Auto-reply settings saved.');
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+      } else {
+        showFlash('Error saving settings.', 'error');
+        status.textContent = '';
+      }
+    }
+
+    // ── Contact submissions ──────────────────────────────────────────────────
     let allSubmissions = [];
-    let currentFilter = 'all';
+    let currentFilter  = 'all';
 
     async function loadSubmissions() {
-      const res = await adminFetch('/api/admin/contacts');
+      const res  = await adminFetch('/api/admin/contacts');
       const data = await res.json();
       allSubmissions = data.data || [];
       render();
@@ -130,21 +200,22 @@
 
     function setFilter(f) {
       currentFilter = f;
-      document.getElementById('filterAll').classList.toggle('btn-primary', f === 'all');
+      document.getElementById('filterAll').classList.toggle('btn-primary',    f === 'all');
       document.getElementById('filterUnread').classList.toggle('btn-primary', f === 'unread');
       render();
     }
 
     function render() {
       const container = document.getElementById('submissionsContainer');
-      const unread = allSubmissions.filter(s => !s.is_read);
+      const unread    = allSubmissions.filter(s => !s.is_read);
       document.getElementById('unreadCount').textContent = unread.length > 0 ? `(${unread.length} unread)` : '';
 
       const filtered = currentFilter === 'unread'
         ? allSubmissions.filter(s => !s.is_read)
         : allSubmissions;
 
-      document.getElementById('countLabel').textContent = `${filtered.length} submission${filtered.length !== 1 ? 's' : ''}`;
+      document.getElementById('countLabel').textContent =
+        `${filtered.length} submission${filtered.length !== 1 ? 's' : ''}`;
 
       if (filtered.length === 0) {
         container.innerHTML = `<div class="empty-state">
