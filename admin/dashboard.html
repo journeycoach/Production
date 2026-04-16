@@ -77,6 +77,17 @@
     requireAdminAuth();
 
     const STORAGE_KEY = 'admin_dashboard_order';
+    const CARD_TYPE = { SINGLE: 'single', GROUP: 'group' };
+    const CARD_KEYS = {
+      SETTINGS: 'settings',
+      POSTS: 'posts',
+      TESTIMONIALS: 'testimonials',
+      TOOLS: 'tools',
+      BOOKMARKS: 'bookmarks',
+      SITE_STRUCTURE: 'site_structure',
+      CONTACTS_EMAIL: 'contacts_email',
+      SUBSCRIBERS_CAMPAIGNS: 'subscribers_campaigns'
+    };
 
     function getIconMarkup(key) {
       const icons = {
@@ -152,27 +163,27 @@
     }
 
     const CARDS = [
-      { key: 'settings',     href: 'settings.html',     title: 'Site Settings',    desc: 'Control brand colors, fonts, global CTAs, and site tagline.' },
-      { key: 'posts',        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
-      { key: 'testimonials', href: 'testimonials.html', title: 'Testimonials',     desc: 'Add and manage client testimonials displayed on the homepage.' },
-      { key: 'tools',        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links shown on the Resources page.' },
-      { key: 'bookmarks',    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories for the bookmarks section.' },
+      { key: CARD_KEYS.SETTINGS,     href: 'settings.html',     title: 'Site Settings',    desc: 'Control brand colors, fonts, global CTAs, and site tagline.' },
+      { key: CARD_KEYS.POSTS,        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write, edit, and manage blog articles with HTML content editing and live preview.' },
+      { key: CARD_KEYS.TESTIMONIALS, href: 'testimonials.html', title: 'Testimonials',     desc: 'Add and manage client testimonials displayed on the homepage.' },
+      { key: CARD_KEYS.TOOLS,        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links shown on the Resources page.' },
+      { key: CARD_KEYS.BOOKMARKS,    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories for the bookmarks section.' },
       {
-        key: 'site_structure', type: 'group', icon: 'sections', title: 'Site Structure',
+        key: CARD_KEYS.SITE_STRUCTURE, type: CARD_TYPE.GROUP, icon: 'sections', title: 'Site Structure',
         items: [
           { href: 'sections.html',   title: 'Page Sections', desc: 'Show, hide, reorder, and draft page sections.' },
           { href: 'navigation.html', title: 'Navigation',    desc: 'Edit the header brand name, nav links, and CTA button.' }
         ]
       },
       {
-        key: 'contacts_email', type: 'group', icon: 'contacts', title: 'Contacts & Email',
+        key: CARD_KEYS.CONTACTS_EMAIL, type: CARD_TYPE.GROUP, icon: 'contacts', title: 'Contacts & Email',
         items: [
           { href: 'contacts.html',                      title: 'Contact Submissions', desc: 'View and manage inquiries submitted through the contact form.' },
           { href: 'settings.html?tab=email-templates',  title: 'Auto-Reply & Guide',  desc: 'Edit the contact auto-reply and Free Guide email templates.' }
         ]
       },
       {
-        key: 'subscribers_campaigns', type: 'group', icon: 'subscribers', title: 'Subscribers & Campaigns',
+        key: CARD_KEYS.SUBSCRIBERS_CAMPAIGNS, type: CARD_TYPE.GROUP, icon: 'subscribers', title: 'Subscribers & Campaigns',
         items: [
           { href: 'subscribers.html', title: 'Subscribers',    desc: 'View and manage email subscribers from the Hidden Ceiling assessment.' },
           { href: 'campaigns.html',   title: 'Drip Campaigns', desc: 'Manage the automated email sequences sent to subscribers.' }
@@ -208,7 +219,7 @@
       const grid = document.getElementById('dashGrid');
       const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
       grid.innerHTML = getOrderedCards().map(c => {
-        if (c.type === 'group') {
+        if (c.type === CARD_TYPE.GROUP) {
           return `
             <div class="dashboard-card dashboard-card-group" data-key="${c.key}">
               <div class="card-icon">${getIconMarkup(c.icon)}</div>

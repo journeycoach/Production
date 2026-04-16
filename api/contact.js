@@ -4,6 +4,25 @@ import { Resend } from 'resend';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET || 'journeycoach-rate-limit';
 
+// Helper: fetch email settings from database
+async function getEmailSettings(keys) {
+  try {
+    const settings = await sql`
+      SELECT setting_key, setting_value FROM site_settings
+      WHERE setting_key IN (${keys})
+    `;
+    return Object.fromEntries(settings.map(r => [r.setting_key, r.setting_value]));
+  } catch (err) {
+    console.error('Error fetching email settings:', err);
+    return {};
+  }
+}
+
+// Helper: replace {{placeholder}} with value
+function interpolateEmail(template, placeholder, value) {
+  return template.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
+}
+
 function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
@@ -121,15 +140,11 @@ async function handleSubscribe(req, res) {
   try {
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
-      const firstName = (name || '').trim().split(' ')[0] || 'there';
-      const guideSettings = await sql`
-        SELECT setting_key, setting_value FROM site_settings
-        WHERE setting_key IN ('guide_email_subject', 'guide_email_body')
-      `;
-      const gs = Object.fromEntries(guideSettings.map(r => [r.setting_key, r.setting_value]));
-      const subject = (gs.guide_email_subject || 'Understanding Your Hidden Ceiling').replace(/\{\{firstName\}\}/g, firstName);
+      const firstName = escapeHtml((name || '').trim().split(' ')[0] || 'there');
+      const gs = await getEmailSettings(['guide_email_subject', 'guide_email_body']);
+      const subject = interpolateEmail(gs.guide_email_subject || 'Understanding Your Hidden Ceiling', 'firstName', firstName);
       const html = gs.guide_email_body
-        ? gs.guide_email_body.replace(/\{\{firstName\}\}/g, firstName)
+        ? interpolateEmail(gs.guide_email_body, 'firstName', firstName)
         : buildGuideEmail(firstName);
       const resend = new Resend(resendKey);
       await resend.emails.send({
@@ -485,16 +500,12 @@ export default async function handler(req, res) {
     try {
       const resendKey = process.env.RESEND_API_KEY;
       if (resendKey) {
-        const replySettings = await sql`
-          SELECT setting_key, setting_value FROM site_settings
-          WHERE setting_key IN ('contact_reply_enabled','contact_reply_subject','contact_reply_body')
-        `;
-        const rs = Object.fromEntries(replySettings.map(r => [r.setting_key, r.setting_value]));
+        const rs = await getEmailSettings(['contact_reply_enabled', 'contact_reply_subject', 'contact_reply_body']);
 
         if (rs.contact_reply_enabled === 'true' && rs.contact_reply_body) {
           const firstName = escapeHtml(name.split(' ')[0]);
-          const subject = (rs.contact_reply_subject || 'Got your message, {{firstName}}').replace(/\{\{firstName\}\}/g, firstName);
-          const html    = rs.contact_reply_body.replace(/\{\{firstName\}\}/g, firstName);
+          const subject = interpolateEmail(rs.contact_reply_subject || 'Got your message, {{firstName}}', 'firstName', firstName);
+          const html = interpolateEmail(rs.contact_reply_body, 'firstName', firstName);
 
           const resend = new Resend(resendKey);
           await resend.emails.send({

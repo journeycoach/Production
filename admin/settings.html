@@ -424,37 +424,7 @@
 
             <div class="form-group">
               <label for="guide_email_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-              <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default. Use {{firstName}} to personalise."><div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
-  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
-  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
-  <p>Hi {{firstName}},</p>
-  <p>Thank you for requesting the guide. Here's the core idea — and the five patterns I see most often in the leaders I work with.</p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
-  <p>A Hidden Ceiling isn't a skill gap or a knowledge gap. It's an identity gap — the distance between who you've learned to be as a professional, and who you'll need to become to lead with full impact.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever's Ceiling</h2>
-  <p style="margin-top:0;">You've built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building. You keep driving harder at a game that has quietly changed.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert's Ceiling</h2>
-  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains. Being the smartest person in the room is no longer the point.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
-  <p style="margin-top:0;">You've built real trust by keeping the peace and making people feel heard. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
-  <p style="margin-top:0;">You built your reputation through personal execution. True delegation — letting others own things that matter — feels like risk rather than leverage. The ceiling is reached when your span of responsibility exceeds what any one person can personally oversee.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
-  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes or a major transition looms, you find yourself without a stable internal foundation. Success begins to feel fragile.</p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
-  <p>If you'd like to explore what your results mean in the context of your specific situation, I'd be glad to have a conversation.</p>
-  <p style="margin-top:2rem;">
-    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
-  </p>
-  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
-  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
-  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
-  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co. No further emails unless you reach out.</p>
-</div></textarea>
+              <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default. Use {{firstName}} to personalise."></textarea>
             </div>
           </div>
         </div>
@@ -620,14 +590,7 @@
 
     function setActiveTab(tabName) {
       activeTab = tabName;
-      document.querySelectorAll('.settings-tab').forEach(button => {
-        const isActive = button.dataset.tab === tabName;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-      document.querySelectorAll('.settings-tab-panel').forEach(panel => {
-        panel.classList.toggle('is-active', panel.dataset.tabPanel === tabName);
-      });
+      setActiveTabGeneric(tabName, '.settings-tab', 'tab', '.settings-tab-panel');
       updateSaveButtonLabel();
     }
 
@@ -635,20 +598,21 @@
       button.addEventListener('click', () => setActiveTab(button.dataset.tab));
     });
 
-    // ── Email template sub-tabs ──────────────────────────────────────────────
-    function setActiveEmailSubtab(subtab) {
-      document.querySelectorAll('.email-subtab').forEach(btn => {
-        const isActive = btn.dataset.subtab === subtab;
+    // ── Generic tab handler (reused for main tabs and subtabs) ────────────────
+    function setActiveTabGeneric(tabValue, buttonSelector, dataAttribute, panelSelector) {
+      document.querySelectorAll(buttonSelector).forEach(btn => {
+        const isActive = btn.dataset[dataAttribute] === tabValue;
         btn.classList.toggle('is-active', isActive);
         btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
-      document.querySelectorAll('.email-subtab-panel').forEach(panel => {
-        panel.classList.toggle('is-active', panel.dataset.subtabPanel === subtab);
+      const panelDataAttr = dataAttribute + 'Panel';
+      document.querySelectorAll(panelSelector).forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset[panelDataAttr] === tabValue);
       });
     }
 
     document.querySelectorAll('.email-subtab').forEach(btn => {
-      btn.addEventListener('click', () => setActiveEmailSubtab(btn.dataset.subtab));
+      btn.addEventListener('click', () => setActiveTabGeneric(btn.dataset.subtab, '.email-subtab', 'subtab', '.email-subtab-panel'));
     });
 
     function setActiveEnvironment(environment) {
