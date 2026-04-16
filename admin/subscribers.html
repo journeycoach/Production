@@ -47,6 +47,7 @@
         <button type="button" class="page-tab"           data-tab="drip-campaigns"    role="tab" aria-selected="false">Drip Campaigns</button>
         <button type="button" class="page-tab"           data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
         <button type="button" class="page-tab"           data-tab="results"           role="tab" aria-selected="false">Result Pages</button>
+        <button type="button" class="page-tab"           data-tab="free-guide"        role="tab" aria-selected="false">Free Guide</button>
       </div>
 
       <!-- ── Subscribers tab ─────────────────────────────────────────── -->
@@ -265,6 +266,44 @@
         </div>
       </div>
 
+      <!-- ── Free Guide tab ────────────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="free-guide">
+        <div class="card">
+          <div class="card-title">Free Guide Opt-In</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About the Free Guide</strong>
+            Controls the opt-in strip on the homepage and the email sent when someone signs up.
+            Use <code>{{firstName}}</code> anywhere in the subject or body to personalise it.
+            Leave the body blank to send the built-in default email.
+          </div>
+
+          <div class="form-group" style="margin-bottom:24px;">
+            <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+              <input type="checkbox" id="fg_lead_magnet_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;">
+              <span>Show the Free Guide opt-in form on the homepage</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="fg_guide_email_subject">Subject Line</label>
+            <input type="text" id="fg_guide_email_subject" class="form-control" placeholder="Understanding Your Hidden Ceiling">
+          </div>
+
+          <div class="form-group">
+            <div class="field-row">
+              <label for="fg_guide_email_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="loadFreeGuideDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+            </div>
+            <textarea id="fg_guide_email_body" class="form-control" rows="20" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}} to personalise."></textarea>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="saveFreeGuide()">Save Free Guide Settings</button>
+          <span id="fg-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -449,6 +488,7 @@
       if (tab === 'drip-campaigns'    && !campaignLoaded)      loadCampaign();
       if (tab === 'assessment-emails' && !emailSettingsLoaded)  loadEmailSettings();
       if (tab === 'results'           && !resultsLoaded)        loadResultSettings();
+      if (tab === 'free-guide'        && !freeGuideLoaded)      loadFreeGuideSettings();
     }
 
     function setCenterSubtab(center) {
@@ -731,6 +771,75 @@
       textarea.value     = textarea.value.substring(0, start) + openTag + selectedText + closeTag + textarea.value.substring(end);
       textarea.focus();
       textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+    }
+
+    // ── Free Guide: defaults, load, save ────────────────────────────────────
+    let freeGuideLoaded = false;
+
+    const DEFAULT_GUIDE_SUBJECT = 'Understanding Your Hidden Ceiling';
+    const DEFAULT_GUIDE_BODY = `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
+  <p>Hi {{firstName}},</p>
+  <p>Thank you for requesting the guide. Here&#39;s the core idea — and the five patterns I see most often in the leaders I work with.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
+  <p>A Hidden Ceiling isn&#39;t a skill gap or a knowledge gap. It&#39;s an identity gap — the distance between who you&#39;ve learned to be as a professional, and who you&#39;ll need to become to lead with full impact.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building. You keep driving harder at a game that has quietly changed.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains. Being the smartest person in the room is no longer the point.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built real trust by keeping the peace and making people feel heard. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
+  <p style="margin-top:0;">You built your reputation through personal execution. True delegation — letting others own things that matter — feels like risk rather than leverage. The ceiling is reached when your span of responsibility exceeds what any one person can personally oversee.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
+  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes or a major transition looms, you find yourself without a stable internal foundation. Success begins to feel fragile.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>These patterns show up differently depending on how you&#39;re wired. The Hidden Ceiling Assessment takes about 2 minutes and will identify which one is most active for you — with a personalized guide and specific next steps.</p>
+  <p style="margin-top:2rem;">
+    <a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co.</p>
+</div>`;
+
+    function loadFreeGuideDefault() {
+      document.getElementById('fg_guide_email_subject').value = DEFAULT_GUIDE_SUBJECT;
+      document.getElementById('fg_guide_email_body').value    = DEFAULT_GUIDE_BODY;
+    }
+
+    async function loadFreeGuideSettings() {
+      const res  = await adminFetch('/api/admin/settings');
+      const data = await res.json().catch(() => ({}));
+      const s    = data.data || {};
+      document.getElementById('fg_lead_magnet_enabled').checked  = s.lead_magnet_enabled === 'true';
+      document.getElementById('fg_guide_email_subject').value    = s.guide_email_subject || DEFAULT_GUIDE_SUBJECT;
+      document.getElementById('fg_guide_email_body').value       = s.guide_email_body    || DEFAULT_GUIDE_BODY;
+      freeGuideLoaded = true;
+    }
+
+    async function saveFreeGuide() {
+      const status = document.getElementById('fg-save-status');
+      status.textContent = 'Saving…';
+      const payload = {
+        lead_magnet_enabled: document.getElementById('fg_lead_magnet_enabled').checked ? 'true' : 'false',
+        guide_email_subject: document.getElementById('fg_guide_email_subject').value.trim(),
+        guide_email_body:    document.getElementById('fg_guide_email_body').value.trim(),
+      };
+      const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+      if (res.ok) {
+        showFlash('Free Guide settings saved.');
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+      } else {
+        showFlash('Error saving settings.', 'error');
+        status.textContent = '';
+      }
     }
 
     // ── Result Pages: defaults, load, save ──────────────────────────────────
