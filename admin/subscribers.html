@@ -17,6 +17,11 @@
     .center-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
     .center-subtab-panel { display: none; }
     .center-subtab-panel.is-active { display: block; }
+    .res-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .res-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .res-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .res-subtab-panel { display: none; }
+    .res-subtab-panel.is-active { display: block; }
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
     .field-row label { margin: 0; }
@@ -41,6 +46,7 @@
         <button type="button" class="page-tab is-active" data-tab="subscribers"       role="tab" aria-selected="true">Subscribers</button>
         <button type="button" class="page-tab"           data-tab="drip-campaigns"    role="tab" aria-selected="false">Drip Campaigns</button>
         <button type="button" class="page-tab"           data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
+        <button type="button" class="page-tab"           data-tab="results"           role="tab" aria-selected="false">Result Pages</button>
       </div>
 
       <!-- ── Subscribers tab ─────────────────────────────────────────── -->
@@ -193,6 +199,72 @@
           <span id="email-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
         </div>
       </div>
+      <!-- ── Result Pages tab ──────────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="results">
+        <div class="card">
+          <div class="card-title">Hidden Ceiling Result Pages</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>About these fields</strong>
+            These control what the visitor sees on the page immediately after completing the assessment —
+            the center label, title, summary, insight panels, and bullet points.
+            Leave any field blank to use the built-in default. Changes take effect on the next assessment submission.
+          </div>
+
+          <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
+            <button type="button" class="res-subtab is-active" data-res-center="heart"  role="tab" aria-selected="true">Heart Center</button>
+            <button type="button" class="res-subtab"           data-res-center="head"   role="tab" aria-selected="false">Head Center</button>
+            <button type="button" class="res-subtab"           data-res-center="action" role="tab" aria-selected="false">Gut Center</button>
+          </div>
+
+          <!-- Heart -->
+          <div class="res-subtab-panel is-active" data-res-center-panel="heart">
+            <div class="field-row" style="margin-bottom:20px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Heart Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_label">Center Label <span style="color:var(--admin-muted);font-weight:400;">(pill text)</span></label><input type="text" id="hc_result_heart_label" class="form-control" placeholder="Heart Center"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_title">Title</label><input type="text" id="hc_result_heart_title" class="form-control" placeholder="You lead like a Connection-Oriented Leader"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_summary">Opening Summary</label><textarea id="hc_result_heart_summary" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_description">What This Says About You</label><textarea id="hc_result_heart_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_blindspot">Watch for This Pattern</label><textarea id="hc_result_heart_blindspot" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:4px;"><label>Start Here This Week <span style="color:var(--admin-muted);font-weight:400;">(3 bullet points)</span></label></div>
+            <textarea id="hc_result_heart_step1" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 1…"></textarea>
+            <textarea id="hc_result_heart_step2" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 2…"></textarea>
+            <textarea id="hc_result_heart_step3" class="form-control" rows="2" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
+          </div>
+
+          <!-- Head -->
+          <div class="res-subtab-panel" data-res-center-panel="head">
+            <div class="field-row" style="margin-bottom:20px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_label">Center Label</label><input type="text" id="hc_result_head_label" class="form-control" placeholder="Head Center"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_title">Title</label><input type="text" id="hc_result_head_title" class="form-control" placeholder="You lead like a Thinking-Oriented Leader"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_summary">Opening Summary</label><textarea id="hc_result_head_summary" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_description">What This Says About You</label><textarea id="hc_result_head_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_blindspot">Watch for This Pattern</label><textarea id="hc_result_head_blindspot" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:4px;"><label>Start Here This Week</label></div>
+            <textarea id="hc_result_head_step1" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 1…"></textarea>
+            <textarea id="hc_result_head_step2" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 2…"></textarea>
+            <textarea id="hc_result_head_step3" class="form-control" rows="2" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
+          </div>
+
+          <!-- Action / Gut -->
+          <div class="res-subtab-panel" data-res-center-panel="action">
+            <div class="field-row" style="margin-bottom:20px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Gut Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_action_label">Center Label</label><input type="text" id="hc_result_action_label" class="form-control" placeholder="Gut Center"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_action_title">Title</label><input type="text" id="hc_result_action_title" class="form-control" placeholder="You lead from the Gut Center"></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_action_summary">Opening Summary</label><textarea id="hc_result_action_summary" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_action_description">What This Says About You</label><textarea id="hc_result_action_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_action_blindspot">Watch for This Pattern</label><textarea id="hc_result_action_blindspot" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:4px;"><label>Start Here This Week</label></div>
+            <textarea id="hc_result_action_step1" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 1…"></textarea>
+            <textarea id="hc_result_action_step2" class="form-control" rows="2" style="resize:vertical;margin-bottom:8px;" placeholder="Bullet 2…"></textarea>
+            <textarea id="hc_result_action_step3" class="form-control" rows="2" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="saveResultSettings()">Save Result Pages</button>
+          <span id="result-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -376,6 +448,7 @@
       });
       if (tab === 'drip-campaigns'    && !campaignLoaded)      loadCampaign();
       if (tab === 'assessment-emails' && !emailSettingsLoaded)  loadEmailSettings();
+      if (tab === 'results'           && !resultsLoaded)        loadResultSettings();
     }
 
     function setCenterSubtab(center) {
@@ -391,6 +464,20 @@
 
     document.querySelectorAll('.page-tab').forEach(btn =>
       btn.addEventListener('click', () => setPageTab(btn.dataset.tab)));
+
+    // ── Result Pages tab switching ────────────────────────────────────────
+    function setResultSubtab(center) {
+      document.querySelectorAll('.res-subtab').forEach(btn => {
+        const active = btn.dataset.resCenter === center;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.res-subtab-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.resCenterPanel === center);
+      });
+    }
+    document.querySelectorAll('.res-subtab').forEach(btn =>
+      btn.addEventListener('click', () => setResultSubtab(btn.dataset.resCenter)));
     document.querySelectorAll('.center-subtab').forEach(btn =>
       btn.addEventListener('click', () => setCenterSubtab(btn.dataset.center)));
 
@@ -644,6 +731,88 @@
       textarea.value     = textarea.value.substring(0, start) + openTag + selectedText + closeTag + textarea.value.substring(end);
       textarea.focus();
       textarea.setSelectionRange(start + openTag.length, start + openTag.length + selectedText.length);
+    }
+
+    // ── Result Pages: defaults, load, save ──────────────────────────────────
+    let resultsLoaded = false;
+
+    const DEFAULT_RESULT_META = {
+      heart: {
+        label: 'Heart Center',
+        title: 'You lead like a Connection-Oriented Leader',
+        summary: 'Your responses point to a leadership pattern that instinctively tracks people, morale, and the emotional temperature of the room.',
+        description: 'You are often the person who can sense the undercurrent nobody else is naming. That makes you a stabilizing presence in culture, trust, and relationship repair.',
+        blindspot: 'Under pressure, that same strength can turn into over-identifying with how others are feeling, over-functioning relationally, or softening hard decisions until the moment has passed.',
+        step1: 'Notice where harmony is becoming more important than clarity.',
+        step2: "Name the decision before you manage everyone's reaction to it.",
+        step3: 'Use the guide to spot the situations where connection quietly turns into self-protection.',
+      },
+      head: {
+        label: 'Head Center',
+        title: 'You lead like a Thinking-Oriented Leader',
+        summary: 'Your responses point to a leadership pattern that instinctively searches for clarity, logic, and the cleanest explanation of what is happening.',
+        description: 'You likely bring rigor, objectivity, and strong pattern recognition to complex systems. People rely on you to see risk, ask the smart question, and think around corners.',
+        blindspot: 'Under pressure, that strength can become over-analysis, emotional distance, or a subtle dependence on certainty before moving. The room can feel managed by logic but not fully led through tension.',
+        step1: 'Watch for the moment information-gathering becomes a delay tactic.',
+        step2: 'Pair your analysis with a visible relational read on the team.',
+        step3: 'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.',
+      },
+      action: {
+        label: 'Gut Center',
+        title: 'You lead from the Gut Center',
+        summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
+        description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
+        blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
+        step1: 'Notice where urgency is outrunning reflection or buy-in.',
+        step2: 'Slow down long enough to separate momentum from reactivity.',
+        step3: 'Use the guide to spot where force and clarity are getting conflated inside your leadership.',
+      }
+    };
+
+    const RESULT_FIELDS = ['label', 'title', 'summary', 'description', 'blindspot', 'step1', 'step2', 'step3'];
+
+    function loadResultDefault(center) {
+      const d = DEFAULT_RESULT_META[center];
+      if (!d) return;
+      RESULT_FIELDS.forEach(f => {
+        const el = document.getElementById(`hc_result_${center}_${f}`);
+        if (el) el.value = d[f] || '';
+      });
+    }
+
+    async function loadResultSettings() {
+      const res  = await adminFetch('/api/admin/settings');
+      const data = await res.json().catch(() => ({}));
+      const s    = data.data || {};
+      ['heart', 'head', 'action'].forEach(center => {
+        const d = DEFAULT_RESULT_META[center];
+        RESULT_FIELDS.forEach(f => {
+          const el = document.getElementById(`hc_result_${center}_${f}`);
+          if (el) el.value = s[`hc_result_${center}_${f}`] || d[f] || '';
+        });
+      });
+      resultsLoaded = true;
+    }
+
+    async function saveResultSettings() {
+      const status = document.getElementById('result-save-status');
+      status.textContent = 'Saving…';
+      const payload = {};
+      ['heart', 'head', 'action'].forEach(center => {
+        RESULT_FIELDS.forEach(f => {
+          const el = document.getElementById(`hc_result_${center}_${f}`);
+          if (el) payload[`hc_result_${center}_${f}`] = el.value.trim();
+        });
+      });
+      const res = await adminFetch('/api/admin/settings', { method: 'PUT', body: JSON.stringify(payload) });
+      if (res.ok) {
+        showFlash('Result page content saved.');
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+      } else {
+        showFlash('Error saving settings.', 'error');
+        status.textContent = '';
+      }
     }
 
     // ── Subscribers list ─────────────────────────────────────────────────────

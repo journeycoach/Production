@@ -313,7 +313,25 @@ async function handleHiddenCeiling(req, res) {
     console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
-  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null });
+  // Load result page content overrides (if saved in Admin → Result Pages)
+  const resultFields = ['label', 'title', 'summary', 'description', 'blindspot', 'step1', 'step2', 'step3'];
+  const rcKeys = resultFields.map(f => `hc_result_${center}_${f}`);
+  const rcRaw  = await getEmailSettings(rcKeys);
+  const resultContent = {
+    centerLabel: rcRaw[`hc_result_${center}_label`]       || null,
+    title:       rcRaw[`hc_result_${center}_title`]        || null,
+    summary:     rcRaw[`hc_result_${center}_summary`]      || null,
+    description: rcRaw[`hc_result_${center}_description`]  || null,
+    blindspot:   rcRaw[`hc_result_${center}_blindspot`]    || null,
+    nextSteps:   [
+      rcRaw[`hc_result_${center}_step1`] || null,
+      rcRaw[`hc_result_${center}_step2`] || null,
+      rcRaw[`hc_result_${center}_step3`] || null,
+    ].filter(Boolean),
+  };
+  const hasResultOverride = Object.values(rcRaw).some(v => v);
+
+  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
 }
 
 async function handleCronDrip(req, res) {

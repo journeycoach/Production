@@ -268,7 +268,7 @@
                     name: `${state.firstName} ${state.lastName}`.trim(),
                     email: state.email,
                     company: state.company,
-                    source: new URLSearchParams(window.location.search).get('source') || 'website',
+                    source: new URLSearchParams(window.location.search).get('source') || 'hidden-ceiling',
                     answers: state.answers
                 })
             });
@@ -287,9 +287,20 @@
     }
 
     function showResult(data) {
-        const { result, scores, emailSent, calendly_url } = data;
-        const meta = RESULT_META[result.center];
-        if (!meta) return;
+        const { result, scores, emailSent, calendly_url, result_content } = data;
+        const defaults = RESULT_META[result.center];
+        if (!defaults) return;
+
+        // Merge DB overrides over hardcoded defaults — any blank field falls back to the default
+        const rc = result_content || {};
+        const meta = {
+            centerLabel: rc.centerLabel || defaults.centerLabel,
+            title:       rc.title       || defaults.title,
+            summary:     rc.summary     || defaults.summary,
+            description: rc.description || defaults.description,
+            blindspot:   rc.blindspot   || defaults.blindspot,
+            nextSteps:   (rc.nextSteps && rc.nextSteps.length) ? rc.nextSteps : defaults.nextSteps,
+        };
 
         document.getElementById('hc-result-center').textContent = meta.centerLabel;
         document.getElementById('hc-result-title').textContent = meta.title;
