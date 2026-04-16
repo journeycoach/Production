@@ -643,15 +643,15 @@ function buildGuideEmail(firstName) {
   <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes or a major transition looms, you find yourself without a stable internal foundation. Success begins to feel fragile.</p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
-  <p>If you'd like to explore what your results mean in the context of your specific situation, I'd be glad to have a conversation.</p>
+  <p>These patterns show up differently depending on how you're wired. The Hidden Ceiling Assessment takes about 2 minutes and will identify which one is most active for you — with a personalized guide and specific next steps.</p>
   <p style="margin-top:2rem;">
-    <a href="https://journeycoach.co/#contact" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Start a Conversation →</a>
+    <a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
   <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
   <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co. No further emails unless you reach out.</p>
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co.</p>
 </div>`;
 }
