@@ -287,7 +287,7 @@ async function handleHiddenCeiling(req, res) {
     console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
-  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: 'https://calendly.com/johnpaine/hidden-ceiling-debrief' });
+  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null });
 }
 
 async function handleCronDrip(req, res) {
@@ -639,7 +639,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   </p>
   <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
   <p style="margin-top:1rem;">
-    <a href="https://calendly.com/johnpaine/hidden-ceiling-debrief" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book an Alignment Call →</a>
+    <a href="${process.env.CALENDLY_URL || '#'}" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book an Alignment Call →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
