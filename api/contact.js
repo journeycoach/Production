@@ -9,7 +9,7 @@ async function getEmailSettings(keys) {
   try {
     const settings = await sql`
       SELECT setting_key, setting_value FROM site_settings
-      WHERE setting_key IN (${keys})
+      WHERE setting_key = ANY(${keys})
     `;
     return Object.fromEntries(settings.map(r => [r.setting_key, r.setting_value]));
   } catch (err) {
