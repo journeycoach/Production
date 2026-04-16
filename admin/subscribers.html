@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/admin.css" />
   <style>
     .page-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-    .page-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .page-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: grab; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
     .page-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
     .page-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
     .page-tab-panel { display: none; }
@@ -361,6 +361,7 @@
     </div>
   </template>
 
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <script src="js/admin.js"></script>
   <script>
     requireAdminAuth();
@@ -995,6 +996,7 @@
     }
 
     loadSubscribers();
+    makeTabsSortable('.page-tabs', 'sub_tab_order');
   </script>
 </body>
 </html>

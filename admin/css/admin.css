@@ -619,6 +619,10 @@ textarea {
 .dashboard-card.sortable-ghost  { opacity: 0.25; }
 .dashboard-card.sortable-chosen { box-shadow: 0 0 0 2px var(--admin-accent), 0 8px 24px rgba(0,0,0,0.4); z-index: 10; }
 
+/* Tab bar drag-to-reorder */
+.tab-sort-ghost  { opacity: 0.35; }
+.tab-sort-chosen { box-shadow: 0 0 0 2px var(--admin-accent), 0 4px 16px rgba(0,0,0,0.3); z-index: 5; }
+
 /* Drag handle pill shown on hover */
 .dashboard-card::after {
   content: '⠿⠿';

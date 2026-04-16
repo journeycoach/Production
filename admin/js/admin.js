@@ -262,6 +262,43 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+/**
+ * Make a tab bar drag-sortable. Requires SortableJS to be loaded on the page.
+ * Persists and restores tab order per page via localStorage.
+ *
+ * @param {string} tabBarSelector  CSS selector for the flex container holding the tab buttons
+ * @param {string} storageKey      localStorage key used to persist the order
+ * @param {string} [tabAttr='tab'] data-* attribute on each button that holds its value
+ */
+function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
+  if (typeof Sortable === 'undefined') return;
+  const tabBar = document.querySelector(tabBarSelector);
+  if (!tabBar) return;
+
+  // Restore saved order on load
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    if (Array.isArray(saved) && saved.length) {
+      saved.forEach(val => {
+        const btn = tabBar.querySelector(`[data-${tabAttr}="${CSS.escape(val)}"]`);
+        if (btn) tabBar.appendChild(btn);
+      });
+    }
+  } catch {}
+
+  // Activate drag-to-sort
+  Sortable.create(tabBar, {
+    animation: 150,
+    ghostClass:  'tab-sort-ghost',
+    chosenClass: 'tab-sort-chosen',
+    onEnd() {
+      const order = Array.from(tabBar.querySelectorAll(`[data-${tabAttr}]`))
+        .map(b => b.dataset[tabAttr]);
+      localStorage.setItem(storageKey, JSON.stringify(order));
+    }
+  });
+}
+
 applyAdminTheme(getCachedAdminTheme());
 if (localStorage.getItem('admin_token')) {
   loadAdminTheme();
