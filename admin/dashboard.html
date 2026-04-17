@@ -253,7 +253,7 @@
         const linkAttr = item.href ? `href="${item.href}"` : '';
         const linkClass = item.href ? ' summary-card-link' : '';
         return `
-          <${tag} ${linkAttr} class="summary-card${item.alert ? ' summary-card-alert' : ''}${linkClass}">
+          <${tag} ${linkAttr} class="summary-card${item.alert ? ' summary-card-alert' : ''}${linkClass}" data-label="${item.label}">
             <div class="summary-label">${item.label}</div>
             <div class="summary-value">${item.value}</div>
             <div class="summary-note">${item.note}</div>
@@ -298,30 +298,36 @@
       const summaryGrid = document.getElementById('summaryGrid');
 
       try {
-        const [contactsRes, postsRes, toolsRes, sectionsRes] = await Promise.all([
+        const [contactsRes, postsRes, toolsRes, subscribersRes] = await Promise.all([
           adminFetch('/api/admin/contacts'),
           adminFetch('/api/admin/posts'),
           adminFetch('/api/admin/tools'),
-          adminFetch('/api/admin/sections')
+          adminFetch('/api/admin/contacts?type=subscribers')
         ]);
 
-        if (![contactsRes, postsRes, toolsRes, sectionsRes].every(res => res.ok)) {
+        if (![contactsRes, postsRes, toolsRes, subscribersRes].every(res => res.ok)) {
           throw new Error('Failed to load activity summary');
         }
 
-        const [contactsData, postsData, toolsData, sectionsData] = await Promise.all([
+        const [contactsData, postsData, toolsData, subscribersData] = await Promise.all([
           contactsRes.json(),
           postsRes.json(),
           toolsRes.json(),
-          sectionsRes.json()
+          subscribersRes.json()
         ]);
 
         const contacts = contactsData.data || [];
         const posts = postsData.data || [];
         const tools = toolsData.data || [];
-        const sections = sectionsData.data || [];
+        const subscribers = subscribersData.data || [];
 
-        renderSummary([
+        const allItems = [
+          {
+            label: 'Subscribers',
+            value: subscribers.length,
+            note: subscribers.filter(s => s.result_center).length + ' completed assessment',
+            href: 'subscribers.html'
+          },
           {
             label: 'Unread Contacts',
             value: contacts.filter(contact => !contact.is_read).length,
@@ -340,14 +346,30 @@
             value: tools.filter(tool => tool.is_hidden).length,
             note: 'Resources currently off the site',
             href: 'tools.html'
-          },
-          {
-            label: 'Draft Sections',
-            value: sections.filter(section => section.status === 'draft').length,
-            note: 'Sections not live yet',
-            href: 'sections.html'
           }
-        ]);
+        ];
+
+        const SUMMARY_ORDER_KEY = 'admin_summary_order';
+        const savedOrder = JSON.parse(localStorage.getItem(SUMMARY_ORDER_KEY) || 'null');
+        const ordered = savedOrder
+          ? [...savedOrder.map(lbl => allItems.find(i => i.label === lbl)).filter(Boolean),
+             ...allItems.filter(i => !savedOrder.includes(i.label))]
+          : allItems;
+
+        renderSummary(ordered);
+
+        const summaryGridEl = document.getElementById('summaryGrid');
+        if (summaryGridEl && window.Sortable) {
+          Sortable.create(summaryGridEl, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd() {
+              const labels = Array.from(summaryGridEl.querySelectorAll('.summary-card')).map(el => el.dataset.label);
+              localStorage.setItem(SUMMARY_ORDER_KEY, JSON.stringify(labels));
+            }
+          });
+        }
       } catch (error) {
         console.error('Dashboard summary error:', error);
         summaryGrid.innerHTML = `
@@ -361,7 +383,9 @@
 
     function resetOrder() {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('admin_summary_order');
       renderGrid();
+      loadSummary();
     }
 
     renderGrid();
