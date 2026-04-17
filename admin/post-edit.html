@@ -70,7 +70,7 @@
               <button type="button" class="btn btn-ghost btn-sm" id="previewToggle" onclick="togglePreview()">Show Preview</button>
             </div>
             <textarea id="body" rows="20" placeholder="Write your post content here. HTML tags are supported (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;a href=&quot;...&quot;&gt;)."></textarea>
-            <div class="preview-pane" id="previewPane" style="display:none;"></div>
+            <iframe id="previewPane" sandbox="allow-same-origin" class="preview-pane" style="display:none;width:100%;min-height:400px;" title="Post preview"></iframe>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="saveBtn">Publish Post</button>
@@ -303,7 +303,7 @@
       const btn = document.getElementById('previewToggle');
       if (previewVisible) {
         pane.style.display = 'block';
-        pane.innerHTML = document.getElementById('body').value;
+        pane.srcdoc = document.getElementById('body').value;
         btn.textContent = 'Hide Preview';
       } else {
         pane.style.display = 'none';
@@ -314,7 +314,7 @@
     // Live update preview when body changes
     document.getElementById('body').addEventListener('input', () => {
       if (previewVisible) {
-        document.getElementById('previewPane').innerHTML = document.getElementById('body').value;
+        document.getElementById('previewPane').srcdoc = document.getElementById('body').value;
       }
     });
 

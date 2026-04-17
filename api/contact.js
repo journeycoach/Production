@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { sql } from './_db.js';
 import { Resend } from 'resend';
 
-const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET || 'journeycoach-rate-limit';
+const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 
 // Helper: fetch email settings from database
 async function getEmailSettings(keys) {
@@ -25,8 +25,7 @@ function interpolateEmail(template, placeholder, value) {
 
 // Helper: generate a signed unsubscribe token for a subscriber ID
 function unsubscribeToken(subscriberId) {
-  const secret = process.env.ADMIN_JWT_SECRET || 'journeycoach-unsub';
-  return crypto.createHmac('sha256', secret).update(String(subscriberId)).digest('hex');
+  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(subscriberId)).digest('hex');
 }
 
 // Helper: append unsubscribe footer to drip email HTML
@@ -440,7 +439,14 @@ async function handleCronDrip(req, res) {
 async function handleUnsubscribe(req, res) {
   const { id, token } = req.query || {};
   if (!id || !token) return res.status(400).send(renderUnsubscribePage('error', 'Invalid unsubscribe link.'));
-  if (token !== unsubscribeToken(id)) return res.status(400).send(renderUnsubscribePage('error', 'This unsubscribe link is not valid.'));
+  let tokenValid = false;
+  try {
+    const expected = unsubscribeToken(id);
+    const a = Buffer.from(token.slice(0, 64).padEnd(64, '0'), 'hex');
+    const b = Buffer.from(expected, 'hex');
+    tokenValid = token.length === expected.length && crypto.timingSafeEqual(a, b);
+  } catch { tokenValid = false; }
+  if (!tokenValid) return res.status(400).send(renderUnsubscribePage('error', 'This unsubscribe link is not valid.'));
 
   try {
     await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_unsubscribed BOOLEAN DEFAULT FALSE`;
@@ -651,7 +657,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('Unexpected error in /api/contact:', err);
-    return res.status(500).json({ error: 'Runtime API Error: ' + err.message });
+    return res.status(500).json({ error: 'An unexpected error occurred. Please try again.' });
   }
 }
 

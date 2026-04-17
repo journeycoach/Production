@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { sql } from '../_db.js';
 import { createToken } from '../_auth.js';
 
-const LOGIN_RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET || 'journeycoach-admin-rate-limit';
+const LOGIN_RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 
 function getClientIp(req) {
   const forwarded = String(

@@ -15,7 +15,9 @@ export function verifyToken(token) {
     const [payload, sig] = token.split('.');
     if (!payload || !sig) return false;
     const expectedSig = crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(payload).digest('hex');
-    if (sig !== expectedSig) return false;
+    const sigBuf = Buffer.from(sig.padEnd(64, '0').slice(0, 64), 'hex');
+    const expBuf = Buffer.from(expectedSig, 'hex');
+    if (!crypto.timingSafeEqual(sigBuf, expBuf)) return false;
     const expires = parseInt(Buffer.from(payload, 'base64').toString(), 10);
     return Date.now() < expires;
   } catch { return false; }
