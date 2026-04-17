@@ -975,17 +975,22 @@
             <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
             <td>${escHtml(r.name || '—')}</td>
             <td>${resultCell}</td>
-            <td style="white-space:nowrap;">${(() => {
+            <td>${(() => {
               const history = Array.isArray(r.source_history) ? r.source_history : [];
               const current = r.source || 'website';
               const steps = [...history.map(h => h.source), current];
-              const badges = steps.map(s => {
+              const items = steps.map((s, i) => {
                 const label = SOURCE_LABELS[s] || s;
                 const color = SOURCE_COLORS[s] || '#888';
-                return `<span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>`;
+                const arrow = i < steps.length - 1
+                  ? `<span style="display:block;color:var(--admin-text-muted);font-size:0.65rem;line-height:1;margin:0.1rem 0 0.1rem 0.5rem;">↓</span>`
+                  : '';
+                return `<span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>${arrow}`;
               });
-              const chain = badges.join('<span style="color:var(--admin-text-muted);font-size:0.75rem;margin:0 0.2rem;">→</span>');
-              return chain + ` <button title="Add earlier funnel step" onclick="prependFunnelStep(${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.7rem;padding:0.1rem 0.4rem;cursor:pointer;margin-left:0.3rem;vertical-align:middle;">+</button>`;
+              return `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
+                ${items.join('')}
+                <button title="Add earlier funnel step" onclick="prependFunnelStep(${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.65rem;padding:0.1rem 0.4rem;cursor:pointer;margin-top:0.25rem;">+ add step</button>
+              </div>`;
             })()}</td>
             <td>${campaignCell}</td>
             <td style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
