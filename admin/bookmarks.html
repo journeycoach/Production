@@ -124,6 +124,16 @@
     let editingCatId = null;
     let editingBmId = null;
 
+    function safeHttpUrl(value) {
+      if (!value) return '';
+      try {
+        const url = new URL(String(value).trim(), window.location.origin);
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+      } catch {
+        return '';
+      }
+    }
+
     // ===== CATEGORIES =====
 
     function renderCategories() {
@@ -229,7 +239,9 @@
           <td>
             <div>${escHtml(b.title)}</div>
             <div class="td-muted" style="font-size:0.75rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              <a href="${escHtml(b.url)}" target="_blank" rel="noopener">${escHtml(b.url)}</a>
+              ${safeHttpUrl(b.url)
+                ? `<a href="${safeHttpUrl(b.url)}" target="_blank" rel="noopener noreferrer">${escHtml(b.url)}</a>`
+                : `<span>${escHtml(b.url)}</span>`}
             </div>
           </td>
           <td class="td-muted">${escHtml(b.category_title || '—')}</td>
@@ -281,10 +293,18 @@
 
     document.getElementById('bookmarkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const urlValue = document.getElementById('bmUrl').value.trim();
+      const safeUrl = safeHttpUrl(urlValue);
+      if (!safeUrl) {
+        showFlash('Please enter a valid http or https URL.', 'error');
+        document.getElementById('bmUrl').focus();
+        return;
+      }
+
       const catVal = document.getElementById('bmCategory').value;
       const payload = {
         title: document.getElementById('bmTitle').value.trim(),
-        url: document.getElementById('bmUrl').value.trim(),
+        url: safeUrl,
         category_id: catVal ? parseInt(catVal) : null,
         description: document.getElementById('bmDescription').value.trim() || null,
         sort_order: parseInt(document.getElementById('bmSortOrder').value) || 0

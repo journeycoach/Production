@@ -131,9 +131,6 @@
     input.addEventListener('change', () => { if (input.files?.[0]) handleFile(input.files[0]); });
 
     async function handleFile(file) {
-      const token = localStorage.getItem('admin_token');
-      if (!token) { showFlash('Not authenticated.', 'error'); return; }
-
       zone.classList.add('uploading');
       zone.classList.remove('has-file', 'drag-over');
       icon.textContent  = '⏳';
@@ -145,7 +142,6 @@
         const blob = await upload(file.name, file, {
           access: 'public',
           handleUploadUrl: '/api/admin/posts?action=upload',
-          clientPayload: token,
           onUploadProgress: ({ percentage }) => {
             fill.style.width  = percentage + '%';
             label.textContent = `Uploading ${file.name}… ${percentage}%`;
@@ -220,11 +216,9 @@
           const ext  = (orig.split('.').pop() || 'jpg').split('?')[0];
           const fname = `cropped-${Date.now()}.${ext}`;
           const file  = new File([blob], fname, { type: blob.type || 'image/jpeg' });
-          const token = localStorage.getItem('admin_token');
           const result = await upload(fname, file, {
             access: 'public',
             handleUploadUrl: '/api/admin/posts?action=upload',
-            clientPayload: token,
           });
           urlField.value = result.url;
           urlField.dispatchEvent(new Event('input', { bubbles: true }));

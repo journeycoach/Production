@@ -27,32 +27,65 @@
   </div>
 
   <script>
-    function hasValidAdminSession() {
-      const token = localStorage.getItem('admin_token');
+    const ADMIN_SESSION_MARKER_KEY = 'admin_session_active';
+    const LEGACY_ADMIN_TOKEN_KEY = 'admin_token';
+
+    function setAdminSessionMarker(active) {
+      if (active) {
+        localStorage.setItem(ADMIN_SESSION_MARKER_KEY, '1');
+      } else {
+        localStorage.removeItem(ADMIN_SESSION_MARKER_KEY);
+      }
+    }
+
+    function consumeLegacyAdminToken() {
+      const token = localStorage.getItem(LEGACY_ADMIN_TOKEN_KEY);
       if (!token) return false;
 
       try {
         const [payload] = token.split('.');
-        if (!payload) return false;
+        if (!payload) throw new Error('Invalid token');
 
         const expires = parseInt(atob(payload), 10);
-        const isValid = Number.isFinite(expires) && Date.now() < expires;
-
-        if (!isValid) {
-          localStorage.removeItem('admin_token');
+        if (!Number.isFinite(expires) || Date.now() >= expires) {
+          throw new Error('Expired token');
         }
 
-        return isValid;
+        setAdminSessionMarker(true);
+        localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+        return true;
       } catch {
-        localStorage.removeItem('admin_token');
+        localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
         return false;
       }
     }
 
-    // If already logged in, redirect to dashboard
-    if (hasValidAdminSession()) {
-      window.location.href = '/admin/dashboard.html';
+    function hasValidAdminSession() {
+      return localStorage.getItem(ADMIN_SESSION_MARKER_KEY) === '1' || consumeLegacyAdminToken();
     }
+
+    async function redirectIfAuthenticated() {
+      if (!hasValidAdminSession()) return;
+
+      try {
+        const res = await fetch('/api/admin/auth', {
+          method: 'GET',
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          setAdminSessionMarker(true);
+          window.location.href = '/admin/dashboard.html';
+          return;
+        }
+      } catch {
+        // Ignore and keep the login form visible.
+      }
+
+      setAdminSessionMarker(false);
+      localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+    }
+
+    redirectIfAuthenticated();
 
     const form = document.getElementById('loginForm');
     const errorEl = document.getElementById('loginError');
@@ -73,7 +106,8 @@
         });
         const data = await res.json();
         if (res.ok && data.ok) {
-          localStorage.setItem('admin_token', data.token);
+          setAdminSessionMarker(true);
+          localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
           window.location.href = '/admin/dashboard.html';
         } else {
           errorEl.style.display = 'block';

@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { sql } from '../_db.js';
-import { createToken } from '../_auth.js';
+import { clearAuthCookie, createToken, requireAuth, setAuthCookie } from '../_auth.js';
 
 const LOGIN_RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 
@@ -62,6 +62,17 @@ async function clearFailedLogins(ipHash) {
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  if (req.query?.action === 'logout') {
+    clearAuthCookie(req, res);
+    return res.status(200).json({ ok: true });
+  }
+
+  if (req.method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return res.status(200).json({ ok: true });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -116,5 +127,6 @@ export default async function handler(req, res) {
   }
 
   const token = createToken();
+  setAuthCookie(req, res, token);
   return res.status(200).json({ ok: true, token });
 }

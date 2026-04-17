@@ -1,5 +1,5 @@
 import { sql } from '../_db.js';
-import { requireAuth, verifyToken } from '../_auth.js';
+import { getToken, requireAuth, verifyToken } from '../_auth.js';
 import { handleUpload } from '@vercel/blob/client';
 
 export default async function handler(req, res) {
@@ -11,7 +11,8 @@ export default async function handler(req, res) {
         body: req.body,
         request: req,
         onBeforeGenerateToken: async (_pathname, clientPayload) => {
-          if (!verifyToken(clientPayload || '')) throw new Error('Unauthorized');
+          const requestToken = getToken(req);
+          if (!verifyToken(requestToken || clientPayload || '')) throw new Error('Unauthorized');
           return {
             allowedContentTypes: [
               'image/jpeg', 'image/png', 'image/gif', 'image/webp',

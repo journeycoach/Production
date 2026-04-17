@@ -1,6 +1,8 @@
 // nav.js — Dynamically renders the navbar from the Neon API with a local fallback.
 
 (function () {
+    const ADMIN_SESSION_MARKER_KEY = 'admin_session_active';
+    const LEGACY_ADMIN_TOKEN_KEY = 'admin_token';
     // Centralized fallback config (used if API is unreachable or returns nothing)
     const FALLBACK_CONFIG = {
         brand_name: 'Your Journey Coach',
@@ -20,7 +22,9 @@
     };
 
     function hasValidAdminSession() {
-        const token = localStorage.getItem('admin_token');
+        if (localStorage.getItem(ADMIN_SESSION_MARKER_KEY) === '1') return true;
+
+        const token = localStorage.getItem(LEGACY_ADMIN_TOKEN_KEY);
         if (!token) return false;
 
         try {
@@ -31,12 +35,15 @@
             const isValid = Number.isFinite(expires) && Date.now() < expires;
 
             if (!isValid) {
-                localStorage.removeItem('admin_token');
+                localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+            } else {
+                localStorage.setItem(ADMIN_SESSION_MARKER_KEY, '1');
+                localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
             }
 
             return isValid;
         } catch {
-            localStorage.removeItem('admin_token');
+            localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
             return false;
         }
     }

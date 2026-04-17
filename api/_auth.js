@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 
 const EXPIRES_MS = 24 * 60 * 60 * 1000;
+export const ADMIN_SESSION_COOKIE = 'yjc_admin_session';
 
 export function createToken() {
   const expires = String(Date.now() + EXPIRES_MS);
@@ -23,9 +24,71 @@ export function verifyToken(token) {
   } catch { return false; }
 }
 
+function parseCookies(req) {
+  const header = String(req.headers?.cookie || '');
+  return Object.fromEntries(
+    header
+      .split(';')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const index = part.indexOf('=');
+        if (index === -1) return [part, ''];
+        return [part.slice(0, index), decodeURIComponent(part.slice(index + 1))];
+      })
+  );
+}
+
+function shouldUseSecureCookies(req) {
+  const host = String(req.headers?.['x-forwarded-host'] || req.headers?.host || '').toLowerCase();
+  return host && !host.includes('localhost') && !host.startsWith('127.0.0.1');
+}
+
+function appendSetCookie(res, cookie) {
+  const existing = res.getHeader('Set-Cookie');
+  if (!existing) {
+    res.setHeader('Set-Cookie', cookie);
+    return;
+  }
+
+  res.setHeader('Set-Cookie', [...(Array.isArray(existing) ? existing : [existing]), cookie]);
+}
+
+function buildCookie(name, value, req, maxAgeMs) {
+  const parts = [
+    `${name}=${encodeURIComponent(value)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax'
+  ];
+
+  if (typeof maxAgeMs === 'number') {
+    const seconds = Math.max(0, Math.floor(maxAgeMs / 1000));
+    parts.push(`Max-Age=${seconds}`);
+    parts.push(`Expires=${new Date(Date.now() + maxAgeMs).toUTCString()}`);
+  }
+
+  if (shouldUseSecureCookies(req)) {
+    parts.push('Secure');
+  }
+
+  return parts.join('; ');
+}
+
+export function setAuthCookie(req, res, token) {
+  appendSetCookie(res, buildCookie(ADMIN_SESSION_COOKIE, token, req, EXPIRES_MS));
+}
+
+export function clearAuthCookie(req, res) {
+  appendSetCookie(res, buildCookie(ADMIN_SESSION_COOKIE, '', req, 0));
+}
+
 export function getToken(req) {
   const auth = req.headers['authorization'] || '';
-  return auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (auth.startsWith('Bearer ')) return auth.slice(7);
+
+  const cookies = parseCookies(req);
+  return cookies[ADMIN_SESSION_COOKIE] || null;
 }
 
 export function requireAuth(req, res) {

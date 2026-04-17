@@ -1,6 +1,16 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 
+function normalizeBookmarkUrl(value) {
+  if (!value) return '';
+  try {
+    const url = new URL(String(value).trim());
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
@@ -24,12 +34,14 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { title, url, category_id, description, sort_order = 0 } = req.body || {};
     if (!title || !url) return res.status(400).json({ error: 'title and url are required' });
+    const normalizedUrl = normalizeBookmarkUrl(url);
+    if (!normalizedUrl) return res.status(400).json({ error: 'A valid http or https URL is required' });
     try {
       const rows = await sql`
         INSERT INTO bookmarks (title, url, category_id, description, sort_order)
         VALUES (
           ${title},
-          ${url},
+          ${normalizedUrl},
           ${category_id || null},
           ${description || null},
           ${sort_order}
@@ -46,12 +58,16 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     const { id, title, url, category_id, description, sort_order } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
+    const normalizedUrl = url === undefined ? undefined : normalizeBookmarkUrl(url);
+    if (url !== undefined && !normalizedUrl) {
+      return res.status(400).json({ error: 'A valid http or https URL is required' });
+    }
     try {
       const rows = await sql`
         UPDATE bookmarks
         SET
           title = COALESCE(${title}, title),
-          url = COALESCE(${url}, url),
+          url = COALESCE(${normalizedUrl !== undefined ? normalizedUrl : null}, url),
           category_id = ${category_id !== undefined ? category_id : null},
           description = COALESCE(${description}, description),
           sort_order = COALESCE(${sort_order !== undefined ? sort_order : null}, sort_order)

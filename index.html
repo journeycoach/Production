@@ -402,7 +402,8 @@
                     </div>
 
                     <!-- Production Turnstile site key is domain-specific. Do not replace this with the Test key. -->
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACt13j1xYnpJgcv2"></div>
+                    <div id="contact-turnstile" class="cf-turnstile"></div>
+                    <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" value="">
 
                     
                     <!-- Submit -->
@@ -565,62 +566,112 @@
             </style>
 
             <script>
-                document.getElementById('contact-form').addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const form = this;
+                (() => {
+                    const CONTACT_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
+                    const form = document.getElementById('contact-form');
                     const btn = document.getElementById('cf-submit');
                     const spinner = document.getElementById('cf-spinner');
                     const btnText = document.getElementById('cf-btn-text');
                     const successEl = document.getElementById('cf-success');
                     const errorEl = document.getElementById('cf-error');
+                    const turnstileTokenInput = document.getElementById('cf-turnstile-response');
+                    let turnstileWidgetId = null;
 
-                    // Reset feedback
-                    successEl.style.display = 'none';
-                    errorEl.style.display = 'none';
+                    function setTurnstileToken(token = '') {
+                        turnstileTokenInput.value = token;
+                    }
 
-                    // Loading state
-                    btn.disabled = true;
-                    btn.style.opacity = '0.7';
-                    btn.style.cursor = 'not-allowed';
-                    btnText.textContent = 'Sending...';
-                    spinner.style.display = 'block';
+                    function resetTurnstile() {
+                        setTurnstileToken('');
+                        if (window.turnstile && turnstileWidgetId !== null) {
+                            window.turnstile.reset(turnstileWidgetId);
+                        }
+                    }
 
-                    const payload = {
-                        name: document.getElementById('cf-name').value.trim(),
-                        email: document.getElementById('cf-email').value.trim(),
-                        phone: document.getElementById('cf-phone').value.trim(),
-                        interest: document.getElementById('cf-interest').value,
-                        message: document.getElementById('cf-message').value.trim(),
-                        _honey: document.getElementById('cf-honey').value,
-                        'cf-turnstile-response': document.querySelector('[name="cf-turnstile-response"]')?.value
+                    window.renderContactTurnstile = function () {
+                        if (!window.turnstile || turnstileWidgetId !== null) return;
+
+                        turnstileWidgetId = window.turnstile.render('#contact-turnstile', {
+                            sitekey: CONTACT_TURNSTILE_SITEKEY,
+                            callback(token) {
+                                setTurnstileToken(token || '');
+                                errorEl.style.display = 'none';
+                            },
+                            'expired-callback'() {
+                                setTurnstileToken('');
+                            },
+                            'error-callback'() {
+                                setTurnstileToken('');
+                                errorEl.textContent = 'The CAPTCHA could not be loaded. Please refresh the page and try again.';
+                                errorEl.style.display = 'block';
+                            }
+                        });
                     };
 
-                    try {
-                        const res = await fetch('/api/contact', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload),
-                        });
+                    form.addEventListener('submit', async function (e) {
+                        e.preventDefault();
 
-                        if (res.ok) {
-                            form.reset();
-                            successEl.style.display = 'block';
-                            successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                        } else {
-                            const data = await res.json().catch(() => ({}));
-                            errorEl.textContent = data.error || 'Something went wrong. Please try again in a moment or use the contact form below.';
+                        // Reset feedback
+                        successEl.style.display = 'none';
+                        errorEl.style.display = 'none';
+
+                        const turnstileToken = turnstileTokenInput.value.trim();
+                        if (!turnstileToken) {
+                            errorEl.textContent = 'Please complete the CAPTCHA before sending your message.';
                             errorEl.style.display = 'block';
+                            if (window.turnstile && turnstileWidgetId !== null) {
+                                window.turnstile.reset(turnstileWidgetId);
+                            }
+                            return;
                         }
-                    } catch (err) {
-                        errorEl.style.display = 'block';
-                    } finally {
-                        btn.disabled = false;
-                        btn.style.opacity = '1';
-                        btn.style.cursor = 'pointer';
-                        btnText.textContent = 'Send Message';
-                        spinner.style.display = 'none';
-                    }
-                });
+
+                        // Loading state
+                        btn.disabled = true;
+                        btn.style.opacity = '0.7';
+                        btn.style.cursor = 'not-allowed';
+                        btnText.textContent = 'Sending...';
+                        spinner.style.display = 'block';
+
+                        const payload = {
+                            name: document.getElementById('cf-name').value.trim(),
+                            email: document.getElementById('cf-email').value.trim(),
+                            phone: document.getElementById('cf-phone').value.trim(),
+                            interest: document.getElementById('cf-interest').value,
+                            message: document.getElementById('cf-message').value.trim(),
+                            _honey: document.getElementById('cf-honey').value,
+                            'cf-turnstile-response': turnstileToken
+                        };
+
+                        try {
+                            const res = await fetch('/api/contact', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                            });
+
+                            if (res.ok) {
+                                form.reset();
+                                resetTurnstile();
+                                successEl.style.display = 'block';
+                                successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            } else {
+                                const data = await res.json().catch(() => ({}));
+                                errorEl.textContent = data.error || 'Something went wrong. Please try again in a moment or use the contact form below.';
+                                errorEl.style.display = 'block';
+                                resetTurnstile();
+                            }
+                        } catch (err) {
+                            errorEl.style.display = 'block';
+                            resetTurnstile();
+                        } finally {
+                            btn.disabled = false;
+                            btn.style.opacity = '1';
+                            btn.style.cursor = 'pointer';
+                            btnText.textContent = 'Send Message';
+                            spinner.style.display = 'none';
+                        }
+                    });
+                })();
             </script>
         </section>
     </main>
@@ -725,7 +776,7 @@
             }
         });
     </script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=renderContactTurnstile&render=explicit" async defer></script>
 </body>
 
 </html>

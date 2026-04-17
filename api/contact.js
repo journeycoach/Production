@@ -3,6 +3,7 @@ import { sql } from './_db.js';
 import { Resend } from 'resend';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
+const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Helper: fetch email settings from database
 async function getEmailSettings(keys) {
@@ -23,9 +24,44 @@ function interpolateEmail(template, placeholder, value) {
   return template.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
 }
 
+function unsubscribeSignature(subscriberId, expires) {
+  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(`${subscriberId}.${expires}`).digest('hex');
+}
+
 // Helper: generate a signed unsubscribe token for a subscriber ID
 function unsubscribeToken(subscriberId) {
-  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(subscriberId)).digest('hex');
+  const expires = Date.now() + UNSUBSCRIBE_TOKEN_TTL_MS;
+  return `${expires}.${unsubscribeSignature(subscriberId, expires)}`;
+}
+
+function isValidUnsubscribeToken(subscriberId, token) {
+  const value = String(token || '');
+  const [expiresRaw, sig] = value.split('.');
+
+  if (expiresRaw && sig) {
+    try {
+      const expires = parseInt(expiresRaw, 10);
+      if (Number.isFinite(expires) && Date.now() <= expires) {
+        const expected = unsubscribeSignature(subscriberId, expires);
+        const a = Buffer.from(sig.slice(0, 64).padEnd(64, '0'), 'hex');
+        const b = Buffer.from(expected, 'hex');
+        if (sig.length === expected.length && crypto.timingSafeEqual(a, b)) {
+          return true;
+        }
+      }
+    } catch {
+      // Fall back to the legacy token format below.
+    }
+  }
+
+  try {
+    const legacy = crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(subscriberId)).digest('hex');
+    const a = Buffer.from(value.slice(0, 64).padEnd(64, '0'), 'hex');
+    const b = Buffer.from(legacy, 'hex');
+    return value.length === legacy.length && crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
+  }
 }
 
 // Helper: append unsubscribe footer to drip email HTML
@@ -270,7 +306,7 @@ async function handleHiddenCeiling(req, res) {
   try {
     const resendKey = process.env.RESEND_API_KEY;
     if (!resendKey) {
-      emailError = 'RESEND_API_KEY environment variable is not set in Vercel.';
+      emailError = 'Results email could not be delivered automatically.';
     } else {
       const firstName = name.trim().split(' ')[0] || 'there';
 
@@ -308,7 +344,7 @@ async function handleHiddenCeiling(req, res) {
       emailSent = true;
     }
   } catch (emailErr) {
-    emailError = emailErr.message;
+    emailError = 'Results email could not be delivered automatically.';
     console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
@@ -439,13 +475,7 @@ async function handleCronDrip(req, res) {
 async function handleUnsubscribe(req, res) {
   const { id, token } = req.query || {};
   if (!id || !token) return res.status(400).send(renderUnsubscribePage('error', 'Invalid unsubscribe link.'));
-  let tokenValid = false;
-  try {
-    const expected = unsubscribeToken(id);
-    const a = Buffer.from(token.slice(0, 64).padEnd(64, '0'), 'hex');
-    const b = Buffer.from(expected, 'hex');
-    tokenValid = token.length === expected.length && crypto.timingSafeEqual(a, b);
-  } catch { tokenValid = false; }
+  const tokenValid = isValidUnsubscribeToken(id, token);
   if (!tokenValid) return res.status(400).send(renderUnsubscribePage('error', 'This unsubscribe link is not valid.'));
 
   try {

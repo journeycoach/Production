@@ -240,13 +240,9 @@
     import { upload } from 'https://esm.sh/@vercel/blob/client';
 
     async function uploadBlob(file, options = {}) {
-      const token = localStorage.getItem('admin_token');
-      if (!token) throw new Error('Not authenticated.');
-
       return upload(file.name, file, {
         access: 'public',
         handleUploadUrl: '/api/admin/tools?action=upload',
-        clientPayload: token,
         ...options,
       });
     }

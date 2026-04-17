@@ -1,6 +1,8 @@
 // Shared admin utilities
 
 const API_BASE = '/api/admin';
+const ADMIN_SESSION_MARKER_KEY = 'admin_session_active';
+const LEGACY_ADMIN_TOKEN_KEY = 'admin_token';
 const ADMIN_THEME_CACHE_KEY = 'admin_theme_settings';
 const ADMIN_RECENT_ITEMS_KEY = 'admin_recent_items';
 const ADMIN_THEME_SETTING_KEYS = [
@@ -35,26 +37,46 @@ const ADMIN_PAGE_LABELS = {
 
 // Check auth on page load — also validates token expiration
 function requireAdminAuth() {
-  const token = localStorage.getItem('admin_token');
-  if (!token) {
+  const marker = localStorage.getItem(ADMIN_SESSION_MARKER_KEY);
+  if (!marker && !consumeLegacyAdminToken()) {
     window.location.href = '/admin/index.html';
     return null;
   }
-  // Verify token hasn't expired (payload is base64-encoded expiry timestamp)
+  return marker || localStorage.getItem(ADMIN_SESSION_MARKER_KEY);
+}
+
+function hasAdminSessionMarker() {
+  return localStorage.getItem(ADMIN_SESSION_MARKER_KEY) === '1';
+}
+
+function setAdminSessionMarker(active) {
+  if (active) {
+    localStorage.setItem(ADMIN_SESSION_MARKER_KEY, '1');
+  } else {
+    localStorage.removeItem(ADMIN_SESSION_MARKER_KEY);
+  }
+}
+
+function consumeLegacyAdminToken() {
+  const token = localStorage.getItem(LEGACY_ADMIN_TOKEN_KEY);
+  if (!token) return false;
+
   try {
     const [payload] = token.split('.');
-    if (payload) {
-      const expires = parseInt(atob(payload), 10);
-      if (Date.now() >= expires) {
-        localStorage.removeItem('admin_token');
-        window.location.href = '/admin/index.html';
-        return null;
-      }
+    if (!payload) throw new Error('Invalid token');
+
+    const expires = parseInt(atob(payload), 10);
+    if (!Number.isFinite(expires) || Date.now() >= expires) {
+      throw new Error('Expired token');
     }
+
+    setAdminSessionMarker(true);
+    localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+    return true;
   } catch {
-    // If token can't be parsed, let the API reject it
+    localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+    return false;
   }
-  return token;
 }
 
 // HTML-escape a string (used across all admin pages)
@@ -64,14 +86,22 @@ function escHtml(str) {
 
 // Authenticated fetch wrapper
 function adminFetch(path, options = {}) {
-  const token = localStorage.getItem('admin_token');
   return fetch(path, {
     ...options,
+    credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
       ...(options.headers || {})
     }
+  }).then((res) => {
+    if (res.status === 401) {
+      setAdminSessionMarker(false);
+      localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+      if (!window.location.pathname.endsWith('/admin/index.html')) {
+        window.location.href = '/admin/index.html';
+      }
+    }
+    return res;
   });
 }
 
@@ -223,8 +253,7 @@ function applyAdminTheme(settings = {}) {
 }
 
 async function loadAdminTheme() {
-  const token = localStorage.getItem('admin_token');
-  if (!token) return null;
+  if (!hasAdminSessionMarker() && !consumeLegacyAdminToken()) return null;
 
   try {
     const res = await adminFetch('/api/admin/settings');
@@ -251,8 +280,19 @@ function showFlash(message, type = 'success') {
 }
 
 // Logout
-function logout() {
-  localStorage.removeItem('admin_token');
+async function logout() {
+  setAdminSessionMarker(false);
+  localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+
+  try {
+    await fetch('/api/admin/auth?action=logout', {
+      method: 'POST',
+      credentials: 'same-origin'
+    });
+  } catch {
+    // Ignore network errors during logout.
+  }
+
   window.location.href = '/admin/index.html';
 }
 
@@ -300,7 +340,7 @@ function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
 }
 
 applyAdminTheme(getCachedAdminTheme());
-if (localStorage.getItem('admin_token')) {
+if (hasAdminSessionMarker() || consumeLegacyAdminToken()) {
   loadAdminTheme();
   trackRecentAdminPage();
 }
