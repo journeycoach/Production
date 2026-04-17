@@ -10,11 +10,30 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       try {
         await sql`CREATE TABLE IF NOT EXISTS subscribers (id SERIAL PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT, source TEXT DEFAULT 'website', created_at TIMESTAMPTZ DEFAULT NOW(), result_center TEXT, score_heart INT, score_head INT, score_action INT)`;
-        await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS result_center TEXT, ADD COLUMN IF NOT EXISTS score_heart INT, ADD COLUMN IF NOT EXISTS score_head INT, ADD COLUMN IF NOT EXISTS score_action INT, ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0, ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW()`;
-        const rows = await sql`SELECT id, email, name, source, created_at, result_center, score_heart, score_head, score_action, drip_step, last_email_sent_at FROM subscribers ORDER BY created_at DESC`;
+        await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS result_center TEXT, ADD COLUMN IF NOT EXISTS score_heart INT, ADD COLUMN IF NOT EXISTS score_head INT, ADD COLUMN IF NOT EXISTS score_action INT, ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0, ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW(), ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'`;
+        const rows = await sql`SELECT id, email, name, source, source_history, created_at, result_center, score_heart, score_head, score_action, drip_step, last_email_sent_at FROM subscribers ORDER BY created_at DESC`;
         return res.status(200).json({ data: rows });
       } catch (err) {
         console.error('subscribers GET error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+    }
+    if (req.method === 'PATCH') {
+      // Prepend a historical source entry (for backfilling funnel transitions)
+      const { id } = req.query;
+      const { prepend_source, prepend_at } = req.body || {};
+      if (!id || !prepend_source) return res.status(400).json({ error: 'id and prepend_source required' });
+      const at = prepend_at || new Date().toISOString();
+      try {
+        const entry = JSON.stringify({ source: prepend_source, at });
+        await sql`
+          UPDATE subscribers
+          SET source_history = jsonb_build_array(${entry}::jsonb) || COALESCE(source_history, '[]'::jsonb)
+          WHERE id = ${id}
+        `;
+        return res.status(200).json({ ok: true });
+      } catch (err) {
+        console.error('subscribers PATCH error:', err);
         return res.status(500).json({ error: 'Database error' });
       }
     }

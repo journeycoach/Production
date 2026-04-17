@@ -278,10 +278,11 @@ async function handleHiddenCeiling(req, res) {
     `;
     await sql`
       ALTER TABLE subscribers
-        ADD COLUMN IF NOT EXISTS result_center TEXT,
-        ADD COLUMN IF NOT EXISTS score_heart   INT,
-        ADD COLUMN IF NOT EXISTS score_head    INT,
-        ADD COLUMN IF NOT EXISTS score_action  INT
+        ADD COLUMN IF NOT EXISTS result_center  TEXT,
+        ADD COLUMN IF NOT EXISTS score_heart    INT,
+        ADD COLUMN IF NOT EXISTS score_head     INT,
+        ADD COLUMN IF NOT EXISTS score_action   INT,
+        ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'
     `;
     await sql`
       INSERT INTO subscribers (email, name, source, result_center, score_heart, score_head, score_action)
@@ -290,6 +291,11 @@ async function handleHiddenCeiling(req, res) {
         ${center}, ${scores.heart}, ${scores.head}, ${scores.action}
       )
       ON CONFLICT (email) DO UPDATE SET
+        source_history = CASE
+          WHEN subscribers.source IS DISTINCT FROM EXCLUDED.source
+          THEN COALESCE(subscribers.source_history, '[]'::jsonb) || jsonb_build_array(jsonb_build_object('source', subscribers.source, 'at', NOW()))
+          ELSE COALESCE(subscribers.source_history, '[]'::jsonb)
+        END,
         source        = EXCLUDED.source,
         result_center = EXCLUDED.result_center,
         score_heart   = EXCLUDED.score_heart,
