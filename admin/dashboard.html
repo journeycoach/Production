@@ -9,14 +9,8 @@
   <style>
     .rearrange-bar { display: none; }
     @media (pointer: coarse), (max-width: 768px) {
-      .rearrange-bar {
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-        background: var(--admin-card-bg); border-top: 1px solid var(--admin-border);
-        padding: 12px 20px; font-size: 0.85rem; font-weight: 600; color: var(--admin-text-muted);
-      }
+      .rearrange-bar { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 0.82rem; font-weight: 600; color: var(--admin-text-muted); }
       body.rearrange-active .dashboard-card { touch-action: none; cursor: grab; }
-      body { padding-bottom: 60px; }
     }
     .rearrange-bar input[type=checkbox] { appearance: none; width: 40px; height: 22px; background: var(--admin-border); border-radius: 999px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
     .rearrange-bar input[type=checkbox]::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; }
@@ -82,6 +76,12 @@
           </div>
 
           <div class="dashboard-grid" id="dashGrid"></div>
+          <div class="rearrange-bar">
+            <label style="display:flex;align-items:center;gap:10px;">
+              <input type="checkbox" id="rearrangeToggle" onchange="setRearrangeMode(this.checked)">
+              Rearrange Tiles
+            </label>
+          </div>
         </section>
       </div>
     </main>
@@ -422,11 +422,5 @@
     renderRecentItems();
   </script>
 
-  <div class="rearrange-bar">
-    <label style="display:flex;align-items:center;gap:10px;">
-      <input type="checkbox" id="rearrangeToggle" onchange="setRearrangeMode(this.checked)">
-      Rearrange Tiles
-    </label>
-  </div>
 </body>
 </html>
