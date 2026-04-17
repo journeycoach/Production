@@ -25,6 +25,37 @@
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
     .field-row label { margin: 0; }
+
+    @media (max-width: 700px) {
+      #subTable thead { display: none; }
+      #subTable tbody tr {
+        display: block;
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+      }
+      #subTable tbody td {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 5px 0;
+        border: none;
+        font-size: 0.85rem;
+      }
+      #subTable tbody td::before {
+        content: attr(data-label);
+        flex: 0 0 110px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--admin-text-muted);
+        padding-top: 2px;
+      }
+      #subTable tbody td[data-label="Remove"] { justify-content: flex-end; }
+      #subTable tbody td[data-label="Remove"]::before { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -972,10 +1003,10 @@
 
         return `
           <tr>
-            <td><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
-            <td>${escHtml(r.name || '—')}</td>
-            <td>${resultCell}</td>
-            <td>${(() => {
+            <td data-label="Email"><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
+            <td data-label="Name">${escHtml(r.name || '—')}</td>
+            <td data-label="Assessment">${resultCell}</td>
+            <td data-label="Signed Up For">${(() => {
               const history = Array.isArray(r.source_history) ? r.source_history : [];
               const current = r.source || 'website';
               const steps = [...history.map(h => h.source), current];
@@ -992,9 +1023,9 @@
                 <button title="Add earlier funnel step" onclick="prependFunnelStep(${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.65rem;padding:0.1rem 0.4rem;cursor:pointer;margin-top:0.25rem;">+ add step</button>
               </div>`;
             })()}</td>
-            <td>${campaignCell}</td>
-            <td style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
-            <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${parseInt(r.id, 10)}, this)">&#x2715;</button></td>
+            <td data-label="Campaign">${campaignCell}</td>
+            <td data-label="Date" style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
+            <td data-label="Remove"><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${parseInt(r.id, 10)}, this)">&#x2715;</button></td>
           </tr>`;
       }).join('');
     }
