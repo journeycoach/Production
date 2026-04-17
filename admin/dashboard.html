@@ -7,6 +7,12 @@
   <link rel="stylesheet" href="css/admin.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <style>
+    .rearrange-toggle { display: none; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--admin-text-muted); font-weight: 600; }
+    .rearrange-toggle input[type=checkbox] { appearance: none; width: 36px; height: 20px; background: var(--admin-border); border-radius: 999px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+    .rearrange-toggle input[type=checkbox]::after { content: ''; position: absolute; width: 14px; height: 14px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; }
+    .rearrange-toggle input[type=checkbox]:checked { background: var(--admin-accent); }
+    .rearrange-toggle input[type=checkbox]:checked::after { left: 19px; }
+    @media (pointer: coarse), (max-width: 768px) { .rearrange-toggle { display: flex; } }
     .dashboard-card-group { cursor: default; display: flex; flex-direction: column; }
     .dashboard-card-group:hover { border-color: var(--admin-border); box-shadow: none; transform: none; }
     .card-group-items { display: flex; flex-direction: column; margin-top: auto; padding-top: 4px; }
@@ -30,7 +36,13 @@
     <main class="admin-main">
       <div class="admin-page-title">
         <h1>Dashboard</h1>
-        <button class="btn btn-ghost btn-sm" onclick="resetOrder()" title="Restore default card order">Reset Order</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <label class="rearrange-toggle" title="Enable drag-to-rearrange tiles">
+            <input type="checkbox" id="rearrangeToggle" onchange="setRearrangeMode(this.checked)">
+            Rearrange Tiles
+          </label>
+          <button class="btn btn-ghost btn-sm" onclick="resetOrder()" title="Restore default card order">Reset Order</button>
+        </div>
       </div>
 
       <div class="dashboard-shell">
@@ -232,10 +244,12 @@
           </a>`;
       }).join('');
 
-      Sortable.create(grid, {
+      const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+      gridSortable = Sortable.create(grid, {
         animation: 150,
         delay: 150,
         delayOnTouchOnly: true,
+        disabled: isTouchDevice,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         onEnd() {
@@ -350,8 +364,12 @@
 
         const summaryGridEl = document.getElementById('summaryGrid');
         if (summaryGridEl && window.Sortable) {
-          Sortable.create(summaryGridEl, {
+          const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+          summarySortable = Sortable.create(summaryGridEl, {
             animation: 150,
+            delay: 150,
+            delayOnTouchOnly: true,
+            disabled: isTouchDevice,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
             onEnd() {
@@ -371,9 +389,21 @@
       }
     }
 
+    let gridSortable = null;
+    let summarySortable = null;
+
+    function setRearrangeMode(enabled) {
+      if (gridSortable) gridSortable.option('disabled', !enabled);
+      if (summarySortable) summarySortable.option('disabled', !enabled);
+      document.getElementById('dashGrid').style.cursor = enabled ? 'grab' : '';
+    }
+
     function resetOrder() {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('admin_summary_order');
+      const toggle = document.getElementById('rearrangeToggle');
+      if (toggle) toggle.checked = false;
+      setRearrangeMode(false);
       renderGrid();
       loadSummary();
     }
