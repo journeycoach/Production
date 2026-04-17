@@ -296,6 +296,7 @@ async function handleHiddenCeiling(req, res) {
           THEN COALESCE(subscribers.source_history, '[]'::jsonb) || jsonb_build_array(jsonb_build_object('source', subscribers.source, 'at', NOW()))
           ELSE COALESCE(subscribers.source_history, '[]'::jsonb)
         END,
+        name          = COALESCE(EXCLUDED.name, subscribers.name),
         source        = EXCLUDED.source,
         result_center = EXCLUDED.result_center,
         score_heart   = EXCLUDED.score_heart,
