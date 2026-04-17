@@ -237,11 +237,11 @@
           <div class="submission-detail">&#127775; ${escHtml(s.interest || '—')}</div>
           <div class="submission-message">${escHtml(s.message || '')}</div>
           <div class="submission-actions">
-            <button class="btn btn-secondary btn-sm" onclick="toggleRead(${s.id}, ${s.is_read})">
+            <button class="btn btn-secondary btn-sm" onclick="toggleRead(${parseInt(s.id, 10)}, ${s.is_read === true})">
               ${s.is_read ? 'Mark Unread' : 'Mark Read'}
             </button>
             <a href="mailto:${escHtml(s.email)}?subject=Re: ${encodeURIComponent(s.interest || 'Your Inquiry')}" class="btn btn-primary btn-sm">Reply</a>
-            <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${s.id})">Delete</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${parseInt(s.id, 10)})">Delete</button>
           </div>
         </div>
       `).join('');

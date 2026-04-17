@@ -76,8 +76,8 @@
           <td class="td-muted">${formatDate(p.post_date)}</td>
           <td class="td-muted">${escHtml(p.author || '—')}</td>
           <td class="td-actions">
-            <a href="post-edit.html?id=${p.id}" class="btn btn-secondary btn-sm">Edit</a>
-            <button class="btn btn-danger btn-sm" onclick="deletePost(${p.id})">Delete</button>
+            <a href="post-edit.html?id=${parseInt(p.id, 10)}" class="btn btn-secondary btn-sm">Edit</a>
+            <button class="btn btn-danger btn-sm" onclick="deletePost(${parseInt(p.id, 10)})">Delete</button>
           </td>
         </tr>
       `).join('');

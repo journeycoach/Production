@@ -281,15 +281,17 @@
         return;
       }
 
-      recentList.innerHTML = recentItems.map(item => `
-        <a href="${item.path}" class="recent-item">
-          <div class="recent-item-main">
-            <span class="recent-item-title">${item.label}</span>
-            <span class="recent-item-meta">${formatRelativeTime(item.timestamp)}</span>
-          </div>
-          <span class="recent-item-arrow">↗</span>
-        </a>
-      `).join('');
+      recentList.innerHTML = recentItems
+        .filter(item => /^[\w\-]+\.html(\?[\w=\-&]+)?$/.test(item.path))
+        .map(item => `
+          <a href="${escHtml(item.path)}" class="recent-item">
+            <div class="recent-item-main">
+              <span class="recent-item-title">${escHtml(item.label)}</span>
+              <span class="recent-item-meta">${formatRelativeTime(item.timestamp)}</span>
+            </div>
+            <span class="recent-item-arrow">↗</span>
+          </a>
+        `).join('');
     }
 
     async function loadSummary() {

@@ -87,8 +87,8 @@
           <td>${escHtml(t.author)}</td>
           <td class="td-muted">${t.sort_order}</td>
           <td class="td-actions">
-            <button class="btn btn-secondary btn-sm" onclick="editTestimonial(${t.id})">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${t.id})">Delete</button>
+            <button class="btn btn-secondary btn-sm" onclick="editTestimonial(${parseInt(t.id, 10)})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${parseInt(t.id, 10)})">Delete</button>
           </td>
         </tr>
       `).join('');

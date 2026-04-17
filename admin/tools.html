@@ -663,12 +663,12 @@
                   <div class="tool-row-meta">${tool.type === 'file' ? 'Document' : tool.type === 'link' ? 'Link' : '—'}</div>
                   <div class="tool-row-meta">${tool.is_hidden ? 'Hidden' : 'Visible'}</div>
                   <div class="row-move-actions">
-                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${tool.id}, -1)" ${index === 0 ? 'disabled' : ''} title="Move up">↑</button>
-                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${tool.id}, 1)" ${index === tools.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
+                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${parseInt(tool.id, 10)}, -1)" ${index === 0 ? 'disabled' : ''} title="Move up">↑</button>
+                    <button class="btn btn-ghost btn-sm row-move-btn" type="button" onclick="moveToolInActiveCategory(${parseInt(tool.id, 10)}, 1)" ${index === tools.length - 1 ? 'disabled' : ''} title="Move down">↓</button>
                   </div>
                   <div class="td-actions">
-                    <button class="btn btn-secondary btn-sm" type="button" onclick="editTool(${tool.id})">Edit</button>
-                    <button class="btn btn-danger btn-sm" type="button" onclick="deleteTool(${tool.id})">Delete</button>
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="editTool(${parseInt(tool.id, 10)})">Edit</button>
+                    <button class="btn btn-danger btn-sm" type="button" onclick="deleteTool(${parseInt(tool.id, 10)})">Delete</button>
                   </div>
                 </div>
               `).join('')}

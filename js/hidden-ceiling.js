@@ -311,16 +311,16 @@
         document.getElementById('hc-result-blindspot').textContent = meta.blindspot;
 
         const actionsList = document.getElementById('hc-result-actions');
-        actionsList.innerHTML = meta.nextSteps.map((item) => `<li>${item}</li>`).join('');
+        actionsList.innerHTML = meta.nextSteps.map((item) => `<li>${escapeAttr(item)}</li>`).join('');
 
         document.getElementById('hc-score-grid').innerHTML = [
             { label: 'Heart', value: scores.heart },
-            { label: 'Head', value: scores.head },
-            { label: 'Gut', value: scores.action }
+            { label: 'Head',  value: scores.head },
+            { label: 'Gut',   value: scores.action }
         ].map((score) => `
             <div class="hc-score-card">
                 <strong>${score.label} score</strong>
-                <span>${score.value}</span>
+                <span>${parseInt(score.value, 10)}</span>
             </div>
         `).join('');
 

@@ -618,7 +618,7 @@
 
         campaignLoaded = true;
       } catch (err) {
-        listEl.innerHTML = `<p class="table-empty" style="color:red;">Error loading sequence: ${err.message}</p>`;
+        listEl.innerHTML = `<p class="table-empty" style="color:red;">Error loading sequence: ${escHtml(err.message)}</p>`;
       }
     }
 
@@ -978,7 +978,7 @@
             <td>${(s => `<span style="display:inline-block;background:${(SOURCE_COLORS[s]||'#888')}22;color:${(SOURCE_COLORS[s]||'#888')};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(SOURCE_LABELS[s]||s)}</span>`)(r.source||'website')}</td>
             <td>${campaignCell}</td>
             <td style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
-            <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${r.id}, this)">&#x2715;</button></td>
+            <td><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${parseInt(r.id, 10)}, this)">&#x2715;</button></td>
           </tr>`;
       }).join('');
     }

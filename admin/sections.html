@@ -165,17 +165,17 @@
                   id="statusBadge_${s.id}">${s.status === 'draft' ? 'Draft' : 'Live'}</span>
             <label class="toggle-wrap" title="${s.is_visible ? 'Visible — click to hide' : 'Hidden — click to show'}">
               <input type="checkbox" ${s.is_visible ? 'checked' : ''}
-                     onchange="toggleVisibility(${s.id}, this.checked)" />
+                     onchange="toggleVisibility(${parseInt(s.id, 10)}, this.checked)" />
               <span class="toggle-slider"></span>
               <span class="toggle-label" id="visLabel_${s.id}">${s.is_visible ? 'Visible' : 'Hidden'}</span>
             </label>
-            <button class="btn-expand" onclick="toggleDetail(${s.id})">Edit ▾</button>
+            <button class="btn-expand" onclick="toggleDetail(${parseInt(s.id, 10)})">Edit ▾</button>
           </div>
           <div class="section-detail" id="detail_${s.id}">
             <div class="detail-row">
               <div class="form-group" style="margin:0;">
                 <label>Status</label>
-                <select class="form-control" id="status_${s.id}" onchange="updateStatus(${s.id})">
+                <select class="form-control" id="status_${s.id}" onchange="updateStatus(${parseInt(s.id, 10)})">
                   <option value="published" ${s.status === 'published' ? 'selected' : ''}>Published (Live)</option>
                   <option value="draft"     ${s.status === 'draft'     ? 'selected' : ''}>Draft (Hidden)</option>
                 </select>
@@ -192,8 +192,8 @@
                         placeholder="What is this section for? Any reminders or instructions…">${escHtml(s.admin_notes || '')}</textarea>
             </div>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-primary btn-sm" onclick="saveSection(${s.id})">Save Changes</button>
-              <button class="btn btn-ghost btn-sm" onclick="toggleDetail(${s.id})">Cancel</button>
+              <button class="btn btn-primary btn-sm" onclick="saveSection(${parseInt(s.id, 10)})">Save Changes</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleDetail(${parseInt(s.id, 10)})">Cancel</button>
             </div>
           </div>
         </div>

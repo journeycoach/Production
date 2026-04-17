@@ -136,8 +136,8 @@
             <td>${escHtml(c.title)}</td>
             <td class="td-muted">${c.sort_order}</td>
             <td class="td-actions">
-              <button class="btn btn-secondary btn-sm" onclick="editCategory(${c.id})">Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteCategory(${c.id})">Delete</button>
+              <button class="btn btn-secondary btn-sm" onclick="editCategory(${parseInt(c.id, 10)})">Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCategory(${parseInt(c.id, 10)})">Delete</button>
             </td>
           </tr>
         `).join('');
@@ -234,8 +234,8 @@
           </td>
           <td class="td-muted">${escHtml(b.category_title || '—')}</td>
           <td class="td-actions">
-            <button class="btn btn-secondary btn-sm" onclick="editBookmark(${b.id})">Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteBookmark(${b.id})">Delete</button>
+            <button class="btn btn-secondary btn-sm" onclick="editBookmark(${parseInt(b.id, 10)})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteBookmark(${parseInt(b.id, 10)})">Delete</button>
           </td>
         </tr>
       `).join('');
