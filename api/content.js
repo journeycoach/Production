@@ -1,5 +1,22 @@
 import { sql } from './_db.js';
 
+// Keys from site_settings that are safe to expose to the public frontend.
+// Email templates, admin theme, campaign flags, and operational toggles are intentionally excluded.
+const PUBLIC_SETTINGS_KEYS = [
+  'color_accent',
+  'color_green',
+  'color_bg',
+  'color_text',
+  'font_heading',
+  'font_body',
+  'cta_primary_text',
+  'cta_primary_url',
+  'cta_secondary_text',
+  'cta_secondary_url',
+  'lead_magnet_enabled',
+  'tools_category_order',
+];
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') {
@@ -47,7 +64,10 @@ export default async function handler(req, res) {
       }
 
       case 'settings': {
-        const rows = await sql`SELECT setting_key, setting_value FROM site_settings ORDER BY setting_key`;
+        const rows = await sql`
+          SELECT setting_key, setting_value FROM site_settings
+          WHERE setting_key = ANY(${PUBLIC_SETTINGS_KEYS})
+        `;
         const data = Object.fromEntries(rows.map(r => [r.setting_key, r.setting_value]));
         return res.status(200).json({ data });
       }

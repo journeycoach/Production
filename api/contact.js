@@ -483,8 +483,13 @@ function renderUnsubscribePage(type, message = '') {
 
 export default async function handler(req, res) {
   try {
-    // Route cron drip (Vercel Cron triggers via GET usually)
+    // Route cron drip — requires CRON_SECRET to match Vercel's Authorization header
     if (req.query?.action === 'cron_drip' || req.headers['user-agent'] === 'vercel-cron/1.0') {
+      const cronSecret = process.env.CRON_SECRET;
+      const authHeader  = req.headers['authorization'] || '';
+      if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
       return handleCronDrip(req, res);
     }
     // Route unsubscribe (GET with signed token)
