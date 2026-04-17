@@ -205,7 +205,6 @@
 
     function renderGrid() {
       const grid = document.getElementById('dashGrid');
-      const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
       grid.innerHTML = getOrderedCards().map(c => {
         if (c.type === CARD_TYPE.GROUP) {
           return `
@@ -233,10 +232,10 @@
           </a>`;
       }).join('');
 
-      if (!dragSortingEnabled) return;
-
       Sortable.create(grid, {
         animation: 150,
+        delay: 150,
+        delayOnTouchOnly: true,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         onEnd() {
@@ -298,27 +297,24 @@
       const summaryGrid = document.getElementById('summaryGrid');
 
       try {
-        const [contactsRes, postsRes, toolsRes, subscribersRes] = await Promise.all([
+        const [contactsRes, postsRes, subscribersRes] = await Promise.all([
           adminFetch('/api/admin/contacts'),
           adminFetch('/api/admin/posts'),
-          adminFetch('/api/admin/tools'),
           adminFetch('/api/admin/contacts?type=subscribers')
         ]);
 
-        if (![contactsRes, postsRes, toolsRes, subscribersRes].every(res => res.ok)) {
+        if (![contactsRes, postsRes, subscribersRes].every(res => res.ok)) {
           throw new Error('Failed to load activity summary');
         }
 
-        const [contactsData, postsData, toolsData, subscribersData] = await Promise.all([
+        const [contactsData, postsData, subscribersData] = await Promise.all([
           contactsRes.json(),
           postsRes.json(),
-          toolsRes.json(),
           subscribersRes.json()
         ]);
 
         const contacts = contactsData.data || [];
         const posts = postsData.data || [];
-        const tools = toolsData.data || [];
         const subscribers = subscribersData.data || [];
 
         const allItems = [
@@ -341,12 +337,6 @@
             note: 'Published and drafted articles',
             href: 'posts.html'
           },
-          {
-            label: 'Hidden Resources',
-            value: tools.filter(tool => tool.is_hidden).length,
-            note: 'Resources currently off the site',
-            href: 'tools.html'
-          }
         ];
 
         const SUMMARY_ORDER_KEY = 'admin_summary_order';
