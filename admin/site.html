@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Site Console — Admin</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    /* ── Top-level site tabs ─────────────────────────────────────────── */
+    .site-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .site-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .site-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .site-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .site-tab-panel { display: none; }
+    .site-tab-panel.is-active { display: block; }
+
+    /* ── Settings styles ─────────────────────────────────────────────── */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 800px) { .settings-grid { grid-template-columns: 1fr; } }
+    .settings-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .settings-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: grab; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .settings-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .settings-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .settings-tab-panel { display: none; }
+    .settings-tab-panel.is-active { display: block; }
+    .environment-bar { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 18px 20px; margin-bottom: 24px; }
+    .environment-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+    .environment-tab { background: transparent; color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .environment-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .environment-tab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .environment-status { font-size: 0.85rem; color: var(--admin-muted); line-height: 1.5; }
+    .environment-status.is-warning { color: #d9a15e; }
+    .environment-status.is-error { color: #e07070; }
+    .color-row { display: flex; align-items: center; gap: 12px; }
+    .color-row input[type="color"] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--admin-border); border-radius: 4px; background: none; cursor: pointer; }
+    .color-row input[type="text"] { flex: 1; font-family: monospace; }
+    .color-swatch { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--admin-border); flex-shrink: 0; }
+    .guide-box { background: var(--admin-notice-bg); border-left: 3px solid var(--admin-notice-accent); border-radius: 4px; padding: 14px 18px; margin-bottom: 24px; font-size: 0.875rem; color: var(--admin-notice-text); line-height: 1.6; }
+    .guide-box strong { color: var(--admin-notice-accent); display: block; margin-bottom: 4px; }
+    .section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--admin-muted); margin: 28px 0 12px; border-bottom: 1px solid var(--admin-border); padding-bottom: 6px; }
+    .cta-preview { background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 20px; margin-top: 8px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .preview-btn-primary { background: var(--preview-accent,#c7a96b); color: #1a1d1e; padding: 10px 24px; border-radius: 4px; font-weight: 600; font-size: 0.875rem; border: none; cursor: default; }
+    .preview-btn-secondary { background: transparent; color: var(--preview-accent,#c7a96b); padding: 10px 24px; border-radius: 4px; font-weight: 600; font-size: 0.875rem; border: 2px solid var(--preview-accent,#c7a96b); cursor: default; }
+    .font-preview { padding: 10px 0; font-size: 1.1rem; }
+    .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
+    .admin-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+    .email-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .email-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .email-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .email-subtab-panel { display: none; }
+    .email-subtab-panel.is-active { display: block; }
+
+    /* ── Sections styles ─────────────────────────────────────────────── */
+    .page-tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+    .page-tab { padding: 8px 20px; border-radius: 4px; border: 1px solid var(--admin-border); background: var(--admin-card-bg); color: var(--admin-muted); cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+    .page-tab.active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
+    .page-tab:hover:not(.active) { border-color: var(--admin-accent); color: var(--admin-accent); }
+    .section-list { display: flex; flex-direction: column; gap: 0; }
+    .section-item { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; margin-bottom: 8px; overflow: hidden; transition: box-shadow 0.2s; }
+    .section-item.sortable-ghost { opacity: 0.4; }
+    .section-item.sortable-chosen { box-shadow: 0 4px 20px var(--admin-accent-soft); }
+    .section-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: default; }
+    .drag-handle { color: #555; cursor: grab; font-size: 1.1rem; user-select: none; padding: 0 4px; }
+    .drag-handle:active { cursor: grabbing; }
+    @media (pointer: coarse), (max-width: 768px) { .drag-handle { display: none; } }
+    .section-label-text { flex: 1; font-weight: 600; color: var(--admin-text); }
+    .section-key-badge { font-size: 0.7rem; color: var(--admin-muted); font-family: monospace; background: var(--admin-bg); padding: 2px 6px; border-radius: 3px; }
+    .status-toggle { display: flex; align-items: center; gap: 8px; }
+    .toggle-wrap { position: relative; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    .toggle-wrap input { opacity: 0; width: 0; position: absolute; }
+    .toggle-slider { width: 40px; height: 22px; background: var(--admin-border); border-radius: 11px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .toggle-slider::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: transform 0.2s; }
+    .toggle-wrap input:checked + .toggle-slider { background: var(--admin-success); }
+    .toggle-wrap input:checked + .toggle-slider::after { transform: translateX(18px); }
+    .toggle-label { font-size: 0.8rem; color: var(--admin-muted); width: 56px; }
+    .status-badge { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; }
+    .status-published { background: var(--admin-success-bg); color: var(--admin-success); }
+    .status-draft { background: #3a2a1e; color: var(--admin-accent); }
+    .btn-expand { background: none; border: 1px solid var(--admin-border); color: var(--admin-muted); border-radius: 4px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+    .btn-expand:hover { border-color: var(--admin-accent); color: var(--admin-accent); }
+    .section-detail { display: none; border-top: 1px solid var(--admin-card-bg-soft); padding: 16px; background: color-mix(in srgb, var(--admin-bg) 85%, var(--admin-card-bg)); }
+    .section-detail.open { display: block; }
+    .detail-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 600px) { .detail-row { grid-template-columns: 1fr; } }
+    .save-order-bar { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+    .order-changed-badge { font-size: 0.8rem; color: var(--admin-accent); display: none; }
+    .order-changed-badge.visible { display: inline; }
+  </style>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-page-title">
+        <h1>Site Console</h1>
+        <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
+      </div>
+
+      <!-- ── Top-level tabs ───────────────────────────────────────────── -->
+      <div class="site-tabs" role="tablist">
+        <button type="button" class="site-tab is-active" data-site-tab="settings"  role="tab" aria-selected="true">Settings</button>
+        <button type="button" class="site-tab"           data-site-tab="sections"  role="tab" aria-selected="false">Page Sections</button>
+        <button type="button" class="site-tab"           data-site-tab="navigation" role="tab" aria-selected="false">Navigation</button>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════
+           SETTINGS PANEL
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="site-tab-panel is-active" data-site-panel="settings">
+
+        <div class="guide-box">
+          <strong>About Site Settings</strong>
+          Use the tabs below to switch between public website settings and admin-only appearance settings.
+          Website settings can target either the Test or Production site. Admin appearance settings only affect this admin interface.
+        </div>
+
+        <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+          <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true" id="website_settings_tab">Website Settings</button>
+          <button type="button" class="settings-tab" data-tab="admin"   role="tab" aria-selected="false">Admin Settings</button>
+          <button type="button" class="settings-tab" data-tab="email-templates" role="tab" aria-selected="false">Email Templates</button>
+        </div>
+
+        <!-- Website Settings -->
+        <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
+          <div class="environment-bar">
+            <strong style="display:block;margin-bottom:4px;">Website Environment</strong>
+            <div class="environment-status" id="website_env_status">Choose which site's public settings you want to edit.</div>
+            <div class="environment-tabs" role="tablist" aria-label="Website environments">
+              <button type="button" class="environment-tab" data-environment="test">Test Site</button>
+              <button type="button" class="environment-tab" data-environment="production">Production Site</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Brand Colors</div>
+            <div class="guide-box" style="margin-bottom:20px;"><strong>Tip</strong>Use the color picker or type a hex value directly. The accent gold is your primary brand color — it appears on buttons, links, and highlights.</div>
+            <div class="settings-grid">
+              <div class="form-group"><label>Accent / Gold</label><div class="color-row"><input type="color" id="pick_color_accent"/><input type="text" id="color_accent" class="form-control" placeholder="#c7a96b" maxlength="7"/><div class="color-swatch" id="sw_color_accent"></div></div></div>
+              <div class="form-group"><label>Green / Secondary</label><div class="color-row"><input type="color" id="pick_color_green"/><input type="text" id="color_green" class="form-control" placeholder="#4a6741" maxlength="7"/><div class="color-swatch" id="sw_color_green"></div></div></div>
+              <div class="form-group"><label>Page Background</label><div class="color-row"><input type="color" id="pick_color_bg"/><input type="text" id="color_bg" class="form-control" placeholder="#fdfbf7" maxlength="7"/><div class="color-swatch" id="sw_color_bg"></div></div></div>
+              <div class="form-group"><label>Body Text</label><div class="color-row"><input type="color" id="pick_color_text"/><input type="text" id="color_text" class="form-control" placeholder="#1c2321" maxlength="7"/><div class="color-swatch" id="sw_color_text"></div></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Typography</div>
+            <div class="guide-box" style="margin-bottom:20px;"><strong>Tip</strong>These fonts must be available on Google Fonts. The heading font appears in titles and section headers. The body font is used for all paragraph text and UI elements.</div>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Heading Font</label>
+                <select id="font_heading" class="form-control">
+                  <option value="Playfair Display">Playfair Display (current)</option>
+                  <option value="Cormorant Garamond">Cormorant Garamond</option>
+                  <option value="Libre Baskerville">Libre Baskerville</option>
+                  <option value="Lora">Lora</option>
+                  <option value="Merriweather">Merriweather</option>
+                  <option value="EB Garamond">EB Garamond</option>
+                </select>
+                <div class="font-preview" id="heading_preview" style="font-family:'Playfair Display',serif;">The quick brown fox — Executive Coaching</div>
+              </div>
+              <div class="form-group">
+                <label>Body Font</label>
+                <select id="font_body" class="form-control">
+                  <option value="Inter">Inter (current)</option>
+                  <option value="DM Sans">DM Sans</option>
+                  <option value="Source Sans 3">Source Sans 3</option>
+                  <option value="Nunito">Nunito</option>
+                  <option value="Open Sans">Open Sans</option>
+                  <option value="Lato">Lato</option>
+                </select>
+                <div class="font-preview" id="body_preview" style="font-family:'Inter',sans-serif;">Helping leaders grow with clarity, purpose, and authentic confidence.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Call-to-Action Manager</div>
+            <div class="guide-box" style="margin-bottom:20px;"><strong>About CTAs</strong>The primary CTA is your main button for first-time visitors. The secondary CTA is optional and shown to returning visitors. Leave secondary fields blank to hide it.</div>
+            <div class="section-label">Primary CTA</div>
+            <div class="settings-grid">
+              <div class="form-group"><label>Button Label</label><input type="text" id="cta_primary_text" class="form-control" placeholder="Let's Talk"/></div>
+              <div class="form-group"><label>Destination URL</label><input type="text" id="cta_primary_url" class="form-control" placeholder="/#contact"/></div>
+            </div>
+            <div class="section-label">Returning Visitor CTA <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+            <div class="settings-grid">
+              <div class="form-group"><label>Button Label</label><input type="text" id="cta_secondary_text" class="form-control" placeholder="Learn More"/></div>
+              <div class="form-group"><label>Destination URL</label><input type="text" id="cta_secondary_url" class="form-control" placeholder="/enneagram.html"/></div>
+            </div>
+            <div class="section-label">Preview</div>
+            <div class="cta-preview" id="cta_preview_box">
+              <button class="preview-btn-primary" id="cta_preview_primary">Let's Talk</button>
+              <button class="preview-btn-secondary" id="cta_preview_secondary" style="display:none;">Learn More</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Site Info</div>
+            <div class="form-group">
+              <label>Tagline <span style="color:#888;font-weight:400;">(shown in footer and meta)</span></label>
+              <input type="text" id="site_tagline" class="form-control" placeholder="Executive Coaching · Enneagram · Leadership"/>
+            </div>
+          </div>
+        </section>
+
+        <!-- Admin Settings -->
+        <section class="settings-tab-panel" data-tab-panel="admin" role="tabpanel">
+          <div class="card">
+            <div class="card-title">Admin Panel Appearance</div>
+            <div class="guide-box" style="margin-bottom:20px;"><strong>About Admin Appearance</strong>These settings change the look of the admin only. Leave any field blank to use the default admin style.</div>
+            <div class="section-label">Admin Colors</div>
+            <div class="settings-grid">
+              <div class="form-group"><label>Accent</label><div class="color-row"><input type="color" id="pick_admin_color_accent"/><input type="text" id="admin_color_accent" class="form-control" placeholder="#c7a96b" maxlength="7"/><div class="color-swatch" id="sw_admin_color_accent"></div></div></div>
+              <div class="form-group"><label>Background</label><div class="color-row"><input type="color" id="pick_admin_color_bg"/><input type="text" id="admin_color_bg" class="form-control" placeholder="#1a1d1e" maxlength="7"/><div class="color-swatch" id="sw_admin_color_bg"></div></div></div>
+              <div class="form-group"><label>Card Background</label><div class="color-row"><input type="color" id="pick_admin_color_card"/><input type="text" id="admin_color_card" class="form-control" placeholder="#22262a" maxlength="7"/><div class="color-swatch" id="sw_admin_color_card"></div></div></div>
+              <div class="form-group"><label>Text</label><div class="color-row"><input type="color" id="pick_admin_color_text"/><input type="text" id="admin_color_text" class="form-control" placeholder="#f0ece4" maxlength="7"/><div class="color-swatch" id="sw_admin_color_text"></div></div></div>
+              <div class="form-group"><label>Muted Text</label><div class="color-row"><input type="color" id="pick_admin_color_muted"/><input type="text" id="admin_color_muted" class="form-control" placeholder="#888888" maxlength="7"/><div class="color-swatch" id="sw_admin_color_muted"></div></div></div>
+              <div class="form-group"><label>Border</label><div class="color-row"><input type="color" id="pick_admin_color_border"/><input type="text" id="admin_color_border" class="form-control" placeholder="#333333" maxlength="7"/><div class="color-swatch" id="sw_admin_color_border"></div></div></div>
+              <div class="form-group"><label>Success Accent</label><div class="color-row"><input type="color" id="pick_admin_success"/><input type="text" id="admin_success" class="form-control" placeholder="#4caf7d" maxlength="7"/><div class="color-swatch" id="sw_admin_success"></div></div></div>
+              <div class="form-group"><label>Success Background</label><div class="color-row"><input type="color" id="pick_admin_success_bg"/><input type="text" id="admin_success_bg" class="form-control" placeholder="#1e3a2a" maxlength="7"/><div class="color-swatch" id="sw_admin_success_bg"></div></div></div>
+              <div class="form-group"><label>Notice Background</label><div class="color-row"><input type="color" id="pick_admin_notice_bg"/><input type="text" id="admin_notice_bg" class="form-control" placeholder="#1e2a1e" maxlength="7"/><div class="color-swatch" id="sw_admin_notice_bg"></div></div></div>
+              <div class="form-group"><label>Notice Text</label><div class="color-row"><input type="color" id="pick_admin_notice_text"/><input type="text" id="admin_notice_text" class="form-control" placeholder="#aacfaa" maxlength="7"/><div class="color-swatch" id="sw_admin_notice_text"></div></div></div>
+              <div class="form-group"><label>Notice Accent</label><div class="color-row"><input type="color" id="pick_admin_notice_accent"/><input type="text" id="admin_notice_accent" class="form-control" placeholder="#4caf7d" maxlength="7"/><div class="color-swatch" id="sw_admin_notice_accent"></div></div></div>
+            </div>
+            <div class="section-label">Admin Typography</div>
+            <div class="settings-grid">
+              <div class="form-group"><label>Heading Font</label><select id="admin_font_heading" class="form-control"><option value="">Default Serif</option><option value="Playfair Display">Playfair Display</option><option value="Cormorant Garamond">Cormorant Garamond</option><option value="Libre Baskerville">Libre Baskerville</option><option value="Lora">Lora</option><option value="Merriweather">Merriweather</option><option value="EB Garamond">EB Garamond</option></select></div>
+              <div class="form-group"><label>Body Font</label><select id="admin_font_body" class="form-control"><option value="">System UI</option><option value="Inter">Inter</option><option value="DM Sans">DM Sans</option><option value="Source Sans 3">Source Sans 3</option><option value="Nunito">Nunito</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option></select></div>
+            </div>
+            <div class="section-label">Dashboard Layout</div>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Cards Per Row</label>
+                <select id="admin_dashboard_columns" class="form-control"><option value="2">2 columns</option><option value="3">3 columns</option><option value="4">4 columns</option></select>
+                <div class="form-hint">Mobile widths still collapse automatically for readability.</div>
+              </div>
+            </div>
+            <div class="admin-actions">
+              <button type="button" class="btn btn-ghost" onclick="resetAdminAppearance()">Reset Admin Appearance</button>
+              <span style="color:var(--admin-muted);font-size:0.8rem;">Clears the admin-only theme settings and restores the default look.</span>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:#d9a15e;">
+            <div class="card-title" style="color:#d9a15e;">Testing</div>
+            <div class="guide-box" style="margin-bottom:20px;border-left-color:#d9a15e;background:rgba(217,161,94,0.06);"><strong style="color:#d9a15e;">⚠ Testing Mode</strong>When enabled, all submission rate limits are bypassed so you can test forms repeatedly. Turn this off before going live.</div>
+            <div class="form-group">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                <input type="checkbox" id="rate_limit_disabled" style="width:18px;height:18px;accent-color:#d9a15e;cursor:pointer;">
+                <span>Disable rate limiting on all forms <span style="color:var(--admin-muted);font-weight:400;">(contact, subscribe, assessment)</span></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Email Templates -->
+        <section class="settings-tab-panel" data-tab-panel="email-templates" role="tabpanel">
+          <div class="settings-tabs" role="tablist" aria-label="Email template type" style="margin-bottom:20px;">
+            <button type="button" class="email-subtab is-active" data-subtab="contact-reply" role="tab" aria-selected="true">Contact Auto-Reply</button>
+            <button type="button" class="email-subtab" data-subtab="free-guide" role="tab" aria-selected="false">Free Guide</button>
+          </div>
+          <div class="email-subtab-panel is-active" data-subtab-panel="contact-reply">
+            <div class="card">
+              <div class="card-title">Contact Form Auto-Reply</div>
+              <div class="guide-box" style="margin-bottom:20px;"><strong>About the Auto-Reply</strong>This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> to personalize. The body accepts plain HTML.</div>
+              <div class="form-group" style="margin-bottom:20px;"><label style="display:flex;align-items:center;gap:12px;cursor:pointer;"><input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;"><span>Send auto-reply email when someone submits the contact form</span></label></div>
+              <div class="form-group" style="margin-bottom:20px;"><label for="contact_reply_subject">Subject Line</label><input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}"></div>
+              <div class="form-group"><label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label><textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea></div>
+            </div>
+          </div>
+          <div class="email-subtab-panel" data-subtab-panel="free-guide">
+            <div class="card">
+              <div class="card-title">Free Guide Email</div>
+              <div class="guide-box" style="margin-bottom:20px;"><strong>About the Free Guide Email</strong>This email is sent when someone signs up via the homepage opt-in form. Use <code>{{firstName}}</code> to personalize. If the body is left blank, a built-in default will be sent.</div>
+              <div class="form-group" style="margin-bottom:20px;"><label style="display:flex;align-items:center;gap:12px;cursor:pointer;"><input type="checkbox" id="lead_magnet_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;"><span>Show the Free Guide opt-in form on the homepage</span></label></div>
+              <div class="form-group" style="margin-bottom:20px;"><label for="guide_email_subject">Subject Line</label><input type="text" id="guide_email_subject" class="form-control" placeholder="Understanding Your Hidden Ceiling"></div>
+              <div class="form-group">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+                  <label for="guide_email_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                </div>
+                <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default."></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" id="save_button" onclick="saveAll()">Save Website Settings</button>
+          <span id="save_status" style="color:#888;font-size:0.875rem;"></span>
+        </div>
+      </div><!-- /settings panel -->
+
+      <!-- ════════════════════════════════════════════════════════════════
+           PAGE SECTIONS PANEL
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="site-tab-panel" data-site-panel="sections">
+        <div class="guide-box">
+          <strong>How Page Sections Work</strong>
+          Each page of your site is divided into named sections. Here you can: <strong>show or hide</strong> any section without deleting content, <strong>drag to reorder</strong> sections within a page, set a section to <strong>Draft</strong> so it's hidden until you're ready, and add <strong>admin notes</strong> to remind yourself what a section is for.
+        </div>
+        <div class="page-tabs" id="pageTabs"></div>
+        <div class="card">
+          <div class="save-order-bar">
+            <button class="btn btn-secondary btn-sm" onclick="saveOrder()">Save Order</button>
+            <span class="order-changed-badge" id="orderBadge">⚠ Unsaved order changes</span>
+          </div>
+          <div class="section-list" id="sectionList">
+            <div style="color:#888;padding:24px;text-align:center;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════
+           NAVIGATION PANEL
+           ════════════════════════════════════════════════════════════════ -->
+      <div class="site-tab-panel" data-site-panel="navigation">
+        <form id="navForm">
+          <div class="card">
+            <div class="card-title">Brand</div>
+            <div class="form-group"><label for="brandName">Brand Name</label><input type="text" id="brandName" class="form-control" placeholder="Your Journey Coach"/></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Navigation Links</div>
+            <table id="navLinksTable" class="nav-links-table" style="margin-bottom:16px;">
+              <thead><tr><th>Label</th><th>URL</th><th>Visible</th><th>Remove</th></tr></thead>
+              <tbody id="navLinksBody"></tbody>
+            </table>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addNavLink()">+ Add Link</button>
+          </div>
+          <div class="card">
+            <div class="card-title">Footer Links</div>
+            <table id="footerLinksTable" class="nav-links-table" style="margin-bottom:16px;">
+              <thead><tr><th>Label</th><th>URL</th><th>Visible</th><th>Remove</th></tr></thead>
+              <tbody id="footerLinksBody"></tbody>
+            </table>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addFooterLink()">+ Add Link</button>
+          </div>
+          <div class="card">
+            <div class="card-title">CTA Button</div>
+            <div class="form-row">
+              <div class="form-group"><label for="ctaLabel">Label</label><input type="text" id="ctaLabel" class="form-control" placeholder="e.g. Let's Talk"/></div>
+              <div class="form-group"><label for="ctaUrl">URL</label><input type="text" id="ctaUrl" class="form-control" placeholder="e.g. index.html#contact"/></div>
+            </div>
+            <div class="form-group"><div class="form-check"><input type="checkbox" id="ctaVisible" checked/><label for="ctaVisible">Visible</label></div></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Navigation</button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+
+    // ══════════════════════════════════════════════════════════════════════
+    // TOP-LEVEL SITE TAB SWITCHING
+    // ══════════════════════════════════════════════════════════════════════
+    document.querySelectorAll('.site-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.siteTab;
+        document.querySelectorAll('.site-tab').forEach(b => {
+          b.classList.toggle('is-active', b.dataset.siteTab === tab);
+          b.setAttribute('aria-selected', b.dataset.siteTab === tab ? 'true' : 'false');
+        });
+        document.querySelectorAll('.site-tab-panel').forEach(p => {
+          p.classList.toggle('is-active', p.dataset.sitePanel === tab);
+        });
+        // Lazy-load sections when that tab is first opened
+        if (tab === 'sections' && !sectionsLoaded) {
+          sectionsLoaded = true;
+          renderTabs();
+          loadSections();
+        }
+        // Lazy-load navigation when that tab is first opened
+        if (tab === 'navigation' && !navLoaded) {
+          navLoaded = true;
+          loadNavigation();
+        }
+      });
+    });
+
+    // ══════════════════════════════════════════════════════════════════════
+    // SETTINGS
+    // ══════════════════════════════════════════════════════════════════════
+    let activeTab = 'website';
+    const currentHost = window.location.hostname.toLowerCase();
+    const currentSiteEnvironment = currentHost === 'journeycoach.co' || currentHost.endsWith('.journeycoach.co') ? 'production' : 'test';
+    let currentWebsiteEnvironment = localStorage.getItem('website_settings_environment') || currentSiteEnvironment;
+    let websiteSettingsReady = false;
+    let adminAppearanceSettings = {};
+    const websiteSettingsCache = {};
+
+    const siteColorKeys  = ['color_accent','color_green','color_bg','color_text'];
+    const adminColorKeys = ['admin_color_accent','admin_color_bg','admin_color_card','admin_color_text','admin_color_muted','admin_color_border','admin_success','admin_success_bg','admin_notice_bg','admin_notice_text','admin_notice_accent'];
+    const adminAppearanceKeys = [...adminColorKeys,'admin_font_heading','admin_font_body','admin_dashboard_columns'];
+    const websiteSettingKeys  = [...siteColorKeys,'font_heading','font_body','cta_primary_text','cta_primary_url','cta_secondary_text','cta_secondary_url','site_tagline'];
+    const adminAppearanceColorDefaults = { admin_color_accent:'#c7a96b', admin_color_bg:'#1a1d1e', admin_color_card:'#22262a', admin_color_text:'#f0ece4', admin_color_muted:'#888888', admin_color_border:'#333333', admin_success:'#4caf7d', admin_success_bg:'#1e3a2a', admin_notice_bg:'#1e2a1e', admin_notice_text:'#aacfaa', admin_notice_accent:'#4caf7d' };
+    const colorKeys = [...siteColorKeys, ...adminColorKeys];
+
+    colorKeys.forEach(key => {
+      const picker = document.getElementById('pick_' + key);
+      const text   = document.getElementById(key);
+      const swatch = document.getElementById('sw_' + key);
+      function sync(val) {
+        if (!val.startsWith('#')) return;
+        picker.value = val; text.value = val; swatch.style.background = val;
+        if (key === 'color_accent') document.documentElement.style.setProperty('--preview-accent', val);
+      }
+      picker.addEventListener('input', () => sync(picker.value));
+      text.addEventListener('input', () => { const v = text.value.trim(); if (/^#[0-9a-fA-F]{6}$/.test(v)) sync(v); });
+    });
+
+    document.getElementById('font_heading').addEventListener('change', e => {
+      const f = e.target.value;
+      document.getElementById('heading_preview').style.fontFamily = `'${f}',serif`;
+      loadGoogleFont(f);
+    });
+    document.getElementById('font_body').addEventListener('change', e => {
+      const f = e.target.value;
+      document.getElementById('body_preview').style.fontFamily = `'${f}',sans-serif`;
+      loadGoogleFont(f);
+    });
+    function loadGoogleFont(name) {
+      const id = 'gf-' + name.replace(/\s/g,'-');
+      if (document.getElementById(id)) return;
+      const link = document.createElement('link');
+      link.id = id; link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@400;600;700&display=swap`;
+      document.head.appendChild(link);
+    }
+
+    ['cta_primary_text','cta_secondary_text','cta_secondary_url'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateCtaPreview);
+    });
+    function updateCtaPreview() {
+      const pText = document.getElementById('cta_primary_text').value || "Let's Talk";
+      const sText = document.getElementById('cta_secondary_text').value;
+      document.getElementById('cta_preview_primary').textContent  = pText;
+      document.getElementById('cta_preview_secondary').textContent = sText;
+      document.getElementById('cta_preview_secondary').style.display = sText ? 'inline-block' : 'none';
+    }
+
+    function getEnvironmentLabel(e) { return e === 'production' ? 'Production' : 'Test'; }
+    function setWebsiteEnvironmentStatus(msg, tone='') {
+      const el = document.getElementById('website_env_status');
+      el.textContent = msg; el.classList.remove('is-warning','is-error');
+      if (tone) el.classList.add(tone);
+    }
+    function updateSaveButtonLabel() {
+      const btn = document.getElementById('save_button'); if (!btn) return;
+      if (activeTab === 'admin')           { btn.textContent = 'Save Admin Settings'; btn.disabled = false; return; }
+      if (activeTab === 'email-templates') { btn.textContent = 'Save Email Settings'; btn.disabled = false; return; }
+      btn.textContent = `Save ${getEnvironmentLabel(currentWebsiteEnvironment)} Website Settings`;
+      btn.disabled = !websiteSettingsReady;
+    }
+    function updateWebsiteTabLabel() {
+      const tab = document.getElementById('website_settings_tab'); if (!tab) return;
+      tab.textContent = `${getEnvironmentLabel(currentWebsiteEnvironment)} Settings`;
+    }
+    function setActiveSettingsTab(tabName) {
+      activeTab = tabName;
+      document.querySelectorAll('.settings-tab').forEach(b => {
+        const on = b.dataset.tab === tabName;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('.settings-tab-panel').forEach(p => {
+        p.classList.toggle('is-active', p.dataset.tabPanel === tabName);
+      });
+      updateSaveButtonLabel();
+    }
+    document.querySelectorAll('.settings-tab').forEach(b => b.addEventListener('click', () => setActiveSettingsTab(b.dataset.tab)));
+
+    document.querySelectorAll('.email-subtab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = btn.dataset.subtab;
+        document.querySelectorAll('.email-subtab').forEach(b => { b.classList.toggle('is-active', b.dataset.subtab===v); b.setAttribute('aria-selected', b.dataset.subtab===v?'true':'false'); });
+        document.querySelectorAll('.email-subtab-panel').forEach(p => p.classList.toggle('is-active', p.dataset.subtabPanel===v));
+      });
+    });
+
+    function setActiveEnvironment(environment) {
+      currentWebsiteEnvironment = environment;
+      websiteSettingsReady = false;
+      localStorage.setItem('website_settings_environment', environment);
+      document.querySelectorAll('.environment-tab').forEach(b => b.classList.toggle('is-active', b.dataset.environment===environment));
+      const label = getEnvironmentLabel(environment);
+      const warning = environment==='production' ? 'Production changes update the live site.' : 'Test changes stay isolated to the test site.';
+      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment==='production' ? 'is-warning' : '');
+      updateWebsiteTabLabel(); updateSaveButtonLabel();
+      loadWebsiteSettings(environment);
+    }
+    document.querySelectorAll('.environment-tab').forEach(b => b.addEventListener('click', () => setActiveEnvironment(b.dataset.environment)));
+
+    function setColorControl(key, value='') {
+      const picker = document.getElementById('pick_'+key), text = document.getElementById(key), swatch = document.getElementById('sw_'+key);
+      const fallback = adminAppearanceColorDefaults[key] || '#000000';
+      picker.value = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+      text.value = value;
+      swatch.style.background = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+    }
+    function clearWebsiteSettingsForm() {
+      siteColorKeys.forEach(key => setColorControl(key,''));
+      document.getElementById('font_heading').value='Playfair Display';
+      document.getElementById('font_body').value='Inter';
+      document.getElementById('heading_preview').style.fontFamily="'Playfair Display',serif";
+      document.getElementById('body_preview').style.fontFamily="'Inter',sans-serif";
+      ['cta_primary_text','cta_primary_url','cta_secondary_text','cta_secondary_url','site_tagline'].forEach(id => document.getElementById(id).value='');
+      updateCtaPreview();
+    }
+    async function persistAdminSettings(payload, successMessage='Admin settings saved.') {
+      const status = document.getElementById('save_status'); status.textContent='Saving…';
+      const res = await adminFetch('/api/admin/settings',{method:'PUT',body:JSON.stringify(payload)});
+      if (res.ok) { applyAdminTheme(payload); cacheAdminTheme(payload); showFlash(successMessage); status.textContent='Saved ✓'; setTimeout(()=>status.textContent='',3000); return true; }
+      showFlash('Error saving settings.','error'); status.textContent=''; return false;
+    }
+    async function persistWebsiteSettings(payload, environment) {
+      const status = document.getElementById('save_status'), label = getEnvironmentLabel(environment);
+      status.textContent=`Saving ${label.toLowerCase()} settings…`;
+      const res = await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`,{method:'PUT',body:JSON.stringify(payload)});
+      if (res.ok) { websiteSettingsCache[environment]={...(websiteSettingsCache[environment]||{}),...payload}; showFlash(`${label} website settings saved.`); status.textContent=`${label} saved ✓`; setTimeout(()=>status.textContent='',3000); return true; }
+      const data = await res.json().catch(()=>({})); showFlash(data.error||`Error saving ${label.toLowerCase()} settings.`,'error'); status.textContent=''; return false;
+    }
+    async function resetAdminAppearance() {
+      if (!confirm('Reset the admin appearance to the default look?')) return;
+      adminColorKeys.forEach(key => setColorControl(key,''));
+      document.getElementById('admin_font_heading').value='';
+      document.getElementById('admin_font_body').value='';
+      document.getElementById('admin_dashboard_columns').value='3';
+      const payload = Object.fromEntries(adminAppearanceKeys.map(key=>[key, key==='admin_dashboard_columns'?'3':'']));
+      await persistAdminSettings(payload,'Admin appearance reset.');
+    }
+    function populateWebsiteSettings(settings) {
+      siteColorKeys.forEach(key => { const val=settings[key]||''; setColorControl(key,val); if(key==='color_accent'&&val) document.documentElement.style.setProperty('--preview-accent',val); });
+      const fh=settings.font_heading||'Playfair Display', fb=settings.font_body||'Inter';
+      document.getElementById('font_heading').value=fh; document.getElementById('font_body').value=fb;
+      document.getElementById('heading_preview').style.fontFamily=`'${fh}',serif`;
+      document.getElementById('body_preview').style.fontFamily=`'${fb}',sans-serif`;
+      loadGoogleFont(fh); loadGoogleFont(fb);
+      document.getElementById('cta_primary_text').value=settings.cta_primary_text||'';
+      document.getElementById('cta_primary_url').value=settings.cta_primary_url||'';
+      document.getElementById('cta_secondary_text').value=settings.cta_secondary_text||'';
+      document.getElementById('cta_secondary_url').value=settings.cta_secondary_url||'';
+      document.getElementById('site_tagline').value=settings.site_tagline||'';
+      updateCtaPreview();
+    }
+
+    const DEFAULT_GUIDE_EMAIL_BODY = `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
+  <p>Hi {{firstName}},</p>
+  <p>Thank you for requesting the guide. Here&#39;s the core idea — and the five patterns I see most often in the leaders I work with.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
+  <p>A Hidden Ceiling isn&#39;t a skill gap or a knowledge gap. It&#39;s an identity gap — the distance between who you&#39;ve learned to be as a professional, and who you&#39;ll need to become to lead with full impact.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert&#39;s Ceiling</h2>
+  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
+  <p style="margin-top:0;">You&#39;ve built real trust by keeping the peace. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
+  <p style="margin-top:0;">You built your reputation through personal execution. True delegation feels like risk rather than leverage.</p>
+  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
+  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes, you find yourself without a stable internal foundation.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p>These patterns show up differently depending on how you&#39;re wired. The Hidden Ceiling Assessment takes about 2 minutes and will identify which one is most active for you.</p>
+  <p style="margin-top:2rem;"><a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a></p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co.</p>
+</div>`;
+
+    function loadGuideEmailDefault() {
+      document.getElementById('guide_email_subject').value='Understanding Your Hidden Ceiling';
+      document.getElementById('guide_email_body').value=DEFAULT_GUIDE_EMAIL_BODY;
+    }
+    function populateAdminSettings(settings) {
+      adminColorKeys.forEach(key => setColorControl(key, settings[key]||''));
+      document.getElementById('admin_font_heading').value=settings.admin_font_heading||'';
+      document.getElementById('admin_font_body').value=settings.admin_font_body||'';
+      document.getElementById('admin_dashboard_columns').value=settings.admin_dashboard_columns||'3';
+      document.getElementById('rate_limit_disabled').checked=settings.rate_limit_disabled==='true';
+      applyAdminTheme(settings);
+      document.getElementById('contact_reply_enabled').checked=settings.contact_reply_enabled==='true';
+      document.getElementById('contact_reply_subject').value=settings.contact_reply_subject||'Got your message, {{firstName}}';
+      document.getElementById('contact_reply_body').value=settings.contact_reply_body||'';
+      document.getElementById('lead_magnet_enabled').checked=settings.lead_magnet_enabled==='true';
+      document.getElementById('guide_email_subject').value=settings.guide_email_subject||'Understanding Your Hidden Ceiling';
+      document.getElementById('guide_email_body').value=settings.guide_email_body||DEFAULT_GUIDE_EMAIL_BODY;
+    }
+    async function loadWebsiteSettings(environment) {
+      const label=getEnvironmentLabel(environment), status=document.getElementById('save_status');
+      status.textContent=`Loading ${label.toLowerCase()} settings…`;
+      const res=await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`);
+      const data=await res.json().catch(()=>({}));
+      if (!res.ok) { websiteSettingsReady=false; clearWebsiteSettingsForm(); setWebsiteEnvironmentStatus(data.error||`${label} settings are unavailable.`,'is-error'); updateSaveButtonLabel(); status.textContent=''; showFlash(data.error||`Unable to load ${label.toLowerCase()} settings.`,'error'); return; }
+      websiteSettingsCache[environment]=data.data||{};
+      populateWebsiteSettings(websiteSettingsCache[environment]);
+      websiteSettingsReady=true;
+      const warning=environment==='production'?'Production changes update the live site.':'Test changes stay isolated to the test site.';
+      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment==='production'?'is-warning':'');
+      updateSaveButtonLabel(); status.textContent='';
+    }
+    async function loadAdminSettings() {
+      const res=await adminFetch('/api/admin/settings');
+      const data=await res.json();
+      adminAppearanceSettings=data.data||{};
+      populateAdminSettings(adminAppearanceSettings);
+    }
+    async function saveAll() {
+      if (activeTab==='email-templates') {
+        const payload={ contact_reply_enabled:document.getElementById('contact_reply_enabled').checked?'true':'false', contact_reply_subject:document.getElementById('contact_reply_subject').value.trim(), contact_reply_body:document.getElementById('contact_reply_body').value.trim(), lead_magnet_enabled:document.getElementById('lead_magnet_enabled').checked?'true':'false', guide_email_subject:document.getElementById('guide_email_subject').value.trim(), guide_email_body:document.getElementById('guide_email_body').value.trim() };
+        await persistAdminSettings(payload,'Email settings saved.'); return;
+      }
+      if (activeTab==='admin') {
+        const payload={};
+        payload.admin_font_heading=document.getElementById('admin_font_heading').value;
+        payload.admin_font_body=document.getElementById('admin_font_body').value;
+        payload.admin_dashboard_columns=document.getElementById('admin_dashboard_columns').value;
+        payload.rate_limit_disabled=document.getElementById('rate_limit_disabled').checked?'true':'false';
+        adminColorKeys.forEach(key=>{payload[key]=document.getElementById(key).value.trim();});
+        await persistAdminSettings(payload); return;
+      }
+      if (!websiteSettingsReady) { showFlash('Load the selected site settings successfully before saving.','error'); return; }
+      const payload={};
+      siteColorKeys.forEach(key=>{payload[key]=document.getElementById(key).value.trim();});
+      payload.font_heading=document.getElementById('font_heading').value;
+      payload.font_body=document.getElementById('font_body').value;
+      payload.cta_primary_text=document.getElementById('cta_primary_text').value.trim();
+      payload.cta_primary_url=document.getElementById('cta_primary_url').value.trim();
+      payload.cta_secondary_text=document.getElementById('cta_secondary_text').value.trim();
+      payload.cta_secondary_url=document.getElementById('cta_secondary_url').value.trim();
+      payload.site_tagline=document.getElementById('site_tagline').value.trim();
+      await persistWebsiteSettings(payload,currentWebsiteEnvironment);
+    }
+
+    // Init settings
+    updateWebsiteTabLabel(); updateSaveButtonLabel(); loadAdminSettings();
+    setActiveEnvironment(currentWebsiteEnvironment);
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) setActiveSettingsTab(urlTab);
+    makeTabsSortable('.settings-tabs','settings_tab_order');
+
+    // ══════════════════════════════════════════════════════════════════════
+    // PAGE SECTIONS (lazy-loaded when tab is first opened)
+    // ══════════════════════════════════════════════════════════════════════
+    let sectionsLoaded = false;
+    const PAGES = [
+      { key:'home',      label:'Home' },
+      { key:'enneagram', label:'Enneagram' },
+      { key:'blog',      label:'Blog' },
+      { key:'tools',     label:'Resources' },
+    ];
+    let currentPage = 'home';
+    let allSections = [];
+    let orderDirty  = false;
+    let sectionsSortable = null;
+    const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
+
+    function renderTabs() {
+      const el = document.getElementById('pageTabs');
+      el.innerHTML = PAGES.map(p => `<button class="page-tab ${p.key===currentPage?'active':''}" onclick="switchPage('${p.key}')">${p.label}</button>`).join('');
+    }
+    function switchPage(page) {
+      currentPage=page; orderDirty=false;
+      document.getElementById('orderBadge').classList.remove('visible');
+      renderTabs(); loadSections();
+    }
+    async function loadSections() {
+      const res=await adminFetch('/api/admin/sections?page='+currentPage);
+      const data=await res.json();
+      allSections=data.data||[];
+      renderSections();
+    }
+    function renderSections() {
+      const list=document.getElementById('sectionList');
+      if (allSections.length===0) { list.innerHTML='<div style="color:#888;padding:24px;text-align:center;">No sections for this page.</div>'; return; }
+      list.innerHTML=allSections.map(s=>`
+        <div class="section-item" data-id="${s.id}">
+          <div class="section-header">
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
+            <span class="section-label-text">${escHtml(s.label)}</span>
+            <span class="section-key-badge">${escHtml(s.section_key)}</span>
+            <span class="status-badge ${s.status==='draft'?'status-draft':'status-published'}" id="statusBadge_${s.id}">${s.status==='draft'?'Draft':'Live'}</span>
+            <label class="toggle-wrap" title="${s.is_visible?'Visible — click to hide':'Hidden — click to show'}">
+              <input type="checkbox" ${s.is_visible?'checked':''} onchange="toggleVisibility(${parseInt(s.id,10)},this.checked)"/>
+              <span class="toggle-slider"></span>
+              <span class="toggle-label" id="visLabel_${s.id}">${s.is_visible?'Visible':'Hidden'}</span>
+            </label>
+            <button class="btn-expand" onclick="toggleDetail(${parseInt(s.id,10)})">Edit ▾</button>
+          </div>
+          <div class="section-detail" id="detail_${s.id}">
+            <div class="detail-row">
+              <div class="form-group" style="margin:0;"><label>Status</label><select class="form-control" id="status_${s.id}" onchange="updateStatus(${parseInt(s.id,10)})"><option value="published" ${s.status==='published'?'selected':''}>Published (Live)</option><option value="draft" ${s.status==='draft'?'selected':''}>Draft (Hidden)</option></select></div>
+              <div class="form-group" style="margin:0;"><label>Section Label <span style="color:#666;font-weight:400;">(admin display name)</span></label><input type="text" class="form-control" id="label_${s.id}" value="${escHtml(s.label)}" placeholder="Section name"/></div>
+            </div>
+            <div class="form-group"><label>Admin Notes <span style="color:#666;font-weight:400;">(private)</span></label><textarea class="form-control" id="notes_${s.id}" rows="3" placeholder="What is this section for?">${escHtml(s.admin_notes||'')}</textarea></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="saveSection(${parseInt(s.id,10)})">Save Changes</button>
+              <button class="btn btn-ghost btn-sm" onclick="toggleDetail(${parseInt(s.id,10)})">Cancel</button>
+            </div>
+          </div>
+        </div>`).join('');
+      if (sectionsSortable) sectionsSortable.destroy();
+      if (!dragSortingEnabled) { sectionsSortable=null; return; }
+      sectionsSortable=Sortable.create(list,{ handle:'.drag-handle', animation:150, ghostClass:'sortable-ghost', chosenClass:'sortable-chosen', onEnd() { orderDirty=true; document.getElementById('orderBadge').classList.add('visible'); } });
+    }
+    function toggleDetail(id) { document.getElementById('detail_'+id).classList.toggle('open'); }
+    async function toggleVisibility(id, visible) {
+      const res=await adminFetch('/api/admin/sections',{method:'PUT',body:JSON.stringify({id,is_visible:visible})});
+      if (res.ok) { const label=document.getElementById('visLabel_'+id); if(label) label.textContent=visible?'Visible':'Hidden'; showFlash(visible?'Section visible.':'Section hidden.'); const s=allSections.find(x=>x.id===id); if(s) s.is_visible=visible; }
+      else showFlash('Error updating visibility.','error');
+    }
+    function updateStatus(id) {
+      const val=document.getElementById('status_'+id).value, badge=document.getElementById('statusBadge_'+id);
+      if(badge){badge.className=`status-badge ${val==='draft'?'status-draft':'status-published'}`;badge.textContent=val==='draft'?'Draft':'Live';}
+    }
+    async function saveSection(id) {
+      const payload={id, status:document.getElementById('status_'+id).value, label:document.getElementById('label_'+id).value.trim(), admin_notes:document.getElementById('notes_'+id).value.trim()||null};
+      const res=await adminFetch('/api/admin/sections',{method:'PUT',body:JSON.stringify(payload)});
+      if(res.ok){showFlash('Section saved.');const s=allSections.find(x=>x.id===id);if(s){s.status=payload.status;s.label=payload.label;s.admin_notes=payload.admin_notes;}toggleDetail(id);renderSections();}
+      else showFlash('Error saving section.','error');
+    }
+    async function saveOrder() {
+      const items=document.querySelectorAll('#sectionList .section-item');
+      const orders=Array.from(items).map((el,i)=>({id:parseInt(el.dataset.id),sort_order:i}));
+      const res=await adminFetch('/api/admin/sections',{method:'PATCH',body:JSON.stringify({orders})});
+      if(res.ok){orderDirty=false;document.getElementById('orderBadge').classList.remove('visible');showFlash('Order saved.');}
+      else showFlash('Error saving order.','error');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // NAVIGATION (lazy-loaded when tab is first opened)
+    // ══════════════════════════════════════════════════════════════════════
+    let navLoaded = false;
+    let navLinks = [];
+    let footerLinks = [];
+
+    function renderNavLinks() {
+      const tbody=document.getElementById('navLinksBody');
+      if(navLinks.length===0){tbody.innerHTML='<tr><td colspan="4" class="table-empty">No links yet.</td></tr>';return;}
+      tbody.innerHTML=navLinks.map((link,i)=>`<tr data-index="${i}"><td><input type="text" value="${escHtml(link.label||'')}" onchange="updateNavLink(${i},'label',this.value)" placeholder="Label"/></td><td><input type="text" value="${escHtml(link.url||'')}" onchange="updateNavLink(${i},'url',this.value)" placeholder="URL"/></td><td style="text-align:center;"><input type="checkbox" ${link.visible?'checked':''} onchange="updateNavLink(${i},'visible',this.checked)"/></td><td><button type="button" class="btn btn-danger btn-sm" onclick="removeNavLink(${i})">&#x2715;</button></td></tr>`).join('');
+    }
+    function renderFooterLinks() {
+      const tbody=document.getElementById('footerLinksBody');
+      if(footerLinks.length===0){tbody.innerHTML='<tr><td colspan="4" class="table-empty">No footer links yet.</td></tr>';return;}
+      tbody.innerHTML=footerLinks.map((link,i)=>`<tr data-index="${i}"><td><input type="text" value="${escHtml(link.label||'')}" onchange="updateFooterLink(${i},'label',this.value)" placeholder="Label"/></td><td><input type="text" value="${escHtml(link.url||'')}" onchange="updateFooterLink(${i},'url',this.value)" placeholder="URL"/></td><td style="text-align:center;"><input type="checkbox" ${link.visible?'checked':''} onchange="updateFooterLink(${i},'visible',this.checked)"/></td><td><button type="button" class="btn btn-danger btn-sm" onclick="removeFooterLink(${i})">&#x2715;</button></td></tr>`).join('');
+    }
+    function addNavLink()    { navLinks.push({label:'',url:'',visible:true}); renderNavLinks(); }
+    function removeNavLink(i){ navLinks.splice(i,1); renderNavLinks(); }
+    function updateNavLink(i,field,value){ navLinks[i][field]=value; }
+    function addFooterLink()    { footerLinks.push({label:'',url:'',visible:true}); renderFooterLinks(); }
+    function removeFooterLink(i){ footerLinks.splice(i,1); renderFooterLinks(); }
+    function updateFooterLink(i,field,value){ footerLinks[i][field]=value; }
+
+    async function loadNavigation() {
+      const res=await adminFetch('/api/admin/navigation');
+      const data=await res.json();
+      if(!data.data) return;
+      const nav=data.data;
+      document.getElementById('brandName').value=nav.brand_name||'';
+      navLinks=Array.isArray(nav.nav_links)?nav.nav_links:[];
+      footerLinks=Array.isArray(nav.footer_links)&&nav.footer_links.length>0
+        ? nav.footer_links
+        : [{label:'Blog',url:'/blog.html',visible:true},{label:'Tools & Resources',url:'/tools.html',visible:true},{label:'The Enneagram',url:'/enneagram.html',visible:true},{label:'Hidden Ceiling Assessment',url:'/Hidden-Ceiling.html',visible:true}];
+      renderNavLinks(); renderFooterLinks();
+      if(nav.cta_button){document.getElementById('ctaLabel').value=nav.cta_button.label||'';document.getElementById('ctaUrl').value=nav.cta_button.url||'';document.getElementById('ctaVisible').checked=nav.cta_button.visible!==false;}
+    }
+    function collectNavLinks() {
+      return Array.from(document.querySelectorAll('#navLinksBody tr[data-index]')).map(row=>{const inputs=row.querySelectorAll('input');return{label:inputs[0].value,url:inputs[1].value,visible:inputs[2].checked};});
+    }
+    function collectFooterLinks() {
+      return Array.from(document.querySelectorAll('#footerLinksBody tr[data-index]')).map(row=>{const inputs=row.querySelectorAll('input');return{label:inputs[0].value,url:inputs[1].value,visible:inputs[2].checked};});
+    }
+    document.getElementById('navForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const payload={brand_name:document.getElementById('brandName').value.trim(),nav_links:collectNavLinks(),footer_links:collectFooterLinks(),cta_button:{label:document.getElementById('ctaLabel').value.trim(),url:document.getElementById('ctaUrl').value.trim(),visible:document.getElementById('ctaVisible').checked}};
+      const res=await adminFetch('/api/admin/navigation',{method:'PUT',body:JSON.stringify(payload)});
+      if(res.ok) showFlash('Navigation saved.');
+      else{const err=await res.json();showFlash(err.error||'Error saving navigation.','error');}
+    });
+  </script>
+</body>
+</html>
