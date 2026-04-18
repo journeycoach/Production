@@ -302,18 +302,25 @@
             nextSteps:   (rc.nextSteps && rc.nextSteps.length) ? rc.nextSteps : defaults.nextSteps,
         };
 
-        document.getElementById('hc-result-center').textContent = meta.centerLabel;
-        document.getElementById('hc-result-title').textContent = meta.title;
-        document.getElementById('hc-result-summary').textContent = emailSent
+        const elCenter      = document.getElementById('hc-result-center');
+        const elTitle       = document.getElementById('hc-result-title');
+        const elSummary     = document.getElementById('hc-result-summary');
+        const elDescription = document.getElementById('hc-result-description');
+        const elBlindspot   = document.getElementById('hc-result-blindspot');
+        const actionsList   = document.getElementById('hc-result-actions');
+        const elScoreGrid   = document.getElementById('hc-score-grid');
+
+        if (elCenter)      elCenter.textContent = meta.centerLabel;
+        if (elTitle)       elTitle.textContent = meta.title;
+        if (elSummary)     elSummary.textContent = emailSent
             ? `${meta.summary} Your personalized guide is already on its way to ${state.email}.`
             : `${meta.summary} I could not send the email automatically, so your guide is available below right away.`;
-        document.getElementById('hc-result-description').textContent = meta.description;
-        document.getElementById('hc-result-blindspot').textContent = meta.blindspot;
+        if (elDescription) elDescription.textContent = meta.description;
+        if (elBlindspot)   elBlindspot.textContent = meta.blindspot;
 
-        const actionsList = document.getElementById('hc-result-actions');
-        actionsList.innerHTML = meta.nextSteps.map((item) => `<li>${escapeAttr(item)}</li>`).join('');
+        if (actionsList) actionsList.innerHTML = meta.nextSteps.map((item) => `<li>${escapeAttr(item)}</li>`).join('');
 
-        document.getElementById('hc-score-grid').innerHTML = [
+        if (elScoreGrid) elScoreGrid.innerHTML = [
             { label: 'Heart', value: scores.heart },
             { label: 'Head',  value: scores.head },
             { label: 'Gut',   value: scores.action }
@@ -326,8 +333,7 @@
 
         if (calendly_url) {
             const btn = document.getElementById('hc-calendly-btn');
-            btn.href = calendly_url;
-            btn.style.display = '';
+            if (btn) { btn.href = calendly_url; btn.style.display = ''; }
         }
 
         form.hidden = true;

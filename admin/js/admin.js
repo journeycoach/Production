@@ -24,13 +24,11 @@ const ADMIN_THEME_SETTING_KEYS = [
 
 const ADMIN_PAGE_LABELS = {
   'dashboard.html': 'Dashboard',
-  'settings.html': 'Site Settings',
-  'sections.html': 'Page Sections',
+  'site.html': 'Site Console',
   'posts.html': 'Blog Posts',
   'post-edit.html': 'Post Editor',
   'testimonials.html': 'Testimonials',
   'tools.html': 'Tools & Resources',
-  'navigation.html': 'Navigation',
   'bookmarks.html': 'Bookmarks',
   'contacts.html': 'Contact Submissions'
 };
