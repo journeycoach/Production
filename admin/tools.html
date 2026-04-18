@@ -237,7 +237,7 @@
 
   <!-- Vercel Blob client upload (loaded on demand) -->
   <script type="module">
-    import { upload } from 'https://esm.sh/@vercel/blob/client';
+    import { upload } from 'https://esm.sh/@vercel/blob@2.3.3/client';
 
     async function uploadBlob(file, options = {}) {
       return upload(file.name, file, {
