@@ -24,14 +24,6 @@
     .settings-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
     .settings-tab-panel { display: none; }
     .settings-tab-panel.is-active { display: block; }
-    .environment-bar { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 6px; padding: 18px 20px; margin-bottom: 24px; }
-    .environment-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
-    .environment-tab { background: transparent; color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
-    .environment-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
-    .environment-tab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
-    .environment-status { font-size: 0.85rem; color: var(--admin-muted); line-height: 1.5; }
-    .environment-status.is-warning { color: #d9a15e; }
-    .environment-status.is-error { color: #e07070; }
     .color-row { display: flex; align-items: center; gap: 12px; }
     .color-row input[type="color"] { width: 48px; height: 36px; padding: 2px; border: 1px solid var(--admin-border); border-radius: 4px; background: none; cursor: pointer; }
     .color-row input[type="text"] { flex: 1; font-family: monospace; }
@@ -118,7 +110,6 @@
         <div class="guide-box">
           <strong>About Site Settings</strong>
           Use the tabs below to switch between public website settings and admin-only appearance settings.
-          Website settings can target either the Test or Production site. Admin appearance settings only affect this admin interface.
         </div>
 
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
@@ -129,15 +120,6 @@
 
         <!-- Website Settings -->
         <section class="settings-tab-panel is-active" data-tab-panel="website" role="tabpanel">
-          <div class="environment-bar">
-            <strong style="display:block;margin-bottom:4px;">Website Environment</strong>
-            <div class="environment-status" id="website_env_status">Choose which site's public settings you want to edit.</div>
-            <div class="environment-tabs" role="tablist" aria-label="Website environments">
-              <button type="button" class="environment-tab" data-environment="test">Test Site</button>
-              <button type="button" class="environment-tab" data-environment="production">Production Site</button>
-            </div>
-          </div>
-
           <div class="card">
             <div class="card-title">Brand Colors</div>
             <div class="guide-box" style="margin-bottom:20px;"><strong>Tip</strong>Use the color picker or type a hex value directly. The accent gold is your primary brand color — it appears on buttons, links, and highlights.</div>
@@ -394,12 +376,9 @@
     // SETTINGS
     // ══════════════════════════════════════════════════════════════════════
     let activeTab = 'website';
-    const currentHost = window.location.hostname.toLowerCase();
-    const currentSiteEnvironment = currentHost === 'journeycoach.co' || currentHost.endsWith('.journeycoach.co') ? 'production' : 'test';
-    let currentWebsiteEnvironment = localStorage.getItem('website_settings_environment') || currentSiteEnvironment;
     let websiteSettingsReady = false;
     let adminAppearanceSettings = {};
-    const websiteSettingsCache = {};
+    let websiteSettingsCache = {};
 
     const siteColorKeys  = ['color_accent','color_green','color_bg','color_text'];
     const adminColorKeys = ['admin_color_accent','admin_color_bg','admin_color_card','admin_color_text','admin_color_muted','admin_color_border','admin_success','admin_success_bg','admin_notice_bg','admin_notice_text','admin_notice_accent'];
@@ -451,22 +430,12 @@
       document.getElementById('cta_preview_secondary').style.display = sText ? 'inline-block' : 'none';
     }
 
-    function getEnvironmentLabel(e) { return e === 'production' ? 'Production' : 'Test'; }
-    function setWebsiteEnvironmentStatus(msg, tone='') {
-      const el = document.getElementById('website_env_status');
-      el.textContent = msg; el.classList.remove('is-warning','is-error');
-      if (tone) el.classList.add(tone);
-    }
     function updateSaveButtonLabel() {
       const btn = document.getElementById('save_button'); if (!btn) return;
       if (activeTab === 'admin')           { btn.textContent = 'Save Admin Settings'; btn.disabled = false; return; }
       if (activeTab === 'email-templates') { btn.textContent = 'Save Email Settings'; btn.disabled = false; return; }
-      btn.textContent = `Save ${getEnvironmentLabel(currentWebsiteEnvironment)} Website Settings`;
+      btn.textContent = 'Save Website Settings';
       btn.disabled = !websiteSettingsReady;
-    }
-    function updateWebsiteTabLabel() {
-      const tab = document.getElementById('website_settings_tab'); if (!tab) return;
-      tab.textContent = `${getEnvironmentLabel(currentWebsiteEnvironment)} Settings`;
     }
     function setActiveSettingsTab(tabName) {
       activeTab = tabName;
@@ -490,19 +459,6 @@
       });
     });
 
-    function setActiveEnvironment(environment) {
-      currentWebsiteEnvironment = environment;
-      websiteSettingsReady = false;
-      localStorage.setItem('website_settings_environment', environment);
-      document.querySelectorAll('.environment-tab').forEach(b => b.classList.toggle('is-active', b.dataset.environment===environment));
-      const label = getEnvironmentLabel(environment);
-      const warning = environment==='production' ? 'Production changes update the live site.' : 'Test changes stay isolated to the test site.';
-      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment==='production' ? 'is-warning' : '');
-      updateWebsiteTabLabel(); updateSaveButtonLabel();
-      loadWebsiteSettings(environment);
-    }
-    document.querySelectorAll('.environment-tab').forEach(b => b.addEventListener('click', () => setActiveEnvironment(b.dataset.environment)));
-
     function setColorControl(key, value='') {
       const picker = document.getElementById('pick_'+key), text = document.getElementById(key), swatch = document.getElementById('sw_'+key);
       const fallback = adminAppearanceColorDefaults[key] || '#000000';
@@ -525,12 +481,12 @@
       if (res.ok) { applyAdminTheme(payload); cacheAdminTheme(payload); showFlash(successMessage); status.textContent='Saved ✓'; setTimeout(()=>status.textContent='',3000); return true; }
       showFlash('Error saving settings.','error'); status.textContent=''; return false;
     }
-    async function persistWebsiteSettings(payload, environment) {
-      const status = document.getElementById('save_status'), label = getEnvironmentLabel(environment);
-      status.textContent=`Saving ${label.toLowerCase()} settings…`;
-      const res = await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`,{method:'PUT',body:JSON.stringify(payload)});
-      if (res.ok) { websiteSettingsCache[environment]={...(websiteSettingsCache[environment]||{}),...payload}; showFlash(`${label} website settings saved.`); status.textContent=`${label} saved ✓`; setTimeout(()=>status.textContent='',3000); return true; }
-      const data = await res.json().catch(()=>({})); showFlash(data.error||`Error saving ${label.toLowerCase()} settings.`,'error'); status.textContent=''; return false;
+    async function persistWebsiteSettings(payload) {
+      const status = document.getElementById('save_status');
+      status.textContent='Saving settings…';
+      const res = await adminFetch('/api/admin/settings',{method:'PUT',body:JSON.stringify(payload)});
+      if (res.ok) { websiteSettingsCache={...websiteSettingsCache,...payload}; showFlash('Website settings saved.'); status.textContent='Saved ✓'; setTimeout(()=>status.textContent='',3000); return true; }
+      const data = await res.json().catch(()=>({})); showFlash(data.error||'Error saving settings.','error'); status.textContent=''; return false;
     }
     async function resetAdminAppearance() {
       if (!confirm('Reset the admin appearance to the default look?')) return;
@@ -603,17 +559,15 @@
       document.getElementById('guide_email_subject').value=settings.guide_email_subject||'Understanding Your Hidden Ceiling';
       document.getElementById('guide_email_body').value=settings.guide_email_body||DEFAULT_GUIDE_EMAIL_BODY;
     }
-    async function loadWebsiteSettings(environment) {
-      const label=getEnvironmentLabel(environment), status=document.getElementById('save_status');
-      status.textContent=`Loading ${label.toLowerCase()} settings…`;
-      const res=await adminFetch(`/api/admin/settings?environment=${encodeURIComponent(environment)}`);
+    async function loadWebsiteSettings() {
+      const status=document.getElementById('save_status');
+      status.textContent='Loading settings…';
+      const res=await adminFetch('/api/admin/settings');
       const data=await res.json().catch(()=>({}));
-      if (!res.ok) { websiteSettingsReady=false; clearWebsiteSettingsForm(); setWebsiteEnvironmentStatus(data.error||`${label} settings are unavailable.`,'is-error'); updateSaveButtonLabel(); status.textContent=''; showFlash(data.error||`Unable to load ${label.toLowerCase()} settings.`,'error'); return; }
-      websiteSettingsCache[environment]=data.data||{};
-      populateWebsiteSettings(websiteSettingsCache[environment]);
+      if (!res.ok) { websiteSettingsReady=false; clearWebsiteSettingsForm(); updateSaveButtonLabel(); status.textContent=''; showFlash(data.error||'Unable to load website settings.','error'); return; }
+      websiteSettingsCache=data.data||{};
+      populateWebsiteSettings(websiteSettingsCache);
       websiteSettingsReady=true;
-      const warning=environment==='production'?'Production changes update the live site.':'Test changes stay isolated to the test site.';
-      setWebsiteEnvironmentStatus(`Editing ${label} website settings. ${warning}`, environment==='production'?'is-warning':'');
       updateSaveButtonLabel(); status.textContent='';
     }
     async function loadAdminSettings() {
@@ -646,12 +600,12 @@
       payload.cta_secondary_text=document.getElementById('cta_secondary_text').value.trim();
       payload.cta_secondary_url=document.getElementById('cta_secondary_url').value.trim();
       payload.site_tagline=document.getElementById('site_tagline').value.trim();
-      await persistWebsiteSettings(payload,currentWebsiteEnvironment);
+      await persistWebsiteSettings(payload);
     }
 
     // Init settings
-    updateWebsiteTabLabel(); updateSaveButtonLabel(); loadAdminSettings();
-    setActiveEnvironment(currentWebsiteEnvironment);
+    updateSaveButtonLabel(); loadAdminSettings();
+    loadWebsiteSettings();
     const urlTab = new URLSearchParams(window.location.search).get('tab');
     if (urlTab) setActiveSettingsTab(urlTab);
     makeTabsSortable('.settings-tabs','settings_tab_order');
