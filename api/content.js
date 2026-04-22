@@ -204,7 +204,15 @@ function renderPostHtml(post) {
     .post-content blockquote{border-left:4px solid var(--color-accent-gold);padding-left:1.5rem;margin:0 0 1.5rem;font-style:italic;color:var(--color-text-primary)}
     .post-content img{max-width:100%;border-radius:4px;margin:2rem 0}
     .post-content a{color:var(--color-accent-gold)}
-    .post-article{max-width:800px;margin:0 auto;padding:8rem 1.5rem 4rem}
+    .post-article{max-width:1140px;margin:0 auto;padding:8rem 1.5rem 4rem}
+    .post-layout{display:grid;grid-template-columns:1fr 300px;gap:3.5rem;align-items:start}
+    .post-sidebar-inner{position:sticky;top:100px}
+    .sidebar-cta{background:var(--color-bg-secondary);border:1px solid rgba(255,255,255,.06);border-top:3px solid var(--color-accent-gold);border-radius:0 0 8px 8px;padding:1.75rem}
+    .sidebar-cta-eyebrow{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent-gold);font-weight:600;margin-bottom:.6rem}
+    .sidebar-cta h3{font-family:var(--font-heading);font-size:1.2rem;color:var(--color-text-primary);margin-bottom:.75rem;line-height:1.3}
+    .sidebar-cta p{color:var(--color-text-secondary);font-size:.88rem;line-height:1.65;margin-bottom:1.25rem}
+    .sidebar-cta .btn-primary{display:block;text-align:center;font-size:.85rem;padding:.65rem 1rem}
+    @media(max-width:860px){.post-layout{grid-template-columns:1fr}.post-sidebar{order:-1}.post-sidebar-inner{position:static}}
     .post-share{display:flex;align-items:center;gap:.75rem;margin-top:3rem;padding-top:2rem;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap}
     .post-share-label{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-muted);margin-right:.25rem}
     .share-btn{display:inline-flex;align-items:center;gap:.45rem;padding:.45rem 1rem;border-radius:4px;font-size:.82rem;font-weight:500;text-decoration:none;border:1px solid transparent;cursor:pointer;background:none;transition:opacity .2s,background .2s}
@@ -237,33 +245,44 @@ function renderPostHtml(post) {
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
         Back to all posts
       </a>
-      ${heroHtml}
-      <header class="post-header">
-        <h1 class="post-title">${esc(title)}</h1>
-        <div class="post-meta">${formattedDate ? esc(formattedDate) + ' &nbsp;|&nbsp; ' : ''}By ${esc(author || 'John Paine')}</div>
-      </header>
-      <div class="post-content">${body || '<p><em>Content could not be loaded.</em></p>'}</div>
-      <div style="margin:3rem 0;padding:2.5rem;background:var(--color-bg-secondary);border-left:3px solid var(--color-accent-gold);border-radius:0 8px 8px 0;">
-        <p style="font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent-gold);margin-bottom:.5rem;font-weight:600;">Free · 2 Minutes</p>
-        <h3 style="font-family:var(--font-heading);font-size:1.5rem;color:#fff;margin-bottom:.75rem;">Discover your leadership blind spot</h3>
-        <p style="color:var(--color-text-secondary);line-height:1.7;margin-bottom:1.5rem;font-size:.95rem;">The Hidden Ceiling Assessment reveals the specific pattern that limits leaders in your center — and what to do about it. Takes about 2 minutes.</p>
-        <a href="/Hidden-Ceiling.html" class="btn-primary" style="font-size:.9rem;padding:.7rem 1.5rem;">Take the Free Assessment</a>
-      </div>
-      <div class="post-share">
-        <span class="post-share-label">Share</span>
-        <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-linkedin">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.23 0z"/></svg>
-          LinkedIn
-        </a>
-        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent((title || '') + ' \u2014 Your Journey Coach')}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-x">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          X
-        </a>
-        <button id="share-copy" class="share-btn share-btn-copy" data-url="${esc(postUrl)}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Link
-        </button>
-      </div>
+      <div class="post-layout">
+        <!-- Main content -->
+        <div class="post-main">
+          ${heroHtml}
+          <header class="post-header">
+            <h1 class="post-title">${esc(title)}</h1>
+            <div class="post-meta">${formattedDate ? esc(formattedDate) + ' &nbsp;|&nbsp; ' : ''}By ${esc(author || 'John Paine')}</div>
+          </header>
+          <div class="post-content">${body || '<p><em>Content could not be loaded.</em></p>'}</div>
+          <div class="post-share">
+            <span class="post-share-label">Share</span>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-linkedin">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.23 0z"/></svg>
+              LinkedIn
+            </a>
+            <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent((title || '') + ' \u2014 Your Journey Coach')}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-x">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              X
+            </a>
+            <button id="share-copy" class="share-btn share-btn-copy" data-url="${esc(postUrl)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div><!-- /.post-main -->
+
+        <!-- Sidebar -->
+        <aside class="post-sidebar">
+          <div class="post-sidebar-inner">
+            <div class="sidebar-cta">
+              <p class="sidebar-cta-eyebrow">Free · 2 Minutes</p>
+              <h3>Discover your leadership blind spot</h3>
+              <p>The Hidden Ceiling Assessment reveals the specific pattern that limits leaders in your center — and what to do about it.</p>
+              <a href="/Hidden-Ceiling.html" class="btn-primary">Take the Free Assessment</a>
+            </div>
+          </div>
+        </aside>
+      </div><!-- /.post-layout -->
     </article>
   </main>
   <footer style="padding:3rem 0;background:var(--color-bg-primary);border-top:1px solid rgba(255,255,255,.05);margin-top:4rem;">
