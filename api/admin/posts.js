@@ -2,6 +2,27 @@ import { sql } from '../_db.js';
 import { getToken, requireAuth, verifyToken } from '../_auth.js';
 import { handleUpload } from '@vercel/blob/client';
 
+function toSlug(title) {
+  return String(title || '')
+    .toLowerCase()
+    .replace(/['']/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 80);
+}
+
+async function uniqueSlug(base, excludeId = null) {
+  let slug = base;
+  let n = 2;
+  while (true) {
+    const rows = excludeId
+      ? await sql`SELECT id FROM posts WHERE slug = ${slug} AND id != ${excludeId}`
+      : await sql`SELECT id FROM posts WHERE slug = ${slug}`;
+    if (!rows.length) return slug;
+    slug = `${base}-${n++}`;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -33,8 +54,15 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      // Ensure slug column exists and back-fill any posts missing one
+      await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
+      const unslugged = await sql`SELECT id, title FROM posts WHERE slug IS NULL OR slug = ''`;
+      for (const p of unslugged) {
+        const slug = await uniqueSlug(toSlug(p.title), p.id);
+        await sql`UPDATE posts SET slug = ${slug} WHERE id = ${p.id}`;
+      }
       const rows = await sql`
-        SELECT id, title, post_date, author, image_url, summary, body
+        SELECT id, title, post_date, author, image_url, summary, body, slug
         FROM posts
         ORDER BY post_date DESC
       `;
@@ -46,18 +74,21 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { title, post_date, author = 'John Paine', image_url, summary, body } = req.body || {};
+    const { title, post_date, author = 'John Paine', image_url, summary, body, slug: rawSlug } = req.body || {};
     if (!title) return res.status(400).json({ error: 'title is required' });
     try {
+      await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
+      const slug = await uniqueSlug(toSlug(rawSlug || title));
       const rows = await sql`
-        INSERT INTO posts (title, post_date, author, image_url, summary, body)
+        INSERT INTO posts (title, post_date, author, image_url, summary, body, slug)
         VALUES (
           ${title},
           ${post_date || null},
           ${author},
           ${image_url || null},
           ${summary || null},
-          ${body || null}
+          ${body || null},
+          ${slug}
         )
         RETURNING *
       `;
@@ -69,18 +100,24 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { id, title, post_date, author, image_url, summary, body } = req.body || {};
+    const { id, title, post_date, author, image_url, summary, body, slug: rawSlug } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
     try {
+      // If a new slug is explicitly provided, use it (unique-ified); otherwise keep existing
+      let slugUpdate = null;
+      if (rawSlug !== undefined) {
+        slugUpdate = await uniqueSlug(toSlug(rawSlug || title || ''), id);
+      }
       const rows = await sql`
         UPDATE posts
         SET
-          title = COALESCE(${title}, title),
+          title     = COALESCE(${title}, title),
           post_date = COALESCE(${post_date || null}, post_date),
-          author = COALESCE(${author}, author),
+          author    = COALESCE(${author}, author),
           image_url = ${image_url !== undefined ? image_url : null},
-          summary = ${summary !== undefined ? summary : null},
-          body = ${body !== undefined ? body : null}
+          summary   = ${summary !== undefined ? summary : null},
+          body      = ${body !== undefined ? body : null},
+          slug      = COALESCE(${slugUpdate}, slug)
         WHERE id = ${id}
         RETURNING *
       `;

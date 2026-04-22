@@ -131,9 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
             card.appendChild(readMore);
 
             card.addEventListener('click', () => {
-                renderSinglePost(index);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                window.location.hash = 'post-' + (post.id || index);
+                if (post.slug) {
+                    window.location.href = '/blog/' + post.slug;
+                } else {
+                    renderSinglePost(index);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.location.hash = 'post-' + (post.id || index);
+                }
             });
 
             blogGrid.appendChild(card);
@@ -172,7 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
         postContent.appendChild(bodyContainer);
 
         // Update OG meta tags for this post
-        const postUrl = 'https://journeycoach.co/blog.html#post-' + (post.id || index);
+        const postUrl = post.slug
+            ? 'https://journeycoach.co/blog/' + post.slug
+            : 'https://journeycoach.co/blog.html#post-' + (post.id || index);
         const setMeta = (prop, val) => {
             const el = document.querySelector(`meta[property="${prop}"]`);
             if (el) el.setAttribute('content', val);
@@ -185,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (canonical) canonical.setAttribute('href', postUrl);
 
         // Wire up share buttons
-        const shareUrl  = encodeURIComponent('https://journeycoach.co/blog.html#post-' + (post.id || index));
+        const shareUrl  = encodeURIComponent(postUrl);
         const shareText = encodeURIComponent(post.title + ' — Your Journey Coach');
 
         document.getElementById('share-linkedin').href =

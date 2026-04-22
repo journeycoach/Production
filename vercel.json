@@ -4,6 +4,8 @@
     { "source": "/index.html", "destination": "/", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/blog/:slug", "destination": "/api/content?type=post&slug=:slug" },
+    { "source": "/sitemap.xml", "destination": "/api/content?type=sitemap" },
     { "source": "/api/content/:type", "destination": "/api/content?type=:type" },
     { "source": "/api/admin/sections/:page", "destination": "/api/admin/sections?page=:page" },
     { "source": "/admin", "destination": "/admin/index.html" },
