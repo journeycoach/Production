@@ -59,7 +59,6 @@
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <link rel="apple-touch-icon" href="assets/images/favicon.png">
     <link rel="canonical" href="https://journeycoach.co/">
-    <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 </head>
 
 <body>
@@ -444,33 +443,7 @@
                 </form>
             </div>
 
-            <!-- Calendly divider -->
-            <div class="fade-in-scroll" style="width: 100%; max-width: 680px; padding: 0 1.5rem; margin-top: 2rem; text-align: center;">
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08);"></div>
-                    <span style="font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; color: var(--color-text-muted); white-space: nowrap;">or, if you're ready now</span>
-                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08);"></div>
-                </div>
-                <button onclick="Calendly.initPopupWidget({url:'https://calendly.com/johnpaine/alignment-call'});return false;" style="
-                    padding: 1rem 2.5rem;
-                    background: var(--color-accent-gold);
-                    border: none;
-                    color: #0a0e14;
-                    font-family: var(--font-body);
-                    font-size: 0.85rem;
-                    font-weight: 600;
-                    letter-spacing: 2px;
-                    text-transform: uppercase;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    transition: opacity 0.2s ease, transform 0.2s ease;
-                " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-                    Reserve a Conversation
-                </button>
-                <p style="margin-top: 0.85rem; font-size: 0.8rem; color: var(--color-text-muted);">30-minute alignment call &mdash; no commitment</p>
-            </div>
-
-            <style>
+<style>
                 .cf-label {
                     display: block;
                     font-size: 0.8rem;
@@ -798,7 +771,6 @@
         });
     </script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=renderContactTurnstile&render=explicit" async defer></script>
-    <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 </body>
 
 </html>
