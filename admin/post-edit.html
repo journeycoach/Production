@@ -6,6 +6,91 @@
   <title>Edit Post — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+  <style>
+    .post-edit-shell {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      transition: grid-template-columns 0.25s ease;
+    }
+    .post-edit-shell.preview-open {
+      grid-template-columns: 1fr 1fr;
+    }
+    .preview-panel {
+      display: none;
+      flex-direction: column;
+      background: var(--admin-card-bg);
+      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: sticky;
+      top: 72px;
+      height: calc(100vh - 90px);
+    }
+    .post-edit-shell.preview-open .preview-panel {
+      display: flex;
+    }
+    .preview-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--admin-border);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--admin-accent);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .preview-live-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--admin-success);
+      margin-right: 0.4rem;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+    #previewPane {
+      flex: 1;
+      border: none;
+      width: 100%;
+      background: #f5f0e8;
+    }
+    .btn-preview-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: 1px solid var(--admin-accent);
+      color: var(--admin-accent);
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-preview-toggle:hover,
+    .btn-preview-toggle.active {
+      background: var(--admin-accent);
+      color: #1a1d1e;
+    }
+    @media (max-width: 1100px) {
+      .post-edit-shell.preview-open {
+        grid-template-columns: 1fr;
+      }
+      .post-edit-shell.preview-open .preview-panel {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="admin-wrapper">
@@ -19,9 +104,13 @@
     <main class="admin-main">
       <div class="admin-page-title">
         <h1 id="pageTitle">New Post</h1>
-        <a href="posts.html" class="back-link">&#8592; All Posts</a>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <button class="btn-preview-toggle" id="previewToggle" onclick="togglePreview()">&#9654; Preview</button>
+          <a href="posts.html" class="back-link">&#8592; All Posts</a>
+        </div>
       </div>
 
+      <div class="post-edit-shell" id="postEditShell">
       <div class="card">
         <form id="postForm">
           <div class="form-group">
@@ -66,18 +155,25 @@
           </div>
           <div class="form-group">
             <label for="body">Post Body — HTML supported</label>
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-              <button type="button" class="btn btn-ghost btn-sm" id="previewToggle" onclick="togglePreview()">Show Preview</button>
-            </div>
-            <textarea id="body" rows="20" placeholder="Write your post content here. HTML tags are supported (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;a href=&quot;...&quot;&gt;)."></textarea>
-            <iframe id="previewPane" sandbox="allow-same-origin" class="preview-pane" style="display:none;width:100%;min-height:400px;" title="Post preview"></iframe>
+            <textarea id="body" rows="24" placeholder="Write your post content here. HTML tags are supported (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;a href=&quot;...&quot;&gt;)."></textarea>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary" id="saveBtn">Publish Post</button>
             <a href="posts.html" class="btn btn-secondary">Cancel</a>
           </div>
         </form>
+      </div><!-- /.card -->
+
+      <!-- Live Preview Panel -->
+      <div class="preview-panel" id="previewPanel">
+        <div class="preview-panel-header">
+          <span><span class="preview-live-dot"></span>Live Preview</span>
+          <span style="color:var(--admin-muted);font-size:0.72rem;text-transform:none;letter-spacing:0;">Updates as you type</span>
+        </div>
+        <iframe id="previewPane" sandbox="allow-same-origin allow-scripts" title="Post preview"></iframe>
       </div>
+
+      </div><!-- /.post-edit-shell -->
     </main>
   </div>
 
@@ -250,6 +346,83 @@
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('id');
     let previewVisible = false;
+    let previewDebounce = null;
+
+    function buildPreviewHtml() {
+      const title      = document.getElementById('title').value   || 'Untitled Post';
+      const author     = document.getElementById('author').value  || 'John Paine';
+      const body       = document.getElementById('body').value    || '';
+      const imageUrl   = document.getElementById('imageUrl').value.trim();
+      const dateVal    = document.getElementById('postDate').value;
+      const formattedDate = dateVal
+        ? new Date(dateVal).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : '';
+
+      const heroHtml = imageUrl
+        ? `<img src="${imageUrl.replace(/"/g,'&quot;')}" alt="" style="width:100%;max-height:400px;object-fit:cover;border-radius:8px;margin-bottom:2.5rem;">`
+        : '';
+
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/variables.css?v=6">
+<link rel="stylesheet" href="/css/style.css?v=6">
+<style>
+  body { padding: 2rem 2rem 4rem; background: var(--color-bg-primary); }
+  .post-layout { display: grid; grid-template-columns: 1fr 260px; gap: 2.5rem; align-items: start; }
+  .post-header { margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 1.5rem; }
+  .post-title { font-family: var(--font-heading); font-size: clamp(1.6rem,4vw,2.4rem); margin-bottom:.75rem; line-height:1.2; color: var(--color-text-primary); }
+  .post-meta { color: var(--color-text-muted); font-size: .85rem; }
+  .post-content { font-size: 1.05rem; line-height: 1.8; color: var(--color-text-secondary); }
+  .post-content h2,.post-content h3 { color: var(--color-text-primary); margin-top:2rem; margin-bottom:.75rem; }
+  .post-content p { margin-bottom: 1.25rem; }
+  .post-content ul,.post-content ol { margin-bottom:1.25rem; padding-left:1.75rem; }
+  .post-content li { margin-bottom:.4rem; }
+  .post-content blockquote { border-left:4px solid var(--color-accent-gold); padding-left:1.25rem; margin:0 0 1.25rem; font-style:italic; color:var(--color-text-primary); }
+  .post-content a { color: var(--color-accent-gold); }
+  .post-content img { max-width:100%; border-radius:4px; margin:1.5rem 0; }
+  .sidebar-cta { background:var(--color-bg-secondary); border:1px solid rgba(255,255,255,.06); border-top:3px solid var(--color-accent-gold); border-radius:0 0 8px 8px; padding:1.5rem; position:sticky; top:1rem; }
+  .sidebar-cta-eyebrow { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--color-accent-gold); font-weight:600; margin-bottom:.5rem; }
+  .sidebar-cta h3 { font-family:var(--font-heading); font-size:1.1rem; color:var(--color-text-primary); margin-bottom:.6rem; line-height:1.3; }
+  .sidebar-cta p { color:var(--color-text-secondary); font-size:.85rem; line-height:1.6; margin-bottom:1rem; }
+  .sidebar-cta a { display:block; text-align:center; background:var(--color-accent-gold); color:#1a1d1e; text-decoration:none; padding:.6rem 1rem; border-radius:4px; font-size:.82rem; font-weight:600; letter-spacing:.03em; }
+</style>
+</head>
+<body>
+<div class="post-layout">
+  <div class="post-main">
+    ${heroHtml}
+    <header class="post-header">
+      <h1 class="post-title">${title.replace(/</g,'&lt;')}</h1>
+      <div class="post-meta">${formattedDate}${formattedDate ? ' &nbsp;|&nbsp; ' : ''}By ${author.replace(/</g,'&lt;')}</div>
+    </header>
+    <div class="post-content">${body}</div>
+  </div>
+  <aside>
+    <div class="sidebar-cta">
+      <p class="sidebar-cta-eyebrow">Free · 2 Minutes</p>
+      <h3>Discover your leadership blind spot</h3>
+      <p>The Hidden Ceiling Assessment reveals the specific pattern that limits leaders in your center — and what to do about it.</p>
+      <a href="#">Take the Free Assessment</a>
+    </div>
+  </aside>
+</div>
+</body>
+</html>`;
+    }
+
+    function refreshPreview() {
+      if (!previewVisible) return;
+      document.getElementById('previewPane').srcdoc = buildPreviewHtml();
+    }
+
+    function schedulePreviewRefresh() {
+      clearTimeout(previewDebounce);
+      previewDebounce = setTimeout(refreshPreview, 300);
+    }
 
     if (postId) {
       document.getElementById('pageTitle').textContent = 'Edit Post';
@@ -272,6 +445,7 @@
       document.getElementById('body').value = post.body || '';
       updateImagePreview();
       if (post.image_url && window._setImageZoneFromUrl) window._setImageZoneFromUrl(post.image_url);
+      refreshPreview();
       if (post.post_date) {
         // Convert ISO date to datetime-local format
         const d = new Date(post.post_date);
@@ -293,23 +467,23 @@
 
     function togglePreview() {
       previewVisible = !previewVisible;
-      const pane = document.getElementById('previewPane');
-      const btn = document.getElementById('previewToggle');
+      const shell = document.getElementById('postEditShell');
+      const btn   = document.getElementById('previewToggle');
       if (previewVisible) {
-        pane.style.display = 'block';
-        pane.srcdoc = document.getElementById('body').value;
-        btn.textContent = 'Hide Preview';
+        shell.classList.add('preview-open');
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        refreshPreview();
       } else {
-        pane.style.display = 'none';
-        btn.textContent = 'Show Preview';
+        shell.classList.remove('preview-open');
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview';
       }
     }
 
-    // Live update preview when body changes
-    document.getElementById('body').addEventListener('input', () => {
-      if (previewVisible) {
-        document.getElementById('previewPane').srcdoc = document.getElementById('body').value;
-      }
+    // Live-update preview on any form field change
+    ['title','author','body','imageUrl','postDate'].forEach(id => {
+      document.getElementById(id).addEventListener('input', schedulePreviewRefresh);
     });
 
     document.getElementById('postForm').addEventListener('submit', async (e) => {
