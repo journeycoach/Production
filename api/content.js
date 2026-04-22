@@ -64,6 +64,7 @@ export default async function handler(req, res) {
       }
 
       case 'posts': {
+        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const rows = await sql`
           SELECT id, title, post_date as date, author, image_url, summary, body, slug
           FROM posts
@@ -75,6 +76,7 @@ export default async function handler(req, res) {
       case 'post': {
         const slug = req.query?.slug ?? new URL(req.url, 'http://localhost').searchParams.get('slug');
         if (!slug) return res.status(400).json({ error: 'slug is required' });
+        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const rows = await sql`
           SELECT id, title, post_date, author, image_url, summary, body, slug
           FROM posts WHERE slug = ${slug} LIMIT 1
@@ -88,6 +90,7 @@ export default async function handler(req, res) {
       }
 
       case 'sitemap': {
+        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const posts = await sql`
           SELECT slug, post_date FROM posts
           WHERE slug IS NOT NULL AND slug != ''
