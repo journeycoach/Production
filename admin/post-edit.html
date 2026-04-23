@@ -8,13 +8,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
   <style>
     .post-edit-shell {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
-      transition: grid-template-columns 0.25s ease;
-    }
-    .post-edit-shell.preview-open {
-      grid-template-columns: 1fr 1fr;
     }
     .preview-panel {
       display: none;
@@ -23,9 +19,7 @@
       border: 1px solid var(--admin-border);
       border-radius: 8px;
       overflow: hidden;
-      position: sticky;
-      top: 72px;
-      height: calc(100vh - 90px);
+      height: 80vh;
     }
     .post-edit-shell.preview-open .preview-panel {
       display: flex;
@@ -81,14 +75,6 @@
     .btn-preview-toggle.active {
       background: var(--admin-accent);
       color: #1a1d1e;
-    }
-    @media (max-width: 1100px) {
-      .post-edit-shell.preview-open {
-        grid-template-columns: 1fr;
-      }
-      .post-edit-shell.preview-open .preview-panel {
-        display: none;
-      }
     }
   </style>
 </head>
