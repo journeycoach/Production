@@ -207,7 +207,7 @@ function renderPostHtml(post) {
     .post-article{max-width:1140px;margin:0 auto;padding:8rem 1.5rem 4rem}
     .post-layout{display:grid;grid-template-columns:1fr 300px;gap:3.5rem;align-items:start}
     .post-sidebar-inner{position:sticky;top:100px}
-    .sidebar-cta{background:var(--color-bg-secondary);border:1px solid rgba(255,255,255,.06);border-top:3px solid var(--color-accent-gold);border-radius:0 0 8px 8px;padding:1.75rem}
+    .sidebar-cta{background:color-mix(in srgb,var(--color-accent-gold) 8%,var(--color-bg-secondary));border:1px solid rgba(199,169,107,.18);border-top:3px solid var(--color-accent-gold);border-radius:0 0 8px 8px;padding:1.75rem}
     .sidebar-cta-eyebrow{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent-gold);font-weight:600;margin-bottom:.6rem}
     .sidebar-cta h3{font-family:var(--font-heading);font-size:1.2rem;color:var(--color-text-primary);margin-bottom:.75rem;line-height:1.3}
     .sidebar-cta p{color:var(--color-text-secondary);font-size:.88rem;line-height:1.65;margin-bottom:1.25rem}
