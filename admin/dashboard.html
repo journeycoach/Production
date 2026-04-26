@@ -305,6 +305,7 @@
 
     async function loadSummary() {
       const summaryGrid = document.getElementById('summaryGrid');
+      const SUBSCRIBERS_SEEN_AT_KEY = 'admin_subscribers_seen_at';
 
       try {
         const [contactsRes, postsRes, subscribersRes] = await Promise.all([
@@ -326,12 +327,29 @@
         const contacts = contactsData.data || [];
         const posts = postsData.data || [];
         const subscribers = subscribersData.data || [];
+        const subscriberTimes = subscribers
+          .map(subscriber => new Date(subscriber.created_at).getTime())
+          .filter(timestamp => Number.isFinite(timestamp));
+        const latestSubscriberAt = subscriberTimes.length ? Math.max(...subscriberTimes) : 0;
+        let seenSubscriberAt = parseInt(localStorage.getItem(SUBSCRIBERS_SEEN_AT_KEY) || '0', 10) || 0;
+
+        if (!seenSubscriberAt && latestSubscriberAt) {
+          seenSubscriberAt = latestSubscriberAt;
+          localStorage.setItem(SUBSCRIBERS_SEEN_AT_KEY, String(latestSubscriberAt));
+        }
+
+        const newSubscriberCount = seenSubscriberAt
+          ? subscriberTimes.filter(timestamp => timestamp > seenSubscriberAt).length
+          : 0;
 
         const allItems = [
           {
             label: 'Subscribers',
             value: subscribers.length,
-            note: subscribers.filter(s => s.result_center).length + ' completed assessment',
+            note: newSubscriberCount
+              ? newSubscriberCount + ' new since last review'
+              : subscribers.filter(s => s.result_center).length + ' completed assessment',
+            alert: newSubscriberCount > 0,
             href: 'subscribers.html'
           },
           {

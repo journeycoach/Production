@@ -958,6 +958,7 @@
 
     // ── Subscribers list ─────────────────────────────────────────────────────
     async function loadSubscribers() {
+      const SUBSCRIBERS_SEEN_AT_KEY = 'admin_subscribers_seen_at';
       const res  = await adminFetch('/api/admin/contacts?type=subscribers');
       const data = await res.json();
       const rows = data.data || [];
@@ -965,6 +966,14 @@
       const countEl = document.getElementById('sub-count');
 
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
+      const latestSubscriberAt = rows
+        .map(row => new Date(row.created_at).getTime())
+        .filter(timestamp => Number.isFinite(timestamp))
+        .reduce((latest, timestamp) => Math.max(latest, timestamp), 0);
+
+      if (latestSubscriberAt) {
+        localStorage.setItem(SUBSCRIBERS_SEEN_AT_KEY, String(latestSubscriberAt));
+      }
 
       if (rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No subscribers yet.</td></tr>';

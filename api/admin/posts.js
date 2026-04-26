@@ -112,11 +112,11 @@ export default async function handler(req, res) {
         UPDATE posts
         SET
           title     = COALESCE(${title}, title),
-          post_date = COALESCE(${post_date || null}, post_date),
+          post_date = CASE WHEN ${post_date !== undefined} THEN ${post_date || null} ELSE post_date END,
           author    = COALESCE(${author}, author),
-          image_url = ${image_url !== undefined ? image_url : null},
-          summary   = ${summary !== undefined ? summary : null},
-          body      = ${body !== undefined ? body : null},
+          image_url = CASE WHEN ${image_url !== undefined} THEN ${image_url || null} ELSE image_url END,
+          summary   = CASE WHEN ${summary !== undefined} THEN ${summary || null} ELSE summary END,
+          body      = CASE WHEN ${body !== undefined} THEN ${body || null} ELSE body END,
           slug      = COALESCE(${slugUpdate}, slug)
         WHERE id = ${id}
         RETURNING *
