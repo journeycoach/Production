@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // 5. Dynamic Testimonials Rotation
+    // 5. Dynamic Testimonials
     const testimonialsContainer = document.getElementById('testimonials-container');
     if (testimonialsContainer) {
         fetch('/api/content?type=testimonials')
@@ -163,88 +163,52 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(payload => {
                 const testimonials = payload.data || [];
                 if (testimonials.length > 0) {
-                    renderRotatingTestimonials(testimonials, testimonialsContainer);
+                    renderScrollingTestimonials(testimonials, testimonialsContainer);
                 }
             })
             .catch(error => console.error('Error loading testimonials:', error));
     }
 
-    function renderRotatingTestimonials(testimonials, container) {
+    function renderScrollingTestimonials(testimonials, container) {
         container.innerHTML = '';
-        container.style.display = 'block'; // Override grid for a single rotator
 
-        const card = document.createElement('div');
-        card.className = 'testimonial-card rotator';
-        card.style.maxWidth = '800px';
-        card.style.margin = '0 auto';
-        card.style.textAlign = 'center';
-        // Safari safe: start completely hidden, rely strictly on CSS animations
-        card.style.opacity = '0';
+        const rail = document.createElement('div');
+        rail.className = 'testimonials-rail';
 
-        container.appendChild(card);
+        const createCard = (item) => {
+            const card = document.createElement('article');
+            card.className = 'testimonial-card';
 
-        let currentIndex = 0;
+            const quoteEl = document.createElement('p');
+            quoteEl.className = 'quote';
+            quoteEl.textContent = '\u201c' + item.quote + '\u201d';
 
-        function showTestimonial(index) {
-            const item = testimonials[index];
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'author';
 
-            // 1. Trigger Fade Out (if it's already visible)
-            card.style.animation = 'rotatorFadeOut 0.6s ease-in forwards';
+            const authorH4 = document.createElement('h4');
+            authorH4.textContent = item.author;
 
-            // 2. Wait for fade out to finish, then swap content and Fade In
-            setTimeout(() => {
-                const quoteEl = document.createElement('p');
-                quoteEl.className = 'quote';
-                quoteEl.style.fontSize = '1.5rem';
-                quoteEl.textContent = '\u201c' + item.quote + '\u201d';
+            authorDiv.appendChild(authorH4);
+            card.appendChild(quoteEl);
+            card.appendChild(authorDiv);
 
-                const authorDiv = document.createElement('div');
-                authorDiv.className = 'author';
-                authorDiv.style.cssText = 'justify-content: center; margin-top: 1.5rem;';
-                const authorH4 = document.createElement('h4');
-                authorH4.textContent = item.author;
-                authorDiv.appendChild(authorH4);
+            return card;
+        };
 
-                card.innerHTML = '';
-                card.appendChild(quoteEl);
-                card.appendChild(authorDiv);
+        const buildGroup = () => {
+            const group = document.createElement('div');
+            group.className = 'testimonials-group';
+            testimonials.forEach(item => {
+                group.appendChild(createCard(item));
+            });
+            return group;
+        };
 
-                // Clear animation state and force reflow (fixes Safari caching render states)
-                card.style.animation = 'none';
-                void card.offsetWidth;
+        rail.appendChild(buildGroup());
+        rail.appendChild(buildGroup());
 
-                // Trigger Fade In
-                card.style.animation = 'rotatorFadeIn 0.6s ease-out forwards';
-            }, 600); // Wait 600ms for fade out
-        }
-
-        // Brief delay before first show
-        setTimeout(() => showTestimonial(currentIndex), 50);
-
-        if (testimonials.length > 1) {
-            let rotateInterval = null;
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Start rotation
-                        if (!rotateInterval) {
-                            rotateInterval = setInterval(() => {
-                                currentIndex = (currentIndex + 1) % testimonials.length;
-                                showTestimonial(currentIndex);
-                            }, 6000); // Rotate every 6 seconds
-                        }
-                    } else {
-                        // Pause rotation
-                        if (rotateInterval) {
-                            clearInterval(rotateInterval);
-                            rotateInterval = null;
-                        }
-                    }
-                });
-            }, { threshold: 0.1 }); // Trigger when at least 10% visible
-
-            observer.observe(container);
-        }
+        container.appendChild(rail);
     }
 
 
