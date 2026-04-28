@@ -14,6 +14,13 @@
         font-size: 2.5rem;
     }
 
+    .recognition-strip-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.35rem;
+        text-align: left;
+    }
+
     /* Show hamburger pinned to the right */
     .hamburger {
         display: flex !important;
@@ -144,6 +151,15 @@
 
     #about .split-image {
         padding-left: 0;
+    }
+
+    .footer-recognition {
+        border-left: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.12);
+        max-width: 260px;
+        padding-left: 0;
+        padding-top: 1rem;
+        text-align: center;
     }
 }
 

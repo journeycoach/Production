@@ -158,6 +158,40 @@ ul {
     font-weight: 300;
 }
 
+/* Recognition */
+.recognition-strip {
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.1rem 0;
+}
+
+.recognition-strip-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.recognition-kicker {
+    color: var(--color-accent-gold-dim);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.recognition-strip p {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.recognition-strip strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
 /* Scroll Indicator */
 .scroll-indicator {
     position: absolute;
@@ -897,6 +931,45 @@ ul {
     color: var(--color-accent-green);
     /* ICF Blue-ish */
     font-size: 1.2rem;
+}
+
+.recognition-callout {
+    border-left: 2px solid var(--color-accent-gold);
+    margin-bottom: 30px;
+    padding: 0.2rem 0 0.2rem 1rem;
+}
+
+.recognition-callout span,
+.footer-recognition span {
+    color: var(--color-accent-gold-dim);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.recognition-callout p {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 0.35rem 0 0;
+}
+
+.footer-recognition {
+    border-left: 1px solid rgba(0, 0, 0, 0.14);
+    max-width: 210px;
+    padding-left: 1.25rem;
+}
+
+.footer-recognition strong {
+    color: var(--color-text-primary);
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    line-height: 1.25;
+    margin-top: 0.25rem;
 }
 
 /* =========================================
