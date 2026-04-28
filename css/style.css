@@ -192,6 +192,18 @@ ul {
     font-weight: 600;
 }
 
+.recognition-strip a,
+.recognition-callout a {
+    color: var(--color-accent-gold-dim);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.recognition-strip a:hover,
+.recognition-callout a:hover {
+    color: var(--color-text-primary);
+}
+
 /* Scroll Indicator */
 .scroll-indicator {
     position: absolute;

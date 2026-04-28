@@ -168,9 +168,9 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/variables.css?v=8">
-    <link rel="stylesheet" href="css/style.css?v=8">
-    <link rel="stylesheet" href="css/responsive.css?v=8">
+    <link rel="stylesheet" href="css/variables.css?v=9">
+    <link rel="stylesheet" href="css/style.css?v=9">
+    <link rel="stylesheet" href="css/responsive.css?v=9">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
@@ -370,10 +370,10 @@
         </section>
 
         <!-- Recognition Strip -->
-        <section class="recognition-strip" aria-label="Professional recognition">
+        <section class="recognition-strip" id="recognition-strip" aria-label="Professional recognition">
             <div class="container recognition-strip-inner">
                 <span class="recognition-kicker">Recognition</span>
-                <p>Recognized by Influence Digest Media as one of the <strong>Top 15 Coaches in Dallas in 2026</strong>.</p>
+                <p id="recognition-strip-text">Recognized by Influence Digest Media as one of the Top 15 Coaches in Dallas in 2026.</p>
             </div>
         </section>
 
@@ -415,9 +415,9 @@
                         strategy, providing the confidential guidance you need to align your work with your highest
                         purpose.
                     </p>
-                    <div class="recognition-callout reveal-text delay-300">
-                        <span>Influence Digest Media</span>
-                        <p>John was recognized by Influence Digest Media as one of the Top 15 Coaches in Dallas in 2026.</p>
+                    <div class="recognition-callout reveal-text delay-300" id="recognition-about">
+                        <span id="recognition-about-org">Influence Digest Media</span>
+                        <p id="recognition-about-text">John was recognized by Influence Digest Media as one of the Top 15 Coaches in Dallas in 2026.</p>
                     </div>
                     <div class="member-badge reveal-text delay-300"
                         style="margin-top: 15px; display: flex; align-items: center; gap: 20px;">
@@ -818,9 +818,9 @@
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <div class="footer-recognition">
-                    <span>Top 15 Coaches in Dallas, 2026</span>
-                    <strong>Influence Digest Media</strong>
+                <div class="footer-recognition" id="recognition-footer">
+                    <span id="recognition-footer-title">Top 15 Coaches in Dallas, 2026</span>
+                    <strong id="recognition-footer-org">Influence Digest Media</strong>
                 </div>
             </div>
 
@@ -849,7 +849,7 @@
 
     <script src="js/site-styles.js"></script>
     <script src="js/nav.js"></script>
-    <script src="js/main.js?v=2"></script>
+    <script src="js/main.js?v=3"></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
     <script>
         document.getElementById('home-subscribe-form').addEventListener('submit', async (e) => {

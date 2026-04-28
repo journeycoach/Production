@@ -55,6 +55,58 @@
     });
   }
 
+  function buildRecognitionText(data) {
+    const title = data.recognition_title || 'Top 15 Coaches in Dallas';
+    const organization = data.recognition_organization || 'Influence Digest Media';
+    const year = data.recognition_year || '2026';
+    return data.recognition_full_text || `Recognized by ${organization} as one of the ${title} in ${year}.`;
+  }
+
+  function applyRecognition(data) {
+    const title = data.recognition_title || 'Top 15 Coaches in Dallas';
+    const organization = data.recognition_organization || 'Influence Digest Media';
+    const year = data.recognition_year || '2026';
+    const fullText = buildRecognitionText(data);
+    const recognitionUrl = data.recognition_url || '';
+    const strip = document.getElementById('recognition-strip');
+    const about = document.getElementById('recognition-about');
+    const footer = document.getElementById('recognition-footer');
+
+    function appendRecognitionLink(el) {
+      if (!el || !recognitionUrl) return;
+      const link = document.createElement('a');
+      link.href = recognitionUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'See recognition';
+      el.appendChild(document.createTextNode(' '));
+      el.appendChild(link);
+    }
+
+    if (strip && data.recognition_show_homepage === 'false') strip.style.display = 'none';
+    if (about && data.recognition_show_about === 'false') about.style.display = 'none';
+    if (footer && data.recognition_show_footer === 'false') footer.style.display = 'none';
+
+    const stripText = document.getElementById('recognition-strip-text');
+    if (stripText) {
+      stripText.textContent = fullText;
+      appendRecognitionLink(stripText);
+    }
+
+    const aboutOrg = document.getElementById('recognition-about-org');
+    const aboutText = document.getElementById('recognition-about-text');
+    if (aboutOrg) aboutOrg.textContent = organization;
+    if (aboutText) {
+      aboutText.textContent = `John was ${fullText.charAt(0).toLowerCase()}${fullText.slice(1)}`;
+      appendRecognitionLink(aboutText);
+    }
+
+    const footerTitle = document.getElementById('recognition-footer-title');
+    const footerOrg = document.getElementById('recognition-footer-org');
+    if (footerTitle) footerTitle.textContent = `${title}, ${year}`;
+    if (footerOrg) footerOrg.textContent = organization;
+  }
+
   window.applySiteCtaTargets = applyCtas;
 
   try {
@@ -97,6 +149,7 @@
       if (strip) strip.style.display = '';
     }
 
+    applyRecognition(data);
     applyCtas();
     window.dispatchEvent(new CustomEvent('site-settings-loaded', {
       detail: {

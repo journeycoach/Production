@@ -27,6 +27,7 @@ const ADMIN_PAGE_LABELS = {
   'site.html': 'Site Console',
   'posts.html': 'Blog Posts',
   'post-edit.html': 'Post Editor',
+  'lead-dashboard.html': 'Lead Dashboard',
   'testimonials.html': 'Testimonials',
   'tools.html': 'Tools & Resources',
   'bookmarks.html': 'Bookmarks',

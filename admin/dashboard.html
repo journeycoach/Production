@@ -72,6 +72,7 @@
           <div class="dashboard-quick-actions">
             <a href="post-edit.html" class="quick-action-pill">New Post</a>
             <a href="tools.html" class="quick-action-pill">New Resource</a>
+            <a href="lead-dashboard.html" class="quick-action-pill">Lead Dashboard</a>
             <a href="/index.html" class="quick-action-pill" target="_blank" rel="noopener noreferrer">View Site</a>
           </div>
 
@@ -99,6 +100,7 @@
       TESTIMONIALS: 'testimonials',
       TOOLS: 'tools',
       BOOKMARKS: 'bookmarks',
+      LEAD_DASHBOARD: 'lead_dashboard',
       SITE_STRUCTURE: 'site_structure',
       CONTACTS_EMAIL: 'contacts_email',
       SUBSCRIBERS_CAMPAIGNS: 'subscribers_campaigns'
@@ -171,6 +173,14 @@
             <path d="M22 2L11 13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
           </svg>
+        `,
+        lead_dashboard: `
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3v18h18"/>
+            <rect x="6" y="12" width="3" height="5" rx="1"/>
+            <rect x="11" y="8" width="3" height="9" rx="1"/>
+            <rect x="16" y="5" width="3" height="12" rx="1"/>
+          </svg>
         `
       };
 
@@ -179,9 +189,10 @@
 
     const CARDS = [
       { key: CARD_KEYS.POSTS,        href: 'posts.html',        title: 'Blog Posts',       desc: 'Write and manage blog articles.' },
-      { key: CARD_KEYS.TESTIMONIALS, href: 'testimonials.html', title: 'Testimonials',     desc: 'Manage client testimonials on the homepage.' },
+      { key: CARD_KEYS.TESTIMONIALS, href: 'testimonials.html', title: 'Testimonials',     desc: 'Manage testimonials and recognition.' },
       { key: CARD_KEYS.TOOLS,        href: 'tools.html',        title: 'Tools & Resources',desc: 'Manage downloadable files and resource links.' },
       { key: CARD_KEYS.BOOKMARKS,    href: 'bookmarks.html',    title: 'Bookmarks',        desc: 'Organize curated links into categories.' },
+      { key: CARD_KEYS.LEAD_DASHBOARD, href: 'lead-dashboard.html', icon: 'lead_dashboard', title: 'Lead Dashboard', desc: 'Review lead flow, assessment mix, and funnel status.' },
       { key: CARD_KEYS.SITE_STRUCTURE, href: 'site.html', icon: 'settings', title: 'Site Console', desc: 'Settings, page sections, and navigation in one place.' },
       { key: CARD_KEYS.CONTACTS_EMAIL,         href: 'contacts.html',     icon: 'contacts',    title: 'Contacts & Email',         desc: 'Contact submissions and auto-reply email.' },
       { key: CARD_KEYS.SUBSCRIBERS_CAMPAIGNS,  href: 'subscribers.html',  icon: 'subscribers', title: 'Subscribers & Campaigns',  desc: 'Subscribers, drip campaigns, assessment emails, and the Free Guide.' }

@@ -6,7 +6,60 @@
   <title>Testimonials — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <style>
-    @media (max-width: 700px) { .card { overflow-x: auto; } table { min-width: 480px; } }
+    .form-hint {
+      color: var(--admin-muted);
+      display: block;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      margin-top: 0.35rem;
+    }
+
+    .inline-check {
+      align-items: center;
+      color: var(--admin-text);
+      display: flex;
+      gap: 0.55rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .inline-check input {
+      accent-color: var(--admin-accent);
+      height: 17px;
+      width: 17px;
+    }
+
+    .recognition-manager {
+      margin-top: 2rem;
+    }
+
+    .recognition-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .recognition-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .visibility-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .status-text {
+      color: var(--admin-muted);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 900px) {
+      .recognition-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 700px) { .card { overflow-x: auto; } table { min-width: 720px; } }
   </style>
 </head>
 <body>
@@ -32,12 +85,14 @@
               <tr>
                 <th>Quote</th>
                 <th>Author</th>
+                <th>Context</th>
+                <th>Use</th>
                 <th>Order</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="testimonialsBody">
-              <tr><td colspan="4" class="table-empty">Loading...</td></tr>
+              <tr><td colspan="6" class="table-empty">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -47,12 +102,45 @@
           <form id="testimonialForm">
             <input type="hidden" id="testimonialId" />
             <div class="form-group">
-              <label for="quote">Quote</label>
-              <textarea id="quote" rows="4" placeholder="Enter testimonial quote..." required></textarea>
+              <label for="quote">Core Quote</label>
+              <textarea id="quote" rows="4" placeholder="Enter the main testimonial quote..." required></textarea>
+              <span class="form-hint">The public site uses this unless a shorter homepage quote is provided.</span>
+            </div>
+            <div class="form-group">
+              <label for="shortQuote">Short Homepage Quote</label>
+              <textarea id="shortQuote" rows="3" placeholder="Optional shorter version for scrolling cards..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="longQuote">Long Case-Study Quote</label>
+              <textarea id="longQuote" rows="5" placeholder="Optional expanded version for future case studies..."></textarea>
             </div>
             <div class="form-group">
               <label for="author">Author</label>
               <input type="text" id="author" placeholder="Author name" required />
+            </div>
+            <div class="form-group">
+              <label for="clientRole">Client Role</label>
+              <input type="text" id="clientRole" placeholder="Founder, Senior Leader, Executive, etc." />
+            </div>
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input type="text" id="industry" placeholder="Technology, nonprofit, healthcare, etc." />
+            </div>
+            <div class="form-group">
+              <label for="displayLocation">Display Location</label>
+              <select id="displayLocation">
+                <option value="homepage">Homepage</option>
+                <option value="case-study">Case Study Only</option>
+                <option value="all">All Public Uses</option>
+                <option value="hidden">Hidden</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="inline-check" for="isFeatured">
+                <input type="checkbox" id="isFeatured" />
+                Featured testimonial
+              </label>
+              <span class="form-hint">Featured testimonials appear first in the public scrolling cards.</span>
             </div>
             <div class="form-group">
               <label for="sortOrder">Sort Order</label>
@@ -64,6 +152,56 @@
             </div>
           </form>
         </div>
+      </div>
+
+      <div class="card recognition-manager">
+        <div class="card-title">Recognition Manager</div>
+        <form id="recognitionForm">
+          <div class="recognition-grid">
+            <div class="form-group">
+              <label for="recognitionTitle">Recognition Title</label>
+              <input type="text" id="recognitionTitle" placeholder="Top 15 Coaches in Dallas" />
+            </div>
+            <div class="form-group">
+              <label for="recognitionOrganization">Organization</label>
+              <input type="text" id="recognitionOrganization" placeholder="Influence Digest Media" />
+            </div>
+            <div class="form-group">
+              <label for="recognitionYear">Year</label>
+              <input type="text" id="recognitionYear" placeholder="2026" />
+            </div>
+            <div class="form-group wide">
+              <label for="recognitionUrl">Recognition URL</label>
+              <input type="url" id="recognitionUrl" placeholder="https://..." />
+              <span class="form-hint">Optional source link for the recognition or LinkedIn announcement.</span>
+            </div>
+            <div class="form-group wide">
+              <label for="recognitionFullText">Full Recognition Sentence</label>
+              <textarea id="recognitionFullText" rows="3" placeholder="Recognized by Influence Digest Media as one of the Top 15 Coaches in Dallas in 2026."></textarea>
+              <span class="form-hint">Leave blank to auto-generate from title, organization, and year.</span>
+            </div>
+          </div>
+
+          <div class="visibility-row">
+            <label class="inline-check" for="recognitionShowHomepage">
+              <input type="checkbox" id="recognitionShowHomepage" checked />
+              Homepage strip
+            </label>
+            <label class="inline-check" for="recognitionShowAbout">
+              <input type="checkbox" id="recognitionShowAbout" checked />
+              About callout
+            </label>
+            <label class="inline-check" for="recognitionShowFooter">
+              <input type="checkbox" id="recognitionShowFooter" checked />
+              Footer badge
+            </label>
+          </div>
+
+          <div class="form-actions" style="margin-top:1.25rem;">
+            <button type="submit" class="btn btn-primary">Save Recognition</button>
+            <span class="status-text" id="recognitionStatus"></span>
+          </div>
+        </form>
       </div>
     </main>
   </div>
@@ -81,13 +219,15 @@
       allTestimonials = data.data || [];
       const tbody = document.getElementById('testimonialsBody');
       if (allTestimonials.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No testimonials yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No testimonials yet.</td></tr>';
         return;
       }
       tbody.innerHTML = allTestimonials.map(t => `
         <tr>
           <td>${escHtml(t.quote.substring(0, 70))}${t.quote.length > 70 ? '…' : ''}</td>
           <td>${escHtml(t.author)}</td>
+          <td class="td-muted">${escHtml([t.client_role, t.industry].filter(Boolean).join(' / ') || '—')}</td>
+          <td class="td-muted">${t.is_featured ? 'Featured · ' : ''}${escHtml(t.display_location || 'homepage')}</td>
           <td class="td-muted">${t.sort_order}</td>
           <td class="td-actions">
             <button class="btn btn-secondary btn-sm" onclick="editTestimonial(${parseInt(t.id, 10)})">Edit</button>
@@ -101,10 +241,16 @@
       const t = allTestimonials.find(r => r.id === id);
       if (!t) return;
       editingId = id;
-      document.getElementById('testimonialId').value  = id;
-      document.getElementById('quote').value          = t.quote;
-      document.getElementById('author').value         = t.author;
-      document.getElementById('sortOrder').value      = t.sort_order || 0;
+      document.getElementById('testimonialId').value   = id;
+      document.getElementById('quote').value           = t.quote || '';
+      document.getElementById('shortQuote').value      = t.short_quote || '';
+      document.getElementById('longQuote').value       = t.long_quote || '';
+      document.getElementById('author').value          = t.author || '';
+      document.getElementById('clientRole').value      = t.client_role || '';
+      document.getElementById('industry').value        = t.industry || '';
+      document.getElementById('displayLocation').value = t.display_location || 'homepage';
+      document.getElementById('isFeatured').checked    = t.is_featured === true;
+      document.getElementById('sortOrder').value       = t.sort_order || 0;
       document.getElementById('formTitle').textContent      = 'Edit Testimonial';
       document.getElementById('saveBtn').textContent        = 'Update Testimonial';
       document.getElementById('cancelBtn').style.display   = 'inline-flex';
@@ -136,9 +282,15 @@
     document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const payload = {
-        quote:      document.getElementById('quote').value.trim(),
-        author:     document.getElementById('author').value.trim(),
-        sort_order: parseInt(document.getElementById('sortOrder').value) || 0
+        quote:            document.getElementById('quote').value.trim(),
+        short_quote:      document.getElementById('shortQuote').value.trim(),
+        long_quote:       document.getElementById('longQuote').value.trim(),
+        author:           document.getElementById('author').value.trim(),
+        client_role:      document.getElementById('clientRole').value.trim(),
+        industry:         document.getElementById('industry').value.trim(),
+        display_location: document.getElementById('displayLocation').value,
+        is_featured:      document.getElementById('isFeatured').checked,
+        sort_order:       parseInt(document.getElementById('sortOrder').value) || 0
       };
       if (editingId) payload.id = editingId;
 
@@ -156,7 +308,56 @@
       }
     });
 
+    async function loadRecognitionSettings() {
+      const status = document.getElementById('recognitionStatus');
+      const res = await adminFetch('/api/admin/settings');
+      if (!res.ok) {
+        status.textContent = 'Could not load recognition settings.';
+        return;
+      }
+      const { data = {} } = await res.json();
+      document.getElementById('recognitionTitle').value = data.recognition_title || 'Top 15 Coaches in Dallas';
+      document.getElementById('recognitionOrganization').value = data.recognition_organization || 'Influence Digest Media';
+      document.getElementById('recognitionYear').value = data.recognition_year || '2026';
+      document.getElementById('recognitionUrl').value = data.recognition_url || '';
+      document.getElementById('recognitionFullText').value = data.recognition_full_text || '';
+      document.getElementById('recognitionShowHomepage').checked = data.recognition_show_homepage !== 'false';
+      document.getElementById('recognitionShowAbout').checked = data.recognition_show_about !== 'false';
+      document.getElementById('recognitionShowFooter').checked = data.recognition_show_footer !== 'false';
+    }
+
+    document.getElementById('recognitionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('recognitionStatus');
+      status.textContent = 'Saving...';
+
+      const payload = {
+        recognition_title: document.getElementById('recognitionTitle').value.trim(),
+        recognition_organization: document.getElementById('recognitionOrganization').value.trim(),
+        recognition_year: document.getElementById('recognitionYear').value.trim(),
+        recognition_url: document.getElementById('recognitionUrl').value.trim(),
+        recognition_full_text: document.getElementById('recognitionFullText').value.trim(),
+        recognition_show_homepage: String(document.getElementById('recognitionShowHomepage').checked),
+        recognition_show_about: String(document.getElementById('recognitionShowAbout').checked),
+        recognition_show_footer: String(document.getElementById('recognitionShowFooter').checked)
+      };
+
+      const res = await adminFetch('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        status.textContent = 'Recognition settings saved.';
+        showFlash('Recognition settings saved.');
+      } else {
+        status.textContent = 'Error saving recognition settings.';
+        showFlash('Error saving recognition settings.', 'error');
+      }
+    });
+
     loadTestimonials();
+    loadRecognitionSettings();
   </script>
 </body>
 </html>

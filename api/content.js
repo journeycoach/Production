@@ -24,6 +24,14 @@ const PUBLIC_SETTINGS_KEYS = [
   'cta_secondary_url',
   'lead_magnet_enabled',
   'tools_category_order',
+  'recognition_title',
+  'recognition_organization',
+  'recognition_year',
+  'recognition_url',
+  'recognition_full_text',
+  'recognition_show_homepage',
+  'recognition_show_about',
+  'recognition_show_footer',
 ];
 
 export default async function handler(req, res) {
@@ -37,10 +45,27 @@ export default async function handler(req, res) {
   try {
     switch (type) {
       case 'testimonials': {
+        await sql`
+          ALTER TABLE testimonials
+          ADD COLUMN IF NOT EXISTS short_quote TEXT,
+          ADD COLUMN IF NOT EXISTS long_quote TEXT,
+          ADD COLUMN IF NOT EXISTS client_role TEXT,
+          ADD COLUMN IF NOT EXISTS industry TEXT,
+          ADD COLUMN IF NOT EXISTS display_location TEXT DEFAULT 'homepage',
+          ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE
+        `;
         const rows = await sql`
-          SELECT id, quote, author
+          SELECT id,
+            COALESCE(NULLIF(short_quote, ''), quote) as quote,
+            long_quote,
+            author,
+            client_role,
+            industry,
+            display_location,
+            is_featured
           FROM testimonials
-          ORDER BY sort_order ASC, created_at ASC
+          WHERE COALESCE(display_location, 'homepage') IN ('homepage', 'all')
+          ORDER BY is_featured DESC, sort_order ASC, created_at ASC
         `;
         return res.status(200).json({ data: rows });
       }

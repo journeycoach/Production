@@ -1,16 +1,30 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 
+async function ensureTestimonialColumns() {
+  await sql`
+    ALTER TABLE testimonials
+    ADD COLUMN IF NOT EXISTS short_quote TEXT,
+    ADD COLUMN IF NOT EXISTS long_quote TEXT,
+    ADD COLUMN IF NOT EXISTS client_role TEXT,
+    ADD COLUMN IF NOT EXISTS industry TEXT,
+    ADD COLUMN IF NOT EXISTS display_location TEXT DEFAULT 'homepage',
+    ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE
+  `;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
 
   if (req.method === 'GET') {
     try {
+      await ensureTestimonialColumns();
       const rows = await sql`
-        SELECT id, quote, author, sort_order, created_at
+        SELECT id, quote, short_quote, long_quote, author, client_role, industry,
+          display_location, is_featured, sort_order, created_at
         FROM testimonials
-        ORDER BY sort_order ASC, id ASC
+        ORDER BY is_featured DESC, sort_order ASC, id ASC
       `;
       return res.status(200).json({ data: rows });
     } catch (err) {
@@ -20,14 +34,31 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { quote, author, sort_order = 0 } = req.body || {};
+    const {
+      quote,
+      short_quote = '',
+      long_quote = '',
+      author,
+      client_role = '',
+      industry = '',
+      display_location = 'homepage',
+      is_featured = false,
+      sort_order = 0
+    } = req.body || {};
     if (!quote || !author) {
       return res.status(400).json({ error: 'quote and author are required' });
     }
     try {
+      await ensureTestimonialColumns();
       const rows = await sql`
-        INSERT INTO testimonials (quote, author, sort_order)
-        VALUES (${quote}, ${author}, ${sort_order})
+        INSERT INTO testimonials (
+          quote, short_quote, long_quote, author, client_role, industry,
+          display_location, is_featured, sort_order
+        )
+        VALUES (
+          ${quote}, ${short_quote}, ${long_quote}, ${author}, ${client_role}, ${industry},
+          ${display_location}, ${is_featured}, ${sort_order}
+        )
         RETURNING *
       `;
       return res.status(201).json({ data: rows[0] });
@@ -38,14 +69,32 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { id, quote, author, sort_order } = req.body || {};
+    const {
+      id,
+      quote,
+      short_quote,
+      long_quote,
+      author,
+      client_role,
+      industry,
+      display_location,
+      is_featured,
+      sort_order
+    } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
     try {
+      await ensureTestimonialColumns();
       const rows = await sql`
         UPDATE testimonials
         SET
           quote = COALESCE(${quote}, quote),
+          short_quote = COALESCE(${short_quote}, short_quote),
+          long_quote = COALESCE(${long_quote}, long_quote),
           author = COALESCE(${author}, author),
+          client_role = COALESCE(${client_role}, client_role),
+          industry = COALESCE(${industry}, industry),
+          display_location = COALESCE(${display_location}, display_location),
+          is_featured = COALESCE(${is_featured}, is_featured),
           sort_order = COALESCE(${sort_order}, sort_order)
         WHERE id = ${id}
         RETURNING *
@@ -62,6 +111,7 @@ export default async function handler(req, res) {
     const { id } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
     try {
+      await ensureTestimonialColumns();
       await sql`DELETE FROM testimonials WHERE id = ${id}`;
       return res.status(200).json({ ok: true });
     } catch (err) {

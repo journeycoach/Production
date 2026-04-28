@@ -190,6 +190,12 @@ document.addEventListener('DOMContentLoaded', () => {
             authorH4.textContent = item.author;
 
             authorDiv.appendChild(authorH4);
+            const detailParts = [item.client_role, item.industry].filter(Boolean);
+            if (detailParts.length > 0) {
+                const detailSpan = document.createElement('span');
+                detailSpan.textContent = detailParts.join(' | ');
+                authorDiv.appendChild(detailSpan);
+            }
             card.appendChild(quoteEl);
             card.appendChild(authorDiv);
 
