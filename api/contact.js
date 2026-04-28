@@ -82,6 +82,62 @@ function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+function cleanText(value, maxLength = 500) {
+  return String(value || '').trim().slice(0, maxLength);
+}
+
+function normalizeAttribution(value = {}) {
+  const attr = value && typeof value === 'object' ? value : {};
+  const firstTouch = attr.first_touch && typeof attr.first_touch === 'object' ? attr.first_touch : {};
+  const session = attr.session && typeof attr.session === 'object' ? attr.session : {};
+  const source = cleanText(attr.source || session.source || firstTouch.source || 'direct', 120).toLowerCase() || 'direct';
+
+  return {
+    source,
+    firstSource: cleanText(attr.first_source || firstTouch.source || source, 120).toLowerCase() || source,
+    landingPage: cleanText(attr.landing_page || firstTouch.landing_page || session.landing_page, 1000),
+    referrer: cleanText(attr.referrer || firstTouch.referrer || session.referrer, 1000),
+    utmSource: cleanText(attr.utm_source || session.source || firstTouch.source, 120).toLowerCase(),
+    utmMedium: cleanText(attr.utm_medium || session.medium || firstTouch.medium, 120),
+    utmCampaign: cleanText(attr.utm_campaign || session.campaign || firstTouch.campaign, 200),
+    utmTerm: cleanText(attr.utm_term || session.term || firstTouch.term, 200),
+    utmContent: cleanText(attr.utm_content || session.content || firstTouch.content, 200),
+    raw: attr
+  };
+}
+
+async function ensureSubscriberAttributionColumns() {
+  await sql`
+    ALTER TABLE subscribers
+      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS landing_page TEXT,
+      ADD COLUMN IF NOT EXISTS referrer TEXT,
+      ADD COLUMN IF NOT EXISTS utm_source TEXT,
+      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
+      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
+      ADD COLUMN IF NOT EXISTS utm_term TEXT,
+      ADD COLUMN IF NOT EXISTS utm_content TEXT,
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+  `;
+}
+
+async function ensureContactAttributionColumns() {
+  await sql`
+    ALTER TABLE contact_submissions
+      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS landing_page TEXT,
+      ADD COLUMN IF NOT EXISTS referrer TEXT,
+      ADD COLUMN IF NOT EXISTS utm_source TEXT,
+      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
+      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
+      ADD COLUMN IF NOT EXISTS utm_term TEXT,
+      ADD COLUMN IF NOT EXISTS utm_content TEXT,
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+  `;
+}
+
 function getClientIp(req) {
   const forwarded = String(
     req.headers['x-forwarded-for']
@@ -162,7 +218,8 @@ async function enforceSubmissionRateLimit(req, action, email, { maxPerHour = 8, 
 }
 
 async function handleSubscribe(req, res) {
-  const { email, name, source } = req.body || {};
+  const { email, name, source, attribution } = req.body || {};
+  const attr = normalizeAttribution(attribution);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     return res.status(400).json({ error: 'A valid email address is required.' });
@@ -186,10 +243,31 @@ async function handleSubscribe(req, res) {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `;
+    await ensureSubscriberAttributionColumns();
     await sql`
-      INSERT INTO subscribers (email, name, source)
-      VALUES (${email.toLowerCase().trim()}, ${name?.trim() || null}, ${source || 'website'})
-      ON CONFLICT (email) DO NOTHING
+      INSERT INTO subscribers (
+        email, name, source, attribution_source, first_attribution_source,
+        landing_page, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
+      )
+      VALUES (
+        ${email.toLowerCase().trim()}, ${name?.trim() || null}, ${source || 'website'},
+        ${attr.source}, ${attr.firstSource}, ${attr.landingPage}, ${attr.referrer},
+        ${attr.utmSource}, ${attr.utmMedium}, ${attr.utmCampaign}, ${attr.utmTerm}, ${attr.utmContent},
+        ${JSON.stringify(attr.raw)}::jsonb
+      )
+      ON CONFLICT (email) DO UPDATE SET
+        name = COALESCE(EXCLUDED.name, subscribers.name),
+        source = COALESCE(EXCLUDED.source, subscribers.source),
+        attribution_source = COALESCE(EXCLUDED.attribution_source, subscribers.attribution_source),
+        first_attribution_source = COALESCE(subscribers.first_attribution_source, EXCLUDED.first_attribution_source),
+        landing_page = COALESCE(subscribers.landing_page, EXCLUDED.landing_page),
+        referrer = COALESCE(subscribers.referrer, EXCLUDED.referrer),
+        utm_source = COALESCE(EXCLUDED.utm_source, subscribers.utm_source),
+        utm_medium = COALESCE(EXCLUDED.utm_medium, subscribers.utm_medium),
+        utm_campaign = COALESCE(EXCLUDED.utm_campaign, subscribers.utm_campaign),
+        utm_term = COALESCE(EXCLUDED.utm_term, subscribers.utm_term),
+        utm_content = COALESCE(EXCLUDED.utm_content, subscribers.utm_content),
+        attribution = COALESCE(EXCLUDED.attribution, subscribers.attribution)
     `;
   } catch (err) {
     console.error('subscribe insert error:', err);
@@ -219,7 +297,8 @@ async function handleSubscribe(req, res) {
 }
 
 async function handleHiddenCeiling(req, res) {
-  const { name, email, company, source, answers } = req.body || {};
+  const { name, email, company, source, answers, attribution } = req.body || {};
+  const attr = normalizeAttribution(attribution);
 
   // Honeypot — bots fill the company field
   if (company) {
@@ -284,11 +363,19 @@ async function handleHiddenCeiling(req, res) {
         ADD COLUMN IF NOT EXISTS score_action   INT,
         ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'
     `;
+    await ensureSubscriberAttributionColumns();
     await sql`
-      INSERT INTO subscribers (email, name, source, result_center, score_heart, score_head, score_action)
+      INSERT INTO subscribers (
+        email, name, source, result_center, score_heart, score_head, score_action,
+        attribution_source, first_attribution_source, landing_page, referrer,
+        utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
+      )
       VALUES (
         ${email.toLowerCase().trim()}, ${name.trim() || null}, ${source || 'hidden-ceiling'},
-        ${center}, ${scores.heart}, ${scores.head}, ${scores.action}
+        ${center}, ${scores.heart}, ${scores.head}, ${scores.action},
+        ${attr.source}, ${attr.firstSource}, ${attr.landingPage}, ${attr.referrer},
+        ${attr.utmSource}, ${attr.utmMedium}, ${attr.utmCampaign}, ${attr.utmTerm}, ${attr.utmContent},
+        ${JSON.stringify(attr.raw)}::jsonb
       )
       ON CONFLICT (email) DO UPDATE SET
         source_history = CASE
@@ -301,7 +388,17 @@ async function handleHiddenCeiling(req, res) {
         result_center = EXCLUDED.result_center,
         score_heart   = EXCLUDED.score_heart,
         score_head    = EXCLUDED.score_head,
-        score_action  = EXCLUDED.score_action
+        score_action  = EXCLUDED.score_action,
+        attribution_source = COALESCE(EXCLUDED.attribution_source, subscribers.attribution_source),
+        first_attribution_source = COALESCE(subscribers.first_attribution_source, EXCLUDED.first_attribution_source),
+        landing_page = COALESCE(subscribers.landing_page, EXCLUDED.landing_page),
+        referrer = COALESCE(subscribers.referrer, EXCLUDED.referrer),
+        utm_source = COALESCE(EXCLUDED.utm_source, subscribers.utm_source),
+        utm_medium = COALESCE(EXCLUDED.utm_medium, subscribers.utm_medium),
+        utm_campaign = COALESCE(EXCLUDED.utm_campaign, subscribers.utm_campaign),
+        utm_term = COALESCE(EXCLUDED.utm_term, subscribers.utm_term),
+        utm_content = COALESCE(EXCLUDED.utm_content, subscribers.utm_content),
+        attribution = COALESCE(EXCLUDED.attribution, subscribers.attribution)
     `;
   } catch (dbErr) {
     console.error('hidden ceiling subscriber save error:', dbErr);
@@ -544,7 +641,7 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { action, name, email, phone, interest, message, _honey, 'cf-turnstile-response': turnstileToken } = req.body;
+    const { action, name, email, phone, interest, message, _honey, attribution, 'cf-turnstile-response': turnstileToken } = req.body;
 
     // Route subscribe action
     if (action === 'subscribe') return handleSubscribe(req, res);
@@ -602,9 +699,18 @@ export default async function handler(req, res) {
 
     // Save to database — this is the source of truth; email is best-effort
     try {
+      const attr = normalizeAttribution(attribution);
+      await ensureContactAttributionColumns();
       await sql`
-        INSERT INTO contact_submissions (name, email, phone, interest, message)
-        VALUES (${name}, ${email}, ${phone}, ${interest}, ${message})
+        INSERT INTO contact_submissions (
+          name, email, phone, interest, message, attribution_source, first_attribution_source,
+          landing_page, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
+        )
+        VALUES (
+          ${name}, ${email}, ${phone}, ${interest}, ${message}, ${attr.source}, ${attr.firstSource},
+          ${attr.landingPage}, ${attr.referrer}, ${attr.utmSource}, ${attr.utmMedium}, ${attr.utmCampaign},
+          ${attr.utmTerm}, ${attr.utmContent}, ${JSON.stringify(attr.raw)}::jsonb
+        )
       `;
     } catch (dbErr) {
       console.error('Failed to save submission to DB:', dbErr);

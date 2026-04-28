@@ -750,6 +750,7 @@
                             interest: document.getElementById('cf-interest').value,
                             message: document.getElementById('cf-message').value.trim(),
                             _honey: document.getElementById('cf-honey').value,
+                            attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
                             'cf-turnstile-response': turnstileToken
                         };
 
@@ -847,6 +848,7 @@
         </div>
     </footer>
 
+    <script src="js/attribution.js?v=1"></script>
     <script src="js/site-styles.js"></script>
     <script src="js/nav.js"></script>
     <script src="js/main.js?v=3"></script>
@@ -865,7 +867,8 @@
                     body: JSON.stringify({
                         action: 'subscribe',
                         email: document.getElementById('home-sub-email').value.trim(),
-                        source: 'homepage'
+                        source: 'homepage',
+                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null
                     })
                 });
                 const data = await res.json();

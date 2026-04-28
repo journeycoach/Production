@@ -909,6 +909,7 @@
         </div>
     </footer>
 
+    <script src="js/attribution.js?v=1"></script>
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script src="js/hidden-ceiling.js"></script>
@@ -928,7 +929,8 @@
                         action: 'subscribe',
                         name: document.getElementById('sub-name').value.trim(),
                         email: document.getElementById('sub-email').value.trim(),
-                        source: 'hidden-ceiling'
+                        source: 'hidden-ceiling',
+                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null
                     })
                 });
                 const data = await res.json();

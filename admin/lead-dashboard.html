@@ -328,7 +328,7 @@
         type: 'subscriber',
         name: s.name || 'Subscriber',
         email: s.email,
-        source: normalizeSource(s.source),
+        source: normalizeSource(s.attribution_source || s.utm_source || s.source),
         result: CENTER_LABELS[s.result_center] || '—',
         campaign: s.result_center ? `Step ${parseInt(s.drip_step || 0, 10)}` : '—',
         date: s.created_at,
@@ -339,7 +339,7 @@
         type: 'contact',
         name: c.name || 'Contact',
         email: c.email,
-        source: 'Contact Form',
+        source: normalizeSource(c.attribution_source || c.utm_source || 'direct'),
         result: '—',
         campaign: c.is_read ? 'Read' : 'Unread',
         date: c.submitted_at,
@@ -409,8 +409,8 @@
         );
         renderBars(
           document.getElementById('sourceBars'),
-          countBy(subscribers, s => normalizeSource(s.source)),
-          'No subscriber sources yet.'
+          countBy([...subscribers, ...contacts], item => normalizeSource(item.attribution_source || item.utm_source || item.source || 'direct')),
+          'No lead sources yet.'
         );
         renderRecentLeads(subscribers, contacts);
       } catch (err) {

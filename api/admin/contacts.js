@@ -1,6 +1,38 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 
+async function ensureSubscriberAttributionColumns() {
+  await sql`
+    ALTER TABLE subscribers
+      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS landing_page TEXT,
+      ADD COLUMN IF NOT EXISTS referrer TEXT,
+      ADD COLUMN IF NOT EXISTS utm_source TEXT,
+      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
+      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
+      ADD COLUMN IF NOT EXISTS utm_term TEXT,
+      ADD COLUMN IF NOT EXISTS utm_content TEXT,
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+  `;
+}
+
+async function ensureContactAttributionColumns() {
+  await sql`
+    ALTER TABLE contact_submissions
+      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
+      ADD COLUMN IF NOT EXISTS landing_page TEXT,
+      ADD COLUMN IF NOT EXISTS referrer TEXT,
+      ADD COLUMN IF NOT EXISTS utm_source TEXT,
+      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
+      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
+      ADD COLUMN IF NOT EXISTS utm_term TEXT,
+      ADD COLUMN IF NOT EXISTS utm_content TEXT,
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+  `;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
@@ -11,7 +43,15 @@ export default async function handler(req, res) {
       try {
         await sql`CREATE TABLE IF NOT EXISTS subscribers (id SERIAL PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT, source TEXT DEFAULT 'website', created_at TIMESTAMPTZ DEFAULT NOW(), result_center TEXT, score_heart INT, score_head INT, score_action INT)`;
         await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS result_center TEXT, ADD COLUMN IF NOT EXISTS score_heart INT, ADD COLUMN IF NOT EXISTS score_head INT, ADD COLUMN IF NOT EXISTS score_action INT, ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0, ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW(), ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'`;
-        const rows = await sql`SELECT id, email, name, source, source_history, created_at, result_center, score_heart, score_head, score_action, drip_step, last_email_sent_at FROM subscribers ORDER BY created_at DESC`;
+        await ensureSubscriberAttributionColumns();
+        const rows = await sql`
+          SELECT id, email, name, source, source_history, created_at, result_center,
+            score_heart, score_head, score_action, drip_step, last_email_sent_at,
+            attribution_source, first_attribution_source, landing_page, referrer,
+            utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
+          FROM subscribers
+          ORDER BY created_at DESC
+        `;
         return res.status(200).json({ data: rows });
       } catch (err) {
         console.error('subscribers GET error:', err);
@@ -53,8 +93,11 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      await ensureContactAttributionColumns();
       const rows = await sql`
-        SELECT id, name, email, phone, interest, message, is_read, submitted_at
+        SELECT id, name, email, phone, interest, message, is_read, submitted_at,
+          attribution_source, first_attribution_source, landing_page, referrer,
+          utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
         FROM contact_submissions
         ORDER BY submitted_at DESC
       `;
