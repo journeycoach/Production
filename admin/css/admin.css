@@ -1790,12 +1790,12 @@ select option {
   cursor: pointer !important;
 }
 
-.site-tab:hover,
-.page-tab:hover,
-.settings-tab:hover,
-.email-subtab:hover,
-.center-subtab:hover,
-.res-subtab:hover,
+.site-tab:hover:not(.is-active),
+.page-tab:hover:not(.is-active):not(.active),
+.settings-tab:hover:not(.is-active),
+.email-subtab:hover:not(.is-active),
+.center-subtab:hover:not(.is-active),
+.res-subtab:hover:not(.is-active),
 .cat-filter:hover:not(.active) {
   color: var(--admin-text) !important;
   border-color: #cfd6de !important;
@@ -2140,15 +2140,28 @@ tbody tr:nth-child(even):hover {
 .btn-ghost:hover,
 .admin-page-title .back-link:hover,
 .site-tab:hover:not(.is-active),
-.page-tab:hover,
-.settings-tab:hover,
-.email-subtab:hover,
-.center-subtab:hover,
-.res-subtab:hover,
+.page-tab:hover:not(.is-active):not(.active),
+.settings-tab:hover:not(.is-active),
+.email-subtab:hover:not(.is-active),
+.center-subtab:hover:not(.is-active),
+.res-subtab:hover:not(.is-active),
 .cat-filter:hover:not(.active) {
   background: #f4f6f8 !important;
   border-color: #cbd3dc !important;
   color: #152233 !important;
+}
+
+.site-tab.is-active:hover,
+.page-tab.is-active:hover,
+.page-tab.active:hover,
+.settings-tab.is-active:hover,
+.email-subtab.is-active:hover,
+.center-subtab.is-active:hover,
+.res-subtab.is-active:hover,
+.cat-filter.active:hover {
+  background: #1e3349 !important;
+  border-color: #1e3349 !important;
+  color: #ffffff !important;
 }
 
 .btn-primary,
