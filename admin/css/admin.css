@@ -2241,3 +2241,64 @@ textarea::placeholder {
   background: #fff2f2 !important;
   color: #c53636 !important;
 }
+
+.section-list,
+.section-item,
+.section-header,
+.section-detail {
+  color: #243040 !important;
+}
+
+.section-item {
+  background: #ffffff !important;
+  border-color: #e2dfdb !important;
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.section-header {
+  background: #ffffff !important;
+}
+
+.section-item:hover .section-header {
+  background: #f9fafb !important;
+}
+
+.section-label-text {
+  color: #243040 !important;
+}
+
+.section-key-badge {
+  background: #eef2f6 !important;
+  color: #596575 !important;
+}
+
+.section-detail {
+  background: #f9fafb !important;
+  border-top-color: #edf0f2 !important;
+}
+
+.toggle-label {
+  color: #596575 !important;
+}
+
+.btn-expand {
+  background: #ffffff !important;
+  border-color: #dfe4ea !important;
+  color: #243040 !important;
+}
+
+.btn-expand:hover {
+  background: #f4f6f8 !important;
+  border-color: #cbd3dc !important;
+  color: #152233 !important;
+}
+
+.status-published {
+  background: #eaf7f0 !important;
+  color: #1f7a4c !important;
+}
+
+.status-draft {
+  background: #fff8e8 !important;
+  color: #8d7136 !important;
+}
