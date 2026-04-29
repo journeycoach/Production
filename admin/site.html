@@ -265,7 +265,13 @@
               <div class="guide-box" style="margin-bottom:20px;"><strong>About the Auto-Reply</strong>This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> to personalize. The body accepts plain HTML.</div>
               <div class="form-group" style="margin-bottom:20px;"><label style="display:flex;align-items:center;gap:12px;cursor:pointer;"><input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;"><span>Send auto-reply email when someone submits the contact form</span></label></div>
               <div class="form-group" style="margin-bottom:20px;"><label for="contact_reply_subject">Subject Line</label><input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}"></div>
-              <div class="form-group"><label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label><textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea></div>
+              <div class="form-group">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+                  <label for="contact_reply_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('contact_reply_body')" style="font-size:0.78rem;padding:4px 10px;">&#9654; Preview</button>
+                </div>
+                <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+              </div>
             </div>
           </div>
           <div class="email-subtab-panel" data-subtab-panel="free-guide">
@@ -277,7 +283,10 @@
               <div class="form-group">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
                   <label for="guide_email_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-                  <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <div style="display:flex;gap:6px;">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('guide_email_body')" style="font-size:0.78rem;padding:4px 10px;">&#9654; Preview</button>
+                  </div>
                 </div>
                 <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default."></textarea>
               </div>
@@ -304,6 +313,7 @@
           <div class="save-order-bar">
             <button class="btn btn-secondary btn-sm" onclick="saveOrder()">Save Order</button>
             <span class="order-changed-badge" id="orderBadge">⚠ Unsaved order changes</span>
+            <a id="viewPageLink" href="/" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm" style="margin-left:auto;">View Page ↗</a>
           </div>
           <div class="section-list" id="sectionList">
             <div style="color:#888;padding:24px;text-align:center;">Loading…</div>
@@ -351,6 +361,17 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- Email Preview Modal -->
+  <div id="emailPreviewModal" class="modal-overlay" onclick="if(event.target===this)closeEmailPreview()">
+    <div class="modal-box" style="max-width:680px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="modal-header">
+        <span class="modal-title">Email Preview <span style="font-weight:400;font-size:0.8rem;color:var(--admin-muted);">(sample data)</span></span>
+        <button type="button" class="modal-close" onclick="closeEmailPreview()">&#215;</button>
+      </div>
+      <iframe id="emailPreviewFrame" style="flex:1;width:100%;height:620px;border:none;background:#fff;" sandbox="allow-same-origin"></iframe>
+    </div>
   </div>
 
   <script src="js/admin.js"></script>
@@ -638,9 +659,12 @@
     let sectionsSortable = null;
     const dragSortingEnabled = !window.matchMedia('(pointer: coarse), (max-width: 768px)').matches;
 
+    const PAGE_URLS = { home: '/', enneagram: '/enneagram.html', blog: '/blog.html', tools: '/tools.html' };
     function renderTabs() {
       const el = document.getElementById('pageTabs');
       el.innerHTML = PAGES.map(p => `<button class="page-tab ${p.key===currentPage?'active':''}" onclick="switchPage('${p.key}')">${p.label}</button>`).join('');
+      const link = document.getElementById('viewPageLink');
+      if (link) link.href = PAGE_URLS[currentPage] || '/';
     }
     function switchPage(page) {
       currentPage=page; orderDirty=false;
@@ -753,6 +777,24 @@
     function collectFooterLinks() {
       return Array.from(document.querySelectorAll('#footerLinksBody tr[data-index]')).map(row=>{const inputs=row.querySelectorAll('input');return{label:inputs[0].value,url:inputs[1].value,visible:inputs[2].checked};});
     }
+    function showEmailPreview(textareaId) {
+      const ta = document.getElementById(textareaId);
+      const html = ta ? ta.value.trim() : '';
+      if (!html) { showFlash('No email content to preview — add some HTML first.', 'error'); return; }
+      const sample = html
+        .replace(/\{\{firstName\}\}/g, 'Sarah')
+        .replace(/\{\{scoreHeart\}\}/g, '72')
+        .replace(/\{\{scoreHead\}\}/g, '58')
+        .replace(/\{\{scoreAction\}\}/g, '64')
+        .replace(/\{\{calendlyUrl\}\}/g, 'https://calendly.com/sample');
+      document.getElementById('emailPreviewFrame').srcdoc = sample;
+      document.getElementById('emailPreviewModal').classList.add('open');
+    }
+    function closeEmailPreview() {
+      document.getElementById('emailPreviewModal').classList.remove('open');
+      document.getElementById('emailPreviewFrame').srcdoc = '';
+    }
+
     document.getElementById('navForm').addEventListener('submit', async e => {
       e.preventDefault();
       const payload={brand_name:document.getElementById('brandName').value.trim(),nav_links:collectNavLinks(),footer_links:collectFooterLinks(),cta_button:{label:document.getElementById('ctaLabel').value.trim(),url:document.getElementById('ctaUrl').value.trim(),visible:document.getElementById('ctaVisible').checked}};
