@@ -170,7 +170,7 @@ function trackRecentAdminPage() {
     timestamp: Date.now()
   });
 
-  saveRecentAdminItems(recent.slice(0, 6));
+  saveRecentAdminItems(recent.slice(0, 3));
 }
 
 function applyAdminTheme(settings = {}) {

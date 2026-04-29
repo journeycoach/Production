@@ -298,6 +298,7 @@
       }
 
       recentList.innerHTML = recentItems
+        .slice(0, 3)
         .filter(item => /^[\w\-]+\.html(\?[\w=\-&]+)?$/.test(item.path))
         .map(item => `
           <a href="${escHtml(item.path)}" class="recent-item">
