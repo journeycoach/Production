@@ -1971,3 +1971,273 @@ code {
     padding: 16px;
   }
 }
+
+/* --- Contrast guardrails -------------------------------------------------
+   Admin appearance settings can override CSS variables at runtime. Keep the
+   redesigned light surfaces readable even when a saved dark theme is active.
+   ---------------------------------------------------------------------- */
+
+body,
+.admin-wrapper,
+.admin-main {
+  background-color: #f6f4f2 !important;
+  color: #243040 !important;
+}
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: #e7e3df !important;
+}
+
+.admin-header .brand {
+  color: #243040 !important;
+}
+
+.admin-header .brand span,
+.admin-page-title p,
+.td-muted,
+.summary-note,
+.recent-item-meta,
+.dashboard-card .card-desc,
+.metric-note,
+.bar-label,
+.bar-value,
+.form-hint,
+.resource-image-preview-label,
+.reorder-panel-hint,
+.submission-detail,
+.submission-date {
+  color: #7a8492 !important;
+}
+
+.admin-header-actions::before {
+  background: #2f3133 !important;
+  border-color: #2f3133 !important;
+  color: #c9d0d8 !important;
+}
+
+.admin-page-title h1,
+.admin-page-title h2,
+.admin-page-title h3,
+.card,
+.card *,
+.dashboard-card,
+.dashboard-card *,
+.summary-card,
+.summary-card *,
+.metric-card,
+.metric-card *,
+.recent-item,
+.recent-item *,
+.submission-card,
+.submission-card *,
+.reorder-panel,
+.reorder-panel *,
+.tool-row,
+.tool-row *,
+.category-order-row,
+.category-order-row *,
+.modal-box,
+.modal-box *,
+.crop-modal-inner,
+.crop-modal-inner * {
+  color: #243040;
+}
+
+.admin-nav,
+.admin-nav *,
+.btn-primary,
+.btn-primary *,
+.page-tab.is-active,
+.page-tab.active,
+.settings-tab.is-active,
+.email-subtab.is-active,
+.center-subtab.is-active,
+.res-subtab.is-active,
+.cat-filter.active,
+.cat-filter.active *,
+.quick-action-pill:hover,
+.quick-action-pill:hover *,
+.unread-badge,
+.unread-badge * {
+  color: #ffffff !important;
+}
+
+.card,
+.summary-card,
+.metric-card,
+.recent-item,
+.submission-card,
+.reorder-panel,
+.tool-row,
+.category-order-row,
+.resource-image-preview,
+.modal-box,
+.crop-modal-inner {
+  background-color: #ffffff !important;
+  border-color: #e2dfdb !important;
+}
+
+.card:hover,
+.dashboard-card:hover,
+.summary-card:hover,
+.metric-card:hover,
+.recent-item:hover,
+.tool-row:hover,
+.category-order-row:hover,
+tbody tr:hover,
+tbody tr:nth-child(even):hover {
+  background-color: #f9fafb !important;
+}
+
+.dashboard-card,
+.dashboard-card:hover {
+  background-color: #ffffff !important;
+  border-color: #e2dfdb !important;
+}
+
+.dashboard-card .card-icon,
+.dashboard-card:hover .card-icon {
+  background: #eef2f6 !important;
+  color: #243040 !important;
+}
+
+.btn-secondary,
+.btn-ghost,
+.admin-page-title .back-link,
+.quick-action-pill,
+.page-tab,
+.settings-tab,
+.email-subtab,
+.center-subtab,
+.res-subtab,
+.cat-filter {
+  background: #ffffff !important;
+  border-color: #dfe4ea !important;
+  color: #243040 !important;
+}
+
+.btn-secondary *,
+.btn-ghost *,
+.admin-page-title .back-link *,
+.quick-action-pill *,
+.page-tab *,
+.settings-tab *,
+.email-subtab *,
+.center-subtab *,
+.res-subtab *,
+.cat-filter * {
+  color: #243040 !important;
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover,
+.admin-page-title .back-link:hover,
+.page-tab:hover,
+.settings-tab:hover,
+.email-subtab:hover,
+.center-subtab:hover,
+.res-subtab:hover,
+.cat-filter:hover:not(.active) {
+  background: #f4f6f8 !important;
+  border-color: #cbd3dc !important;
+  color: #152233 !important;
+}
+
+.btn-primary,
+.page-tab.is-active,
+.page-tab.active,
+.settings-tab.is-active,
+.email-subtab.is-active,
+.center-subtab.is-active,
+.res-subtab.is-active,
+.cat-filter.active {
+  background: #152233 !important;
+  border-color: #152233 !important;
+}
+
+.btn-danger {
+  background: #fff2f2 !important;
+  border-color: #ffd6d6 !important;
+  color: #c53636 !important;
+}
+
+.btn-danger * {
+  color: #c53636 !important;
+}
+
+thead th,
+label,
+.metric-label,
+.summary-label,
+.reorder-panel-title,
+.reorder-section-label {
+  color: #7a8492 !important;
+}
+
+td {
+  color: #243040 !important;
+  border-bottom-color: #edf0f2 !important;
+}
+
+.table-empty,
+.empty-state,
+.recent-empty {
+  background: #fafafa !important;
+  color: #7a8492 !important;
+}
+
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+input[type="datetime-local"],
+select,
+textarea,
+.form-control {
+  background: #f9fafb !important;
+  border-color: #dfe4ea !important;
+  color: #243040 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8b95a1 !important;
+}
+
+.guide-box {
+  background: #fff8e8 !important;
+  color: #6d5a2a !important;
+}
+
+.guide-box,
+.guide-box * {
+  color: #6d5a2a !important;
+}
+
+.guide-box strong {
+  color: #9a7420 !important;
+}
+
+.submission-message {
+  background: #f7f8fa !important;
+  color: #243040 !important;
+}
+
+.badge,
+.badge-muted {
+  background: #eef2f6 !important;
+  color: #596575 !important;
+}
+
+.badge-gold,
+.badge-accent {
+  background: rgba(141, 113, 54, 0.14) !important;
+  color: #8d7136 !important;
+}
+
+.badge-danger {
+  background: #fff2f2 !important;
+  color: #c53636 !important;
+}
