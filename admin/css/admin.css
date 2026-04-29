@@ -2302,3 +2302,57 @@ textarea::placeholder {
   background: #fff8e8 !important;
   color: #8d7136 !important;
 }
+
+/* ── Targeted text-color fixes ────────────────────────────────────────────
+   Inline <style> blocks in HTML pages use var(--admin-text) for text colors.
+   When the stored admin theme has dark-theme values, those vars resolve to a
+   light color (#f0ece4) and become invisible on the light admin background.
+   These !important rules win over equal-specificity inline-style declarations
+   because they appear later in this file and carry !important.
+   ----------------------------------------------------------------------- */
+
+/* dashboard.html — card group items */
+.card-group-item-title { color: #243040 !important; }
+.card-group-item-desc  { color: #596575 !important; }
+.card-group-item-arrow { color: #7a8492 !important; }
+
+/* testimonials.html — inline checkbox labels */
+.inline-check { color: #243040 !important; }
+
+/* contacts.html — submission cards */
+.submission-name    { color: #243040 !important; }
+.submission-message { background: #f4f6f8 !important; color: #243040 !important; }
+
+/* lead-dashboard.html — metrics and table */
+.metric-value   { color: #243040 !important; }
+.lead-name      { color: #243040 !important; }
+.insight-list li      { border-bottom-color: #edf0f2 !important; color: #596575 !important; }
+.insight-list strong  { color: #243040 !important; }
+.bar-track { background: #edf0f2 !important; border-color: #e2dfdb !important; }
+
+/* subscribers.html — step accordion */
+.step-accordion   { border-color: #e2dfdb !important; }
+.step-summary     { background: #ffffff !important; color: #243040 !important; }
+.step-summary:hover { background: #f4f6f8 !important; }
+.step-accordion.open .step-summary { border-bottom-color: #e2dfdb !important; }
+.step-meta-subject  { color: #243040 !important; }
+.step-meta-delay    { color: #596575 !important; }
+.step-chevron       { color: #7a8492 !important; }
+.step-body          { background: #fafbfc !important; }
+
+/* subscribers.html — modal */
+.modal-box    { border-color: #e2dfdb !important; }
+.modal-header { border-bottom-color: #e2dfdb !important; }
+.modal-title  { color: #243040 !important; }
+.modal-close  { color: #596575 !important; }
+.modal-close:hover { background: #f4f6f8 !important; color: #243040 !important; }
+
+/* contacts.html / site.html / subscribers.html — sticky save bar */
+.save-bar { background: #ffffff !important; border-top-color: #e2dfdb !important; }
+
+/* post-edit.html — live preview panel */
+.preview-panel        { background: #ffffff !important; border-color: #e2dfdb !important; }
+.preview-panel-header { border-bottom-color: #e2dfdb !important; color: #596575 !important; }
+
+/* subscribers.html — mobile table rows */
+#subTable tbody tr { border-color: #e2dfdb !important; }
