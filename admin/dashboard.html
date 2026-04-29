@@ -7,15 +7,8 @@
   <link rel="stylesheet" href="css/admin.css" />
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <style>
-    .rearrange-bar { display: none; }
-    @media (pointer: coarse), (max-width: 768px) {
-      .rearrange-bar { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 0.82rem; font-weight: 600; color: var(--admin-text-muted); }
-      body.rearrange-active .dashboard-card { touch-action: none; cursor: grab; }
-    }
-    .rearrange-bar input[type=checkbox] { appearance: none; width: 40px; height: 22px; background: var(--admin-border); border-radius: 999px; position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
-    .rearrange-bar input[type=checkbox]::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s; }
-    .rearrange-bar input[type=checkbox]:checked { background: var(--admin-accent); }
-    .rearrange-bar input[type=checkbox]:checked::after { left: 21px; }
+    body.rearrange-active .dashboard-card { touch-action: none; cursor: grab; }
+    body.rearrange-active .dashboard-card:active { cursor: grabbing; }
     .dashboard-card-group { cursor: default; display: flex; flex-direction: column; }
     .dashboard-card-group:hover { border-color: var(--admin-border); box-shadow: none; transform: none; }
     .card-group-items { display: flex; flex-direction: column; margin-top: auto; padding-top: 4px; }
@@ -51,7 +44,7 @@
     <main class="admin-main">
       <div class="admin-page-title">
         <h1>Dashboard</h1>
-        <button class="btn btn-ghost btn-sm" onclick="resetOrder()" title="Restore default card order">Reset Order</button>
+        <button class="btn btn-ghost btn-sm" id="rearrangeBtn" onclick="toggleRearrange()">Rearrange Tiles</button>
       </div>
 
       <div class="dashboard-shell">
@@ -89,12 +82,6 @@
           </div>
 
           <div class="dashboard-grid" id="dashGrid"></div>
-          <div class="rearrange-bar">
-            <label style="display:flex;align-items:center;gap:10px;">
-              <input type="checkbox" id="rearrangeToggle" onchange="setRearrangeMode(this.checked)">
-              Rearrange Tiles
-            </label>
-          </div>
         </section>
       </div>
     </main>
@@ -263,12 +250,9 @@
           </a>`;
       }).join('');
 
-      const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
       gridSortable = Sortable.create(grid, {
         animation: 150,
-        delay: 150,
-        delayOnTouchOnly: true,
-        disabled: isTouchDevice,
+        disabled: true,
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         onEnd() {
@@ -401,12 +385,9 @@
 
         const summaryGridEl = document.getElementById('summaryGrid');
         if (summaryGridEl && window.Sortable) {
-          const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
           summarySortable = Sortable.create(summaryGridEl, {
             animation: 150,
-            delay: 150,
-            delayOnTouchOnly: true,
-            disabled: isTouchDevice,
+            disabled: true,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
             onEnd() {
@@ -429,26 +410,20 @@
     let gridSortable = null;
     let summarySortable = null;
 
-    function setRearrangeMode(enabled) {
-      document.body.classList.toggle('rearrange-active', enabled);
-      if (gridSortable) {
-        gridSortable.option('delay', enabled ? 0 : 150);
-        gridSortable.option('disabled', !enabled);
-      }
-      if (summarySortable) {
-        summarySortable.option('delay', enabled ? 0 : 150);
-        summarySortable.option('disabled', !enabled);
-      }
+    function toggleRearrange() {
+      setRearrangeMode(!document.body.classList.contains('rearrange-active'));
     }
 
-    function resetOrder() {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem('admin_summary_order');
-      const toggle = document.getElementById('rearrangeToggle');
-      if (toggle) toggle.checked = false;
-      setRearrangeMode(false);
-      renderGrid();
-      loadSummary();
+    function setRearrangeMode(enabled) {
+      document.body.classList.toggle('rearrange-active', enabled);
+      const btn = document.getElementById('rearrangeBtn');
+      if (btn) {
+        btn.textContent = enabled ? 'Done Rearranging' : 'Rearrange Tiles';
+        btn.style.color = enabled ? 'var(--admin-accent)' : '';
+        btn.style.borderColor = enabled ? 'var(--admin-accent)' : '';
+      }
+      if (gridSortable) gridSortable.option('disabled', !enabled);
+      if (summarySortable) summarySortable.option('disabled', !enabled);
     }
 
     renderGrid();

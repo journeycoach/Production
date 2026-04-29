@@ -120,6 +120,9 @@ a:hover {
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+  position: sticky;
+  top: 56px;
+  z-index: 95;
 }
 
 .admin-nav a {
