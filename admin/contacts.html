@@ -213,8 +213,15 @@
 
     function setFilter(f) {
       currentFilter = f;
-      document.getElementById('filterAll').classList.toggle('btn-primary',    f === 'all');
-      document.getElementById('filterUnread').classList.toggle('btn-primary', f === 'unread');
+      const btnAll = document.getElementById('filterAll');
+      const btnUnread = document.getElementById('filterUnread');
+      
+      btnAll.classList.toggle('btn-primary', f === 'all');
+      btnAll.classList.toggle('btn-secondary', f !== 'all');
+      
+      btnUnread.classList.toggle('btn-primary', f === 'unread');
+      btnUnread.classList.toggle('btn-secondary', f !== 'unread');
+      
       render();
     }
 

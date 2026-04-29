@@ -155,9 +155,10 @@
             <label for="body">Post Body — HTML supported</label>
             <textarea id="body" rows="24" placeholder="Write your post content here. HTML tags are supported (e.g. &lt;p&gt;, &lt;h2&gt;, &lt;strong&gt;, &lt;a href=&quot;...&quot;&gt;)."></textarea>
           </div>
-          <div class="form-actions">
+          <div class="form-actions" style="display:flex; gap:12px; align-items:center;">
             <button type="submit" class="btn btn-primary" id="saveBtn">Publish Post</button>
-            <a href="posts.html" class="btn btn-secondary">Cancel</a>
+            <button type="button" class="btn btn-ghost" onclick="togglePreview()">&#9654; Toggle Preview</button>
+            <a href="posts.html" class="btn btn-secondary" style="margin-left:auto;">Cancel</a>
           </div>
         </form>
       </div><!-- /.card -->

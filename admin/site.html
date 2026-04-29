@@ -268,9 +268,11 @@
               <div class="form-group">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
                   <label for="contact_reply_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('contact_reply_body')" style="font-size:0.78rem;padding:4px 10px;">&#9654; Preview</button>
                 </div>
                 <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+                <div style="margin-top:12px; text-align:right;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('contact_reply_body')">&#9654; Preview Email</button>
+                </div>
               </div>
             </div>
           </div>
@@ -285,10 +287,12 @@
                   <label for="guide_email_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
                   <div style="display:flex;gap:6px;">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
-                    <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('guide_email_body')" style="font-size:0.78rem;padding:4px 10px;">&#9654; Preview</button>
                   </div>
                 </div>
                 <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default."></textarea>
+                <div style="margin-top:12px; text-align:right;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('guide_email_body')">&#9654; Preview Email</button>
+                </div>
               </div>
             </div>
           </div>
