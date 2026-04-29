@@ -719,10 +719,21 @@
           const clone    = document.importNode(template, true);
           const isActive = step.is_active !== false;
 
-          clone.querySelector('.step-title').textContent   = `Email ${step.step_number}`;
-          clone.querySelector('.field-delay').value        = step.delay_days;
-          clone.querySelector('.field-subject').value      = step.subject;
-          clone.querySelector('.field-body').value         = step.body_html;
+          // Accordion header
+          clone.querySelector('.step-num').textContent          = `Email ${step.step_number}`;
+          clone.querySelector('.step-meta-delay').textContent   = `· Wait ${step.delay_days}d`;
+          clone.querySelector('.step-meta-subject').textContent = `· ${step.subject || 'No subject'}`;
+          const badge = clone.querySelector('.step-status-badge');
+          badge.textContent = isActive ? 'Active' : 'Paused';
+          badge.style.color = isActive ? 'var(--admin-success)' : 'var(--admin-muted)';
+          clone.querySelector('.step-summary').addEventListener('click', function() {
+            this.closest('.step-accordion').classList.toggle('open');
+          });
+
+          // Form fields
+          clone.querySelector('.field-delay').value   = step.delay_days;
+          clone.querySelector('.field-subject').value = step.subject;
+          clone.querySelector('.field-body').value    = step.body_html;
 
           const checkbox = clone.querySelector('.field-active');
           const track    = clone.querySelector('.step-toggle-track');
@@ -734,7 +745,7 @@
           label.textContent        = isActive ? 'Active' : 'Paused';
           label.style.color        = isActive ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
 
-          checkbox.addEventListener('change', () => toggleStep(step.id, checkbox, track, thumb, label));
+          checkbox.addEventListener('change', () => toggleStep(step.id, checkbox, track, thumb, label, badge));
           clone.querySelector('.btn-save').addEventListener('click', function() { saveStep(step.id, this); });
 
           listEl.appendChild(clone);
@@ -778,12 +789,13 @@
       }
     }
 
-    async function toggleStep(id, checkbox, track, thumb, label) {
+    async function toggleStep(id, checkbox, track, thumb, label, badge) {
       const newState           = checkbox.checked;
       track.style.background   = newState ? 'var(--admin-accent)' : 'var(--admin-border)';
       thumb.style.transform    = newState ? 'translateX(16px)' : 'translateX(0)';
       label.textContent        = newState ? 'Active' : 'Paused';
       label.style.color        = newState ? 'var(--admin-accent)' : 'var(--admin-text-muted)';
+      if (badge) { badge.textContent = newState ? 'Active' : 'Paused'; badge.style.color = newState ? 'var(--admin-success)' : 'var(--admin-muted)'; }
       try {
         const res = await adminFetch('/api/admin/settings?resource=campaigns', {
           method: 'PUT',
@@ -819,6 +831,14 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    function openTestSendModal() {
+      if (!campaignLoaded) loadCampaign();
+      document.getElementById('testSendModal').classList.add('open');
+    }
+    function closeTestSendModal() {
+      document.getElementById('testSendModal').classList.remove('open');
     }
 
     async function sendTestEmails() {
