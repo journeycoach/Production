@@ -310,7 +310,6 @@ function formatDate(iso) {
  * @param {string} [tabAttr='tab'] data-* attribute on each button that holds its value
  */
 function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
-  if (typeof Sortable === 'undefined') return;
   const tabBar = document.querySelector(tabBarSelector);
   if (!tabBar) return;
 
@@ -325,6 +324,8 @@ function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
     }
   } catch {}
 
+  if (typeof Sortable === 'undefined') return;
+
   // Activate drag-to-sort
   Sortable.create(tabBar, {
     animation: 150,
@@ -338,8 +339,26 @@ function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
   });
 }
 
+function initAdminNavSortable() {
+  const nav = document.querySelector('.admin-nav');
+  if (!nav) return;
+  
+  // Assign data-nav attributes based on href
+  const links = nav.querySelectorAll('a');
+  links.forEach(link => {
+    const href = link.getAttribute('href') || '';
+    const key = href.split('?')[0].replace('.html', '').replace('/', '');
+    link.setAttribute('data-nav', key);
+  });
+  
+  // Make sortable
+  makeTabsSortable('.admin-nav', 'admin_nav_order', 'nav');
+}
+
 applyAdminTheme(getCachedAdminTheme());
 if (hasAdminSessionMarker() || consumeLegacyAdminToken()) {
   loadAdminTheme();
   trackRecentAdminPage();
 }
+
+initAdminNavSortable();
