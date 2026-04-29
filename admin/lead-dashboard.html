@@ -6,10 +6,26 @@
   <title>Lead Dashboard — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <style>
+    .range-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .range-bar .range-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #7a8492;
+      margin-right: 2px;
+    }
+
     .lead-grid {
       display: grid;
       gap: 1.25rem;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       margin-bottom: 1.5rem;
     }
 
@@ -19,6 +35,9 @@
       border-radius: 8px;
       padding: 1.25rem;
     }
+    .metric-card.metric-warn    { border-left: 3px solid #d97706; }
+    .metric-card.metric-success { border-left: 3px solid #1f7a4c; }
+    .metric-card.metric-accent  { border-left: 3px solid var(--admin-accent, #c7a96b); }
 
     .metric-label {
       color: var(--admin-muted);
@@ -28,46 +47,34 @@
       margin-bottom: 0.45rem;
       text-transform: uppercase;
     }
-
     .metric-value {
       color: var(--admin-text);
       font-family: var(--admin-heading-font);
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
       line-height: 1;
       margin-bottom: 0.5rem;
     }
-
     .metric-note {
       color: var(--admin-muted);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       line-height: 1.45;
     }
 
     .dashboard-panels {
       display: grid;
       gap: 1.25rem;
-      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
     }
-
-    .panel-stack {
-      display: grid;
-      gap: 1.25rem;
-    }
+    .panel-stack { display: grid; gap: 1.25rem; }
 
     .bar-row {
       display: grid;
       gap: 0.75rem;
-      grid-template-columns: 130px 1fr 44px;
+      grid-template-columns: 110px 1fr 40px;
       align-items: center;
       margin-bottom: 0.9rem;
     }
-
-    .bar-label,
-    .bar-value {
-      color: var(--admin-muted);
-      font-size: 0.85rem;
-    }
-
+    .bar-label, .bar-value { color: var(--admin-muted); font-size: 0.82rem; }
     .bar-track {
       background: rgba(255,255,255,0.06);
       border: 1px solid var(--admin-border);
@@ -75,36 +82,29 @@
       height: 10px;
       overflow: hidden;
     }
-
     .bar-fill {
-      background: var(--admin-accent);
+      background: var(--admin-accent, #c7a96b);
       border-radius: inherit;
       display: block;
       height: 100%;
       min-width: 3px;
     }
+    .bar-fill.fill-muted  { background: #7a8492; }
+    .bar-fill.fill-warn   { background: #d97706; }
+    .bar-fill.fill-danger { background: #c53636; }
+    .bar-fill.fill-ok     { background: #1f7a4c; }
 
-    .lead-table {
-      width: 100%;
-    }
-
-    .lead-table td,
-    .lead-table th {
-      vertical-align: top;
-    }
+    .lead-table { width: 100%; }
+    .lead-table td, .lead-table th { vertical-align: middle; }
+    .lead-table tbody tr { cursor: pointer; }
 
     .lead-name {
       color: var(--admin-text);
       display: block;
       font-weight: 700;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
-
-    .lead-email {
-      color: var(--admin-accent);
-      font-size: 0.82rem;
-      overflow-wrap: anywhere;
-    }
+    .lead-email { color: var(--admin-accent, #c7a96b); font-size: 0.8rem; overflow-wrap: anywhere; }
 
     .badge {
       background: rgba(255,255,255,0.05);
@@ -112,31 +112,33 @@
       border-radius: 999px;
       color: var(--admin-muted);
       display: inline-flex;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.04em;
-      padding: 0.22rem 0.6rem;
+      padding: 0.18rem 0.55rem;
       text-transform: uppercase;
     }
+    .badge-result {
+      border-color: color-mix(in srgb, var(--admin-accent, #c7a96b) 45%, var(--admin-border));
+      color: var(--admin-accent, #c7a96b);
+    }
+    .badge-dual { border-color: #1f7a4c; color: #1f7a4c; }
+    .badge-contact { border-color: #596575; color: #596575; }
 
-    .badge-accent {
-      border-color: color-mix(in srgb, var(--admin-accent) 45%, var(--admin-border));
-      color: var(--admin-accent);
+    .note-pip {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--admin-accent, #c7a96b);
+      margin-left: 5px;
+      vertical-align: middle;
+      flex-shrink: 0;
     }
 
-    .empty-state {
-      color: var(--admin-muted);
-      padding: 1.25rem 0;
-      text-align: center;
-    }
+    .empty-state { color: var(--admin-muted); padding: 1.25rem 0; text-align: center; font-size: 0.875rem; }
 
-    .insight-list {
-      display: grid;
-      gap: 0.85rem;
-      margin: 0;
-      padding: 0;
-    }
-
+    .insight-list { display: grid; gap: 0.85rem; margin: 0; padding: 0; }
     .insight-list li {
       border-bottom: 1px solid var(--admin-border);
       color: var(--admin-muted);
@@ -146,20 +148,29 @@
       list-style: none;
       padding-bottom: 0.85rem;
     }
+    .insight-list strong { color: var(--admin-text); }
 
-    .insight-list strong {
-      color: var(--admin-text);
+    .card-title-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+    .card-title-row .card-title { margin-bottom: 0; }
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: #7a8492;
+      font-family: system-ui, sans-serif;
+      font-weight: 400;
     }
 
     @media (max-width: 980px) {
-      .lead-grid,
-      .dashboard-panels {
-        grid-template-columns: 1fr;
-      }
-
-      .bar-row {
-        grid-template-columns: 100px 1fr 38px;
-      }
+      .lead-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-panels { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 90px 1fr 36px; }
+    }
+    @media (max-width: 560px) {
+      .lead-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -188,16 +199,28 @@
       <div class="admin-page-title">
         <div>
           <h1>Lead Dashboard</h1>
-          <p style="color:var(--admin-muted);font-size:0.9rem;margin-top:0.35rem;">A quick view of contacts, subscribers, assessment completions, and funnel movement.</p>
+          <p style="color:#7a8492;font-size:0.9rem;margin-top:0.35rem;">Contacts, subscribers, assessment completions, and funnel movement.</p>
         </div>
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
+      <!-- Date range toggle -->
+      <div class="range-bar">
+        <span class="range-label">Period</span>
+        <button class="page-tab" data-days="7"  onclick="setRange(7)">7 days</button>
+        <button class="page-tab is-active" data-days="30" onclick="setRange(30)">30 days</button>
+        <button class="page-tab" data-days="90" onclick="setRange(90)">90 days</button>
+        <button class="page-tab" data-days="0"  onclick="setRange(0)">All time</button>
+      </div>
+
+      <!-- 6 metric cards -->
       <section class="lead-grid" id="metricGrid">
-        <div class="metric-card"><div class="metric-label">Loading</div><div class="metric-value">...</div><div class="metric-note">Fetching lead data.</div></div>
+        <div class="metric-card"><div class="metric-label">Loading</div><div class="metric-value">…</div><div class="metric-note">Fetching lead data.</div></div>
       </section>
 
+      <!-- Panels -->
       <section class="dashboard-panels">
+        <!-- Left column -->
         <div class="panel-stack">
           <div class="card">
             <div class="card-title">Funnel Snapshot</div>
@@ -205,24 +228,37 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Recent Leads</div>
+            <div class="card-title-row">
+              <div class="card-title">Drip Drop-off</div>
+            </div>
+            <p style="color:#7a8492;font-size:0.82rem;margin:0.35rem 0 1rem;">Assessment subscribers by email sequence step.</p>
+            <div id="dripBars"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title-row">
+              <div class="card-title">Recent Leads</div>
+              <span class="card-subtitle" id="recentRangeLabel"></span>
+            </div>
+            <p style="color:#7a8492;font-size:0.78rem;margin:0.35rem 0 1rem;">Click any row to open in Contacts or Subscribers. <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c7a96b;vertical-align:middle;margin-right:2px;"></span> = has notes. <span class="badge badge-dual" style="font-size:0.68rem;">dual</span> = also sent contact form.</p>
             <table class="lead-table">
               <thead>
                 <tr>
                   <th>Lead</th>
                   <th>Source</th>
                   <th>Result</th>
-                  <th>Campaign</th>
+                  <th>Step</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody id="recentLeadsBody">
-                <tr><td colspan="5" class="table-empty">Loading...</td></tr>
+                <tr><td colspan="5" class="table-empty">Loading…</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        <!-- Right column -->
         <div class="panel-stack">
           <div class="card">
             <div class="card-title">Hidden Ceiling Results</div>
@@ -235,17 +271,9 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Email Engagement</div>
-            <ul class="insight-list" id="engagementList">
-              <li>
-                <strong>Email sends</strong>
-                Campaign step and last sent date are tracked for assessment subscribers.
-              </li>
-              <li>
-                <strong>Email clicks</strong>
-                Not tracked yet. Add tracked links or Resend event webhooks to capture this.
-              </li>
-            </ul>
+            <div class="card-title">Email Status</div>
+            <p style="color:#7a8492;font-size:0.82rem;margin:0.35rem 0 1rem;">Deliverability flags across subscribers and contacts.</p>
+            <div id="emailStatusBars"></div>
           </div>
         </div>
       </section>
@@ -256,178 +284,309 @@
   <script>
     requireAdminAuth();
 
-    const CENTER_LABELS = {
-      heart: 'Heart',
-      head: 'Head',
-      action: 'Gut'
-    };
+    const CENTER_LABELS = { heart: 'Heart', head: 'Head', action: 'Gut' };
 
-    function parseDate(value) {
-      const time = new Date(value || '').getTime();
-      return Number.isFinite(time) ? time : 0;
+    let selectedDays = 30;
+    let allContacts   = [];
+    let allSubscribers = [];
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function parseDate(v) {
+      const t = new Date(v || '').getTime();
+      return Number.isFinite(t) ? t : 0;
     }
 
-    function inLastDays(value, days) {
-      const time = parseDate(value);
-      return time > 0 && time >= Date.now() - days * 24 * 60 * 60 * 1000;
+    function inPeriod(dateVal) {
+      if (selectedDays === 0) return true;
+      const t = parseDate(dateVal);
+      return t > 0 && t >= Date.now() - selectedDays * 86400000;
     }
 
-    function formatDate(value) {
-      const time = parseDate(value);
-      if (!time) return '—';
-      return new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    function formatDate(v) {
+      const t = parseDate(v);
+      if (!t) return '—';
+      return new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    function normalizeSource(source) {
-      return String(source || 'website')
-        .replace(/[_-]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .replace(/\b\w/g, letter => letter.toUpperCase());
+    function normalizeSource(s) {
+      return String(s || 'website')
+        .replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim()
+        .replace(/\b\w/g, l => l.toUpperCase());
     }
 
-    function countBy(items, getKey) {
+    function countBy(items, fn) {
       return items.reduce((acc, item) => {
-        const key = getKey(item) || 'Unknown';
-        acc[key] = (acc[key] || 0) + 1;
+        const k = fn(item) || 'Unknown';
+        acc[k] = (acc[k] || 0) + 1;
         return acc;
       }, {});
     }
 
-    function metric(label, value, note) {
-      return `
-        <div class="metric-card">
-          <div class="metric-label">${escHtml(label)}</div>
-          <div class="metric-value">${escHtml(value)}</div>
-          <div class="metric-note">${escHtml(note)}</div>
-        </div>
-      `;
+    // ── Date range toggle ─────────────────────────────────────────────────────
+
+    function setRange(days) {
+      selectedDays = days;
+      document.querySelectorAll('.range-bar .page-tab').forEach(btn => {
+        btn.classList.toggle('is-active', parseInt(btn.dataset.days) === days);
+      });
+      renderDashboard();
     }
 
-    function renderBars(el, counts, emptyText) {
-      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-      const total = entries.reduce((sum, [, count]) => sum + count, 0);
-      if (!total) {
-        el.innerHTML = `<div class="empty-state">${escHtml(emptyText)}</div>`;
-        return;
-      }
+    // ── Render helpers ────────────────────────────────────────────────────────
 
+    function metric(label, value, note, mod = '') {
+      return `<div class="metric-card${mod ? ' metric-' + mod : ''}">
+        <div class="metric-label">${escHtml(label)}</div>
+        <div class="metric-value">${escHtml(String(value))}</div>
+        <div class="metric-note">${escHtml(note)}</div>
+      </div>`;
+    }
+
+    function renderBars(el, counts, emptyText, fillClass = '') {
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const total   = entries.reduce((s, [, c]) => s + c, 0);
+      if (!total) { el.innerHTML = `<div class="empty-state">${escHtml(emptyText)}</div>`; return; }
       el.innerHTML = entries.map(([label, count]) => {
         const pct = Math.round((count / total) * 100);
-        return `
-          <div class="bar-row">
-            <div class="bar-label">${escHtml(label)}</div>
-            <div class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></div>
-            <div class="bar-value">${count}</div>
-          </div>
-        `;
+        return `<div class="bar-row">
+          <div class="bar-label">${escHtml(label)}</div>
+          <div class="bar-track"><span class="bar-fill${fillClass ? ' ' + fillClass : ''}" style="width:${pct}%"></span></div>
+          <div class="bar-value">${count}</div>
+        </div>`;
       }).join('');
     }
 
-    function getFunnelCounts(contacts, subscribers) {
+    // ── Funnel ────────────────────────────────────────────────────────────────
+
+    function renderFunnel(contacts, subscribers) {
       const assessment = subscribers.filter(s => s.result_center);
-      return {
-        'Contact forms': contacts.length,
-        'Subscribers': subscribers.length,
-        'Assessments': assessment.length,
-        'Drip active': assessment.filter(s => parseInt(s.drip_step || 0, 10) > 0).length,
-        'Reached step 5': assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length
+      const counts = {
+        'Contact forms':  contacts.length,
+        'Subscribers':    subscribers.length,
+        'Assessments':    assessment.length,
+        'Drip active':    assessment.filter(s => parseInt(s.drip_step || 0, 10) > 0).length,
+        'Reached step 5': assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length,
       };
+      renderBars(document.getElementById('funnelBars'), counts, 'No funnel activity yet.');
     }
 
+    // ── Drip drop-off ─────────────────────────────────────────────────────────
+
+    function renderDripDropoff(subscribers) {
+      const el   = document.getElementById('dripBars');
+      const subs = subscribers.filter(s => s.result_center);
+      if (!subs.length) { el.innerHTML = '<div class="empty-state">No assessment subscribers yet.</div>'; return; }
+      const raw = {};
+      subs.forEach(s => {
+        const step = parseInt(s.drip_step || 0, 10);
+        const key  = step === 0 ? 'Not started' : `Step ${step}`;
+        raw[key] = (raw[key] || 0) + 1;
+      });
+      const sorted = Object.entries(raw).sort((a, b) => {
+        const toN = k => k === 'Not started' ? 0 : parseInt(k.replace('Step ', ''), 10);
+        return toN(a[0]) - toN(b[0]);
+      });
+      const total = sorted.reduce((s, [, c]) => s + c, 0);
+      el.innerHTML = sorted.map(([label, count]) => {
+        const pct = Math.round((count / total) * 100);
+        const isLast = label !== 'Not started' && !sorted.find(([l]) => {
+          const n = parseInt(l.replace('Step ', ''), 10);
+          return n > parseInt(label.replace('Step ', ''), 10);
+        });
+        return `<div class="bar-row">
+          <div class="bar-label">${escHtml(label)}</div>
+          <div class="bar-track"><span class="bar-fill${isLast ? ' fill-ok' : ''}" style="width:${pct}%"></span></div>
+          <div class="bar-value">${count}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Email status ──────────────────────────────────────────────────────────
+
+    function renderEmailStatus(subscribers, contacts) {
+      const el  = document.getElementById('emailStatusBars');
+      const all = [...subscribers, ...contacts];
+      const flagged = all.filter(x => x.email_status);
+      if (!flagged.length) {
+        el.innerHTML = '<div class="empty-state">No deliverability flags recorded.</div>';
+        return;
+      }
+      const counts = countBy(flagged, x => {
+        const s = x.email_status || '';
+        return s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, ' ');
+      });
+      const total = all.length;
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      el.innerHTML = entries.map(([label, count]) => {
+        const pct = Math.round((count / total) * 100);
+        const fillCls = /bounce/i.test(label) ? 'fill-danger'
+                      : /unsub/i.test(label)  ? 'fill-warn'
+                      : '';
+        return `<div class="bar-row">
+          <div class="bar-label">${escHtml(label)}</div>
+          <div class="bar-track"><span class="bar-fill${fillCls ? ' ' + fillCls : ''}" style="width:${Math.max(pct, 3)}%"></span></div>
+          <div class="bar-value">${count}</div>
+        </div>`;
+      }).join('');
+      const clean = total - flagged.length;
+      if (clean > 0) {
+        el.innerHTML += `<p style="color:#7a8492;font-size:0.8rem;margin-top:0.75rem;">${clean} of ${total} leads have no deliverability flags.</p>`;
+      }
+    }
+
+    // ── Recent leads table ────────────────────────────────────────────────────
+
     function renderRecentLeads(subscribers, contacts) {
-      const subscriberLeads = subscribers.map(s => ({
-        type: 'subscriber',
-        name: s.name || 'Subscriber',
-        email: s.email,
-        source: normalizeSource(s.attribution_source || s.utm_source || s.source),
-        result: CENTER_LABELS[s.result_center] || '—',
-        campaign: s.result_center ? `Step ${parseInt(s.drip_step || 0, 10)}` : '—',
-        date: s.created_at,
-        timestamp: parseDate(s.created_at)
-      }));
+      const label = document.getElementById('recentRangeLabel');
+      if (label) label.textContent = selectedDays === 0 ? '(all time)' : `(last ${selectedDays} days)`;
 
-      const contactLeads = contacts.map(c => ({
-        type: 'contact',
-        name: c.name || 'Contact',
-        email: c.email,
-        source: normalizeSource(c.attribution_source || c.utm_source || 'direct'),
-        result: '—',
-        campaign: c.is_read ? 'Read' : 'Unread',
-        date: c.submitted_at,
-        timestamp: parseDate(c.submitted_at)
-      }));
+      const subLeads = subscribers
+        .filter(s => inPeriod(s.created_at))
+        .map(s => ({
+          type:       'subscriber',
+          name:       s.name || 'Subscriber',
+          email:      s.email || '',
+          source:     normalizeSource(s.attribution_source || s.utm_source || s.source),
+          result:     CENTER_LABELS[s.result_center] || null,
+          step:       s.result_center ? parseInt(s.drip_step || 0, 10) : null,
+          date:       s.created_at,
+          timestamp:  parseDate(s.created_at),
+          notes:      s.notes || null,
+          hasContact: !!s.has_contact,
+        }));
 
-      const leads = [...subscriberLeads, ...contactLeads]
+      const ctLeads = contacts
+        .filter(c => inPeriod(c.submitted_at))
+        .map(c => ({
+          type:       'contact',
+          name:       c.name || 'Contact',
+          email:      c.email || '',
+          source:     normalizeSource(c.attribution_source || c.utm_source || 'direct'),
+          result:     null,
+          step:       null,
+          date:       c.submitted_at,
+          timestamp:  parseDate(c.submitted_at),
+          notes:      null,
+          hasContact: false,
+        }));
+
+      const leads = [...subLeads, ...ctLeads]
         .sort((a, b) => b.timestamp - a.timestamp)
-        .slice(0, 10);
+        .slice(0, 15);
 
       const tbody = document.getElementById('recentLeadsBody');
       if (!leads.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No lead activity yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No lead activity in this period.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = leads.map(lead => `
-        <tr>
+      tbody.innerHTML = leads.map(lead => {
+        const dest      = lead.type === 'subscriber' ? 'subscribers.html' : 'contacts.html';
+        const notePip   = lead.notes ? '<span class="note-pip" title="Has notes"></span>' : '';
+        const dualBadge = lead.hasContact ? '<span class="badge badge-dual" title="Also submitted contact form" style="margin-right:4px;">dual</span>' : '';
+        const typeBadge = lead.type === 'contact' ? '<span class="badge badge-contact" style="margin-right:4px;">form</span>' : '';
+        return `<tr onclick="location.href='${dest}'" title="Open in ${lead.type === 'subscriber' ? 'Subscribers' : 'Contacts'}">
           <td>
-            <span class="lead-name">${escHtml(lead.name)}</span>
-            <a class="lead-email" href="mailto:${escHtml(lead.email)}">${escHtml(lead.email || 'No email')}</a>
+            <span class="lead-name">${escHtml(lead.name)}${notePip}</span>
+            <span class="lead-email">${escHtml(lead.email || 'No email')}</span>
           </td>
-          <td><span class="badge">${escHtml(lead.source)}</span></td>
-          <td>${lead.result !== '—' ? `<span class="badge badge-accent">${escHtml(lead.result)}</span>` : '<span class="td-muted">—</span>'}</td>
-          <td class="td-muted">${escHtml(lead.campaign)}</td>
+          <td>${dualBadge}${typeBadge}<span class="badge">${escHtml(lead.source)}</span></td>
+          <td>${lead.result ? `<span class="badge badge-result">${escHtml(lead.result)}</span>` : '<span class="td-muted">—</span>'}</td>
+          <td class="td-muted">${lead.step !== null ? `Step ${lead.step}` : '—'}</td>
           <td class="td-muted">${escHtml(formatDate(lead.date))}</td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
     }
+
+    // ── Main render ───────────────────────────────────────────────────────────
+
+    function renderDashboard() {
+      const contacts    = allContacts;
+      const subscribers = allSubscribers;
+      const assessments = subscribers.filter(s => s.result_center);
+
+      const newContacts     = contacts.filter(c => inPeriod(c.submitted_at));
+      const newSubscribers  = subscribers.filter(s => inPeriod(s.created_at));
+      const newAssessments  = assessments.filter(s => inPeriod(s.created_at));
+
+      const convRate    = subscribers.length > 0 ? Math.round((assessments.length / subscribers.length) * 100) : 0;
+      const coldSubs    = subscribers.filter(s => !s.result_center).length;
+      const crossChannel= subscribers.filter(s => s.has_contact).length;
+      const unread      = contacts.filter(c => !c.is_read).length;
+      const periodLabel = selectedDays === 0 ? 'all time' : `last ${selectedDays}d`;
+
+      document.getElementById('metricGrid').innerHTML = [
+        metric(
+          `New Leads — ${periodLabel}`,
+          newContacts.length + newSubscribers.length,
+          `${newContacts.length} contact form${newContacts.length !== 1 ? 's' : ''} · ${newSubscribers.length} subscriber${newSubscribers.length !== 1 ? 's' : ''}`
+        ),
+        metric(
+          `Assessments — ${periodLabel}`,
+          newAssessments.length,
+          `${assessments.length} total all-time · ${subscribers.length} subscribers`
+        ),
+        metric(
+          'Conversion Rate',
+          convRate + '%',
+          `${assessments.length} of ${subscribers.length} subscribers took the assessment`,
+          convRate >= 50 ? 'success' : convRate > 0 ? '' : ''
+        ),
+        metric(
+          'Cold Subscribers',
+          coldSubs,
+          'Opted in but never completed the assessment — warm leads to re-engage',
+          coldSubs > 0 ? 'warn' : ''
+        ),
+        metric(
+          'Unread Contacts',
+          unread,
+          unread ? 'Messages waiting for a reply' : 'Inbox is clear',
+          unread > 0 ? 'warn' : ''
+        ),
+        metric(
+          'Cross-Channel',
+          crossChannel,
+          'Subscribers who also sent a contact form — highest-intent leads',
+          crossChannel > 0 ? 'success' : ''
+        ),
+      ].join('');
+
+      renderFunnel(contacts, subscribers);
+      renderDripDropoff(subscribers);
+      renderBars(
+        document.getElementById('resultBars'),
+        countBy(assessments, s => CENTER_LABELS[s.result_center] || s.result_center),
+        'No assessment results yet.'
+      );
+      renderBars(
+        document.getElementById('sourceBars'),
+        countBy([...subscribers, ...contacts], x => normalizeSource(x.attribution_source || x.utm_source || x.source || 'direct')),
+        'No lead sources yet.'
+      );
+      renderEmailStatus(subscribers, contacts);
+      renderRecentLeads(subscribers, contacts);
+    }
+
+    // ── Load data ─────────────────────────────────────────────────────────────
 
     async function loadLeadDashboard() {
       try {
-        const [contactsRes, subscribersRes] = await Promise.all([
+        const [ctRes, subRes] = await Promise.all([
           adminFetch('/api/admin/contacts'),
-          adminFetch('/api/admin/contacts?type=subscribers')
+          adminFetch('/api/admin/contacts?type=subscribers'),
         ]);
-
-        if (!contactsRes.ok || !subscribersRes.ok) {
-          throw new Error('Could not load lead data');
-        }
-
-        const [contactsData, subscribersData] = await Promise.all([
-          contactsRes.json(),
-          subscribersRes.json()
-        ]);
-
-        const contacts = contactsData.data || [];
-        const subscribers = subscribersData.data || [];
-        const assessments = subscribers.filter(s => s.result_center);
-        const contacts7 = contacts.filter(c => inLastDays(c.submitted_at, 7)).length;
-        const subscribers7 = subscribers.filter(s => inLastDays(s.created_at, 7)).length;
-        const assessments7 = assessments.filter(s => inLastDays(s.created_at, 7)).length;
-        const unreadContacts = contacts.filter(c => !c.is_read).length;
-
-        document.getElementById('metricGrid').innerHTML = [
-          metric('New This Week', contacts7 + subscribers7, `${contacts7} contact forms, ${subscribers7} subscribers`),
-          metric('Assessment Completions', assessments.length, `${assessments7} completed in the last 7 days`),
-          metric('Unread Contacts', unreadContacts, unreadContacts ? 'Messages need follow-up' : 'Inbox is clear'),
-          metric('Campaign Active', assessments.filter(s => parseInt(s.drip_step || 0, 10) > 0).length, 'Assessment subscribers with drip progress')
-        ].join('');
-
-        renderBars(document.getElementById('funnelBars'), getFunnelCounts(contacts, subscribers), 'No funnel activity yet.');
-        renderBars(
-          document.getElementById('resultBars'),
-          countBy(assessments, s => CENTER_LABELS[s.result_center] || s.result_center),
-          'No assessment results yet.'
-        );
-        renderBars(
-          document.getElementById('sourceBars'),
-          countBy([...subscribers, ...contacts], item => normalizeSource(item.attribution_source || item.utm_source || item.source || 'direct')),
-          'No lead sources yet.'
-        );
-        renderRecentLeads(subscribers, contacts);
+        if (!ctRes.ok || !subRes.ok) throw new Error('Could not load lead data');
+        const [ctData, subData] = await Promise.all([ctRes.json(), subRes.json()]);
+        allContacts    = ctData.data  || [];
+        allSubscribers = subData.data || [];
+        renderDashboard();
       } catch (err) {
-        document.getElementById('metricGrid').innerHTML = metric('Error', '—', err.message || 'Could not load lead dashboard.');
-        document.getElementById('recentLeadsBody').innerHTML = '<tr><td colspan="5" class="table-empty">Could not load lead activity.</td></tr>';
+        document.getElementById('metricGrid').innerHTML =
+          metric('Error', '—', err.message || 'Could not load lead dashboard.');
+        document.getElementById('recentLeadsBody').innerHTML =
+          '<tr><td colspan="5" class="table-empty">Could not load lead activity.</td></tr>';
       }
     }
 
