@@ -161,7 +161,7 @@ a:hover {
   gap: 16px;
   flex-wrap: wrap;
   position: sticky;
-  top: 56px;
+  top: 96px;
   z-index: 90;
   background: color-mix(in srgb, var(--admin-bg) 96%, transparent);
   backdrop-filter: blur(6px);
@@ -693,7 +693,7 @@ textarea {
 
 .dashboard-sidebar {
   position: sticky;
-  top: 92px;
+  top: 132px;
 }
 
 .dashboard-main-content {
