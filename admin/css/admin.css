@@ -1775,6 +1775,7 @@ select option {
   gap: 8px !important;
 }
 
+.site-tab,
 .page-tab,
 .settings-tab,
 .email-subtab,
@@ -1789,6 +1790,7 @@ select option {
   cursor: pointer !important;
 }
 
+.site-tab:hover,
 .page-tab:hover,
 .settings-tab:hover,
 .email-subtab:hover,
@@ -1799,6 +1801,7 @@ select option {
   border-color: #cfd6de !important;
 }
 
+.site-tab.is-active,
 .page-tab.is-active,
 .page-tab.active,
 .settings-tab.is-active,
@@ -2048,6 +2051,7 @@ body,
 .admin-nav *,
 .btn-primary,
 .btn-primary *,
+.site-tab.is-active,
 .page-tab.is-active,
 .page-tab.active,
 .settings-tab.is-active,
@@ -2106,6 +2110,7 @@ tbody tr:nth-child(even):hover {
 .btn-ghost,
 .admin-page-title .back-link,
 .quick-action-pill,
+.site-tab,
 .page-tab,
 .settings-tab,
 .email-subtab,
@@ -2121,6 +2126,7 @@ tbody tr:nth-child(even):hover {
 .btn-ghost *,
 .admin-page-title .back-link *,
 .quick-action-pill *,
+.site-tab *,
 .page-tab *,
 .settings-tab *,
 .email-subtab *,
@@ -2133,6 +2139,7 @@ tbody tr:nth-child(even):hover {
 .btn-secondary:hover,
 .btn-ghost:hover,
 .admin-page-title .back-link:hover,
+.site-tab:hover:not(.is-active),
 .page-tab:hover,
 .settings-tab:hover,
 .email-subtab:hover,
@@ -2145,6 +2152,7 @@ tbody tr:nth-child(even):hover {
 }
 
 .btn-primary,
+.site-tab.is-active,
 .page-tab.is-active,
 .page-tab.active,
 .settings-tab.is-active,
