@@ -603,11 +603,9 @@ textarea {
   flex-direction: column;
   gap: 10px;
   position: relative;
-  cursor: grab;
-  user-select: none;
+  cursor: pointer;
 }
 
-.dashboard-card:active { cursor: grabbing; }
 
 .dashboard-card:hover {
   border-color: var(--admin-accent);
@@ -680,7 +678,6 @@ textarea {
 
 .dashboard-recent {
   margin-top: 32px;
-  display: none;
 }
 
 .dashboard-shell {
