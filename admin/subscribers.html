@@ -67,7 +67,7 @@
       </div>
     </header>
 
-    <main class="admin-main">
+    <main class="admin-main" style="max-width:1300px;">
       <div class="admin-page-title">
         <h1>Subscribers &amp; Campaigns</h1>
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
@@ -83,12 +83,25 @@
 
       <!-- ── Subscribers tab ─────────────────────────────────────────── -->
       <div class="page-tab-panel is-active" data-panel="subscribers">
-        <div class="card">
-          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>Email List</span>
-            <span id="sub-count" style="font-size:0.85rem;font-weight:400;color:var(--admin-text-muted);">Loading…</span>
+        <div class="card" style="overflow-x:auto;">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span>Email List <span id="sub-count" style="font-size:0.85rem;font-weight:400;color:var(--admin-text-muted);margin-left:8px;">Loading…</span></span>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input id="subSearch" type="search" placeholder="Search name or email…" oninput="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 10px;width:180px;">
+              <select id="subSourceFilter" onchange="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 8px;">
+                <option value="">All Sources</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="google">Google</option>
+                <option value="youtube">YouTube</option>
+                <option value="website">Website</option>
+                <option value="none">No source set</option>
+              </select>
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV()" title="Export to CSV">&#8595; CSV</button>
+            </div>
           </div>
-          <table class="nav-links-table" id="subTable">
+          <table class="nav-links-table" id="subTable" style="min-width:700px;">
             <thead>
               <tr>
                 <th>Email</th>
@@ -104,6 +117,13 @@
               <tr><td colspan="7" class="table-empty">Loading…</td></tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Source picker popup (shared, repositioned on open) -->
+        <div id="sourcePickerPopup" style="display:none;position:fixed;z-index:9999;background:var(--admin-card-bg);border:1px solid var(--admin-border);border-radius:8px;padding:10px;box-shadow:0 4px 16px rgba(0,0,0,0.4);min-width:160px;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--admin-text-muted);margin-bottom:8px;">Set Source</div>
+          <div id="sourcePickerOptions"></div>
+          <button onclick="closePicker()" style="margin-top:8px;width:100%;background:none;border:1px solid var(--admin-border);color:var(--admin-text-muted);border-radius:6px;padding:4px;font-size:0.75rem;cursor:pointer;">Cancel</button>
         </div>
       </div>
 
@@ -957,115 +977,267 @@
     }
 
     // ── Subscribers list ─────────────────────────────────────────────────────
-    async function loadSubscribers() {
-      const SUBSCRIBERS_SEEN_AT_KEY = 'admin_subscribers_seen_at';
-      const res  = await adminFetch('/api/admin/contacts?type=subscribers');
-      const data = await res.json();
-      const rows = data.data || [];
+    // ── Constants ────────────────────────────────────────────────────────────
+    const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' };
+    const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82' };
+    const FUNNEL_LABELS = { 'hidden-ceiling': 'Assessment', 'homepage': 'Free Guide', 'website': 'Free Guide', 'free-guide': 'Free Guide', 'contact': 'Contact Form' };
+    const FUNNEL_COLORS = { 'hidden-ceiling': '#c7a96b', 'homepage': '#7b9eb8', 'website': '#7b9eb8', 'free-guide': '#7b9eb8', 'contact': '#8faa82' };
+    const SOURCE_BADGE_MAP = {
+      linkedin:  { label: 'LinkedIn',  bg: '#0a66c222', color: '#0a66c2' },
+      facebook:  { label: 'Facebook',  bg: '#1877f222', color: '#1877f2' },
+      instagram: { label: 'Instagram', bg: '#e104a322', color: '#e104a3' },
+      google:    { label: 'Google',    bg: '#4285f422', color: '#4285f4' },
+      bing:      { label: 'Bing',      bg: '#00809d22', color: '#00809d' },
+      youtube:   { label: 'YouTube',   bg: '#ff000022', color: '#cc0000' },
+      website:   { label: 'Website',   bg: '#88888822', color: '#999999' },
+    };
+
+    let allRows = [];
+
+    // ── Render ───────────────────────────────────────────────────────────────
+    function renderSubscribers(rows) {
       const tbody   = document.getElementById('subBody');
       const countEl = document.getElementById('sub-count');
-
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
-      const latestSubscriberAt = rows
-        .map(row => new Date(row.created_at).getTime())
-        .filter(timestamp => Number.isFinite(timestamp))
-        .reduce((latest, timestamp) => Math.max(latest, timestamp), 0);
-
-      if (latestSubscriberAt) {
-        localStorage.setItem(SUBSCRIBERS_SEEN_AT_KEY, String(latestSubscriberAt));
-      }
 
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No subscribers yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No subscribers match.</td></tr>';
         return;
       }
-
-      const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' };
-      const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82' };
-
-      const SOURCE_LABELS = { 'hidden-ceiling': 'Assessment', 'homepage': 'Free Guide', 'website': 'Free Guide', 'free-guide': 'Free Guide', 'contact': 'Contact Form' };
-      const SOURCE_COLORS = { 'hidden-ceiling': '#c7a96b',    'homepage': '#7b9eb8',     'website': '#7b9eb8',   'free-guide': '#7b9eb8',    'contact': '#8faa82' };
 
       tbody.innerHTML = rows.map(r => {
         const date = r.created_at
           ? new Date(r.created_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
           : '—';
 
-        let resultCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
+        const srcBadge = SOURCE_BADGE_MAP[r.attribution_source];
+        const sourceBadge = srcBadge
+          ? `<span style="display:inline-flex;align-items:center;gap:0.25rem;background:${srcBadge.bg};color:${srcBadge.color};font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:999px;margin-top:0.3rem;">${escHtml(srcBadge.label)}</span>`
+          : '';
+
+        const setSourceBtn = `<button title="Set referral source" onclick="openPicker(event,${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.62rem;padding:0.1rem 0.4rem;cursor:pointer;margin-top:0.25rem;">${r.attribution_source ? '✎ source' : '+ source'}</button>`;
+
+        let resultCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">${setSourceBtn}</div>`;
         if (r.result_center) {
           const label = CENTER_LABELS[r.result_center] || r.result_center;
           const color = CENTER_COLORS[r.result_center] || '#c7a96b';
-          resultCell = `
+          resultCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
             <span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>
-            <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>`;
+            <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>
+            ${sourceBadge}${setSourceBtn}
+          </div>`;
+        } else if (sourceBadge) {
+          resultCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">${sourceBadge}${setSourceBtn}</div>`;
         }
+
+        const EMAIL_STATUS_STYLE = {
+          sent:      { label: 'Sent',      color: '#999' },
+          delayed:   { label: 'Delayed',   color: '#c9a43a' },
+          delivered: { label: 'Delivered', color: '#8faa82' },
+          opened:    { label: 'Opened',    color: '#7bc4a0' },
+          clicked:   { label: 'Clicked',   color: '#7b9eb8' },
+          bounced:   { label: 'Bounced',   color: '#e05c5c' },
+          complained:{ label: 'Spam Complaint', color: '#e08c4a' },
+        };
+        const eStyle = EMAIL_STATUS_STYLE[r.email_status];
+        const emailStatusBadge = eStyle
+          ? `<span title="Email status as of ${r.email_status_at ? new Date(r.email_status_at).toLocaleDateString() : '?'}" style="display:inline-block;background:${eStyle.color}22;color:${eStyle.color};font-size:0.66rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:999px;margin-top:0.3rem;">${eStyle.label}</span>`
+          : '';
 
         let campaignCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
         if (r.result_center && r.drip_step !== undefined) {
           const dripDate = r.last_email_sent_at
             ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             : 'Pending';
-          campaignCell = `
-            <span style="display:block;font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
-            <span style="display:block;font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>`;
+          campaignCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
+            <span style="font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
+            <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>
+            ${emailStatusBadge}
+          </div>`;
+        } else if (emailStatusBadge) {
+          campaignCell = emailStatusBadge;
         }
 
+        const contactDot = r.has_contact
+          ? `<span title="Also submitted a contact form" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#8faa82;margin-left:5px;vertical-align:middle;"></span>`
+          : '';
+
+        const notesSnippet = r.notes
+          ? `<span style="display:block;font-size:0.72rem;color:var(--admin-text-muted);margin-top:2px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(r.notes)}">${escHtml(r.notes)}</span>`
+          : '';
+        const notesBtn = `<button onclick="toggleNotes(${parseInt(r.id,10)}, this)" style="background:none;border:none;color:var(--admin-text-muted);font-size:0.7rem;cursor:pointer;padding:0;margin-top:2px;" title="${r.notes ? 'Edit note' : 'Add note'}">✏️ ${r.notes ? 'note' : 'add note'}</button>`;
+
+        const funnelHistory = (() => {
+          const history = Array.isArray(r.source_history) ? r.source_history : [];
+          const current = r.source || 'website';
+          const steps = [...history.map(h => h.source), current];
+          const items = steps.map((s, i) => {
+            const label = FUNNEL_LABELS[s] || s;
+            const color = FUNNEL_COLORS[s] || '#888';
+            const arrow = i < steps.length - 1
+              ? `<span style="display:block;color:var(--admin-text-muted);font-size:0.65rem;line-height:1;margin:0.1rem 0 0.1rem 0.5rem;">↓</span>`
+              : '';
+            return `<span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>${arrow}`;
+          });
+          return `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
+            ${items.join('')}
+            <button title="Add earlier funnel step" onclick="prependFunnelStep(${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.65rem;padding:0.1rem 0.4rem;cursor:pointer;margin-top:0.25rem;">+ add step</button>
+          </div>`;
+        })();
+
         return `
-          <tr>
-            <td data-label="Email"><a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a></td>
-            <td data-label="Name">${escHtml(r.name || '—')}</td>
+          <tr data-id="${parseInt(r.id,10)}">
+            <td data-label="Email">
+              <a href="mailto:${escHtml(r.email)}" style="color:var(--admin-accent);">${escHtml(r.email)}</a>${contactDot}
+            </td>
+            <td data-label="Name">
+              ${escHtml(r.name || '—')}
+              ${notesSnippet}
+              ${notesBtn}
+            </td>
             <td data-label="Assessment">${resultCell}</td>
-            <td data-label="Signed Up For">${(() => {
-              const history = Array.isArray(r.source_history) ? r.source_history : [];
-              const current = r.source || 'website';
-              const steps = [...history.map(h => h.source), current];
-              const items = steps.map((s, i) => {
-                const label = SOURCE_LABELS[s] || s;
-                const color = SOURCE_COLORS[s] || '#888';
-                const arrow = i < steps.length - 1
-                  ? `<span style="display:block;color:var(--admin-text-muted);font-size:0.65rem;line-height:1;margin:0.1rem 0 0.1rem 0.5rem;">↓</span>`
-                  : '';
-                return `<span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>${arrow}`;
-              });
-              return `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
-                ${items.join('')}
-                <button title="Add earlier funnel step" onclick="prependFunnelStep(${parseInt(r.id,10)})" style="background:none;border:1px dashed var(--admin-text-muted);color:var(--admin-text-muted);border-radius:999px;font-size:0.65rem;padding:0.1rem 0.4rem;cursor:pointer;margin-top:0.25rem;">+ add step</button>
-              </div>`;
-            })()}</td>
+            <td data-label="Signed Up For">${funnelHistory}</td>
             <td data-label="Campaign">${campaignCell}</td>
             <td data-label="Date" style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
             <td data-label="Remove"><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${parseInt(r.id, 10)}, this)">&#x2715;</button></td>
+          </tr>
+          <tr id="notes-row-${parseInt(r.id,10)}" style="display:none;">
+            <td colspan="7" style="padding:0 12px 12px 12px;">
+              <textarea id="notes-ta-${parseInt(r.id,10)}" rows="2" style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:8px;resize:vertical;" placeholder="Private notes about this subscriber…">${escHtml(r.notes || '')}</textarea>
+              <div style="display:flex;gap:8px;margin-top:6px;">
+                <button class="btn btn-sm" onclick="saveNotes(${parseInt(r.id,10)})">Save Note</button>
+                <button class="btn btn-ghost btn-sm" onclick="toggleNotes(${parseInt(r.id,10)})">Cancel</button>
+              </div>
+            </td>
           </tr>`;
       }).join('');
     }
 
-    async function prependFunnelStep(id) {
-      const SOURCE_OPTIONS = { 'website': 'Free Guide', 'hidden-ceiling': 'Assessment' };
-      const choice = prompt('Add earlier funnel step for this subscriber:\n\n  website = Free Guide\n  hidden-ceiling = Assessment\n\nEnter source key:');
-      if (!choice || !choice.trim()) return;
-      const src = choice.trim();
+    // ── Load ─────────────────────────────────────────────────────────────────
+    async function loadSubscribers() {
+      const SUBSCRIBERS_SEEN_AT_KEY = 'admin_subscribers_seen_at';
+      const res  = await adminFetch('/api/admin/contacts?type=subscribers');
+      const data = await res.json();
+      allRows = data.data || [];
+
+      const latestSubscriberAt = allRows
+        .map(row => new Date(row.created_at).getTime())
+        .filter(t => Number.isFinite(t))
+        .reduce((latest, t) => Math.max(latest, t), 0);
+      if (latestSubscriberAt) localStorage.setItem(SUBSCRIBERS_SEEN_AT_KEY, String(latestSubscriberAt));
+
+      filterSubscribers();
+    }
+
+    // ── Filter / Search ───────────────────────────────────────────────────────
+    function filterSubscribers() {
+      const q      = (document.getElementById('subSearch')?.value || '').toLowerCase();
+      const source = (document.getElementById('subSourceFilter')?.value || '');
+      let filtered = allRows;
+      if (q) filtered = filtered.filter(r =>
+        (r.email || '').toLowerCase().includes(q) || (r.name || '').toLowerCase().includes(q)
+      );
+      if (source === 'none') filtered = filtered.filter(r => !r.attribution_source);
+      else if (source) filtered = filtered.filter(r => r.attribution_source === source);
+      renderSubscribers(filtered);
+    }
+
+    // ── CSV Export ────────────────────────────────────────────────────────────
+    function exportCSV() {
+      const cols = ['id','name','email','attribution_source','result_center','score_heart','score_head','score_action','drip_step','source','created_at','notes'];
+      const header = cols.join(',');
+      const escape = v => `"${String(v ?? '').replace(/"/g,'""')}"`;
+      const csvRows = allRows.map(r => cols.map(c => escape(r[c])).join(','));
+      const blob = new Blob([header + '\n' + csvRows.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `subscribers-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    // ── Source picker popup ───────────────────────────────────────────────────
+    let pickerTargetId = null;
+    function openPicker(e, id) {
+      e.stopPropagation();
+      pickerTargetId = id;
+      const popup = document.getElementById('sourcePickerPopup');
+      const sources = [
+        { key: 'linkedin',  label: 'LinkedIn' },
+        { key: 'facebook',  label: 'Facebook' },
+        { key: 'instagram', label: 'Instagram' },
+        { key: 'google',    label: 'Google' },
+        { key: 'bing',      label: 'Bing' },
+        { key: 'youtube',   label: 'YouTube' },
+        { key: 'website',   label: 'Website' },
+        { key: '',          label: 'Clear source' },
+      ];
+      document.getElementById('sourcePickerOptions').innerHTML = sources.map(s =>
+        `<button onclick="pickSource(${JSON.stringify(s.key)})" style="display:block;width:100%;text-align:left;background:none;border:none;color:${s.key ? 'var(--admin-text)' : 'var(--admin-text-muted)'};font-size:0.82rem;padding:5px 8px;border-radius:4px;cursor:pointer;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">${escHtml(s.label)}</button>`
+      ).join('');
+      const rect = e.target.getBoundingClientRect();
+      popup.style.display = 'block';
+      popup.style.top  = (rect.bottom + window.scrollY + 4) + 'px';
+      popup.style.left = (rect.left  + window.scrollX)      + 'px';
+    }
+    function closePicker() {
+      document.getElementById('sourcePickerPopup').style.display = 'none';
+      pickerTargetId = null;
+    }
+    async function pickSource(src) {
+      closePicker();
+      if (pickerTargetId === null) return;
+      const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + pickerTargetId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attribution_source: src }),
+      });
+      if (res.ok) loadSubscribers();
+      else showFlash('Could not update referral source.', 'error');
+    }
+    document.addEventListener('click', e => {
+      const popup = document.getElementById('sourcePickerPopup');
+      if (popup && !popup.contains(e.target)) closePicker();
+    });
+
+    // ── Notes ─────────────────────────────────────────────────────────────────
+    function toggleNotes(id) {
+      const row = document.getElementById('notes-row-' + id);
+      if (!row) return;
+      const isOpen = row.style.display !== 'none';
+      row.style.display = isOpen ? 'none' : 'table-row';
+      if (!isOpen) document.getElementById('notes-ta-' + id)?.focus();
+    }
+    async function saveNotes(id) {
+      const ta = document.getElementById('notes-ta-' + id);
+      if (!ta) return;
       const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prepend_source: src }),
+        body: JSON.stringify({ notes: ta.value }),
       });
-      if (res.ok) {
-        loadSubscribers();
-      } else {
-        showFlash('Could not update funnel history.', 'error');
-      }
+      if (res.ok) { loadSubscribers(); }
+      else showFlash('Could not save note.', 'error');
+    }
+
+    // ── Funnel / Remove ───────────────────────────────────────────────────────
+    async function prependFunnelStep(id) {
+      const choice = prompt('Add earlier funnel step for this subscriber:\n\n  website = Free Guide\n  hidden-ceiling = Assessment\n\nEnter source key:');
+      if (!choice || !choice.trim()) return;
+      const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prepend_source: choice.trim() }),
+      });
+      if (res.ok) loadSubscribers();
+      else showFlash('Could not update funnel history.', 'error');
     }
 
     async function removeSubscriber(id, btn) {
       if (!confirm('Remove this subscriber?')) return;
       btn.disabled = true;
       const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, { method: 'DELETE' });
-      if (res.ok) {
-        loadSubscribers();
-      } else {
-        btn.disabled = false;
-        showFlash('Could not remove subscriber.', 'error');
-      }
+      if (res.ok) loadSubscribers();
+      else { btn.disabled = false; showFlash('Could not remove subscriber.', 'error'); }
     }
 
     loadSubscribers();

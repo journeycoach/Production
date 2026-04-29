@@ -13,7 +13,10 @@ async function ensureSubscriberAttributionColumns() {
       ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
       ADD COLUMN IF NOT EXISTS utm_term TEXT,
       ADD COLUMN IF NOT EXISTS utm_content TEXT,
-      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb,
+      ADD COLUMN IF NOT EXISTS notes TEXT,
+      ADD COLUMN IF NOT EXISTS email_status TEXT,
+      ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ
   `;
 }
 
@@ -29,7 +32,9 @@ async function ensureContactAttributionColumns() {
       ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
       ADD COLUMN IF NOT EXISTS utm_term TEXT,
       ADD COLUMN IF NOT EXISTS utm_content TEXT,
-      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
+      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb,
+      ADD COLUMN IF NOT EXISTS email_status TEXT,
+      ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ
   `;
 }
 
@@ -45,12 +50,14 @@ export default async function handler(req, res) {
         await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS result_center TEXT, ADD COLUMN IF NOT EXISTS score_heart INT, ADD COLUMN IF NOT EXISTS score_head INT, ADD COLUMN IF NOT EXISTS score_action INT, ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0, ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW(), ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'`;
         await ensureSubscriberAttributionColumns();
         const rows = await sql`
-          SELECT id, email, name, source, source_history, created_at, result_center,
-            score_heart, score_head, score_action, drip_step, last_email_sent_at,
-            attribution_source, first_attribution_source, landing_page, referrer,
-            utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
-          FROM subscribers
-          ORDER BY created_at DESC
+          SELECT s.id, s.email, s.name, s.source, s.source_history, s.created_at, s.result_center,
+            s.score_heart, s.score_head, s.score_action, s.drip_step, s.last_email_sent_at,
+            s.attribution_source, s.first_attribution_source, s.landing_page, s.referrer,
+            s.utm_source, s.utm_medium, s.utm_campaign, s.utm_term, s.utm_content, s.attribution,
+            s.notes, s.email_status, s.email_status_at,
+            EXISTS(SELECT 1 FROM contact_submissions c WHERE LOWER(c.email) = LOWER(s.email)) AS has_contact
+          FROM subscribers s
+          ORDER BY s.created_at DESC
         `;
         return res.status(200).json({ data: rows });
       } catch (err) {
@@ -59,10 +66,37 @@ export default async function handler(req, res) {
       }
     }
     if (req.method === 'PATCH') {
-      // Prepend a historical source entry (for backfilling funnel transitions)
       const { id } = req.query;
-      const { prepend_source, prepend_at } = req.body || {};
-      if (!id || !prepend_source) return res.status(400).json({ error: 'id and prepend_source required' });
+      const { prepend_source, prepend_at, attribution_source, notes } = req.body || {};
+      if (!id) return res.status(400).json({ error: 'id required' });
+
+      // Set attribution source manually
+      if (attribution_source !== undefined) {
+        try {
+          await ensureSubscriberAttributionColumns();
+          const val = attribution_source === '' ? null : attribution_source;
+          await sql`UPDATE subscribers SET attribution_source = ${val} WHERE id = ${id}`;
+          return res.status(200).json({ ok: true });
+        } catch (err) {
+          console.error('subscribers PATCH attribution error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+      }
+
+      // Save notes
+      if (notes !== undefined) {
+        try {
+          await ensureSubscriberAttributionColumns();
+          await sql`UPDATE subscribers SET notes = ${notes || null} WHERE id = ${id}`;
+          return res.status(200).json({ ok: true });
+        } catch (err) {
+          console.error('subscribers PATCH notes error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+      }
+
+      // Prepend a historical source entry (for backfilling funnel transitions)
+      if (!prepend_source) return res.status(400).json({ error: 'prepend_source or attribution_source required' });
       const at = prepend_at || new Date().toISOString();
       try {
         const entry = JSON.stringify({ source: prepend_source, at });
@@ -97,7 +131,8 @@ export default async function handler(req, res) {
       const rows = await sql`
         SELECT id, name, email, phone, interest, message, is_read, submitted_at,
           attribution_source, first_attribution_source, landing_page, referrer,
-          utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution
+          utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution,
+          email_status, email_status_at
         FROM contact_submissions
         ORDER BY submitted_at DESC
       `;

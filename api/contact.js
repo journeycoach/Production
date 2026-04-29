@@ -636,6 +636,48 @@ export default async function handler(req, res) {
     if (req.query?.action === 'unsubscribe') {
       return handleUnsubscribe(req, res);
     }
+
+    // Route Resend webhook — POST /api/contact?action=resend_webhook[&secret=...]
+    if (req.query?.action === 'resend_webhook') {
+      const secret = process.env.RESEND_WEBHOOK_SECRET;
+      if (secret && req.query.secret !== secret) return res.status(401).json({ error: 'Unauthorized' });
+
+      const EVENT_MAP = {
+        'email.sent': 'sent', 'email.delivered': 'delivered', 'email.delivery_delayed': 'delayed',
+        'email.bounced': 'bounced', 'email.complained': 'complained',
+        'email.opened': 'opened', 'email.clicked': 'clicked',
+      };
+      const { type, data } = req.body || {};
+      const status = EVENT_MAP[type];
+      if (!status) return res.status(200).json({ ok: true, ignored: true });
+      const to = Array.isArray(data?.to) ? data.to[0] : data?.to;
+      if (!to) return res.status(400).json({ error: 'No recipient' });
+      const occurredAt = data.created_at || new Date().toISOString();
+
+      // Only overwrite a terminal status (bounced/complained) with another terminal status.
+      // Otherwise always write — events arrive in order from Resend.
+      const terminal = ['bounced', 'complained'];
+      const isTerminal = terminal.includes(status);
+
+      try {
+        await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS email_status TEXT, ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ`;
+        await sql`ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS email_status TEXT, ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ`;
+        await sql`
+          UPDATE subscribers SET email_status=${status}, email_status_at=${occurredAt}
+          WHERE LOWER(email)=LOWER(${to})
+            AND (email_status IS NULL OR email_status <> ALL(${terminal}) OR ${isTerminal})
+        `;
+        await sql`
+          UPDATE contact_submissions SET email_status=${status}, email_status_at=${occurredAt}
+          WHERE LOWER(email)=LOWER(${to})
+            AND (email_status IS NULL OR email_status <> ALL(${terminal}) OR ${isTerminal})
+        `;
+        return res.status(200).json({ ok: true, status, to });
+      } catch (err) {
+        console.error('resend webhook error:', err);
+        return res.status(500).json({ error: 'db error' });
+      }
+    }
     // Only allow POST
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });

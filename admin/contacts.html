@@ -225,11 +225,27 @@
         return;
       }
 
-      container.innerHTML = filtered.map(s => `
+      const EMAIL_STATUS_STYLE = {
+        sent:      { label: 'Sent',           color: '#999' },
+        delayed:   { label: 'Delayed',        color: '#c9a43a' },
+        delivered: { label: 'Delivered',      color: '#8faa82' },
+        opened:    { label: 'Opened',         color: '#7bc4a0' },
+        clicked:   { label: 'Clicked',        color: '#7b9eb8' },
+        bounced:   { label: 'Bounced',        color: '#e05c5c' },
+        complained:{ label: 'Spam Complaint', color: '#e08c4a' },
+      };
+
+      container.innerHTML = filtered.map(s => {
+        const eStyle = EMAIL_STATUS_STYLE[s.email_status];
+        const emailBadge = eStyle
+          ? `<span title="Auto-reply status as of ${s.email_status_at ? new Date(s.email_status_at).toLocaleDateString() : '?'}" style="display:inline-block;background:${eStyle.color}22;color:${eStyle.color};font-size:0.66rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:999px;">${escHtml(eStyle.label)}</span>`
+          : `<span style="display:inline-block;background:rgba(255,255,255,0.04);color:var(--admin-muted);font-size:0.66rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:999px;">No status yet</span>`;
+        return `
         <div class="submission-card ${s.is_read ? 'read' : 'unread'}" id="card-${s.id}">
           <div class="submission-meta">
             <span class="submission-name">${escHtml(s.name)}</span>
             ${!s.is_read ? '<span class="unread-badge">New</span>' : ''}
+            ${emailBadge}
             <span class="submission-date">${formatDate(s.submitted_at)}</span>
           </div>
           <div class="submission-detail">&#9993; <a href="mailto:${escHtml(s.email)}" style="color:var(--admin-accent)">${escHtml(s.email)}</a></div>
@@ -244,7 +260,8 @@
             <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${parseInt(s.id, 10)})">Delete</button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     async function toggleRead(id, currentlyRead) {
