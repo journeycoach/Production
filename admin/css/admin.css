@@ -1251,21 +1251,87 @@ a {
   gap: 10px;
 }
 
-.admin-header-actions::before {
-  content: "Search admin...";
-  display: inline-flex;
+.global-search {
+  position: relative;
+  display: flex;
   align-items: center;
+}
+
+.global-search input {
   width: min(28vw, 300px);
   height: 34px;
   padding: 0 14px 0 34px;
   border: 1px solid var(--admin-border);
   border-radius: 8px;
-  background:
-    linear-gradient(transparent, transparent),
-    var(--admin-card-bg-soft);
+  background: var(--admin-card-bg-soft) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%23a3abb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 10px center;
+  color: var(--admin-text);
+  font-size: 0.82rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.global-search input::placeholder {
   color: #a3abb5;
-  font-size: 0.78rem;
-  position: relative;
+}
+
+.global-search input:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 2px var(--admin-accent-soft);
+}
+
+.global-search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  max-height: 400px;
+  overflow-y: auto;
+  display: none;
+  z-index: 1000;
+}
+
+.global-search-results.active {
+  display: block;
+}
+
+.search-result-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--admin-border);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover, .search-result-item.selected {
+  background: var(--admin-card-bg-soft);
+}
+
+.search-result-title {
+  color: var(--admin-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.search-result-desc {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+}
+
+.search-no-results {
+  padding: 14px;
+  color: var(--admin-muted);
+  font-size: 0.85rem;
+  text-align: center;
 }
 
 .admin-nav {
@@ -2013,10 +2079,14 @@ body,
   color: #7a8492 !important;
 }
 
-.admin-header-actions::before {
-  background: #2f3133 !important;
+.global-search input {
+  background-color: #2f3133 !important;
   border-color: #2f3133 !important;
   color: #c9d0d8 !important;
+}
+
+.global-search input::placeholder {
+  color: #8b95a1 !important;
 }
 
 .admin-page-title h1,

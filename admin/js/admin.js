@@ -362,3 +362,131 @@ if (hasAdminSessionMarker() || consumeLegacyAdminToken()) {
 }
 
 initAdminNavSortable();
+
+// ── Global Admin Search ──────────────────────────────────────────────────
+function initGlobalSearch() {
+  const input = document.getElementById('globalSearchInput');
+  const resultsBox = document.getElementById('globalSearchResults');
+  if (!input || !resultsBox) return;
+
+  const baseIndex = [
+    { title: 'Dashboard', desc: 'Overview and recent activity', url: 'dashboard.html' },
+    { title: 'Posts', desc: 'Manage blog posts and articles', url: 'posts.html' },
+    { title: 'New Post', desc: 'Write a new blog post', url: 'post-edit.html' },
+    { title: 'Testimonials', desc: 'Manage client testimonials', url: 'testimonials.html' },
+    { title: 'Tools & Resources', desc: 'Manage tools, guides, and resources', url: 'tools.html' },
+    { title: 'Bookmarks', desc: 'Manage saved bookmarks', url: 'bookmarks.html' },
+    { title: 'Leads Dashboard', desc: 'View assessment leads and data', url: 'lead-dashboard.html' },
+    { title: 'Site Console', desc: 'Manage page sections, navigation, and brand', url: 'site.html' },
+    { title: 'Email Templates', desc: 'Edit website email templates', url: 'site.html?tab=email-templates' },
+    { title: 'Contacts', desc: 'View contact form submissions', url: 'contacts.html' },
+    { title: 'Subscribers & Campaigns', desc: 'Manage email subscribers and campaigns', url: 'subscribers.html' },
+    { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' }
+  ];
+
+  let dynamicIndex = null;
+  let searchIndex = [...baseIndex];
+  let selectedIndex = -1;
+  let items = [];
+
+  async function loadDynamicData() {
+    if (dynamicIndex) return;
+    dynamicIndex = [];
+    try {
+      const [postsRes, toolsRes] = await Promise.all([
+        adminFetch('/api/admin/posts').catch(()=>null),
+        adminFetch('/api/admin/tools').catch(()=>null)
+      ]);
+      if (postsRes && postsRes.ok) {
+        const data = await postsRes.json();
+        (data.data || []).forEach(p => {
+          dynamicIndex.push({ title: p.title, desc: 'Blog Post', url: `post-edit.html?id=${p.id}` });
+        });
+      }
+      if (toolsRes && toolsRes.ok) {
+        const data = await toolsRes.json();
+        (data.data || []).forEach(t => {
+          dynamicIndex.push({ title: t.title, desc: 'Tool / Resource', url: `tools.html?id=${t.id}` });
+        });
+      }
+      searchIndex = [...baseIndex, ...dynamicIndex];
+      // re-trigger search if input has value
+      if (input.value.trim()) handleSearch();
+    } catch (e) {
+      console.warn('Failed to load dynamic search data', e);
+    }
+  }
+
+  function renderResults(query) {
+    if (!query) {
+      resultsBox.classList.remove('active');
+      return;
+    }
+    const q = query.toLowerCase();
+    const matches = searchIndex.filter(item => 
+      item.title.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)
+    ).slice(0, 10); // show top 10
+
+    if (matches.length === 0) {
+      resultsBox.innerHTML = '<div class="search-no-results">No matches found for "' + escHtml(query) + '"</div>';
+    } else {
+      resultsBox.innerHTML = matches.map((m, i) => `
+        <a href="${m.url}" class="search-result-item" data-index="${i}">
+          <span class="search-result-title">${escHtml(m.title)}</span>
+          <span class="search-result-desc">${escHtml(m.desc)}</span>
+        </a>
+      `).join('');
+    }
+    
+    resultsBox.classList.add('active');
+    items = Array.from(resultsBox.querySelectorAll('.search-result-item'));
+    selectedIndex = -1;
+  }
+
+  function handleSearch() {
+    renderResults(input.value.trim());
+  }
+
+  input.addEventListener('focus', () => {
+    loadDynamicData();
+    if (input.value.trim()) resultsBox.classList.add('active');
+  });
+
+  input.addEventListener('input', handleSearch);
+
+  input.addEventListener('keydown', (e) => {
+    if (!resultsBox.classList.contains('active') || items.length === 0) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = (selectedIndex + 1) % items.length;
+      updateSelection();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+      updateSelection();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < items.length) {
+        items[selectedIndex].click();
+      } else if (items.length > 0) {
+        items[0].click();
+      }
+    }
+  });
+
+  function updateSelection() {
+    items.forEach((el, i) => {
+      el.classList.toggle('selected', i === selectedIndex);
+      if (i === selectedIndex) el.scrollIntoView({ block: 'nearest' });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.global-search')) {
+      resultsBox.classList.remove('active');
+    }
+  });
+}
+
+initGlobalSearch();

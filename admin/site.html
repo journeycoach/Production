@@ -85,6 +85,10 @@
     <header class="admin-header">
       <a href="/index.html" class="brand">Your Journey Coach <span>Admin</span></a>
       <div class="admin-header-actions">
+        <div class="global-search">
+          <input type="text" id="globalSearchInput" placeholder="Search admin..." autocomplete="off">
+          <div id="globalSearchResults" class="global-search-results"></div>
+        </div>
         <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
       </div>
     </header>
@@ -369,12 +373,12 @@
 
   <!-- Email Preview Modal -->
   <div id="emailPreviewModal" class="modal-overlay" onclick="if(event.target===this)closeEmailPreview()">
-    <div class="modal-box" style="max-width:680px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="modal-box" style="max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
       <div class="modal-header">
         <span class="modal-title">Email Preview <span style="font-weight:400;font-size:0.8rem;color:var(--admin-muted);">(sample data)</span></span>
         <button type="button" class="modal-close" onclick="closeEmailPreview()">&#215;</button>
       </div>
-      <iframe id="emailPreviewFrame" style="flex:1;width:100%;height:620px;border:none;background:#fff;" sandbox="allow-same-origin"></iframe>
+      <iframe id="emailPreviewFrame" style="flex:1;width:100%;height:750px;border:none;background:#fff;" sandbox="allow-same-origin"></iframe>
     </div>
   </div>
 
