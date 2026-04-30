@@ -234,11 +234,16 @@
                 <label for="hc_email_heart_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
                 <div style="display:flex;gap:6px;">
                   <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_heart" onclick="toggleEmailPreview('hc_email_heart_body','previewToggle_heart','emailPreview_heart')">&#9654; Preview</button>
                 </div>
               </div>
               <textarea id="hc_email_heart_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
-              <div style="margin-top:12px; text-align:right;">
-                <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('hc_email_heart_body')">&#9654; Preview Email</button>
+              <div class="email-preview-panel" id="emailPreview_heart">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
               </div>
             </div>
           </div>
@@ -254,11 +259,16 @@
                 <label for="hc_email_head_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
                 <div style="display:flex;gap:6px;">
                   <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('head')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_head" onclick="toggleEmailPreview('hc_email_head_body','previewToggle_head','emailPreview_head')">&#9654; Preview</button>
                 </div>
               </div>
               <textarea id="hc_email_head_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
-              <div style="margin-top:12px; text-align:right;">
-                <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('hc_email_head_body')">&#9654; Preview Email</button>
+              <div class="email-preview-panel" id="emailPreview_head">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
               </div>
             </div>
           </div>
@@ -274,11 +284,16 @@
                 <label for="hc_email_action_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
                 <div style="display:flex;gap:6px;">
                   <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_action" onclick="toggleEmailPreview('hc_email_action_body','previewToggle_action','emailPreview_action')">&#9654; Preview</button>
                 </div>
               </div>
               <textarea id="hc_email_action_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
-              <div style="margin-top:12px; text-align:right;">
-                <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('hc_email_action_body')">&#9654; Preview Email</button>
+              <div class="email-preview-panel" id="emailPreview_action">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
               </div>
             </div>
           </div>
@@ -401,11 +416,16 @@
               <label for="fg_guide_email_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
               <div style="display:flex;gap:6px;">
                 <button type="button" class="btn btn-ghost btn-sm" onclick="loadFreeGuideDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                <button type="button" class="btn-preview-toggle" id="previewToggle_fg" onclick="toggleEmailPreview('fg_guide_email_body','previewToggle_fg','emailPreview_fg')">&#9654; Preview</button>
               </div>
             </div>
             <textarea id="fg_guide_email_body" class="form-control" rows="20" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}} to personalise."></textarea>
-            <div style="margin-top:12px; text-align:right;">
-              <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('fg_guide_email_body')">&#9654; Preview Email</button>
+            <div class="email-preview-panel" id="emailPreview_fg">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Email Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+              </div>
+              <iframe sandbox="allow-same-origin"></iframe>
             </div>
           </div>
         </div>
@@ -476,26 +496,23 @@
             </div>
           </div>
           <textarea class="form-control field-body" rows="18" style="font-family:monospace;font-size:0.95rem;width:100%;max-width:100%;resize:vertical;" placeholder="<p>Hi {{firstName}},</p>"></textarea>
+          <div class="email-preview-panel step-email-preview">
+            <div class="email-preview-header">
+              <span><span class="preview-live-dot"></span>Email Preview</span>
+              <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+            </div>
+            <iframe sandbox="allow-same-origin"></iframe>
+          </div>
         </div>
 
         <div style="text-align:right; display:flex; justify-content:flex-end; gap:12px;">
-          <button type="button" class="btn btn-ghost btn-preview" onclick="previewStep(this)">&#9654; Preview</button>
+          <button type="button" class="btn-preview-toggle btn-step-preview" onclick="toggleStepPreview(this)">&#9654; Preview</button>
           <button type="button" class="btn btn-primary btn-save">Save Changes</button>
         </div>
       </div>
     </div>
   </template>
 
-  <!-- Email Preview Modal -->
-  <div id="emailPreviewModal" class="modal-overlay" onclick="if(event.target===this)closeEmailPreview()">
-    <div class="modal-box" style="max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
-      <div class="modal-header">
-        <span class="modal-title">Email Preview <span style="font-weight:400;font-size:0.8rem;color:var(--admin-muted);">(sample data)</span></span>
-        <button type="button" class="modal-close" onclick="closeEmailPreview()">&#215;</button>
-      </div>
-      <iframe id="emailPreviewFrame" style="flex:1;width:100%;height:750px;border:none;background:#fff;" sandbox="allow-same-origin"></iframe>
-    </div>
-  </div>
 
   <!-- Test Send Modal -->
   <div id="testSendModal" class="modal-overlay" onclick="if(event.target===this)closeTestSendModal()">
@@ -879,34 +896,49 @@
     }
 
     // Email Preview Logic
-    function showEmailPreview(textareaId) {
-      const ta = document.getElementById(textareaId);
-      const html = ta ? ta.value.trim() : '';
-      if (!html) { showFlash('No email content to preview — add some HTML first.', 'error'); return; }
-
-      const sample = html
+    function applySampleVars(html) {
+      return html
         .replace(/\{\{firstName\}\}/g, 'Sarah')
         .replace(/\{\{scoreHeart\}\}/g, '72')
         .replace(/\{\{scoreHead\}\}/g, '58')
         .replace(/\{\{scoreAction\}\}/g, '64')
         .replace(/\{\{calendlyUrl\}\}/g, 'https://calendly.com/sample');
-
-      document.getElementById('emailPreviewFrame').srcdoc = sample;
-      document.getElementById('emailPreviewModal').classList.add('open');
     }
 
-    function closeEmailPreview() {
-      document.getElementById('emailPreviewModal').classList.remove('open');
-      document.getElementById('emailPreviewFrame').srcdoc = '';
+    function toggleEmailPreview(textareaId, btnId, panelId) {
+      const btn   = document.getElementById(btnId);
+      const panel = document.getElementById(panelId);
+      const isOpen = panel.classList.toggle('open');
+      if (isOpen) {
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        const html = document.getElementById(textareaId).value.trim();
+        panel.querySelector('iframe').srcdoc = html
+          ? applySampleVars(html)
+          : '<p style="padding:24px;color:#888;font-family:sans-serif;">No content yet — add some HTML first.</p>';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview';
+        panel.querySelector('iframe').srcdoc = '';
+      }
     }
 
-    function previewStep(btn) {
-      const textarea = btn.closest('.step-body').querySelector('.field-body');
-      if (!textarea) return;
-      const tempId = 'temp_preview_' + Date.now();
-      textarea.id = tempId;
-      showEmailPreview(tempId);
-      textarea.removeAttribute('id');
+    function toggleStepPreview(btn) {
+      const body  = btn.closest('.step-body');
+      const panel = body.querySelector('.step-email-preview');
+      const isOpen = panel.classList.toggle('open');
+      if (isOpen) {
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        const html = body.querySelector('.field-body').value.trim();
+        panel.querySelector('iframe').srcdoc = html
+          ? applySampleVars(html)
+          : '<p style="padding:24px;color:#888;font-family:sans-serif;">No content yet — add some HTML first.</p>';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview';
+        panel.querySelector('iframe').srcdoc = '';
+      }
     }
 
     async function sendTestEmails() {

@@ -272,10 +272,15 @@
               <div class="form-group">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
                   <label for="contact_reply_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_contact_reply" onclick="toggleEmailPreview('contact_reply_body','previewToggle_contact_reply','emailPreview_contact_reply')">&#9654; Preview</button>
                 </div>
                 <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
-                <div style="margin-top:12px; text-align:right;">
-                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('contact_reply_body')">&#9654; Preview Email</button>
+                <div class="email-preview-panel" id="emailPreview_contact_reply">
+                  <div class="email-preview-header">
+                    <span><span class="preview-live-dot"></span>Email Preview</span>
+                    <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                  </div>
+                  <iframe sandbox="allow-same-origin"></iframe>
                 </div>
               </div>
             </div>
@@ -291,11 +296,16 @@
                   <label for="guide_email_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
                   <div style="display:flex;gap:6px;">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                    <button type="button" class="btn-preview-toggle" id="previewToggle_guide_email" onclick="toggleEmailPreview('guide_email_body','previewToggle_guide_email','emailPreview_guide_email')">&#9654; Preview</button>
                   </div>
                 </div>
                 <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default."></textarea>
-                <div style="margin-top:12px; text-align:right;">
-                  <button type="button" class="btn btn-ghost btn-sm" onclick="showEmailPreview('guide_email_body')">&#9654; Preview Email</button>
+                <div class="email-preview-panel" id="emailPreview_guide_email">
+                  <div class="email-preview-header">
+                    <span><span class="preview-live-dot"></span>Email Preview</span>
+                    <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                  </div>
+                  <iframe sandbox="allow-same-origin"></iframe>
                 </div>
               </div>
             </div>
@@ -371,16 +381,6 @@
     </main>
   </div>
 
-  <!-- Email Preview Modal -->
-  <div id="emailPreviewModal" class="modal-overlay" onclick="if(event.target===this)closeEmailPreview()">
-    <div class="modal-box" style="max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
-      <div class="modal-header">
-        <span class="modal-title">Email Preview <span style="font-weight:400;font-size:0.8rem;color:var(--admin-muted);">(sample data)</span></span>
-        <button type="button" class="modal-close" onclick="closeEmailPreview()">&#215;</button>
-      </div>
-      <iframe id="emailPreviewFrame" style="flex:1;width:100%;height:750px;border:none;background:#fff;" sandbox="allow-same-origin"></iframe>
-    </div>
-  </div>
 
   <script src="js/admin.js"></script>
   <script>
@@ -785,22 +785,27 @@
     function collectFooterLinks() {
       return Array.from(document.querySelectorAll('#footerLinksBody tr[data-index]')).map(row=>{const inputs=row.querySelectorAll('input');return{label:inputs[0].value,url:inputs[1].value,visible:inputs[2].checked};});
     }
-    function showEmailPreview(textareaId) {
-      const ta = document.getElementById(textareaId);
-      const html = ta ? ta.value.trim() : '';
-      if (!html) { showFlash('No email content to preview — add some HTML first.', 'error'); return; }
-      const sample = html
-        .replace(/\{\{firstName\}\}/g, 'Sarah')
-        .replace(/\{\{scoreHeart\}\}/g, '72')
-        .replace(/\{\{scoreHead\}\}/g, '58')
-        .replace(/\{\{scoreAction\}\}/g, '64')
-        .replace(/\{\{calendlyUrl\}\}/g, 'https://calendly.com/sample');
-      document.getElementById('emailPreviewFrame').srcdoc = sample;
-      document.getElementById('emailPreviewModal').classList.add('open');
-    }
-    function closeEmailPreview() {
-      document.getElementById('emailPreviewModal').classList.remove('open');
-      document.getElementById('emailPreviewFrame').srcdoc = '';
+    function toggleEmailPreview(textareaId, btnId, panelId) {
+      const btn   = document.getElementById(btnId);
+      const panel = document.getElementById(panelId);
+      const isOpen = panel.classList.toggle('open');
+      if (isOpen) {
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        const html = document.getElementById(textareaId).value.trim();
+        panel.querySelector('iframe').srcdoc = html
+          ? html
+              .replace(/\{\{firstName\}\}/g, 'Sarah')
+              .replace(/\{\{scoreHeart\}\}/g, '72')
+              .replace(/\{\{scoreHead\}\}/g, '58')
+              .replace(/\{\{scoreAction\}\}/g, '64')
+              .replace(/\{\{calendlyUrl\}\}/g, 'https://calendly.com/sample')
+          : '<p style="padding:24px;color:#888;font-family:sans-serif;">No content yet — add some HTML first.</p>';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview';
+        panel.querySelector('iframe').srcdoc = '';
+      }
     }
 
     document.getElementById('navForm').addEventListener('submit', async e => {

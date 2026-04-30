@@ -1830,6 +1830,55 @@ select option {
   box-shadow: var(--admin-shadow-sm);
 }
 
+/* ── Inline email preview panel (site.html, subscribers.html) ─────────── */
+.email-preview-panel {
+  display: none;
+  flex-direction: column;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.email-preview-panel.open { display: flex; }
+.email-preview-panel iframe {
+  border: none;
+  width: 100%;
+  height: 600px;
+  background: #fff;
+}
+.email-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--admin-border);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: var(--admin-accent);
+  flex-shrink: 0;
+}
+.btn-preview-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid var(--admin-accent);
+  color: var(--admin-accent);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-preview-toggle:hover,
+.btn-preview-toggle.active {
+  background: var(--admin-accent);
+  color: #1a1d1e;
+}
+
 .save-bar {
   background: rgba(255, 255, 255, 0.92) !important;
   border-top: 1px solid var(--admin-border) !important;
@@ -2451,9 +2500,10 @@ textarea::placeholder {
 /* contacts.html / site.html / subscribers.html — sticky save bar */
 .save-bar { background: #ffffff !important; border-top-color: #e2dfdb !important; }
 
-/* post-edit.html — live preview panel */
+/* post-edit.html / email editors — live preview panel */
 .preview-panel        { background: #ffffff !important; border-color: #e2dfdb !important; }
 .preview-panel-header { border-bottom-color: #e2dfdb !important; color: #596575 !important; }
+.email-preview-panel  { background: #ffffff !important; border-color: #e2dfdb !important; }
 
 /* subscribers.html — mobile table rows */
 #subTable tbody tr { border-color: #e2dfdb !important; }
