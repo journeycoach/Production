@@ -326,6 +326,9 @@ function makeTabsSortable(tabBarSelector, storageKey, tabAttr = 'tab') {
 
   if (typeof Sortable === 'undefined') return;
 
+  // Disable drag-sort on touch/mobile to avoid scroll conflicts
+  if (window.matchMedia('(pointer: coarse), (max-width: 768px)').matches) return;
+
   // Activate drag-to-sort
   Sortable.create(tabBar, {
     animation: 150,
