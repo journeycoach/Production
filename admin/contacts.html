@@ -110,9 +110,19 @@
           <div class="form-group">
             <div class="field-row">
               <label for="contact_reply_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-              <button type="button" class="btn btn-ghost btn-sm" onclick="loadAutoReplyDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+              <div style="display:flex;gap:6px;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="loadAutoReplyDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                <button type="button" class="btn-preview-toggle" id="previewToggle_autoreply" onclick="toggleEmailPreview('contact_reply_body','previewToggle_autoreply','emailPreview_autoreply')">&#9654; Preview</button>
+              </div>
             </div>
             <textarea id="contact_reply_body" class="form-control" rows="20" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
+            <div class="email-preview-panel" id="emailPreview_autoreply">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Email Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+              </div>
+              <iframe sandbox="allow-same-origin"></iframe>
+            </div>
           </div>
         </div>
 
@@ -327,6 +337,24 @@
     loadSubmissions();
     setFilter('all');
     makeTabsSortable('.page-tabs', 'contacts_tab_order');
+
+    function toggleEmailPreview(textareaId, btnId, panelId) {
+      const btn   = document.getElementById(btnId);
+      const panel = document.getElementById(panelId);
+      const isOpen = panel.classList.toggle('open');
+      if (isOpen) {
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        const html = document.getElementById(textareaId).value.trim();
+        panel.querySelector('iframe').srcdoc = html
+          ? html.replace(/\{\{firstName\}\}/g, 'Sarah')
+          : '<p style="padding:24px;color:#888;font-family:sans-serif;">No content yet — add some HTML first.</p>';
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview';
+        panel.querySelector('iframe').srcdoc = '';
+      }
+    }
   </script>
 </body>
 </html>

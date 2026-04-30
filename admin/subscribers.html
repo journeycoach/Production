@@ -339,6 +339,16 @@
               <textarea id="hc_result_heart_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2…"></textarea>
               <textarea id="hc_result_heart_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
             </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_heart" onclick="toggleResultPreview('heart')">&#9654; Preview Result Page</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_heart">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
           </div>
 
           <!-- Head -->
@@ -359,6 +369,16 @@
               <textarea id="hc_result_head_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2…"></textarea>
               <textarea id="hc_result_head_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
             </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_head" onclick="toggleResultPreview('head')">&#9654; Preview Result Page</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_head">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
           </div>
 
           <!-- Action / Gut -->
@@ -378,6 +398,16 @@
               <textarea id="hc_result_action_step1" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 1…"></textarea>
               <textarea id="hc_result_action_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2…"></textarea>
               <textarea id="hc_result_action_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3…"></textarea>
+            </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_action" onclick="toggleResultPreview('action')">&#9654; Preview Result Page</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_action">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
           </div>
         </div>
@@ -937,6 +967,62 @@
       } else {
         btn.classList.remove('active');
         btn.innerHTML = '&#9654; Preview';
+        panel.querySelector('iframe').srcdoc = '';
+      }
+    }
+
+    function toggleResultPreview(center) {
+      const btn   = document.getElementById(`previewToggle_result_${center}`);
+      const panel = document.getElementById(`emailPreview_result_${center}`);
+      const isOpen = panel.classList.toggle('open');
+      if (isOpen) {
+        btn.classList.add('active');
+        btn.innerHTML = '&#9632; Hide Preview';
+        const g = id => (document.getElementById(id) || {}).value || '';
+        const label   = g(`hc_result_${center}_label`)   || { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' }[center];
+        const title   = g(`hc_result_${center}_title`)   || 'Your Hidden Ceiling Result';
+        const summary = g(`hc_result_${center}_summary`);
+        const desc    = g(`hc_result_${center}_description`);
+        const blind   = g(`hc_result_${center}_blindspot`);
+        const s1      = g(`hc_result_${center}_step1`);
+        const s2      = g(`hc_result_${center}_step2`);
+        const s3      = g(`hc_result_${center}_step3`);
+        const accent  = { heart: '#c0506a', head: '#4a7ab5', action: '#c7a96b' }[center] || '#c7a96b';
+        const steps   = [s1, s2, s3].filter(Boolean).map(s => `<li style="margin-bottom:10px;">${s}</li>`).join('');
+        panel.querySelector('iframe').srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+  body { font-family: Georgia, serif; background: #f5f0e8; margin: 0; padding: 32px 20px; color: #1a1d1e; }
+  .card { background: #fff; border-radius: 12px; padding: 36px 40px; max-width: 660px; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+  .pill { display: inline-block; background: ${accent}22; color: ${accent}; border: 1px solid ${accent}66; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 14px; margin-bottom: 20px; }
+  h1 { font-size: 1.6rem; line-height: 1.3; margin: 0 0 20px; color: #1a1d1e; }
+  .scores { display: flex; gap: 10px; margin-bottom: 24px; }
+  .score-chip { flex: 1; background: #f5f0e8; border-radius: 8px; padding: 10px 14px; text-align: center; }
+  .score-chip .val { font-size: 1.4rem; font-weight: 700; color: ${accent}; display: block; }
+  .score-chip .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #888; }
+  .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: ${accent}; margin: 24px 0 8px; }
+  p { margin: 0 0 16px; line-height: 1.7; font-size: 0.95rem; color: #2d3748; }
+  .callout { background: ${accent}11; border-left: 3px solid ${accent}; border-radius: 4px; padding: 14px 18px; margin: 0 0 20px; font-size: 0.9rem; line-height: 1.6; }
+  ul { margin: 0; padding-left: 20px; }
+  li { font-size: 0.9rem; line-height: 1.6; color: #2d3748; }
+  .empty { color: #bbb; font-style: italic; }
+</style></head><body>
+<div class="card">
+  <div class="pill">${label}</div>
+  <h1>${title}</h1>
+  <div class="scores">
+    <div class="score-chip"><span class="val">72</span><span class="lbl">Heart</span></div>
+    <div class="score-chip"><span class="val">58</span><span class="lbl">Head</span></div>
+    <div class="score-chip"><span class="val">64</span><span class="lbl">Gut</span></div>
+  </div>
+  ${summary ? `<div class="section-label">Opening Summary</div><p>${summary}</p>` : ''}
+  ${desc    ? `<div class="section-label">What This Says About You</div><p>${desc}</p>` : ''}
+  ${blind   ? `<div class="section-label">Watch for This Pattern</div><div class="callout">${blind}</div>` : ''}
+  ${steps   ? `<div class="section-label">Start Here This Week</div><ul>${steps}</ul>` : ''}
+  ${!summary && !desc && !blind && !steps ? '<p class="empty">Fill in the fields above to see your result page preview.</p>' : ''}
+</div></body></html>`;
+      } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#9654; Preview Result Page';
         panel.querySelector('iframe').srcdoc = '';
       }
     }
