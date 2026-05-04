@@ -9,7 +9,7 @@
   <style>
     /* ── Top-level site tabs ─────────────────────────────────────────── */
     .site-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
-    .site-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .site-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 20px !important; font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
     .site-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
     .site-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
     .site-tab-panel { display: none; }
@@ -19,7 +19,7 @@
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media (max-width: 800px) { .settings-grid { grid-template-columns: 1fr; } }
     .settings-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-    .settings-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: grab; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .settings-tab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 10px 18px !important; font-size: 0.875rem; font-weight: 600; cursor: grab; white-space: nowrap; display: inline-flex; align-items: center; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
     .settings-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
     .settings-tab.is-active { background: var(--admin-accent); color: var(--admin-bg); border-color: var(--admin-accent); }
     .settings-tab-panel { display: none; }
