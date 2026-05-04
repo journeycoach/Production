@@ -221,40 +221,50 @@
       justify-content: center;
       flex-direction: column;
       text-align: center;
+      position: relative;
     }
+    /* Clip-path on ::before only — text is never clipped */
+    .funnel-shape::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .funnel-shape > * { position: relative; z-index: 1; }
+
     .fn-label {
       font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.45);
+      color: #fff !important;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.55);
     }
-    .fn-sub { font-size: 0.68rem; color: rgba(255,255,255,0.72); margin-top: 3px; }
+    .fn-sub { font-size: 0.68rem; color: rgba(255,255,255,0.80) !important; margin-top: 3px; }
     .fn-stat { padding-left: 10px; text-align: right; }
     .fn-stat-count {
       font-family: var(--admin-heading-font);
       font-size: 1.55rem;
-      color: var(--admin-text);
+      color: #f0ece4 !important;
       line-height: 1;
     }
-    .fn-stat-pct { font-size: 0.7rem; color: var(--admin-muted); margin-top: 3px; }
+    .fn-stat-pct { font-size: 0.7rem; color: #a0abb5 !important; margin-top: 3px; }
     .funnel-connector {
       display: flex;
       align-items: center;
       gap: 6px;
       padding: 5px 0 5px 22%;
-      color: var(--admin-muted);
+      color: #a0abb5 !important;
       font-size: 0.74rem;
     }
-    .funnel-connector-arrow { color: var(--admin-accent, #c7a96b); font-size: 1.1rem; line-height: 1; }
-    .funnel-dropped { color: #7a8492; font-size: 0.72rem; }
+    .funnel-connector-arrow { color: #c7a96b !important; font-size: 1.1rem; line-height: 1; }
+    .funnel-dropped { color: #7a8492 !important; font-size: 0.72rem; }
 
-    .fs-1 { clip-path: polygon(0% 0%,100% 0%,93% 100%,7% 100%);   background: rgba(199,169,107,0.20); }
-    .fs-2 { clip-path: polygon(7% 0%,93% 0%,85% 100%,15% 100%);   background: rgba(199,169,107,0.30); }
-    .fs-3 { clip-path: polygon(15% 0%,85% 0%,76% 100%,24% 100%);  background: rgba(199,169,107,0.42); }
-    .fs-4 { clip-path: polygon(24% 0%,76% 0%,66% 100%,34% 100%);  background: rgba(199,169,107,0.56); }
-    .fs-5 { clip-path: polygon(34% 0%,66% 0%,56% 100%,44% 100%);  background: rgba(199,169,107,0.74); }
+    .fs-1::before { clip-path: polygon(0% 0%,100% 0%,93% 100%,7% 100%);   background: rgba(199,169,107,0.22); }
+    .fs-2::before { clip-path: polygon(7% 0%,93% 0%,85% 100%,15% 100%);   background: rgba(199,169,107,0.32); }
+    .fs-3::before { clip-path: polygon(15% 0%,85% 0%,76% 100%,24% 100%);  background: rgba(199,169,107,0.44); }
+    .fs-4::before { clip-path: polygon(24% 0%,76% 0%,66% 100%,34% 100%);  background: rgba(199,169,107,0.58); }
+    .fs-5::before { clip-path: polygon(34% 0%,66% 0%,56% 100%,44% 100%);  background: rgba(199,169,107,0.76); }
 
     .funnel-legend {
       margin-top: 1.25rem;
@@ -287,17 +297,17 @@
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #a0abb5;
+      color: #a0abb5 !important;
       margin-bottom: 0.3rem;
     }
     .fi-value {
       font-family: var(--admin-heading-font);
       font-size: 1.7rem;
-      color: var(--admin-text);
+      color: #f0ece4 !important;
       line-height: 1;
       margin-bottom: 0.3rem;
     }
-    .fi-desc { font-size: 0.8rem; color: #b8c2cc; line-height: 1.45; }
+    .fi-desc { font-size: 0.8rem; color: #b8c2cc !important; line-height: 1.45; }
 
     @media (max-width: 820px) {
       .funnel-layout { grid-template-columns: 1fr; }
