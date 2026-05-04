@@ -374,14 +374,13 @@ function initGlobalSearch() {
 
   const baseIndex = [
     { title: 'Dashboard', desc: 'Overview and recent activity', url: 'dashboard.html' },
-    { title: 'Posts', desc: 'Manage blog posts and articles', url: 'posts.html' },
+    { title: 'Blog', desc: 'Manage blog posts and articles', url: 'posts.html' },
     { title: 'New Post', desc: 'Write a new blog post', url: 'post-edit.html' },
     { title: 'Testimonials', desc: 'Manage client testimonials', url: 'testimonials.html' },
     { title: 'Tools & Resources', desc: 'Manage tools, guides, and resources', url: 'tools.html' },
     { title: 'Bookmarks', desc: 'Manage saved bookmarks', url: 'bookmarks.html' },
     { title: 'Leads Dashboard', desc: 'View assessment leads and data', url: 'lead-dashboard.html' },
     { title: 'Site Console', desc: 'Manage page sections, navigation, and brand', url: 'site.html' },
-    { title: 'Email Templates', desc: 'Edit website email templates', url: 'site.html?tab=email-templates' },
     { title: 'Contacts', desc: 'View contact form submissions', url: 'contacts.html' },
     { title: 'Subscribers & Campaigns', desc: 'Manage email subscribers and campaigns', url: 'subscribers.html' },
     { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' }
