@@ -93,16 +93,19 @@ export default async function handler(req, res) {
       case 'post': {
         const slug = req.query?.slug ?? new URL(req.url, 'http://localhost').searchParams.get('slug');
         if (!slug) return res.status(400).json({ error: 'slug is required' });
-        const rows = await sql`
-          SELECT id, title, post_date, author, image_url, summary, body, slug
-          FROM posts WHERE slug = ${slug} LIMIT 1
-        `;
+        const [rows, ctaRows] = await Promise.all([
+          sql`SELECT id, title, post_date, author, image_url, summary, body, slug
+              FROM posts WHERE slug = ${slug} LIMIT 1`,
+          sql`SELECT is_visible FROM page_sections
+              WHERE page = 'blog' AND section_key = 'assessment-cta' LIMIT 1`,
+        ]);
         if (!rows.length) {
           res.setHeader('Content-Type', 'text/html; charset=utf-8');
           return res.status(404).send(render404Html());
         }
+        const showAssessmentCta = ctaRows.length === 0 || ctaRows[0].is_visible !== false;
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.status(200).send(renderPostHtml(rows[0]));
+        return res.status(200).send(renderPostHtml(rows[0], showAssessmentCta));
       }
 
       case 'sitemap': {
@@ -154,7 +157,7 @@ export default async function handler(req, res) {
   }
 }
 
-function renderPostHtml(post) {
+function renderPostHtml(post, showAssessmentCta = true) {
   const { title, summary, body, author, post_date, image_url, slug } = post;
   const esc = escHtml;
   const postUrl = `https://journeycoach.co/blog/${slug}`;
@@ -286,7 +289,7 @@ function renderPostHtml(post) {
           </div>
         </div><!-- /.post-main -->
 
-        <!-- Sidebar -->
+        ${showAssessmentCta ? `<!-- Sidebar -->
         <aside class="post-sidebar">
           <div class="post-sidebar-inner">
             <div class="sidebar-cta">
@@ -296,7 +299,7 @@ function renderPostHtml(post) {
               <a href="/Hidden-Ceiling.html" class="btn-primary">Take the Free Assessment</a>
             </div>
           </div>
-        </aside>
+        </aside>` : ''}
       </div><!-- /.post-layout -->
     </article>
   </main>

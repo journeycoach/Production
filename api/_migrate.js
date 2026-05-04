@@ -173,6 +173,7 @@ export async function runMigrations() {
     { page: 'home', section_key: 'about',              label: 'About',               sort_order: 7  },
     { page: 'home', section_key: 'contact',            label: 'Contact',             sort_order: 8  },
     { page: 'enneagram', section_key: 'hero',          label: 'Hero',                sort_order: 0  },
+    { page: 'blog',      section_key: 'assessment-cta', label: 'Assessment CTA (Sidebar)', sort_order: 0 },
   ];
   for (const s of defaultSections) {
     await sql`

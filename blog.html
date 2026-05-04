@@ -416,7 +416,7 @@
                 </div><!-- /.post-main -->
 
                 <!-- Sidebar -->
-                <aside class="post-sidebar">
+                <aside class="post-sidebar" id="blog-assessment-sidebar">
                     <div class="post-sidebar-inner">
                         <div class="sidebar-cta">
                             <p class="sidebar-cta-eyebrow">Free · 2 Minutes</p>
@@ -452,7 +452,20 @@
     <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script src="js/blog.js"></script>
-    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+    <script>
+      document.getElementById('footer-year').textContent = new Date().getFullYear();
+      // Control assessment sidebar visibility via Site Console toggle
+      fetch('/api/content?type=sections&page=blog')
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          const section = (data?.data || []).find(s => s.section_key === 'assessment-cta');
+          if (section && section.is_visible === false) {
+            const el = document.getElementById('blog-assessment-sidebar');
+            if (el) el.style.display = 'none';
+          }
+        })
+        .catch(() => {});
+    </script>
 </body>
 
 </html>
