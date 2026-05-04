@@ -539,16 +539,29 @@
 
     // ── Funnel ────────────────────────────────────────────────────────────────
 
+    function renderFunnelBars(el, entries, emptyText, lastFillClass = '') {
+      if (!entries.length) { el.innerHTML = `<div class="empty-state">${escHtml(emptyText)}</div>`; return; }
+      const maxCount = entries[0][1] || 1; // Top of funnel
+      el.innerHTML = entries.map(([label, count], i) => {
+        const pct = Math.round((count / maxCount) * 100);
+        const isLast = lastFillClass && i === entries.length - 1;
+        return `<div class="bar-row">
+          <div class="bar-label">${escHtml(label)}</div>
+          <div class="bar-track"><span class="bar-fill${isLast ? ' ' + lastFillClass : ''}" style="width:${pct}%"></span></div>
+          <div class="bar-value">${count}</div>
+        </div>`;
+      }).join('');
+    }
+
     function renderFunnel(contacts, subscribers) {
       const assessment = subscribers.filter(s => s.result_center);
-      const counts = {
-        'Contact forms':  contacts.length,
-        'Subscribers':    subscribers.length,
-        'Assessments':    assessment.length,
-        'Drip active':    assessment.filter(s => parseInt(s.drip_step || 0, 10) > 0).length,
-        'Reached step 5': assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length,
-      };
-      renderBars(document.getElementById('funnelBars'), counts, 'No funnel activity yet.');
+      const counts = [
+        ['Subscribers',    subscribers.length],
+        ['Assessments',    assessment.length],
+        ['Drip active',    assessment.filter(s => parseInt(s.drip_step || 0, 10) > 0).length],
+        ['Reached step 5', assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length]
+      ];
+      renderFunnelBars(document.getElementById('funnelBars'), counts, 'No funnel activity yet.');
     }
 
     // ── Drip drop-off ─────────────────────────────────────────────────────────
@@ -567,19 +580,7 @@
         const toN = k => k === 'Not started' ? 0 : parseInt(k.replace('Step ', ''), 10);
         return toN(a[0]) - toN(b[0]);
       });
-      const total = sorted.reduce((s, [, c]) => s + c, 0);
-      el.innerHTML = sorted.map(([label, count]) => {
-        const pct = Math.round((count / total) * 100);
-        const isLast = label !== 'Not started' && !sorted.find(([l]) => {
-          const n = parseInt(l.replace('Step ', ''), 10);
-          return n > parseInt(label.replace('Step ', ''), 10);
-        });
-        return `<div class="bar-row">
-          <div class="bar-label">${escHtml(label)}</div>
-          <div class="bar-track"><span class="bar-fill${isLast ? ' fill-ok' : ''}" style="width:${pct}%"></span></div>
-          <div class="bar-value">${count}</div>
-        </div>`;
-      }).join('');
+      renderFunnelBars(el, sorted, 'No assessment subscribers yet.', 'fill-ok');
     }
 
     // ── Email status ──────────────────────────────────────────────────────────
@@ -710,21 +711,21 @@
         { cls: 'fs-1', label: 'Subscribers',         sub: 'Opted in to your list',            count: subscribers.length,   denom: subscribers.length },
         { cls: 'fs-2', label: 'Assessment Completed', sub: 'Took the Hidden Ceiling quiz',     count: assessed.length,      denom: subscribers.length },
         { cls: 'fs-3', label: 'Drip Sequence Active', sub: 'Engaged in email nurture',          count: engaged.length,       denom: assessed.length },
-        { cls: 'fs-4', label: 'Contact Inquiries',    sub: 'Submitted the contact form',        count: contacts.length,      denom: null },
-        { cls: 'fs-5', label: 'High-Intent Leads',   sub: 'Subscriber + contact form both',   count: crossChannel.length,  denom: contacts.length },
+        { cls: 'fs-4', label: 'Deep Nurture',         sub: 'Reached drip step 5+',              count: deepNurture.length,   denom: engaged.length },
+        { cls: 'fs-5', label: 'High-Intent Leads',    sub: 'Subscriber + contact form both',    count: crossChannel.length,  denom: subscribers.length },
       ];
 
       const connectors = [
         { id: 'fc1', num: assessed.length,     den: subscribers.length, label: 'took the assessment' },
         { id: 'fc2', num: engaged.length,      den: assessed.length,    label: 'entered drip sequence' },
-        { id: 'fc3', num: contacts.length,     den: null,               label: 'direct contact inquiries' },
-        { id: 'fc4', num: crossChannel.length, den: contacts.length,    label: 'cross-channel subscribers' },
+        { id: 'fc3', num: deepNurture.length,  den: engaged.length,     label: 'stayed engaged' },
+        { id: 'fc4', num: crossChannel.length, den: subscribers.length, label: 'of all subscribers became high-intent' },
       ];
 
       let html = '';
       stages.forEach((s, i) => {
         const convText = s.denom !== null
-          ? `<div class="fn-stat-pct">${pct(s.count, s.denom)} of prev stage</div>`
+          ? `<div class="fn-stat-pct">${pct(s.count, s.denom)} conversion</div>`
           : `<div class="fn-stat-pct">separate track</div>`;
 
         html += `<div class="funnel-row">
