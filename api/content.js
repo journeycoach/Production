@@ -1,4 +1,5 @@
 import { sql } from './_db.js';
+import { runMigrations } from './_migrate.js';
 
 function escHtml(str) {
   return String(str || '')
@@ -43,17 +44,9 @@ export default async function handler(req, res) {
   const type = req.query?.type ?? new URL(req.url, 'http://localhost').searchParams.get('type');
 
   try {
+    await runMigrations();
     switch (type) {
       case 'testimonials': {
-        await sql`
-          ALTER TABLE testimonials
-          ADD COLUMN IF NOT EXISTS short_quote TEXT,
-          ADD COLUMN IF NOT EXISTS long_quote TEXT,
-          ADD COLUMN IF NOT EXISTS client_role TEXT,
-          ADD COLUMN IF NOT EXISTS industry TEXT,
-          ADD COLUMN IF NOT EXISTS display_location TEXT DEFAULT 'homepage',
-          ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE
-        `;
         const rows = await sql`
           SELECT id,
             COALESCE(NULLIF(short_quote, ''), quote) as quote,
@@ -89,7 +82,6 @@ export default async function handler(req, res) {
       }
 
       case 'posts': {
-        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const rows = await sql`
           SELECT id, title, post_date as date, author, image_url, summary, body, slug
           FROM posts
@@ -101,7 +93,6 @@ export default async function handler(req, res) {
       case 'post': {
         const slug = req.query?.slug ?? new URL(req.url, 'http://localhost').searchParams.get('slug');
         if (!slug) return res.status(400).json({ error: 'slug is required' });
-        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const rows = await sql`
           SELECT id, title, post_date, author, image_url, summary, body, slug
           FROM posts WHERE slug = ${slug} LIMIT 1
@@ -115,7 +106,6 @@ export default async function handler(req, res) {
       }
 
       case 'sitemap': {
-        await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
         const posts = await sql`
           SELECT slug, post_date FROM posts
           WHERE slug IS NOT NULL AND slug != ''

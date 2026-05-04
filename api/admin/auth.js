@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { sql } from '../_db.js';
 import { clearAuthCookie, createToken, requireAuth, setAuthCookie } from '../_auth.js';
+import { runMigrations } from '../_migrate.js';
 
 const LOGIN_RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 
@@ -20,16 +21,6 @@ function hashValue(value) {
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function ensureLoginAttemptTable() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS admin_login_attempts (
-      id SERIAL PRIMARY KEY,
-      ip_hash TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `;
 }
 
 async function getRecentFailedLoginCount(ipHash) {
@@ -89,7 +80,7 @@ export default async function handler(req, res) {
 
   const ipHash = hashValue(getClientIp(req));
   try {
-    await ensureLoginAttemptTable();
+    await runMigrations();
     const failedAttempts = await getRecentFailedLoginCount(ipHash);
     if (failedAttempts >= 8) {
       return res.status(429).json({ error: 'Too many login attempts. Please wait 15 minutes and try again.' });
@@ -111,7 +102,7 @@ export default async function handler(req, res) {
 
   if (!match) {
     try {
-      await ensureLoginAttemptTable();
+      await runMigrations();
       await recordFailedLogin(ipHash);
     } catch (err) {
       console.error('admin login rate limit record error:', err);

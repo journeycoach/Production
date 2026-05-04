@@ -1,25 +1,14 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
-
-async function ensureTestimonialColumns() {
-  await sql`
-    ALTER TABLE testimonials
-    ADD COLUMN IF NOT EXISTS short_quote TEXT,
-    ADD COLUMN IF NOT EXISTS long_quote TEXT,
-    ADD COLUMN IF NOT EXISTS client_role TEXT,
-    ADD COLUMN IF NOT EXISTS industry TEXT,
-    ADD COLUMN IF NOT EXISTS display_location TEXT DEFAULT 'homepage',
-    ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE
-  `;
-}
+import { runMigrations } from '../_migrate.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
+  await runMigrations();
 
   if (req.method === 'GET') {
     try {
-      await ensureTestimonialColumns();
       const rows = await sql`
         SELECT id, quote, short_quote, long_quote, author, client_role, industry,
           display_location, is_featured, sort_order, created_at

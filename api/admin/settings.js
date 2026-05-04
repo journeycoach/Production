@@ -1,28 +1,17 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 import { Resend } from 'resend';
+import { runMigrations } from '../_migrate.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
+  await runMigrations();
 
   // GET — return all settings as { key: value } map
   if (req.method === 'GET') {
     if (req.query?.resource === 'campaigns') {
       try {
-        await sql`
-          CREATE TABLE IF NOT EXISTS campaign_emails (
-            id SERIAL PRIMARY KEY,
-            campaign_name TEXT NOT NULL,
-            step_number INT NOT NULL,
-            subject TEXT,
-            body_html TEXT,
-            delay_days INT DEFAULT 2,
-            is_active BOOLEAN DEFAULT TRUE,
-            UNIQUE(campaign_name, step_number)
-          )
-        `;
-        await sql`ALTER TABLE campaign_emails ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE`;
         const existing = await sql`SELECT COUNT(*) as count FROM campaign_emails WHERE campaign_name = 'hidden-ceiling'`;
         if (parseInt(existing[0].count, 10) === 0) {
           for (let i = 1; i <= 5; i++) {

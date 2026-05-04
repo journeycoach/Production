@@ -1,6 +1,7 @@
 import { sql } from '../_db.js';
 import { getToken, requireAuth, verifyToken } from '../_auth.js';
 import { handleUpload } from '@vercel/blob/client';
+import { runMigrations } from '../_migrate.js';
 
 function toSlug(title) {
   return String(title || '')
@@ -51,11 +52,11 @@ export default async function handler(req, res) {
   }
 
   if (!requireAuth(req, res)) return;
+  await runMigrations();
 
   if (req.method === 'GET') {
     try {
-      // Ensure slug column exists and back-fill any posts missing one
-      await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
+      // Back-fill any posts missing a slug
       const unslugged = await sql`SELECT id, title FROM posts WHERE slug IS NULL OR slug = ''`;
       for (const p of unslugged) {
         const slug = await uniqueSlug(toSlug(p.title), p.id);
@@ -77,7 +78,6 @@ export default async function handler(req, res) {
     const { title, post_date, author = 'John Paine', image_url, summary, body, slug: rawSlug } = req.body || {};
     if (!title) return res.status(400).json({ error: 'title is required' });
     try {
-      await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS slug TEXT`;
       const slug = await uniqueSlug(toSlug(rawSlug || title));
       const rows = await sql`
         INSERT INTO posts (title, post_date, author, image_url, summary, body, slug)

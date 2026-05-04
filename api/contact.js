@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { sql } from './_db.js';
 import { Resend } from 'resend';
 import { Webhook } from 'svix';
+import { runMigrations } from './_migrate.js';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -107,38 +108,6 @@ function normalizeAttribution(value = {}) {
   };
 }
 
-async function ensureSubscriberAttributionColumns() {
-  await sql`
-    ALTER TABLE subscribers
-      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
-      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
-      ADD COLUMN IF NOT EXISTS landing_page TEXT,
-      ADD COLUMN IF NOT EXISTS referrer TEXT,
-      ADD COLUMN IF NOT EXISTS utm_source TEXT,
-      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
-      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
-      ADD COLUMN IF NOT EXISTS utm_term TEXT,
-      ADD COLUMN IF NOT EXISTS utm_content TEXT,
-      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
-  `;
-}
-
-async function ensureContactAttributionColumns() {
-  await sql`
-    ALTER TABLE contact_submissions
-      ADD COLUMN IF NOT EXISTS attribution_source TEXT,
-      ADD COLUMN IF NOT EXISTS first_attribution_source TEXT,
-      ADD COLUMN IF NOT EXISTS landing_page TEXT,
-      ADD COLUMN IF NOT EXISTS referrer TEXT,
-      ADD COLUMN IF NOT EXISTS utm_source TEXT,
-      ADD COLUMN IF NOT EXISTS utm_medium TEXT,
-      ADD COLUMN IF NOT EXISTS utm_campaign TEXT,
-      ADD COLUMN IF NOT EXISTS utm_term TEXT,
-      ADD COLUMN IF NOT EXISTS utm_content TEXT,
-      ADD COLUMN IF NOT EXISTS attribution JSONB DEFAULT '{}'::jsonb
-  `;
-}
-
 function getClientIp(req) {
   const forwarded = String(
     req.headers['x-forwarded-for']
@@ -153,24 +122,10 @@ function hashRateLimitValue(value) {
   return crypto.createHash('sha256').update(`${RATE_LIMIT_SALT}:${value}`).digest('hex');
 }
 
-async function ensureSubmissionAttemptTable() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS submission_attempts (
-      id SERIAL PRIMARY KEY,
-      action TEXT NOT NULL,
-      ip_hash TEXT NOT NULL,
-      email_hash TEXT,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    )
-  `;
-}
-
 async function enforceSubmissionRateLimit(req, action, email, { maxPerHour = 8, maxPerDayPerEmail = 3 } = {}) {
   try {
     const limitDisabled = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'rate_limit_disabled'`;
     if (limitDisabled[0]?.setting_value === 'true') return { allowed: true };
-
-    await ensureSubmissionAttemptTable();
 
     const ipHash = hashRateLimitValue(getClientIp(req));
     const emailHash = email ? hashRateLimitValue(normalizeEmail(email)) : null;
@@ -235,16 +190,7 @@ async function handleSubscribe(req, res) {
   }
 
   try {
-    await sql`
-      CREATE TABLE IF NOT EXISTS subscribers (
-        id         SERIAL PRIMARY KEY,
-        email      TEXT UNIQUE NOT NULL,
-        name       TEXT,
-        source     TEXT DEFAULT 'website',
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      )
-    `;
-    await ensureSubscriberAttributionColumns();
+    await runMigrations();
     await sql`
       INSERT INTO subscribers (
         email, name, source, attribution_source, first_attribution_source,
@@ -343,28 +289,7 @@ async function handleHiddenCeiling(req, res) {
 
   // Save to subscribers with assessment result (best-effort)
   try {
-    await sql`
-      CREATE TABLE IF NOT EXISTS subscribers (
-        id             SERIAL PRIMARY KEY,
-        email          TEXT UNIQUE NOT NULL,
-        name           TEXT,
-        source         TEXT DEFAULT 'website',
-        created_at     TIMESTAMPTZ DEFAULT NOW(),
-        result_center  TEXT,
-        score_heart    INT,
-        score_head     INT,
-        score_action   INT
-      )
-    `;
-    await sql`
-      ALTER TABLE subscribers
-        ADD COLUMN IF NOT EXISTS result_center  TEXT,
-        ADD COLUMN IF NOT EXISTS score_heart    INT,
-        ADD COLUMN IF NOT EXISTS score_head     INT,
-        ADD COLUMN IF NOT EXISTS score_action   INT,
-        ADD COLUMN IF NOT EXISTS source_history JSONB DEFAULT '[]'
-    `;
-    await ensureSubscriberAttributionColumns();
+    await runMigrations();
     await sql`
       INSERT INTO subscribers (
         email, name, source, result_center, score_heart, score_head, score_action,
@@ -476,23 +401,7 @@ async function handleHiddenCeiling(req, res) {
 
 async function handleCronDrip(req, res) {
   try {
-    await sql`
-      CREATE TABLE IF NOT EXISTS campaign_emails (
-        id SERIAL PRIMARY KEY,
-        campaign_name TEXT NOT NULL,
-        step_number INT NOT NULL,
-        subject TEXT,
-        body_html TEXT,
-        delay_days INT DEFAULT 2,
-        UNIQUE(campaign_name, step_number)
-      )
-    `;
-
-    await sql`
-      ALTER TABLE subscribers
-        ADD COLUMN IF NOT EXISTS drip_step INT DEFAULT 0,
-        ADD COLUMN IF NOT EXISTS last_email_sent_at TIMESTAMPTZ DEFAULT NOW()
-    `;
+    await runMigrations();
 
     // Check Master Switch
     let isActive = false;
@@ -517,8 +426,6 @@ async function handleCronDrip(req, res) {
       templateMap[t.step_number] = t;
       if (t.step_number > maxStep) maxStep = t.step_number;
     }
-
-    await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_unsubscribed BOOLEAN DEFAULT FALSE`;
 
     const eligibleSubscribers = await sql`
       SELECT id, name, email, drip_step, last_email_sent_at
@@ -584,7 +491,6 @@ async function handleUnsubscribe(req, res) {
   if (!tokenValid) return res.status(400).send(renderUnsubscribePage('error', 'This unsubscribe link is not valid.'));
 
   try {
-    await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS is_unsubscribed BOOLEAN DEFAULT FALSE`;
     const result = await sql`UPDATE subscribers SET is_unsubscribed = TRUE WHERE id = ${parseInt(id, 10)} RETURNING email`;
     if (result.length === 0) return res.status(404).send(renderUnsubscribePage('error', 'Subscriber not found.'));
     return res.status(200).send(renderUnsubscribePage('success'));
@@ -681,8 +587,6 @@ export default async function handler(req, res) {
       const isTerminal = terminal.includes(status);
 
       try {
-        await sql`ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS email_status TEXT, ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ`;
-        await sql`ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS email_status TEXT, ADD COLUMN IF NOT EXISTS email_status_at TIMESTAMPTZ`;
         await sql`
           UPDATE subscribers SET email_status=${status}, email_status_at=${occurredAt}
           WHERE LOWER(email)=LOWER(${to})
@@ -763,7 +667,7 @@ export default async function handler(req, res) {
     // Save to database — this is the source of truth; email is best-effort
     try {
       const attr = normalizeAttribution(attribution);
-      await ensureContactAttributionColumns();
+      await runMigrations();
       await sql`
         INSERT INTO contact_submissions (
           name, email, phone, interest, message, attribution_source, first_attribution_source,

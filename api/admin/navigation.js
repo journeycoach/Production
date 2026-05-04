@@ -1,17 +1,14 @@
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
-
-async function ensureFooterLinksColumn() {
-  await sql`ALTER TABLE navigation ADD COLUMN IF NOT EXISTS footer_links jsonb DEFAULT '[]'::jsonb`;
-}
+import { runMigrations } from '../_migrate.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
+  await runMigrations();
 
   if (req.method === 'GET') {
     try {
-      await ensureFooterLinksColumn();
       const rows = await sql`SELECT * FROM navigation LIMIT 1`;
       return res.status(200).json({ data: rows[0] || null });
     } catch (err) {
@@ -23,7 +20,6 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     const { brand_name, nav_links, cta_button, footer_links } = req.body || {};
     try {
-      await ensureFooterLinksColumn();
       const existing = await sql`SELECT id FROM navigation LIMIT 1`;
       let row;
       if (existing.length > 0) {
