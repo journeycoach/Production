@@ -750,24 +750,21 @@
                         btnText.textContent = 'Sending...';
                         spinner.style.display = 'block';
 
-                        const payload = {
-                            name: document.getElementById('cf-name').value.trim(),
-                            email: document.getElementById('cf-email').value.trim(),
-                            phone: document.getElementById('cf-phone').value.trim(),
-                            interest: document.getElementById('cf-interest').value,
-                            message: document.getElementById('cf-message').value.trim(),
-                            _honey: document.getElementById('cf-honey').value,
-                            attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
-                            'cf-turnstile-response': turnstileToken
-                        };
-
                         try {
+                            const payload = {
+                                name: document.getElementById('cf-name').value.trim(),
+                                email: document.getElementById('cf-email').value.trim(),
+                                phone: document.getElementById('cf-phone').value.trim(),
+                                message: document.getElementById('cf-message').value.trim(),
+                                _honey: document.getElementById('cf-honey').value,
+                                attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
+                                'cf-turnstile-response': turnstileToken
+                            };
                             const res = await fetch('/api/contact', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(payload),
                             });
-
                             if (res.ok) {
                                 form.reset();
                                 resetTurnstile();

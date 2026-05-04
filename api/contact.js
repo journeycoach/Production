@@ -646,8 +646,8 @@ export default async function handler(req, res) {
     }
 
     // Basic validation
-    if (!name || !email || !phone || !interest || !message) {
-      return res.status(400).json({ error: 'Name, email, phone, area of interest, and message are required.' });
+    if (!name || !email || !phone || !message) {
+      return res.status(400).json({ error: 'Name, email, phone, and message are required.' });
     }
 
     // Simple email format check
