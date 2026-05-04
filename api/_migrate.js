@@ -146,5 +146,41 @@ export async function runMigrations() {
   `;
   await sql`ALTER TABLE navigation ADD COLUMN IF NOT EXISTS footer_links jsonb DEFAULT '[]'::jsonb`;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_sections (
+      id           SERIAL PRIMARY KEY,
+      page         TEXT NOT NULL,
+      section_key  TEXT NOT NULL,
+      label        TEXT,
+      is_visible   BOOLEAN DEFAULT TRUE,
+      sort_order   INT DEFAULT 0,
+      status       TEXT DEFAULT 'published',
+      content      JSONB DEFAULT '{}'::jsonb,
+      admin_notes  TEXT,
+      UNIQUE(page, section_key)
+    )
+  `;
+
+  // Seed default sections — ON CONFLICT DO NOTHING keeps existing rows intact
+  const defaultSections = [
+    { page: 'home', section_key: 'hero',               label: 'Hero',                sort_order: 0  },
+    { page: 'home', section_key: 'lead-magnet-strip',  label: 'Lead Magnet Strip',   sort_order: 1  },
+    { page: 'home', section_key: 'welcome',            label: 'Welcome',             sort_order: 2  },
+    { page: 'home', section_key: 'methodology',        label: 'Methodology',         sort_order: 3  },
+    { page: 'home', section_key: 'services',           label: 'Services',            sort_order: 4  },
+    { page: 'home', section_key: 'recognition-strip',  label: 'Recognition Strip',   sort_order: 5  },
+    { page: 'home', section_key: 'results',            label: 'Results / Testimonials', sort_order: 6 },
+    { page: 'home', section_key: 'about',              label: 'About',               sort_order: 7  },
+    { page: 'home', section_key: 'contact',            label: 'Contact',             sort_order: 8  },
+    { page: 'enneagram', section_key: 'hero',          label: 'Hero',                sort_order: 0  },
+  ];
+  for (const s of defaultSections) {
+    await sql`
+      INSERT INTO page_sections (page, section_key, label, sort_order, is_visible, status)
+      VALUES (${s.page}, ${s.section_key}, ${s.label}, ${s.sort_order}, true, 'published')
+      ON CONFLICT (page, section_key) DO NOTHING
+    `;
+  }
+
   migrated = true;
 }

@@ -280,6 +280,24 @@
             <div style="color:#888;padding:24px;text-align:center;">Loading…</div>
           </div>
         </div>
+
+        <!-- Add New Section -->
+        <div class="card" style="margin-top:0;">
+          <div class="card-title" style="margin-bottom:12px;">Add New Section</div>
+          <p style="color:#7a8492;font-size:0.82rem;margin-bottom:14px;">Register a section from your HTML page so it appears here. The key must match the <code>id</code> attribute on your <code>&lt;section&gt;</code> tag.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="form-group" style="margin:0;flex:1;min-width:130px;">
+              <label style="font-size:0.75rem;">Section Key <span style="color:#666;font-weight:400;">(matches HTML id)</span></label>
+              <input type="text" id="newSectionKey" class="form-control" placeholder="e.g. my-new-section">
+            </div>
+            <div class="form-group" style="margin:0;flex:1;min-width:130px;">
+              <label style="font-size:0.75rem;">Label <span style="color:#666;font-weight:400;">(admin display name)</span></label>
+              <input type="text" id="newSectionLabel" class="form-control" placeholder="e.g. My New Section">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="addNewSection()" style="height:38px;white-space:nowrap;">+ Add Section</button>
+          </div>
+          <div id="addSectionMsg" style="margin-top:8px;font-size:0.82rem;display:none;"></div>
+        </div>
       </div>
 
       <!-- ════════════════════════════════════════════════════════════════
@@ -631,6 +649,28 @@
       if(res.ok){showFlash('Section saved.');const s=allSections.find(x=>x.id===id);if(s){s.status=payload.status;s.label=payload.label;s.admin_notes=payload.admin_notes;}toggleDetail(id);renderSections();}
       else showFlash('Error saving section.','error');
     }
+    async function addNewSection() {
+      const keyEl   = document.getElementById('newSectionKey');
+      const labelEl = document.getElementById('newSectionLabel');
+      const msgEl   = document.getElementById('addSectionMsg');
+      const key   = keyEl.value.trim().toLowerCase();
+      const label = labelEl.value.trim();
+      if (!key) { msgEl.style.display='block'; msgEl.style.color='#e05c5c'; msgEl.textContent='Section key is required.'; return; }
+      const res = await adminFetch('/api/admin/sections', {
+        method: 'POST',
+        body: JSON.stringify({ page: currentPage, section_key: key, label: label || key })
+      });
+      if (res.ok) {
+        keyEl.value = ''; labelEl.value = '';
+        msgEl.style.display='block'; msgEl.style.color='#4caf7d'; msgEl.textContent='Section added.';
+        setTimeout(() => { msgEl.style.display='none'; }, 3000);
+        loadSections();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        msgEl.style.display='block'; msgEl.style.color='#e05c5c'; msgEl.textContent = err.error || 'Error adding section.';
+      }
+    }
+
     async function saveOrder() {
       const items=document.querySelectorAll('#sectionList .section-item');
       const orders=Array.from(items).map((el,i)=>({id:parseInt(el.dataset.id),sort_order:i}));

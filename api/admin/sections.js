@@ -62,5 +62,24 @@ export default async function handler(req, res) {
     }
   }
 
+  // POST — create a new section
+  if (req.method === 'POST') {
+    const { page, section_key, label, sort_order } = req.body || {};
+    if (!page || !section_key) return res.status(400).json({ error: 'page and section_key are required' });
+    try {
+      const rows = await sql`
+        INSERT INTO page_sections (page, section_key, label, sort_order, is_visible, status)
+        VALUES (${page}, ${section_key.trim().toLowerCase()}, ${(label || section_key).trim()}, ${sort_order ?? 999}, true, 'published')
+        ON CONFLICT (page, section_key) DO NOTHING
+        RETURNING *
+      `;
+      if (rows.length === 0) return res.status(409).json({ error: 'A section with that key already exists for this page.' });
+      return res.status(201).json({ data: rows[0] });
+    } catch (err) {
+      console.error('sections POST error:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed' });
 }
