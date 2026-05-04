@@ -37,11 +37,7 @@
     .font-preview { padding: 10px 0; font-size: 1.1rem; }
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .admin-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
-    .email-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
-    .email-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
-    .email-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
-    .email-subtab-panel { display: none; }
-    .email-subtab-panel.is-active { display: block; }
+
 
     /* ── Sections styles ─────────────────────────────────────────────── */
     .page-tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
@@ -131,7 +127,7 @@
         <div class="settings-tabs" role="tablist" aria-label="Settings sections">
           <button type="button" class="settings-tab is-active" data-tab="website" role="tab" aria-selected="true" id="website_settings_tab">Website Settings</button>
           <button type="button" class="settings-tab" data-tab="admin"   role="tab" aria-selected="false">Admin Settings</button>
-          <button type="button" class="settings-tab" data-tab="email-templates" role="tab" aria-selected="false">Email Templates</button>
+
         </div>
 
         <!-- Website Settings -->
@@ -257,60 +253,7 @@
           </div>
         </section>
 
-        <!-- Email Templates -->
-        <section class="settings-tab-panel" data-tab-panel="email-templates" role="tabpanel">
-          <div class="settings-tabs" role="tablist" aria-label="Email template type" style="margin-bottom:20px;">
-            <button type="button" class="email-subtab is-active" data-subtab="contact-reply" role="tab" aria-selected="true">Contact Auto-Reply</button>
-            <button type="button" class="email-subtab" data-subtab="free-guide" role="tab" aria-selected="false">Free Guide</button>
-          </div>
-          <div class="email-subtab-panel is-active" data-subtab-panel="contact-reply">
-            <div class="card">
-              <div class="card-title">Contact Form Auto-Reply</div>
-              <div class="guide-box" style="margin-bottom:20px;"><strong>About the Auto-Reply</strong>This email is sent automatically to anyone who submits the contact form. Use <code>{{firstName}}</code> to personalize. The body accepts plain HTML.</div>
-              <div class="form-group" style="margin-bottom:20px;"><label style="display:flex;align-items:center;gap:12px;cursor:pointer;"><input type="checkbox" id="contact_reply_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;"><span>Send auto-reply email when someone submits the contact form</span></label></div>
-              <div class="form-group" style="margin-bottom:20px;"><label for="contact_reply_subject">Subject Line</label><input type="text" id="contact_reply_subject" class="form-control" placeholder="Got your message, {{firstName}}"></div>
-              <div class="form-group">
-                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
-                  <label for="contact_reply_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-                  <button type="button" class="btn-preview-toggle" id="previewToggle_contact_reply" onclick="toggleEmailPreview('contact_reply_body','previewToggle_contact_reply','emailPreview_contact_reply')">&#9654; Preview</button>
-                </div>
-                <textarea id="contact_reply_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Use {{firstName}} to personalise."></textarea>
-                <div class="email-preview-panel" id="emailPreview_contact_reply">
-                  <div class="email-preview-header">
-                    <span><span class="preview-live-dot"></span>Email Preview</span>
-                    <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
-                  </div>
-                  <iframe sandbox="allow-same-origin"></iframe>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="email-subtab-panel" data-subtab-panel="free-guide">
-            <div class="card">
-              <div class="card-title">Free Guide Email</div>
-              <div class="guide-box" style="margin-bottom:20px;"><strong>About the Free Guide Email</strong>This email is sent when someone signs up via the homepage opt-in form. Use <code>{{firstName}}</code> to personalize. If the body is left blank, a built-in default will be sent.</div>
-              <div class="form-group" style="margin-bottom:20px;"><label style="display:flex;align-items:center;gap:12px;cursor:pointer;"><input type="checkbox" id="lead_magnet_enabled" style="width:18px;height:18px;accent-color:var(--admin-accent);cursor:pointer;"><span>Show the Free Guide opt-in form on the homepage</span></label></div>
-              <div class="form-group" style="margin-bottom:20px;"><label for="guide_email_subject">Subject Line</label><input type="text" id="guide_email_subject" class="form-control" placeholder="Understanding Your Hidden Ceiling"></div>
-              <div class="form-group">
-                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
-                  <label for="guide_email_body" style="margin:0;">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
-                  <div style="display:flex;gap:6px;">
-                    <button type="button" class="btn btn-ghost btn-sm" onclick="loadGuideEmailDefault()" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
-                    <button type="button" class="btn-preview-toggle" id="previewToggle_guide_email" onclick="toggleEmailPreview('guide_email_body','previewToggle_guide_email','emailPreview_guide_email')">&#9654; Preview</button>
-                  </div>
-                </div>
-                <textarea id="guide_email_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Paste your HTML email body here. Leave blank to use the built-in default."></textarea>
-                <div class="email-preview-panel" id="emailPreview_guide_email">
-                  <div class="email-preview-header">
-                    <span><span class="preview-live-dot"></span>Email Preview</span>
-                    <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
-                  </div>
-                  <iframe sandbox="allow-same-origin"></iframe>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         <div class="save-bar">
           <button class="btn btn-primary" id="save_button" onclick="saveAll()">Save Website Settings</button>
@@ -474,7 +417,7 @@
     function updateSaveButtonLabel() {
       const btn = document.getElementById('save_button'); if (!btn) return;
       if (activeTab === 'admin')           { btn.textContent = 'Save Admin Settings'; btn.disabled = false; return; }
-      if (activeTab === 'email-templates') { btn.textContent = 'Save Email Settings'; btn.disabled = false; return; }
+
       btn.textContent = 'Save Website Settings';
       btn.disabled = !websiteSettingsReady;
     }
@@ -492,13 +435,7 @@
     }
     document.querySelectorAll('.settings-tab').forEach(b => b.addEventListener('click', () => setActiveSettingsTab(b.dataset.tab)));
 
-    document.querySelectorAll('.email-subtab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const v = btn.dataset.subtab;
-        document.querySelectorAll('.email-subtab').forEach(b => { b.classList.toggle('is-active', b.dataset.subtab===v); b.setAttribute('aria-selected', b.dataset.subtab===v?'true':'false'); });
-        document.querySelectorAll('.email-subtab-panel').forEach(p => p.classList.toggle('is-active', p.dataset.subtabPanel===v));
-      });
-    });
+
 
     function setColorControl(key, value='') {
       const picker = document.getElementById('pick_'+key), text = document.getElementById(key), swatch = document.getElementById('sw_'+key);
@@ -553,39 +490,7 @@
       updateCtaPreview();
     }
 
-    const DEFAULT_GUIDE_EMAIL_BODY = `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
-  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
-  <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Understanding Your<br><em style="color:#c7a96b;">Hidden Ceiling</em></h1>
-  <p>Hi {{firstName}},</p>
-  <p>Thank you for requesting the guide. Here&#39;s the core idea — and the five patterns I see most often in the leaders I work with.</p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p>The concept is counterintuitive: <strong>the behaviors that got you to your current level are frequently the exact behaviors that will limit your next level.</strong></p>
-  <p>A Hidden Ceiling isn&#39;t a skill gap or a knowledge gap. It&#39;s an identity gap — the distance between who you&#39;ve learned to be as a professional, and who you&#39;ll need to become to lead with full impact.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:2rem;margin-bottom:0.25em;">1. The Achiever&#39;s Ceiling</h2>
-  <p style="margin-top:0;">You&#39;ve built your identity around results — delivery, execution, getting things done. The ceiling appears when your organization needs vision and trust-building.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">2. The Expert&#39;s Ceiling</h2>
-  <p style="margin-top:0;">You became senior because you knew more than others. Leadership now requires influencing people who know more than you in their own domains.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">3. The Harmony Ceiling</h2>
-  <p style="margin-top:0;">You&#39;ve built real trust by keeping the peace. The ceiling appears when hard decisions need to be made. Conflict avoidance has a cost that compounds quietly over time.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">4. The Control Ceiling</h2>
-  <p style="margin-top:0;">You built your reputation through personal execution. True delegation feels like risk rather than leverage.</p>
-  <h2 style="font-size:1.1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">5. The Identity Ceiling</h2>
-  <p style="margin-top:0;">Your sense of self is closely tied to your role and title. When the role changes, you find yourself without a stable internal foundation.</p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p>These patterns show up differently depending on how you&#39;re wired. The Hidden Ceiling Assessment takes about 2 minutes and will identify which one is most active for you.</p>
-  <p style="margin-top:2rem;"><a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a></p>
-  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
-  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
-  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
-  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
-  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
-  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co.</p>
-</div>`;
 
-    function loadGuideEmailDefault() {
-      document.getElementById('guide_email_subject').value='Understanding Your Hidden Ceiling';
-      document.getElementById('guide_email_body').value=DEFAULT_GUIDE_EMAIL_BODY;
-    }
     function populateAdminSettings(settings) {
       adminColorKeys.forEach(key => setColorControl(key, settings[key]||''));
       document.getElementById('admin_font_heading').value=settings.admin_font_heading||'';
@@ -593,12 +498,7 @@
       document.getElementById('admin_dashboard_columns').value=settings.admin_dashboard_columns||'3';
       document.getElementById('rate_limit_disabled').checked=settings.rate_limit_disabled==='true';
       applyAdminTheme(settings);
-      document.getElementById('contact_reply_enabled').checked=settings.contact_reply_enabled==='true';
-      document.getElementById('contact_reply_subject').value=settings.contact_reply_subject||'Got your message, {{firstName}}';
-      document.getElementById('contact_reply_body').value=settings.contact_reply_body||'';
-      document.getElementById('lead_magnet_enabled').checked=settings.lead_magnet_enabled==='true';
-      document.getElementById('guide_email_subject').value=settings.guide_email_subject||'Understanding Your Hidden Ceiling';
-      document.getElementById('guide_email_body').value=settings.guide_email_body||DEFAULT_GUIDE_EMAIL_BODY;
+
     }
     async function loadWebsiteSettings() {
       const status=document.getElementById('save_status');
@@ -618,10 +518,7 @@
       populateAdminSettings(adminAppearanceSettings);
     }
     async function saveAll() {
-      if (activeTab==='email-templates') {
-        const payload={ contact_reply_enabled:document.getElementById('contact_reply_enabled').checked?'true':'false', contact_reply_subject:document.getElementById('contact_reply_subject').value.trim(), contact_reply_body:document.getElementById('contact_reply_body').value.trim(), lead_magnet_enabled:document.getElementById('lead_magnet_enabled').checked?'true':'false', guide_email_subject:document.getElementById('guide_email_subject').value.trim(), guide_email_body:document.getElementById('guide_email_body').value.trim() };
-        await persistAdminSettings(payload,'Email settings saved.'); return;
-      }
+
       if (activeTab==='admin') {
         const payload={};
         payload.admin_font_heading=document.getElementById('admin_font_heading').value;
@@ -785,28 +682,7 @@
     function collectFooterLinks() {
       return Array.from(document.querySelectorAll('#footerLinksBody tr[data-index]')).map(row=>{const inputs=row.querySelectorAll('input');return{label:inputs[0].value,url:inputs[1].value,visible:inputs[2].checked};});
     }
-    function toggleEmailPreview(textareaId, btnId, panelId) {
-      const btn   = document.getElementById(btnId);
-      const panel = document.getElementById(panelId);
-      const isOpen = panel.classList.toggle('open');
-      if (isOpen) {
-        btn.classList.add('active');
-        btn.innerHTML = '&#9632; Hide Preview';
-        const html = document.getElementById(textareaId).value.trim();
-        panel.querySelector('iframe').srcdoc = html
-          ? html
-              .replace(/\{\{firstName\}\}/g, 'Sarah')
-              .replace(/\{\{scoreHeart\}\}/g, '72')
-              .replace(/\{\{scoreHead\}\}/g, '58')
-              .replace(/\{\{scoreAction\}\}/g, '64')
-              .replace(/\{\{calendlyUrl\}\}/g, 'https://calendly.com/sample')
-          : '<p style="padding:24px;color:#888;font-family:sans-serif;">No content yet — add some HTML first.</p>';
-      } else {
-        btn.classList.remove('active');
-        btn.innerHTML = '&#9654; Preview';
-        panel.querySelector('iframe').srcdoc = '';
-      }
-    }
+
 
     document.getElementById('navForm').addEventListener('submit', async e => {
       e.preventDefault();
