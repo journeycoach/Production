@@ -136,6 +136,14 @@ export async function runMigrations() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS navigation (
+      id          SERIAL PRIMARY KEY,
+      nav_links   JSONB DEFAULT '[]'::jsonb,
+      footer_links JSONB DEFAULT '[]'::jsonb,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
   await sql`ALTER TABLE navigation ADD COLUMN IF NOT EXISTS footer_links jsonb DEFAULT '[]'::jsonb`;
 
   migrated = true;
