@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { sql } from './_db.js';
 import { Resend } from 'resend';
+import { Webhook } from 'svix';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -637,17 +638,37 @@ export default async function handler(req, res) {
       return handleUnsubscribe(req, res);
     }
 
-    // Route Resend webhook — POST /api/contact?action=resend_webhook[&secret=...]
+    // Route Resend webhook — POST /api/contact?action=resend_webhook
     if (req.query?.action === 'resend_webhook') {
-      const secret = process.env.RESEND_WEBHOOK_SECRET;
-      if (secret && req.query.secret !== secret) return res.status(401).json({ error: 'Unauthorized' });
+      const signingSecret = process.env.RESEND_WEBHOOK_SECRET;
+      if (!signingSecret) return res.status(401).json({ error: 'Unauthorized' });
+
+      // Verify Svix signature sent by Resend
+      const svixId        = req.headers['svix-id'];
+      const svixTimestamp = req.headers['svix-timestamp'];
+      const svixSignature = req.headers['svix-signature'];
+      if (!svixId || !svixTimestamp || !svixSignature) {
+        return res.status(401).json({ error: 'Missing webhook signature headers' });
+      }
+
+      let payload;
+      try {
+        const wh = new Webhook(signingSecret);
+        payload = wh.verify(JSON.stringify(req.body), {
+          'svix-id':        svixId,
+          'svix-timestamp': svixTimestamp,
+          'svix-signature': svixSignature,
+        });
+      } catch {
+        return res.status(401).json({ error: 'Invalid webhook signature' });
+      }
 
       const EVENT_MAP = {
         'email.sent': 'sent', 'email.delivered': 'delivered', 'email.delivery_delayed': 'delayed',
         'email.bounced': 'bounced', 'email.complained': 'complained',
         'email.opened': 'opened', 'email.clicked': 'clicked',
       };
-      const { type, data } = req.body || {};
+      const { type, data } = payload || {};
       const status = EVENT_MAP[type];
       if (!status) return res.status(200).json({ ok: true, ignored: true });
       const to = Array.isArray(data?.to) ? data.to[0] : data?.to;
