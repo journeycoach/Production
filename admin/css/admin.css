@@ -581,9 +581,10 @@ textarea {
   border: 1px solid color-mix(in srgb, var(--admin-accent) 24%, var(--admin-border));
   background: color-mix(in srgb, var(--admin-accent) 10%, transparent);
   color: var(--admin-text);
-  font-size: 0.82rem;
+  font-size: clamp(0.72rem, 1.2vw, 0.82rem);
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
   transition: border-color 0.15s, background-color 0.15s, color 0.15s;
 }
 
@@ -662,17 +663,20 @@ textarea {
 
 .dashboard-card .card-title {
   font-family: var(--admin-heading-font);
-  font-size: 1rem;
+  font-size: clamp(0.78rem, 1.4vw, 1rem);
   color: var(--admin-accent);
   border: none;
   padding: 0;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .dashboard-card .card-desc {
-  font-size: 0.8rem;
+  font-size: clamp(0.72rem, 1vw, 0.8rem);
   color: var(--admin-muted);
   line-height: 1.5;
+  overflow-wrap: break-word;
 }
 
 .dashboard-summary {
