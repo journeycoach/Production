@@ -285,6 +285,21 @@
           <div class="submission-detail">&#128222; ${escHtml(s.phone || '—')}</div>
           <div class="submission-detail">&#127775; ${escHtml(s.interest || '—')}</div>
           <div class="submission-message">${escHtml(s.message || '')}</div>
+          <div style="display:flex;gap:1.5rem;margin-top:0.75rem;align-items:center;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="font-size:0.75rem;color:var(--admin-text-muted);">Status:</span>
+              <select onchange="updateLeadStatus(${parseInt(s.id, 10)}, this.value)" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:4px;color:var(--admin-text);font-size:0.75rem;padding:2px 4px;min-width:90px;">
+                <option value="" ${!s.lead_status ? 'selected' : ''}>None</option>
+                <option value="active" ${s.lead_status === 'active' ? 'selected' : ''}>Active</option>
+                <option value="client" ${s.lead_status === 'client' ? 'selected' : ''}>Client</option>
+                <option value="archived" ${s.lead_status === 'archived' ? 'selected' : ''}>Archived</option>
+              </select>
+            </div>
+            <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--admin-text-muted);cursor:pointer;margin:0;">
+              <input type="checkbox" onchange="toggleBookedCall(${parseInt(s.id, 10)}, this.checked)" ${s.has_booked_call ? 'checked' : ''} style="margin:0;cursor:pointer;">
+              Call Booked
+            </label>
+          </div>
           <div class="submission-actions">
             <button class="btn btn-secondary btn-sm" onclick="toggleRead(${parseInt(s.id, 10)}, ${s.is_read === true})">
               ${s.is_read ? 'Mark Unread' : 'Mark Read'}
@@ -319,6 +334,34 @@
       ));
       allSubmissions.forEach(s => s.is_read = true);
       render();
+    }
+
+    async function updateLeadStatus(id, status) {
+      const res = await adminFetch('/api/admin/contacts', {
+        method: 'PUT',
+        body: JSON.stringify({ id, lead_status: status })
+      });
+      if (res.ok) {
+        showFlash('Lead status updated.', 'success');
+        const s = allSubmissions.find(x => x.id === id);
+        if (s) s.lead_status = status;
+      } else {
+        showFlash('Could not update status.', 'error');
+      }
+    }
+
+    async function toggleBookedCall(id, isBooked) {
+      const res = await adminFetch('/api/admin/contacts', {
+        method: 'PUT',
+        body: JSON.stringify({ id, has_booked_call: isBooked })
+      });
+      if (res.ok) {
+        showFlash('Call booking updated.', 'success');
+        const s = allSubmissions.find(x => x.id === id);
+        if (s) s.has_booked_call = isBooked;
+      } else {
+        showFlash('Could not update booking.', 'error');
+      }
     }
 
     async function deleteSubmission(id) {

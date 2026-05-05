@@ -158,12 +158,13 @@
                 <th>Source</th>
                 <th>Signed Up For</th>
                 <th>Campaign Status</th>
+                <th>Lead Status</th>
                 <th>Date</th>
                 <th>Remove</th>
               </tr>
             </thead>
             <tbody id="subBody">
-              <tr><td colspan="7" class="table-empty">Loading…</td></tr>
+              <tr><td colspan="8" class="table-empty">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -1288,7 +1289,7 @@
       countEl.textContent = rows.length + ' subscriber' + (rows.length !== 1 ? 's' : '');
 
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="table-empty">No subscribers match.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="table-empty">No subscribers match.</td></tr>';
         return;
       }
 
@@ -1375,6 +1376,21 @@
           </div>`;
         })();
 
+        const statusSelect = `
+          <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-start;">
+            <select onchange="updateLeadStatus(${parseInt(r.id,10)}, this.value)" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:4px;color:var(--admin-text);font-size:0.75rem;padding:2px 4px;min-width:90px;">
+              <option value="" ${!r.lead_status ? 'selected' : ''}>None</option>
+              <option value="active" ${r.lead_status === 'active' ? 'selected' : ''}>Active</option>
+              <option value="client" ${r.lead_status === 'client' ? 'selected' : ''}>Client</option>
+              <option value="archived" ${r.lead_status === 'archived' ? 'selected' : ''}>Archived</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:4px;font-size:0.75rem;color:var(--admin-text-muted);cursor:pointer;margin:0;">
+              <input type="checkbox" onchange="toggleBookedCall(${parseInt(r.id,10)}, this.checked)" ${r.has_booked_call ? 'checked' : ''} style="margin:0;cursor:pointer;">
+              Call Booked
+            </label>
+          </div>
+        `;
+
         return `
           <tr data-id="${parseInt(r.id,10)}">
             <td data-label="Name / Email">
@@ -1389,6 +1405,7 @@
             <td data-label="Source">${sourceCell}</td>
             <td data-label="Signed Up For">${funnelHistory}</td>
             <td data-label="Campaign">${campaignCell}</td>
+            <td data-label="Lead Status">${statusSelect}</td>
             <td data-label="Date" style="color:var(--admin-text-muted);font-size:0.85rem;white-space:nowrap;">
               <span style="display:block;color:var(--admin-text);">${signupDate}</span>
               ${signupTime ? `<span style="display:block;margin-top:0.12rem;">${signupTime}</span>` : ''}
@@ -1396,7 +1413,7 @@
             <td data-label="Remove"><button class="btn btn-danger btn-sm" onclick="removeSubscriber(${parseInt(r.id, 10)}, this)">&#x2715;</button></td>
           </tr>
           <tr id="notes-row-${parseInt(r.id,10)}" style="display:none;">
-            <td colspan="7" style="padding:0 12px 12px 12px;">
+            <td colspan="8" style="padding:0 12px 12px 12px;">
               <textarea id="notes-ta-${parseInt(r.id,10)}" rows="2" style="width:100%;background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:8px;resize:vertical;" placeholder="Private notes about this subscriber…">${escHtml(r.notes || '')}</textarea>
               <div style="display:flex;gap:8px;margin-top:6px;">
                 <button class="btn btn-sm" onclick="saveNotes(${parseInt(r.id,10)})">Save Note</button>
@@ -1511,6 +1528,38 @@
       });
       if (res.ok) { loadSubscribers(); }
       else showFlash('Could not save note.', 'error');
+    }
+
+    // ── Status Updates ────────────────────────────────────────────────────────
+    async function updateLeadStatus(id, status) {
+      const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_status: status }),
+      });
+      if (res.ok) {
+        showFlash('Lead status updated.', 'success');
+        // Update local data array so it persists on filter
+        const row = allRows.find(r => r.id == id);
+        if (row) row.lead_status = status;
+      } else {
+        showFlash('Could not update status.', 'error');
+      }
+    }
+
+    async function toggleBookedCall(id, isBooked) {
+      const res = await adminFetch('/api/admin/contacts?type=subscribers&id=' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ has_booked_call: isBooked }),
+      });
+      if (res.ok) {
+        showFlash('Call booking updated.', 'success');
+        const row = allRows.find(r => r.id == id);
+        if (row) row.has_booked_call = isBooked;
+      } else {
+        showFlash('Could not update booking.', 'error');
+      }
     }
 
     // ── Funnel / Remove ───────────────────────────────────────────────────────

@@ -265,6 +265,7 @@
     .fs-3::before { clip-path: polygon(15% 0%,85% 0%,76% 100%,24% 100%);  background: rgba(199,169,107,0.44); }
     .fs-4::before { clip-path: polygon(24% 0%,76% 0%,66% 100%,34% 100%);  background: rgba(199,169,107,0.58); }
     .fs-5::before { clip-path: polygon(34% 0%,66% 0%,56% 100%,44% 100%);  background: rgba(199,169,107,0.76); }
+    .fs-6::before { clip-path: polygon(44% 0%,56% 0%,48% 100%,52% 100%);  background: rgba(199,169,107,0.92); }
 
     .funnel-legend {
       margin-top: 1.25rem;
@@ -559,7 +560,8 @@
         ['Subscribers',    subscribers.length],
         ['Assessments',    assessment.length],
         ['Drip active',    assessment.filter(s => parseInt(s.drip_step || 0, 10) > 0).length],
-        ['Reached step 5', assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length]
+        ['Reached step 5', assessment.filter(s => parseInt(s.drip_step || 0, 10) >= 5).length],
+        ['Booked Call',    subscribers.filter(s => s.has_booked_call).length]
       ];
       renderFunnelBars(document.getElementById('funnelBars'), counts, 'No funnel activity yet.');
     }
@@ -706,6 +708,7 @@
       const engaged    = assessed.filter(s => parseInt(s.drip_step || 0, 10) > 0);
       const deepNurture= assessed.filter(s => parseInt(s.drip_step || 0, 10) >= 5);
       const crossChannel = subscribers.filter(s => s.has_contact);
+      const bookedCall = subscribers.filter(s => s.has_booked_call);
 
       const stages = [
         { cls: 'fs-1', label: 'Subscribers',         sub: 'Opted in to your list',            count: subscribers.length,   denom: subscribers.length },
@@ -713,6 +716,7 @@
         { cls: 'fs-3', label: 'Drip Sequence Active', sub: 'Engaged in email nurture',          count: engaged.length,       denom: assessed.length },
         { cls: 'fs-4', label: 'Deep Nurture',         sub: 'Reached drip step 5+',              count: deepNurture.length,   denom: engaged.length },
         { cls: 'fs-5', label: 'High-Intent Leads',    sub: 'Subscriber + contact form both',    count: crossChannel.length,  denom: subscribers.length },
+        { cls: 'fs-6', label: 'Discovery Call',       sub: 'Booked a coaching call',            count: bookedCall.length,    denom: subscribers.length },
       ];
 
       const connectors = [
@@ -720,6 +724,7 @@
         { id: 'fc2', num: engaged.length,      den: assessed.length,    label: 'entered drip sequence' },
         { id: 'fc3', num: deepNurture.length,  den: engaged.length,     label: 'stayed engaged' },
         { id: 'fc4', num: crossChannel.length, den: subscribers.length, label: 'of all subscribers became high-intent' },
+        { id: 'fc5', num: bookedCall.length,   den: crossChannel.length || subscribers.length, label: 'booked a call' },
       ];
 
       let html = '';
@@ -783,6 +788,11 @@
           <div class="fi-title">Cross-Channel Leads</div>
           <div class="fi-value">${crossChannel.length}</div>
           <div class="fi-desc">People who both subscribed and submitted the contact form — your most likely clients.</div>
+        </div>
+        <div class="fi-card ${bookedCall.length > 0 ? 'fi-good' : 'fi-info'}">
+          <div class="fi-title">Discovery Calls</div>
+          <div class="fi-value">${bookedCall.length}</div>
+          <div class="fi-desc">Subscribers who have booked a discovery coaching call.</div>
         </div>
         <div class="fi-card ${unread > 0 ? 'fi-warn' : 'fi-good'}">
           <div class="fi-title">Unread Contacts</div>
