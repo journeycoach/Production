@@ -68,14 +68,20 @@ export default async function handler(req, res) {
       }
 
       // Save booked call
-      if (has_booked_call !== undefined) {
+      if (has_booked_call !== undefined || req.body.booked_call_at !== undefined) {
         try {
-          const bookedCallAt = has_booked_call ? new Date().toISOString() : null;
-          await sql`UPDATE subscribers SET has_booked_call = ${has_booked_call}, booked_call_at = ${bookedCallAt} WHERE id = ${id}`;
+          let bookedCallAt = null;
+          if (req.body.booked_call_at) {
+            bookedCallAt = new Date(req.body.booked_call_at).toISOString();
+          } else if (has_booked_call) {
+            bookedCallAt = new Date().toISOString();
+          }
+          const hasBooked = has_booked_call !== undefined ? has_booked_call : !!bookedCallAt;
+          await sql`UPDATE subscribers SET has_booked_call = ${hasBooked}, booked_call_at = ${bookedCallAt} WHERE id = ${id}`;
           return res.status(200).json({ ok: true });
         } catch (err) {
-          console.error('subscribers PATCH has_booked_call error:', err);
-          return res.status(500).json({ error: 'Database error' });
+          console.error('subscribers PATCH booked_call error:', err);
+          return res.status(500).json({ error: 'Failed to update booked call status' });
         }
       }
 
