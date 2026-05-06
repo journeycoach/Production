@@ -244,8 +244,32 @@ async function handleSubscribe(req, res) {
 }
 
 async function handleHiddenCeiling(req, res) {
-  const { name, email, company, source, answers, attribution } = req.body || {};
+  const { name, email, company, source, answers, attribution, preview } = req.body || {};
   const attr = normalizeAttribution(attribution);
+
+  if (preview && ['head', 'heart', 'action'].includes(preview)) {
+      const center = preview;
+      const result = { center };
+      const scores = { heart: 0, head: 0, action: 0 };
+      
+      const resultFields = ['label', 'title', 'summary', 'description', 'blindspot', 'step1', 'step2', 'step3'];
+      const rcKeys = resultFields.map(f => `hc_result_${center}_${f}`);
+      const rcRaw  = await getEmailSettings(rcKeys);
+      const resultContent = {
+        centerLabel: rcRaw[`hc_result_${center}_label`]       || null,
+        title:       rcRaw[`hc_result_${center}_title`]        || null,
+        summary:     rcRaw[`hc_result_${center}_summary`]      || null,
+        description: rcRaw[`hc_result_${center}_description`]  || null,
+        blindspot:   rcRaw[`hc_result_${center}_blindspot`]    || null,
+        nextSteps:   [
+          rcRaw[`hc_result_${center}_step1`] || null,
+          rcRaw[`hc_result_${center}_step2`] || null,
+          rcRaw[`hc_result_${center}_step3`] || null,
+        ].filter(Boolean),
+      };
+      const hasResultOverride = Object.values(rcRaw).some(v => v);
+      return res.status(200).json({ ok: true, result, scores, emailSent: true, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+  }
 
   // Honeypot — bots fill the company field
   if (company) {

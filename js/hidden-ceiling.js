@@ -357,7 +357,31 @@
         await submitAssessment();
     });
 
-    render();
+    const urlParams = new URLSearchParams(window.location.search);
+    const previewCenter = urlParams.get('preview');
+    if (previewCenter && RESULT_META[previewCenter]) {
+        form.hidden = true;
+        resultCard.classList.add('is-visible');
+        
+        // Show loading state in the button
+        const btn = document.getElementById('hc-calendly-btn');
+        if (btn) btn.style.display = 'none';
+
+        fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'hidden_ceiling', preview: previewCenter })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                showResult(data);
+            }
+        })
+        .catch(err => console.error('Preview load failed:', err));
+    } else {
+        render();
+    }
 
     function escapeAttr(value) {
         return String(value || '')
