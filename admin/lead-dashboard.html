@@ -873,6 +873,11 @@
       const unread      = contacts.filter(c => !c.is_read).length;
       const periodLabel = selectedDays === 0 ? 'all time' : `last ${selectedDays}d`;
 
+      const callClickers = assessments.filter(s => s.assessment_call_clicked_at);
+      const callClickRate = assessments.length > 0
+        ? Math.round((callClickers.length / assessments.length) * 100)
+        : 0;
+
       const bookedSubs = subscribers.filter(s => s.has_booked_call && s.booked_call_at && s.created_at);
       let velocityText = 'Need data';
       let velocityNote = 'Avg. days to book call';
@@ -923,6 +928,12 @@
           crossChannel,
           'Subscribers who also sent a contact form — highest-intent leads',
           crossChannel > 0 ? 'success' : ''
+        ),
+        metric(
+          'Call Click Rate',
+          assessments.length > 0 ? callClickRate + '%' : '—',
+          `${callClickers.length} of ${assessments.length} assessment completers clicked "Book a Call"`,
+          callClickRate >= 20 ? 'success' : callClickRate > 0 ? 'warn' : ''
         ),
       ].join('');
 

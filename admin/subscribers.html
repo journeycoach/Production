@@ -1390,6 +1390,12 @@
         })();
 
         const bookedDateValue = r.booked_call_at ? new Date(r.booked_call_at).toISOString().split('T')[0] : '';
+        const clickedAt = r.assessment_call_clicked_at
+          ? new Date(r.assessment_call_clicked_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+          : null;
+        const clickBadge = clickedAt
+          ? `<span title="Clicked 'Book a Call' on ${clickedAt}" style="display:inline-block;background:#4a7ab522;color:#4a7ab5;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:999px;border:1px solid #4a7ab566;margin-top:4px;">📞 Clicked ${clickedAt}</span>`
+          : '';
         const statusSelect = `
           <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-start;">
             <select onchange="updateLeadStatus(${parseInt(r.id,10)}, this.value)" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:4px;color:var(--admin-text);font-size:0.75rem;padding:2px 4px;min-width:90px;">
@@ -1402,6 +1408,7 @@
               <span>Call Booked Date</span>
               <input type="date" value="${bookedDateValue}" onchange="updateBookedCallDate(${parseInt(r.id,10)}, this.value)" style="background:#fff;border:1px solid var(--admin-border);border-radius:4px;color:#000;font-size:0.75rem;padding:2px 4px;box-sizing:border-box;">
             </label>
+            ${clickBadge}
           </div>
         `;
 

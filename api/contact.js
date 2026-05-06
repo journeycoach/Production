@@ -640,6 +640,19 @@ export default async function handler(req, res) {
     // Route hidden ceiling assessment
     if (action === 'hidden_ceiling') return handleHiddenCeiling(req, res);
 
+    if (action === 'track_click') {
+      const trackEmail = normalizeEmail(req.body.email);
+      if (trackEmail) {
+        try {
+          await runMigrations();
+          await sql`UPDATE subscribers SET assessment_call_clicked_at = NOW() WHERE email = ${trackEmail}`;
+        } catch (e) {
+          console.error('track_click error:', e);
+        }
+      }
+      return res.status(200).json({ ok: true });
+    }
+
     // Honeypot check — bots fill hidden fields; humans leave them blank
     if (_honey) {
       // Silently succeed so the bot thinks it worked

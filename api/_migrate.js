@@ -43,7 +43,8 @@ export async function runMigrations() {
       ADD COLUMN IF NOT EXISTS email_status_at           TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS lead_status               TEXT,
       ADD COLUMN IF NOT EXISTS has_booked_call           BOOLEAN DEFAULT FALSE,
-      ADD COLUMN IF NOT EXISTS booked_call_at            TIMESTAMPTZ
+      ADD COLUMN IF NOT EXISTS booked_call_at            TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS assessment_call_clicked_at TIMESTAMPTZ
   `;
 
   await sql`

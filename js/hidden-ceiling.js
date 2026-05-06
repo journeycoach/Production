@@ -334,7 +334,19 @@
 
         if (calendly_url) {
             const btn = document.getElementById('hc-calendly-btn');
-            if (btn) { btn.href = calendly_url; btn.style.display = ''; }
+            if (btn) { 
+                btn.href = calendly_url; 
+                btn.style.display = ''; 
+                btn.onclick = () => {
+                    if (state.email) {
+                        fetch('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'track_click', email: state.email })
+                        }).catch(() => {});
+                    }
+                };
+            }
         }
 
         form.hidden = true;
