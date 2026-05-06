@@ -422,6 +422,12 @@
           </div>
 
           <div class="card">
+            <div class="card-title">Assessment Conversions</div>
+            <p style="color:#7a8492;font-size:0.82rem;margin:0.35rem 0 1rem;">Booked calls broken down by personality type.</p>
+            <div id="conversionBars"></div>
+          </div>
+
+          <div class="card">
             <div class="card-title">Lead Sources</div>
             <div id="sourceBars"></div>
           </div>
@@ -577,13 +583,41 @@
       subs.forEach(s => {
         const step = parseInt(s.drip_step || 0, 10);
         const key  = step === 0 ? 'Not started' : `Step ${step}`;
-        raw[key] = (raw[key] || 0) + 1;
+        if (!raw[key]) raw[key] = { total: 0, unsub: 0 };
+        raw[key].total += 1;
+        if (s.is_unsubscribed) raw[key].unsub += 1;
       });
       const sorted = Object.entries(raw).sort((a, b) => {
         const toN = k => k === 'Not started' ? 0 : parseInt(k.replace('Step ', ''), 10);
         return toN(a[0]) - toN(b[0]);
       });
-      renderFunnelBars(el, sorted, 'No assessment subscribers yet.', 'fill-ok');
+      const entries = sorted.map(([k, v]) => {
+        const unsubText = v.unsub > 0 ? ` <span style="color:#e05c5c;font-size:0.75rem;margin-left:4px;">(${v.unsub} unsub)</span>` : '';
+        return [k + unsubText, v.total];
+      });
+      renderFunnelBars(el, entries, 'No assessment subscribers yet.', 'fill-ok');
+    }
+
+    function renderAssessmentConversions(subscribers) {
+      const el = document.getElementById('conversionBars');
+      if (!el) return;
+      const subs = subscribers.filter(s => s.result_center);
+      if (!subs.length) { el.innerHTML = '<div class="empty-state">No assessment data yet.</div>'; return; }
+      const raw = {};
+      subs.forEach(s => {
+        const center = CENTER_LABELS[s.result_center] || s.result_center;
+        if (!raw[center]) raw[center] = { total: 0, booked: 0 };
+        raw[center].total += 1;
+        if (s.has_booked_call) raw[center].booked += 1;
+      });
+      const entries = Object.entries(raw).map(([k, v]) => {
+        const pct = v.total > 0 ? Math.round((v.booked / v.total) * 100) : 0;
+        return [
+          `${k} <span style="color:var(--admin-accent);font-size:0.75rem;margin-left:4px;">(${pct}% booking rate)</span>`,
+          v.booked
+        ];
+      }).sort((a, b) => b[1] - a[1]);
+      renderFunnelBars(el, entries, 'No booked calls from assessments yet.', 'fill-accent');
     }
 
     // ── Email status ──────────────────────────────────────────────────────────
@@ -814,11 +848,21 @@
       const newSubscribers  = subscribers.filter(s => inPeriod(s.created_at));
       const newAssessments  = assessments.filter(s => inPeriod(s.created_at));
 
-      const convRate    = subscribers.length > 0 ? Math.round((assessments.length / subscribers.length) * 100) : 0;
-      const coldSubs    = subscribers.filter(s => !s.result_center).length;
-      const crossChannel= subscribers.filter(s => s.has_contact).length;
-      const unread      = contacts.filter(c => !c.is_read).length;
-      const periodLabel = selectedDays === 0 ? 'all time' : `last ${selectedDays}d`;
+      const bookedSubs = subscribers.filter(s => s.has_booked_call && s.booked_call_at && s.created_at);
+      let velocityText = 'Need data';
+      let velocityNote = 'Avg. days to book call';
+      if (bookedSubs.length > 0) {
+        let totalDays = 0;
+        bookedSubs.forEach(s => {
+          const created = new Date(s.created_at).getTime();
+          const booked = new Date(s.booked_call_at).getTime();
+          totalDays += (booked - created) / (1000 * 60 * 60 * 24);
+        });
+        const avgDays = totalDays / bookedSubs.length;
+        if (avgDays < 1) velocityText = '< 1 day';
+        else velocityText = Math.round(avgDays) + ' days';
+        velocityNote = `Based on ${bookedSubs.length} booked call${bookedSubs.length > 1 ? 's' : ''}`;
+      }
 
       document.getElementById('metricGrid').innerHTML = [
         metric(
@@ -832,10 +876,10 @@
           `${assessments.length} total all-time · ${subscribers.length} subscribers`
         ),
         metric(
-          'Conversion Rate',
-          convRate + '%',
-          `${assessments.length} of ${subscribers.length} subscribers took the assessment`,
-          convRate >= 50 ? 'success' : convRate > 0 ? '' : ''
+          'Funnel Velocity',
+          velocityText,
+          velocityNote,
+          bookedSubs.length > 0 ? 'success' : ''
         ),
         metric(
           'Cold Subscribers',
@@ -859,6 +903,7 @@
 
       renderFunnel(contacts, subscribers);
       renderFunnelVisual(contacts, subscribers);
+      renderAssessmentConversions(subscribers);
       renderDripDropoff(subscribers);
       renderBars(
         document.getElementById('resultBars'),

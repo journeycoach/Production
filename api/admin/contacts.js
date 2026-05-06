@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             s.score_heart, s.score_head, s.score_action, s.drip_step, s.last_email_sent_at,
             s.attribution_source, s.first_attribution_source, s.landing_page, s.referrer,
             s.utm_source, s.utm_medium, s.utm_campaign, s.utm_term, s.utm_content, s.attribution,
-            s.notes, s.email_status, s.email_status_at, s.is_unsubscribed,
+            s.notes, s.email_status, s.email_status_at, s.is_unsubscribed, s.lead_status, s.has_booked_call, s.booked_call_at,
             EXISTS(SELECT 1 FROM contact_submissions c WHERE LOWER(c.email) = LOWER(s.email)) AS has_contact
           FROM subscribers s
           ORDER BY s.created_at DESC
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     }
     if (req.method === 'PATCH') {
       const { id } = req.query;
-      const { prepend_source, prepend_at, attribution_source, notes } = req.body || {};
+      const { prepend_source, prepend_at, attribution_source, notes, lead_status, has_booked_call } = req.body || {};
       if (!id) return res.status(400).json({ error: 'id required' });
 
       // Set attribution source manually
@@ -51,6 +51,30 @@ export default async function handler(req, res) {
           return res.status(200).json({ ok: true });
         } catch (err) {
           console.error('subscribers PATCH notes error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+      }
+
+      // Save lead status
+      if (lead_status !== undefined) {
+        try {
+          const val = lead_status === '' ? null : lead_status;
+          await sql`UPDATE subscribers SET lead_status = ${val} WHERE id = ${id}`;
+          return res.status(200).json({ ok: true });
+        } catch (err) {
+          console.error('subscribers PATCH lead_status error:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+      }
+
+      // Save booked call
+      if (has_booked_call !== undefined) {
+        try {
+          const bookedCallAt = has_booked_call ? new Date().toISOString() : null;
+          await sql`UPDATE subscribers SET has_booked_call = ${has_booked_call}, booked_call_at = ${bookedCallAt} WHERE id = ${id}`;
+          return res.status(200).json({ ok: true });
+        } catch (err) {
+          console.error('subscribers PATCH has_booked_call error:', err);
           return res.status(500).json({ error: 'Database error' });
         }
       }
