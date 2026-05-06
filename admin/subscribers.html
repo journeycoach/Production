@@ -1348,7 +1348,7 @@
           const isCompleted = r.drip_step >= 5;
           const statusHTML = isCompleted 
             ? `<span style="display:inline-block;background:#8faa8222;color:#8faa82;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:4px;">Subscribed</span>`
-            : `<span style="font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>`;
+            : `<span style="display:inline-block;background:#c7a96b22;color:#c7a96b;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:4px;">Step ${r.drip_step}</span>`;
 
           campaignCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
             ${statusHTML}
