@@ -22,6 +22,25 @@
       margin-right: 2px;
     }
 
+    .page-tab {
+      background: transparent;
+      color: var(--admin-muted);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-family: var(--admin-body-font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .page-tab:hover { color: var(--admin-text); }
+    .page-tab.is-active {
+      background: var(--admin-card-bg);
+      color: var(--admin-text);
+      border: 1px solid var(--admin-border);
+    }
+
     .lead-grid {
       display: grid;
       gap: 1.25rem;
@@ -181,7 +200,7 @@
       flex-wrap: wrap;
     }
     .main-tab {
-      background: var(--admin-card-bg);
+      background: transparent;
       color: var(--admin-muted);
       border: 1px solid var(--admin-border);
       border-radius: 999px;
@@ -195,11 +214,11 @@
       align-items: center;
       transition: border-color 0.2s, color 0.2s, background-color 0.2s;
     }
-    .main-tab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .main-tab:hover { border-color: var(--admin-text); color: var(--admin-text); }
     .main-tab.is-active {
-      background: var(--admin-accent);
-      color: var(--admin-bg);
-      border-color: var(--admin-accent);
+      background: var(--admin-card-bg);
+      color: var(--admin-text);
+      border-color: var(--admin-border);
     }
 
     /* ── Funnel tab ──────────────────────────────────────────────────────── */
@@ -847,6 +866,11 @@
       const newContacts     = contacts.filter(c => inPeriod(c.submitted_at));
       const newSubscribers  = subscribers.filter(s => inPeriod(s.created_at));
       const newAssessments  = assessments.filter(s => inPeriod(s.created_at));
+
+      const coldSubs    = subscribers.filter(s => !s.result_center).length;
+      const crossChannel= subscribers.filter(s => s.has_contact).length;
+      const unread      = contacts.filter(c => !c.is_read).length;
+      const periodLabel = selectedDays === 0 ? 'all time' : `last ${selectedDays}d`;
 
       const bookedSubs = subscribers.filter(s => s.has_booked_call && s.booked_call_at && s.created_at);
       let velocityText = 'Need data';
