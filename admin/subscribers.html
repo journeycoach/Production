@@ -1336,13 +1336,23 @@
           : '';
 
         let campaignCell = '<span style="color:var(--admin-text-muted);font-size:0.82rem;">—</span>';
-        if (r.result_center && r.drip_step !== undefined) {
+        if (r.is_unsubscribed) {
+          campaignCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
+            <span style="display:inline-block;background:#e05c5c22;color:#e05c5c;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:4px;">Unsubscribed</span>
+            ${emailStatusBadge}
+          </div>`;
+        } else if (r.result_center && r.drip_step !== undefined) {
           const dripDate = r.last_email_sent_at
             ? new Date(r.last_email_sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             : 'Pending';
+          const isCompleted = r.drip_step >= 5;
+          const statusHTML = isCompleted 
+            ? `<span style="display:inline-block;background:#8faa8222;color:#8faa82;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0.15rem 0.45rem;border-radius:4px;">Subscribed</span>`
+            : `<span style="font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>`;
+
           campaignCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
-            <span style="font-size:0.85rem;color:var(--admin-accent);">Step ${r.drip_step}</span>
-            <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Active: ${dripDate}</span>
+            ${statusHTML}
+            <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">${isCompleted ? 'Finished on:' : 'Active:'} ${dripDate}</span>
             ${emailStatusBadge}
           </div>`;
         } else if (emailStatusBadge) {

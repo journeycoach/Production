@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             s.score_heart, s.score_head, s.score_action, s.drip_step, s.last_email_sent_at,
             s.attribution_source, s.first_attribution_source, s.landing_page, s.referrer,
             s.utm_source, s.utm_medium, s.utm_campaign, s.utm_term, s.utm_content, s.attribution,
-            s.notes, s.email_status, s.email_status_at,
+            s.notes, s.email_status, s.email_status_at, s.is_unsubscribed,
             EXISTS(SELECT 1 FROM contact_submissions c WHERE LOWER(c.email) = LOWER(s.email)) AS has_contact
           FROM subscribers s
           ORDER BY s.created_at DESC
