@@ -38,7 +38,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'quote and author are required' });
     }
     try {
-      await ensureTestimonialColumns();
       const rows = await sql`
         INSERT INTO testimonials (
           quote, short_quote, long_quote, author, client_role, industry,
@@ -72,7 +71,6 @@ export default async function handler(req, res) {
     } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
     try {
-      await ensureTestimonialColumns();
       const rows = await sql`
         UPDATE testimonials
         SET
@@ -100,7 +98,6 @@ export default async function handler(req, res) {
     const { id } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
     try {
-      await ensureTestimonialColumns();
       await sql`DELETE FROM testimonials WHERE id = ${id}`;
       return res.status(200).json({ ok: true });
     } catch (err) {

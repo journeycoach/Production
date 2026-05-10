@@ -362,7 +362,7 @@ async function handleHiddenCeiling(req, res) {
     if (!resendKey) {
       emailError = 'Results email could not be delivered automatically.';
     } else {
-      const firstName = name.trim().split(' ')[0] || 'there';
+      const firstName = escapeHtml(name.trim().split(' ')[0] || 'there');
 
       // Load DB-overridden email template (if set in Admin → Subscribers → Assessment Emails)
       const dbKeys = [`hc_email_${center}_subject`, `hc_email_${center}_body`];
@@ -477,7 +477,7 @@ async function handleCronDrip(req, res) {
 
       if (nowMs >= thresholdTime) {
         try {
-          const firstName = (sub.name || '').trim().split(' ')[0] || 'there';
+          const firstName = escapeHtml((sub.name || '').trim().split(' ')[0] || 'there');
           const personalizedBody = withUnsubscribeFooter(
             template.body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName),
             sub.id
@@ -555,7 +555,7 @@ function renderUnsubscribePage(type, message = '') {
 export default async function handler(req, res) {
   try {
     // Route cron drip — requires CRON_SECRET to match Vercel's Authorization header
-    if (req.query?.action === 'cron_drip' || req.headers['user-agent'] === 'vercel-cron/1.0') {
+    if (req.query?.action === 'cron_drip') {
       const cronSecret = process.env.CRON_SECRET;
       const authHeader  = req.headers['authorization'] || '';
       if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -672,7 +672,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `secret=${process.env.CLOUDFLARE_TURNSTILE_SECRET}&response=${turnstileToken}`,
+      body: `secret=${process.env.CLOUDFLARE_TURNSTILE_SECRET}&response=${encodeURIComponent(turnstileToken)}`,
     });
 
     const verifyData = await verifyResponse.json();

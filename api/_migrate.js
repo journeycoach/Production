@@ -72,7 +72,12 @@ export async function runMigrations() {
       ADD COLUMN IF NOT EXISTS utm_content               TEXT,
       ADD COLUMN IF NOT EXISTS attribution               JSONB DEFAULT '{}'::jsonb,
       ADD COLUMN IF NOT EXISTS email_status              TEXT,
-      ADD COLUMN IF NOT EXISTS email_status_at           TIMESTAMPTZ
+      ADD COLUMN IF NOT EXISTS email_status_at           TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS is_read                   BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS lead_status               TEXT,
+      ADD COLUMN IF NOT EXISTS has_booked_call           BOOLEAN DEFAULT FALSE,
+      ADD COLUMN IF NOT EXISTS booked_call_at            TIMESTAMPTZ,
+      ADD COLUMN IF NOT EXISTS has_contact               BOOLEAN DEFAULT FALSE
   `;
 
   await sql`
@@ -148,7 +153,12 @@ export async function runMigrations() {
       created_at  TIMESTAMPTZ DEFAULT NOW()
     )
   `;
-  await sql`ALTER TABLE navigation ADD COLUMN IF NOT EXISTS footer_links jsonb DEFAULT '[]'::jsonb`;
+  await sql`
+    ALTER TABLE navigation
+      ADD COLUMN IF NOT EXISTS footer_links  JSONB    DEFAULT '[]'::jsonb,
+      ADD COLUMN IF NOT EXISTS brand_name    TEXT,
+      ADD COLUMN IF NOT EXISTS cta_button    JSONB    DEFAULT '{}'::jsonb
+  `;
 
   await sql`
     CREATE TABLE IF NOT EXISTS page_sections (

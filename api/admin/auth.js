@@ -55,6 +55,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.query?.action === 'logout') {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     clearAuthCookie(req, res);
     return res.status(200).json({ ok: true });
   }
@@ -119,5 +120,5 @@ export default async function handler(req, res) {
 
   const token = createToken();
   setAuthCookie(req, res, token);
-  return res.status(200).json({ ok: true, token });
+  return res.status(200).json({ ok: true });
 }

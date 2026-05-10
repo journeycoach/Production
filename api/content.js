@@ -73,9 +73,9 @@ export default async function handler(req, res) {
           SELECT id, title, category, description, type,
             file_url as "fileUrl",
             external_url as "externalUrl",
-            is_hidden as "isHidden",
             image_url as "imageUrl"
           FROM tools
+          WHERE is_hidden IS NOT TRUE
           ORDER BY sort_order ASC, created_at ASC
         `;
         return res.status(200).json({ data: rows });
@@ -130,9 +130,9 @@ export default async function handler(req, res) {
       case 'sections': {
         const page = req.query?.page ?? new URL(req.url, 'http://localhost').searchParams.get('page');
         const rows = page
-          ? await sql`SELECT id, page, section_key, label, is_visible, sort_order, status, admin_notes
+          ? await sql`SELECT id, page, section_key, label, is_visible, sort_order, status
               FROM page_sections WHERE page = ${page} ORDER BY sort_order ASC`
-          : await sql`SELECT id, page, section_key, label, is_visible, sort_order, status, admin_notes
+          : await sql`SELECT id, page, section_key, label, is_visible, sort_order, status
               FROM page_sections ORDER BY page ASC, sort_order ASC`;
         return res.status(200).json({ data: rows });
       }
