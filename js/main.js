@@ -32,16 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Page Loader Logic
     const loader = document.querySelector('.loader-wrapper');
     if (loader) {
-        // Force a minimum display time of 1.5s
-        setTimeout(() => {
-            loader.classList.add('hidden');
-            // Allow body scroll after loader vanishes
-            document.body.style.overflow = 'auto';
-
-            if (window.location.hash) {
-                scrollToHashTarget(window.location.hash, 'auto');
-            }
-        }, 1500);
+        loader.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        if (window.location.hash) {
+            setTimeout(() => scrollToHashTarget(window.location.hash, 'auto'), 50);
+        }
     } else if (window.location.hash) {
         setTimeout(() => scrollToHashTarget(window.location.hash, 'auto'), 50);
     }

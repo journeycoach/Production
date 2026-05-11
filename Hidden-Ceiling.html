@@ -28,9 +28,9 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/variables.css?v=6">
-    <link rel="stylesheet" href="css/style.css?v=6">
-    <link rel="stylesheet" href="css/responsive.css?v=6">
+    <link rel="stylesheet" href="css/variables.css?v=10">
+    <link rel="stylesheet" href="css/style.css?v=10">
+    <link rel="stylesheet" href="css/responsive.css?v=10">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
@@ -825,6 +825,7 @@
                                 <div class="hc-step-card" id="hc-step-container"></div>
                                 <div class="hc-error" id="hc-form-error" aria-live="polite"></div>
                                 <input type="text" id="hc-company" name="company" class="hc-hidden" tabindex="-1" autocomplete="off">
+                                <div id="hc-assessment-turnstile" style="margin-bottom:0.5rem;"></div>
                                 <div class="hc-actions" style="justify-content:flex-end;">
                                     <button type="button" class="hc-btn hc-btn-primary" id="hc-next-btn">Continue</button>
                                 </div>
@@ -877,15 +878,16 @@
 
                 <form id="subscribe-form" style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
                     <div style="display: flex; gap: 0.75rem; width: 100%; max-width: 440px; flex-wrap: wrap; justify-content: center;">
-                        <input type="text" id="sub-name" placeholder="First name (optional)"
+                        <input type="text" id="sub-name" placeholder="First name (optional)" aria-label="First name (optional)"
                             style="flex: 1; min-width: 140px; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: var(--color-text-primary); font-size: 0.95rem; outline: none;">
-                        <input type="email" id="sub-email" placeholder="Email address" required
+                        <input type="email" id="sub-email" placeholder="Email address" aria-label="Email address" required
                             style="flex: 2; min-width: 200px; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: var(--color-text-primary); font-size: 0.95rem; outline: none;">
                     </div>
                     <button type="submit"
                         style="padding: 0.8rem 2.2rem; background: var(--color-accent-gold); color: #fff; border: none; border-radius: 4px; font-size: 0.9rem; letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.2s ease; font-family: Inter, sans-serif;">
                         Send Me the Guide
                     </button>
+                    <div id="hc-sub-turnstile"></div>
                     <p id="subscribe-msg" style="margin: 0; font-size: 0.85rem; color: var(--color-accent-gold); display: none;"></p>
                 </form>
             </div>
@@ -930,7 +932,8 @@
                         name: document.getElementById('sub-name').value.trim(),
                         email: document.getElementById('sub-email').value.trim(),
                         source: 'hidden-ceiling',
-                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null
+                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
+                        'cf-turnstile-response': window._hcSubTurnstileToken || ''
                     })
                 });
                 const data = await res.json();
@@ -957,6 +960,39 @@
             }
         });
     </script>
+    <script>
+        (function() {
+            const SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
+            let _subWidgetId, _subToken = '';
+            let _assessWidgetId, _assessToken = '';
+
+            function initWidget() {
+                if (!window.turnstile) return;
+                if (_subWidgetId === undefined && document.getElementById('hc-sub-turnstile')) {
+                    _subWidgetId = window.turnstile.render('#hc-sub-turnstile', {
+                        sitekey: SITEKEY,
+                        size: 'compact',
+                        appearance: 'interaction-only',
+                        callback(t) { _subToken = t; window._hcSubTurnstileToken = t; },
+                        'expired-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
+                        'error-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
+                    });
+                }
+                if (_assessWidgetId === undefined && document.getElementById('hc-assessment-turnstile')) {
+                    _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
+                        sitekey: SITEKEY,
+                        size: 'compact',
+                        appearance: 'interaction-only',
+                        callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
+                        'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+                        'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+                    });
+                }
+            }
+            window.initHcSubTurnstile = initWidget;
+        })();
+    </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=initHcSubTurnstile&render=explicit" async defer></script>
 </body>
 
 </html>

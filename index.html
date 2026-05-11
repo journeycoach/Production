@@ -168,9 +168,9 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/variables.css?v=9">
-    <link rel="stylesheet" href="css/style.css?v=9">
-    <link rel="stylesheet" href="css/responsive.css?v=9">
+    <link rel="stylesheet" href="css/variables.css?v=10">
+    <link rel="stylesheet" href="css/style.css?v=10">
+    <link rel="stylesheet" href="css/responsive.css?v=10">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
@@ -225,12 +225,13 @@
                     <p style="color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.65; margin: 0;">These are 5 patterns that quietly limit senior leaders. Identify which one is most active for you.</p>
                 </div>
                 <form id="home-subscribe-form" style="flex: 1; min-width: 260px; display: flex; gap: 0.6rem; flex-wrap: wrap;">
-                    <input type="email" id="home-sub-email" placeholder="Your email address" required
+                    <input type="email" id="home-sub-email" placeholder="Your email address" aria-label="Email address" required
                         style="flex: 1; min-width: 180px; padding: 0.7rem 1rem; background: #fdfbf7; border: 1.5px solid #d4b896; border-radius: 4px; color: var(--color-text-primary); font-size: 0.9rem; outline: none;">
                     <button type="submit"
                         style="padding: 0.7rem 1.5rem; background: var(--color-accent-gold); color: #fff; border: none; border-radius: 4px; font-size: 0.85rem; letter-spacing: 0.04em; cursor: pointer; white-space: nowrap; font-family: Inter, sans-serif; transition: opacity 0.2s;">
                         Get the Guide
                     </button>
+                    <div id="home-sub-turnstile" style="width:100%;margin-top:0.25rem;"></div>
                     <p id="home-subscribe-msg" style="margin: 0.4rem 0 0; font-size: 0.82rem; color: var(--color-accent-gold); display: none; width: 100%;"></p>
                 </form>
             </div>
@@ -724,6 +725,18 @@
                                 errorEl.style.display = 'block';
                             }
                         });
+
+                        // Also render subscribe form widget (interaction-only: invisible unless challenge needed)
+                        if (document.getElementById('home-sub-turnstile') && !window._homeSubTurnstileId) {
+                            window._homeSubTurnstileId = window.turnstile.render('#home-sub-turnstile', {
+                                sitekey: CONTACT_TURNSTILE_SITEKEY,
+                                size: 'compact',
+                                appearance: 'interaction-only',
+                                callback(token) { window._homeSubTurnstileToken = token; },
+                                'expired-callback'() { window._homeSubTurnstileToken = ''; },
+                                'error-callback'() { window._homeSubTurnstileToken = ''; },
+                            });
+                        }
                     };
 
                     form.addEventListener('submit', async function (e) {
@@ -872,7 +885,8 @@
                         action: 'subscribe',
                         email: document.getElementById('home-sub-email').value.trim(),
                         source: 'homepage',
-                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null
+                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
+                        'cf-turnstile-response': window._homeSubTurnstileToken || ''
                     })
                 });
                 const data = await res.json();
@@ -882,12 +896,16 @@
                     msg.style.display = 'block';
                     document.getElementById('home-sub-email').value = '';
                     btn.textContent = 'Sent!';
+                    window._homeSubTurnstileToken = '';
+                    if (window.turnstile && window._homeSubTurnstileId !== undefined) window.turnstile.reset(window._homeSubTurnstileId);
                 } else {
                     msg.textContent = data.error || 'Something went wrong. Please try again.';
                     msg.style.color = '#e07070';
                     msg.style.display = 'block';
                     btn.disabled = false;
                     btn.textContent = 'Get the Guide';
+                    window._homeSubTurnstileToken = '';
+                    if (window.turnstile && window._homeSubTurnstileId !== undefined) window.turnstile.reset(window._homeSubTurnstileId);
                 }
             } catch {
                 msg.textContent = 'Network error. Please try again.';

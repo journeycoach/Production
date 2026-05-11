@@ -10,6 +10,22 @@ function escHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// Strip dangerous tags and attributes from admin-entered post HTML.
+// Uses a denylist so legitimate formatting (h2, blockquote, img, etc.) is preserved.
+function sanitizePostHtml(html) {
+  if (!html) return '';
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<iframe[\s\S]*?\/?>(\s*<\/iframe>)?/gi, '')
+    .replace(/<object[\s\S]*?\/?>(\s*<\/object>)?/gi, '')
+    .replace(/<embed[^>]*\/?>/gi, '')
+    .replace(/<form[\s\S]*?<\/form>/gi, '')
+    .replace(/\s+on\w+\s*=\s*(['"])[^'"]*\1/gi, '')
+    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '')
+    .replace(/(href|src|action)\s*=\s*(['"])\s*javascript:[^'"]*\2/gi, '$1=$2#$2');
+}
+
 // Keys from site_settings that are safe to expose to the public frontend.
 // Email templates, admin theme, campaign flags, and operational toggles are intentionally excluded.
 const PUBLIC_SETTINGS_KEYS = [
@@ -201,9 +217,9 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/variables.css?v=6">
-  <link rel="stylesheet" href="/css/style.css?v=6">
-  <link rel="stylesheet" href="/css/responsive.css?v=6">
+  <link rel="stylesheet" href="/css/variables.css?v=10">
+  <link rel="stylesheet" href="/css/style.css?v=10">
+  <link rel="stylesheet" href="/css/responsive.css?v=10">
   <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
   <link rel="apple-touch-icon" href="/assets/images/favicon.png">
@@ -271,7 +287,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
             <h1 class="post-title">${esc(title)}</h1>
             <div class="post-meta">${formattedDate ? esc(formattedDate) + ' &nbsp;|&nbsp; ' : ''}By ${esc(author || 'John Paine')}</div>
           </header>
-          <div class="post-content">${body || '<p><em>Content could not be loaded.</em></p>'}</div>
+          <div class="post-content">${sanitizePostHtml(body) || '<p><em>Content could not be loaded.</em></p>'}</div>
           <div class="post-share">
             <span class="post-share-label">Share</span>
             <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-linkedin">
@@ -344,9 +360,9 @@ function render404Html() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post Not Found | Your Journey Coach</title>
-  <link rel="stylesheet" href="/css/variables.css?v=6">
-  <link rel="stylesheet" href="/css/style.css?v=6">
-  <link rel="stylesheet" href="/css/responsive.css?v=6">
+  <link rel="stylesheet" href="/css/variables.css?v=10">
+  <link rel="stylesheet" href="/css/style.css?v=10">
+  <link rel="stylesheet" href="/css/responsive.css?v=10">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>

@@ -270,7 +270,8 @@
                     company: state.company,
                     source: new URLSearchParams(window.location.search).get('source') || 'hidden-ceiling',
                     attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
-                    answers: state.answers
+                    answers: state.answers,
+                    'cf-turnstile-response': window._hcAssessmentTurnstileToken || ''
                 })
             });
 

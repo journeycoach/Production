@@ -7,6 +7,22 @@ import { runMigrations } from './_migrate.js';
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
+// Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.
+async function verifyCaptcha(token) {
+  if (!token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${process.env.CLOUDFLARE_TURNSTILE_SECRET}&response=${encodeURIComponent(token)}`,
+    });
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
 // Helper: fetch email settings from database
 async function getEmailSettings(keys) {
   try {
@@ -174,11 +190,16 @@ async function enforceSubmissionRateLimit(req, action, email, { maxPerHour = 8, 
 }
 
 async function handleSubscribe(req, res) {
-  const { email, name, source, attribution } = req.body || {};
+  const { email, name, source, attribution, 'cf-turnstile-response': turnstileToken } = req.body || {};
   const attr = normalizeAttribution(attribution);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
     return res.status(400).json({ error: 'A valid email address is required.' });
+  }
+
+  const captchaOk = await verifyCaptcha(turnstileToken);
+  if (!captchaOk) {
+    return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
   }
 
   const limit = await enforceSubmissionRateLimit(req, 'subscribe', email, {
@@ -244,7 +265,7 @@ async function handleSubscribe(req, res) {
 }
 
 async function handleHiddenCeiling(req, res) {
-  const { name, email, company, source, answers, attribution, preview } = req.body || {};
+  const { name, email, company, source, answers, attribution, preview, 'cf-turnstile-response': turnstileToken } = req.body || {};
   const attr = normalizeAttribution(attribution);
 
   if (preview && ['head', 'heart', 'action'].includes(preview)) {
@@ -274,6 +295,11 @@ async function handleHiddenCeiling(req, res) {
   // Honeypot — bots fill the company field
   if (company) {
     return res.status(200).json({ ok: true, result: { center: 'heart' }, scores: { heart: 0, head: 0, action: 0 }, emailSent: false });
+  }
+
+  const captchaOk = await verifyCaptcha(turnstileToken);
+  if (!captchaOk) {
+    return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

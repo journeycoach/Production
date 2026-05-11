@@ -215,7 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    backBtn.addEventListener('click', () => {
+    backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         singlePostView.style.display = 'none';
         blogListView.style.display = 'block';
         window.location.hash = '';
