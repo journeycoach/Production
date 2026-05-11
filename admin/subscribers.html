@@ -89,6 +89,31 @@
     @media (max-width: 700px) {
       .result-grid-2, .result-grid-3 { grid-template-columns: 1fr; }
     }
+
+    /* ── Drip Campaigns sub-tabs ── */
+    .dc-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
+    .dc-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
+    .dc-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
+    .dc-panel { display: none; }
+    .dc-panel.is-active { display: block; }
+
+    /* ── Toggle switch (email editor) ── */
+    .toggle-row { display: flex; align-items: center; gap: 12px; }
+    .toggle-label { font-size: 0.875rem; color: var(--admin-text); }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--admin-border); border-radius: 999px; transition: background 0.2s; }
+    .toggle-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle-switch input:checked + .toggle-slider { background: var(--admin-success); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    /* ── Two-column field row (email editor) ── */
+    .field-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .field-2col { grid-template-columns: 1fr; } }
+
+    /* ── Add step form ── */
+    #deAddStepForm { display: none; }
+    #deAddStepForm.open { display: block; }
   </style>
 </head>
 <body>
@@ -114,7 +139,6 @@
       <a href="site.html">Site</a>
       <a href="contacts.html">Contacts</a>
       <a href="subscribers.html" class="active">Subscribers</a>
-      <a href="campaigns.html">Campaigns</a>
     </nav>
 
     <main class="admin-main" style="max-width:1300px;">
@@ -196,31 +220,85 @@
       <!-- ── Drip Campaigns tab ─────────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="drip-campaigns">
 
-        <!-- Campaign card -->
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-            <h2 style="font-size:1.1rem;margin:0;color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
-            <button class="btn btn-ghost btn-sm" onclick="openTestSendModal()">&#9993; Send Test</button>
-          </div>
-          <p style="font-size:0.9rem;color:var(--admin-text-muted);margin-bottom:2rem;">
-            This 5-step drip campaign is automatically sent to leaders after they complete the assessment.
-            Use <code>{{firstName}}</code> to inject their name automatically.
-          </p>
+        <!-- Sub-tab bar -->
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+          <button type="button" class="dc-subtab is-active" data-dc="overview">Overview</button>
+          <button type="button" class="dc-subtab" data-dc="editor">Email Editor</button>
+        </div>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;padding:1.5rem;background:rgba(0,0,0,0.02);border:1px solid var(--admin-border);border-radius:6px;">
-            <div>
-              <h3 style="margin:0;font-size:1rem;color:var(--admin-text);">Campaign Master Switch</h3>
-              <p style="margin:0.2rem 0 0;font-size:0.85rem;color:var(--admin-text-muted);">When turned off, the daily schedule pauses and no emails are sent. Subscribers resume where they left off when re-enabled.</p>
+        <!-- ── Sub-tab: Overview ── -->
+        <div class="dc-panel is-active" data-dc-panel="overview">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+              <h2 style="font-size:1.1rem;margin:0;color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
+              <button class="btn btn-ghost btn-sm" onclick="openTestSendModal()">&#9993; Send Test</button>
             </div>
-            <div style="text-align:right;flex-shrink:0;margin-left:1.5rem;">
-              <button id="campaign-toggle-btn" class="btn btn-primary" onclick="toggleMasterCampaign()" style="white-space:nowrap;">Loading...</button>
-            </div>
-          </div>
+            <p style="font-size:0.9rem;color:var(--admin-text-muted);margin-bottom:2rem;">
+              This 5-step drip campaign is automatically sent to leaders after they complete the assessment.
+              Use <code>{{firstName}}</code> to inject their name automatically.
+            </p>
 
-          <div id="campaign-list">
-            <p class="table-empty">Loading sequence...</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;padding:1.5rem;background:rgba(0,0,0,0.02);border:1px solid var(--admin-border);border-radius:6px;">
+              <div>
+                <h3 style="margin:0;font-size:1rem;color:var(--admin-text);">Campaign Master Switch</h3>
+                <p style="margin:0.2rem 0 0;font-size:0.85rem;color:var(--admin-text-muted);">When turned off, the daily schedule pauses and no emails are sent. Subscribers resume where they left off when re-enabled.</p>
+              </div>
+              <div style="text-align:right;flex-shrink:0;margin-left:1.5rem;">
+                <button id="campaign-toggle-btn" class="btn btn-primary" onclick="toggleMasterCampaign()" style="white-space:nowrap;">Loading...</button>
+              </div>
+            </div>
+
+            <div id="campaign-list">
+              <p class="table-empty">Loading sequence...</p>
+            </div>
           </div>
         </div>
+
+        <!-- ── Sub-tab: Email Editor ── -->
+        <div class="dc-panel" data-dc-panel="editor">
+          <!-- Campaign selector -->
+          <div class="card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+              <label for="deCampaignSelect" style="font-weight:600;font-size:0.875rem;white-space:nowrap;">Campaign:</label>
+              <select id="deCampaignSelect" class="form-control" style="max-width:280px;" onchange="deLoadSteps()">
+                <option value="hidden-ceiling">Hidden Ceiling</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="deOpenAddStep()" style="margin-left:auto;">+ Add New Step</button>
+            </div>
+          </div>
+
+          <div id="deStepsContainer">
+            <p class="table-empty">Loading sequence…</p>
+          </div>
+
+          <!-- Add New Step form -->
+          <div class="card" id="deAddStepForm" style="margin-top:20px;">
+            <div class="card-title" style="margin-bottom:1.25rem;">New Drip Step</div>
+            <div class="field-2col" style="margin-bottom:16px;">
+              <div class="form-group">
+                <label for="deNewStepNumber">Step Number</label>
+                <input type="number" id="deNewStepNumber" class="form-control" min="1" placeholder="e.g. 6">
+              </div>
+              <div class="form-group">
+                <label for="deNewDelayDays">Delay (days after previous)</label>
+                <input type="number" id="deNewDelayDays" class="form-control" min="0" value="2">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label for="deNewSubject">Subject Line</label>
+              <input type="text" id="deNewSubject" class="form-control" placeholder="Your subject here">
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label for="deNewBodyHtml">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML — use <code>{{firstName}}</code> for personalisation)</span></label>
+              <textarea id="deNewBodyHtml" class="form-control" rows="10" style="font-family:monospace;font-size:0.82rem;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="deCloseAddStep()">Cancel</button>
+              <button class="btn btn-primary btn-sm" onclick="deSaveNewStep()">Create Step</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ── Assessment Emails tab ───────────────────────────────────── -->
@@ -597,6 +675,27 @@
     </div>
   </div>
 
+  <!-- ── Email Editor: Per-step Test Send Modal ──────────────────────── -->
+  <div id="deTestSendModal" class="modal-overlay" onclick="if(event.target===this)deCloseTestModal()">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header">
+        <span class="modal-title">Send Test Email</span>
+        <button type="button" class="modal-close" onclick="deCloseTestModal()">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.875rem;color:var(--admin-muted);margin-bottom:16px;">Enter an email address to receive a test of this step. <code>{{firstName}}</code> will be replaced with <em>"there"</em>.</p>
+        <div class="form-group">
+          <label for="deTestEmailInput">Recipient Email</label>
+          <input type="email" id="deTestEmailInput" class="form-control" placeholder="you@example.com">
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--admin-border);">
+        <button class="btn btn-ghost btn-sm" onclick="deCloseTestModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="deTestSendBtn" onclick="deSendTest()">Send Test</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Send-to-Segment Modal ─────────────────────────────────────────── -->
   <div id="sendSegmentModal" class="modal-overlay" onclick="if(event.target===this)closeSendSegmentModal()">
     <div class="modal-box" style="max-width:640px;">
@@ -739,8 +838,25 @@
     };
 
     // ── Tab switching ────────────────────────────────────────────────────────
-    let campaignLoaded = false;
+    let campaignLoaded      = false;
     let emailSettingsLoaded = false;
+    let deEditorLoaded      = false;
+
+    function setDcSubtab(subtab) {
+      document.querySelectorAll('.dc-subtab').forEach(btn => {
+        const active = btn.dataset.dc === subtab;
+        btn.classList.toggle('is-active', active);
+      });
+      document.querySelectorAll('.dc-panel').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.dcPanel === subtab);
+      });
+      if (subtab === 'editor' && !deEditorLoaded) {
+        deEditorLoaded = true;
+        deLoadSteps();
+      }
+    }
+    document.querySelectorAll('.dc-subtab').forEach(btn =>
+      btn.addEventListener('click', () => setDcSubtab(btn.dataset.dc)));
 
     function setPageTab(tab) {
       document.querySelectorAll('.page-tab').forEach(btn => {
@@ -1121,6 +1237,194 @@
         btn.disabled           = false;
         btn.textContent        = 'Send Selected Emails';
         resultEl.style.display = 'block';
+      }
+    }
+
+    // ── Email Editor (accordion CRUD) ────────────────────────────────────────
+    let deCurrentTestStepId = null;
+
+    async function deLoadSteps() {
+      const campaign  = document.getElementById('deCampaignSelect').value;
+      const container = document.getElementById('deStepsContainer');
+      container.innerHTML = '<p class="table-empty">Loading…</p>';
+      try {
+        const res = await adminFetch(`/api/admin/settings?resource=drip-emails&campaign=${encodeURIComponent(campaign)}`);
+        if (!res.ok) throw new Error((await res.json()).error || 'Failed to load');
+        const steps = await res.json();
+        deRenderSteps(steps);
+      } catch (err) {
+        container.innerHTML = `<p class="table-empty" style="color:var(--admin-danger);">Error: ${escHtml(err.message)}</p>`;
+      }
+    }
+
+    function deRenderSteps(steps) {
+      const container = document.getElementById('deStepsContainer');
+      if (!steps.length) {
+        container.innerHTML = '<p class="table-empty">No steps yet. Click "+ Add New Step" to create the first one.</p>';
+        return;
+      }
+      container.innerHTML = steps.map(step => `
+        <div class="step-accordion" id="de-step-card-${step.id}" data-id="${step.id}">
+          <button type="button" class="step-summary" onclick="deToggleAccordion(${step.id})">
+            <span class="step-summary-left">
+              <span class="step-num">Step ${escHtml(String(step.step_number))}</span>
+              <span class="step-meta-delay">+${escHtml(String(step.delay_days))}d</span>
+              <span class="step-meta-subject">${escHtml(step.subject || '(no subject)')}</span>
+            </span>
+            <span class="step-summary-right">
+              <span class="step-status-badge ${step.is_active !== false ? 'badge-active' : 'badge-inactive'}" style="padding:3px 8px;border-radius:999px;">${step.is_active !== false ? 'Active' : 'Inactive'}</span>
+              <span class="step-chevron">&#9660;</span>
+            </span>
+          </button>
+          <div class="step-body">
+            <div class="field-2col" style="margin-bottom:16px;">
+              <div class="form-group">
+                <label>Step Number</label>
+                <input type="number" class="form-control" id="de-step-stepnum-${step.id}" value="${escHtml(String(step.step_number))}" min="1">
+              </div>
+              <div class="form-group">
+                <label>Delay (days after previous)</label>
+                <input type="number" class="form-control" id="de-step-delay-${step.id}" value="${escHtml(String(step.delay_days))}" min="0">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label>Subject Line</label>
+              <input type="text" class="form-control" id="de-step-subject-${step.id}" value="${escHtml(step.subject || '')}">
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label>Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+              <textarea class="form-control" id="de-step-body-${step.id}" rows="12" style="font-family:monospace;font-size:0.82rem;resize:vertical;">${escHtml(step.body_html || '')}</textarea>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <div class="toggle-row">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="de-step-active-${step.id}" ${step.is_active !== false ? 'checked' : ''}>
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Active</span>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="deOpenTestModal(${step.id})">&#9993; Test Send</button>
+                <button class="btn btn-danger btn-sm" onclick="deDeleteStep(${step.id})">Delete</button>
+                <button class="btn btn-primary btn-sm" onclick="deSaveStep(${step.id})">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function deToggleAccordion(id) {
+      document.getElementById(`de-step-card-${id}`)?.classList.toggle('open');
+    }
+
+    async function deSaveStep(id) {
+      const subject    = document.getElementById(`de-step-subject-${id}`).value;
+      const body_html  = document.getElementById(`de-step-body-${id}`).value;
+      const delay_days = parseInt(document.getElementById(`de-step-delay-${id}`).value, 10);
+      const is_active  = document.getElementById(`de-step-active-${id}`).checked;
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=drip-emails', {
+          method: 'PUT',
+          body:   JSON.stringify({ id, subject, body_html, delay_days, is_active })
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Save failed');
+        const updated = await res.json();
+        const card    = document.getElementById(`de-step-card-${id}`);
+        if (card) {
+          card.querySelector('.step-meta-subject').textContent = updated.subject || '(no subject)';
+          card.querySelector('.step-meta-delay').textContent   = `+${updated.delay_days}d`;
+          const badge       = card.querySelector('.step-status-badge');
+          badge.textContent = updated.is_active !== false ? 'Active' : 'Inactive';
+          badge.className   = `step-status-badge ${updated.is_active !== false ? 'badge-active' : 'badge-inactive'}`;
+          badge.style.cssText = 'padding:3px 8px;border-radius:999px;';
+        }
+        showFlash('Step saved successfully.', 'success');
+      } catch (err) {
+        showFlash(`Error: ${err.message}`, 'error');
+      }
+    }
+
+    async function deDeleteStep(id) {
+      if (!confirm('Delete this drip step? This cannot be undone.')) return;
+      try {
+        const res = await adminFetch(`/api/admin/settings?resource=drip-emails&id=${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error((await res.json()).error || 'Delete failed');
+        document.getElementById(`de-step-card-${id}`)?.remove();
+        const container = document.getElementById('deStepsContainer');
+        if (!container.querySelector('.step-accordion')) {
+          container.innerHTML = '<p class="table-empty">No steps yet. Click "+ Add New Step" to create the first one.</p>';
+        }
+        showFlash('Step deleted.', 'success');
+      } catch (err) {
+        showFlash(`Error: ${err.message}`, 'error');
+      }
+    }
+
+    function deOpenAddStep() {
+      const form = document.getElementById('deAddStepForm');
+      form.classList.add('open');
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    function deCloseAddStep() {
+      document.getElementById('deAddStepForm').classList.remove('open');
+    }
+
+    async function deSaveNewStep() {
+      const campaign_name = document.getElementById('deCampaignSelect').value;
+      const step_number   = parseInt(document.getElementById('deNewStepNumber').value, 10);
+      const delay_days    = parseInt(document.getElementById('deNewDelayDays').value, 10);
+      const subject       = document.getElementById('deNewSubject').value;
+      const body_html     = document.getElementById('deNewBodyHtml').value;
+      if (!step_number || isNaN(step_number)) { showFlash('Please enter a valid step number.', 'error'); return; }
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=drip-emails', {
+          method: 'POST',
+          body:   JSON.stringify({ campaign_name, step_number, subject, body_html, delay_days })
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Create failed');
+        document.getElementById('deNewStepNumber').value = '';
+        document.getElementById('deNewDelayDays').value  = '2';
+        document.getElementById('deNewSubject').value    = '';
+        document.getElementById('deNewBodyHtml').value   = '';
+        deCloseAddStep();
+        showFlash(`Step ${step_number} created.`, 'success');
+        await deLoadSteps();
+      } catch (err) {
+        showFlash(`Error: ${err.message}`, 'error');
+      }
+    }
+
+    function deOpenTestModal(stepId) {
+      deCurrentTestStepId = stepId;
+      document.getElementById('deTestEmailInput').value = '';
+      document.getElementById('deTestSendModal').classList.add('open');
+      setTimeout(() => document.getElementById('deTestEmailInput').focus(), 50);
+    }
+    function deCloseTestModal() {
+      document.getElementById('deTestSendModal').classList.remove('open');
+      deCurrentTestStepId = null;
+    }
+
+    async function deSendTest() {
+      const email = document.getElementById('deTestEmailInput').value.trim();
+      if (!email) { alert('Please enter a recipient email address.'); return; }
+      const btn = document.getElementById('deTestSendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      try {
+        const res = await adminFetch(
+          `/api/admin/settings?resource=drip-emails&action=test_send&id=${deCurrentTestStepId}&email=${encodeURIComponent(email)}`
+        );
+        if (!res.ok) throw new Error((await res.json()).error || 'Send failed');
+        deCloseTestModal();
+        showFlash(`Test email sent to ${email}.`, 'success');
+      } catch (err) {
+        showFlash(`Error: ${err.message}`, 'error');
+        deCloseTestModal();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Test';
       }
     }
 
