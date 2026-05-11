@@ -748,9 +748,12 @@
         const scoreBg   = score >= 70 ? '#1a5c3a' : score >= 40 ? '#6b3e00' : '#2a3140';
         const scoreColor= score >= 70 ? '#4ade80' : score >= 40 ? '#fbbf24' : '#7a8492';
         const scoreBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;background:${scoreBg};color:${scoreColor};" title="Lead score">${score}</span>`;
+        const bookedBadge = lead.has_booked_call
+          ? `<span style="display:inline-block;padding:1px 7px;border-radius:12px;font-size:0.66rem;font-weight:700;background:#1a5c3a;color:#4ade80;margin-left:5px;vertical-align:middle;" title="Booked a call">✓ Booked</span>`
+          : '';
         return `<tr onclick="location.href='${dest}'" title="Open in ${lead.type === 'subscriber' ? 'Subscribers' : 'Contacts'}">
           <td>
-            <span class="lead-name">${escHtml(lead.name)}${notePip}</span>
+            <span class="lead-name">${escHtml(lead.name)}${notePip}${bookedBadge}</span>
             <span class="lead-email">${escHtml(lead.email || 'No email')}</span>
           </td>
           <td>${dualBadge}${typeBadge}<span class="badge">${escHtml(lead.source)}</span></td>

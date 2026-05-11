@@ -1410,6 +1410,12 @@
         const contactDot = r.has_contact
           ? `<span title="Also submitted a contact form" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#8faa82;margin-left:5px;vertical-align:middle;"></span>`
           : '';
+        const bookedBadgeSub = r.has_booked_call
+          ? (() => {
+              const bd = r.booked_call_at ? new Date(r.booked_call_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+              return `<span title="${bd ? 'Booked a call on ' + bd : 'Booked a call'}" style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:0.66rem;font-weight:700;background:#1a5c3a;color:#4ade80;margin-top:3px;">✓ Booked${bd ? ' · ' + bd : ''}</span>`;
+            })()
+          : '';
 
         const notesSnippet = r.notes
           ? `<span style="display:block;font-size:0.72rem;color:var(--admin-text-muted);margin-top:2px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(r.notes)}">${escHtml(r.notes)}</span>`
@@ -1463,6 +1469,7 @@
               <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0.12rem;">
                 <span style="font-weight:600;color:var(--admin-text);">${escHtml(r.name || '—')}${contactDot}</span>
                 <a href="mailto:${escHtml(r.email)}" style="color:#7b9eb8;font-size:0.82rem;line-height:1.35;word-break:break-word;">${escHtml(r.email)}</a>
+                ${bookedBadgeSub}
               </div>
               ${notesSnippet}
               ${notesBtn}
