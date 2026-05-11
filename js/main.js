@@ -158,17 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(payload => {
                 const testimonials = payload.data || [];
                 if (testimonials.length > 0) {
-                    renderScrollingTestimonials(testimonials, testimonialsContainer);
+                    renderRotatingTestimonials(testimonials, testimonialsContainer);
                 }
             })
             .catch(error => console.error('Error loading testimonials:', error));
     }
 
-    function renderScrollingTestimonials(testimonials, container) {
+    function renderRotatingTestimonials(testimonials, container) {
         container.innerHTML = '';
-
-        const rail = document.createElement('div');
-        rail.className = 'testimonials-rail';
+        if (!testimonials.length) return;
 
         const createCard = (item) => {
             const card = document.createElement('article');
@@ -180,10 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const authorDiv = document.createElement('div');
             authorDiv.className = 'author';
-
             const authorH4 = document.createElement('h4');
             authorH4.textContent = item.author;
-
             authorDiv.appendChild(authorH4);
             const detailParts = [item.client_role, item.industry].filter(Boolean);
             if (detailParts.length > 0) {
@@ -193,23 +189,83 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             card.appendChild(quoteEl);
             card.appendChild(authorDiv);
-
             return card;
         };
 
-        const buildGroup = () => {
-            const group = document.createElement('div');
-            group.className = 'testimonials-group';
-            testimonials.forEach(item => {
-                group.appendChild(createCard(item));
+        const rotator = document.createElement('div');
+        rotator.className = 'testimonials-rotator';
+        rotator.setAttribute('aria-roledescription', 'carousel');
+
+        const track = document.createElement('div');
+        track.className = 'testimonials-track';
+
+        const cards = [], dots = [];
+        testimonials.forEach((item, i) => {
+            const card = createCard(item);
+            if (i === 0) card.classList.add('is-active');
+            track.appendChild(card);
+            cards.push(card);
+        });
+
+        let current = 0;
+        let timer = null;
+
+        function goTo(n) {
+            cards[current].classList.remove('is-active');
+            if (dots[current]) dots[current].classList.remove('is-active');
+            current = ((n % testimonials.length) + testimonials.length) % testimonials.length;
+            cards[current].classList.add('is-active');
+            if (dots[current]) dots[current].classList.add('is-active');
+            track.style.height = cards[current].offsetHeight + 'px';
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => goTo(current + 1), 6000);
+        }
+
+        if (testimonials.length > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'rotator-arrow prev';
+            prevBtn.innerHTML = '&#8249;';
+            prevBtn.setAttribute('aria-label', 'Previous testimonial');
+            prevBtn.addEventListener('click', () => { goTo(current - 1); startTimer(); });
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'rotator-arrow next';
+            nextBtn.innerHTML = '&#8250;';
+            nextBtn.setAttribute('aria-label', 'Next testimonial');
+            nextBtn.addEventListener('click', () => { goTo(current + 1); startTimer(); });
+
+            const dotsEl = document.createElement('div');
+            dotsEl.className = 'rotator-dots';
+            testimonials.forEach((_, i) => {
+                const dot = document.createElement('button');
+                dot.className = 'rotator-dot' + (i === 0 ? ' is-active' : '');
+                dot.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
+                dot.addEventListener('click', () => { goTo(i); startTimer(); });
+                dotsEl.appendChild(dot);
+                dots.push(dot);
             });
-            return group;
-        };
 
-        rail.appendChild(buildGroup());
-        rail.appendChild(buildGroup());
+            rotator.appendChild(prevBtn);
+            rotator.appendChild(track);
+            rotator.appendChild(nextBtn);
+            rotator.appendChild(dotsEl);
+        } else {
+            rotator.appendChild(track);
+        }
 
-        container.appendChild(rail);
+        rotator.addEventListener('mouseenter', () => clearInterval(timer));
+        rotator.addEventListener('mouseleave', () => startTimer());
+
+        container.appendChild(rotator);
+
+        // Set initial track height after layout
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            track.style.height = cards[0].offsetHeight + 'px';
+            if (testimonials.length > 1) startTimer();
+        }));
     }
 
 
