@@ -197,5 +197,14 @@ export async function runMigrations() {
     `;
   }
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS calendly_events (
+      id                  SERIAL PRIMARY KEY,
+      calendly_event_uuid TEXT UNIQUE NOT NULL,
+      email               TEXT,
+      created_at          TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
   migrated = true;
 }

@@ -141,6 +141,35 @@
         }
     };
 
+    // --- localStorage progress save/restore ---
+    const HC_STORAGE_KEY = 'hc_progress_v1';
+
+    function saveProgress() {
+        try {
+            localStorage.setItem(HC_STORAGE_KEY, JSON.stringify({
+                stepIndex: state.stepIndex,
+                firstName: state.firstName,
+                lastName:  state.lastName,
+                email:     state.email,
+                answers:   state.answers
+            }));
+        } catch (_) {}
+    }
+
+    function clearProgress() {
+        try { localStorage.removeItem(HC_STORAGE_KEY); } catch (_) {}
+    }
+
+    function loadSavedProgress() {
+        try {
+            const raw = localStorage.getItem(HC_STORAGE_KEY);
+            if (!raw) return null;
+            const saved = JSON.parse(raw);
+            if (!saved || saved.stepIndex == null) return null;
+            return saved;
+        } catch (_) { return null; }
+    }
+
     const shell = document.getElementById('hc-assessment-shell');
     if (!shell) return;
 
@@ -187,6 +216,15 @@
                     </div>
                 </div>
             `;
+            // Save intro fields on input so progress restores them
+            ['hc-firstName','hc-lastName','hc-email'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', (e) => {
+                    if (id === 'hc-firstName') state.firstName = e.target.value;
+                    else if (id === 'hc-lastName') state.lastName = e.target.value;
+                    else state.email = e.target.value;
+                    saveProgress();
+                });
+            });
             document.getElementById('hc-firstName')?.focus();
             return;
         }
@@ -208,6 +246,7 @@
         stepContainer.querySelectorAll(`input[name="${step.id}"]`).forEach((input) => {
             input.addEventListener('change', () => {
                 state.answers[step.id] = Number(input.value);
+                saveProgress();
                 render();
             });
         });
@@ -280,7 +319,23 @@
                 throw new Error(data.error || 'Unable to process your assessment right now.');
             }
 
-            showResult(data);
+            // Clear saved progress before redirecting
+            clearProgress();
+
+            // Store email in sessionStorage so the results page can use it for click tracking
+            try { sessionStorage.setItem('hc_result_email', state.email); } catch (_) {}
+
+            // Redirect to shareable results page
+            const { result, scores } = data;
+            const params = new URLSearchParams({
+                center: result.center,
+                name:   state.firstName || state.email.split('@')[0],
+                sh:     scores.heart,
+                sd:     scores.head,
+                sa:     scores.action
+            });
+            window.location.href = `/results.html?${params.toString()}`;
+
         } catch (error) {
             errorEl.textContent = error.message || 'Something went wrong while submitting your assessment.';
             nextBtn.disabled = false;
@@ -359,6 +414,7 @@
         if (!validateCurrentStep()) return;
         if (state.stepIndex < ASSESSMENT_STEPS.length - 1) {
             state.stepIndex += 1;
+            saveProgress();
             render();
         } else {
             await submitAssessment();
@@ -393,7 +449,38 @@
         })
         .catch(err => console.error('Preview load failed:', err));
     } else {
-        render();
+        // Check for saved progress — offer to restore if past the intro step
+        const saved = loadSavedProgress();
+        if (saved && saved.stepIndex > 0) {
+            stepContainer.innerHTML = `
+                <div style="text-align:center;padding:2rem 1rem;">
+                    <p style="font-size:1.05rem;color:var(--color-text-primary);margin:0 0 0.5rem;font-weight:600;">Continue where you left off?</p>
+                    <p style="font-size:0.9rem;color:var(--color-text-secondary);margin:0 0 1.5rem;">You started the assessment earlier. Your answers have been saved.</p>
+                    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                        <button id="hc-restore-yes" class="hc-btn hc-btn-primary">Continue Assessment</button>
+                        <button id="hc-restore-no" class="hc-btn hc-btn-secondary" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--color-text-secondary);">Start Over</button>
+                    </div>
+                </div>`;
+            nextBtn.hidden = true;
+            document.getElementById('hc-restore-yes').addEventListener('click', () => {
+                Object.assign(state, {
+                    stepIndex: saved.stepIndex,
+                    firstName: saved.firstName || '',
+                    lastName:  saved.lastName  || '',
+                    email:     saved.email     || '',
+                    answers:   { ...state.answers, ...saved.answers }
+                });
+                nextBtn.hidden = false;
+                render();
+            });
+            document.getElementById('hc-restore-no').addEventListener('click', () => {
+                clearProgress();
+                nextBtn.hidden = false;
+                render();
+            });
+        } else {
+            render();
+        }
     }
 
     function escapeAttr(value) {

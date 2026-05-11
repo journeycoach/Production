@@ -114,6 +114,7 @@
       <a href="site.html">Site</a>
       <a href="contacts.html">Contacts</a>
       <a href="subscribers.html" class="active">Subscribers</a>
+      <a href="drip-emails.html">Drip Emails</a>
     </nav>
 
     <main class="admin-main" style="max-width:1300px;">
@@ -147,6 +148,21 @@
                 <option value="website">Website</option>
                 <option value="none">No source set</option>
               </select>
+              <select id="segCenterFilter" onchange="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 8px;">
+                <option value="">All Centers</option>
+                <option value="heart">Heart</option>
+                <option value="head">Head</option>
+                <option value="action">Gut/Action</option>
+                <option value="__unset__">Center not set</option>
+              </select>
+              <select id="segLeadFilter" onchange="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 8px;">
+                <option value="">All Status</option>
+              </select>
+              <select id="segUnsubFilter" onchange="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 8px;">
+                <option value="">All</option>
+                <option value="subscribed">Subscribed Only</option>
+              </select>
+              <button id="sendSegmentBtn" class="btn btn-sm" onclick="openSendSegmentModal()" disabled style="white-space:nowrap;">&#9993; Send to Segment</button>
               <button class="btn btn-ghost btn-sm" onclick="exportCSV()" title="Export to CSV">&#8595; CSV</button>
             </div>
           </div>
@@ -577,6 +593,35 @@
           <button class="btn btn-primary" onclick="sendTestEmails()" id="test-send-btn" style="white-space:nowrap;">Send Selected Emails</button>
         </div>
         <p id="test-send-result" style="margin:0.75rem 0 0;font-size:0.85rem;display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Send-to-Segment Modal ─────────────────────────────────────────── -->
+  <div id="sendSegmentModal" class="modal-overlay" onclick="if(event.target===this)closeSendSegmentModal()">
+    <div class="modal-box" style="max-width:640px;">
+      <div class="modal-header">
+        <span class="modal-title">&#9993; Send to Segment</span>
+        <button type="button" class="modal-close" onclick="closeSendSegmentModal()">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <p id="segModalPreview" style="margin:0 0 16px;font-size:0.85rem;color:var(--admin-text-muted);"></p>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--admin-text-muted);display:block;margin-bottom:6px;">Subject</label>
+          <input type="text" id="segSubject" class="form-control" placeholder="Email subject…">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.78rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--admin-text-muted);display:block;margin-bottom:6px;">Body (HTML)</label>
+          <textarea id="segBodyHtml" rows="10" class="form-control" style="font-family:monospace;font-size:0.8rem;resize:vertical;" placeholder="<p>Hello {{firstName}},</p>…"></textarea>
+        </div>
+        <p style="font-size:0.78rem;color:var(--admin-text-muted);margin:0 0 16px;">
+          Use <code>{{firstName}}</code> to personalise. An unsubscribe footer is added automatically. Capped at 100 sends per request.
+        </p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+          <button class="btn btn-ghost btn-sm" onclick="closeSendSegmentModal()">Cancel</button>
+          <button class="btn btn-primary" id="segSendBtn" onclick="sendToSegment()">Send Emails</button>
+        </div>
+        <p id="segSendResult" style="margin:12px 0 0;font-size:0.85rem;display:none;"></p>
       </div>
     </div>
   </div>
@@ -1458,20 +1503,152 @@
         .reduce((latest, t) => Math.max(latest, t), 0);
       if (latestSubscriberAt) localStorage.setItem(SUBSCRIBERS_SEEN_AT_KEY, String(latestSubscriberAt));
 
+      populateLeadStatusFilter();
       filterSubscribers();
+    }
+
+    function populateLeadStatusFilter() {
+      const sel = document.getElementById('segLeadFilter');
+      if (!sel) return;
+      const statuses = [...new Set(allRows.map(r => r.lead_status).filter(Boolean))].sort();
+      // Keep the "All Status" option, rebuild the rest
+      sel.innerHTML = '<option value="">All Status</option>';
+      statuses.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+        sel.appendChild(opt);
+      });
+      const noneOpt = document.createElement('option');
+      noneOpt.value = '__unset__';
+      noneOpt.textContent = '(not set)';
+      sel.appendChild(noneOpt);
     }
 
     // ── Filter / Search ───────────────────────────────────────────────────────
     function filterSubscribers() {
-      const q      = (document.getElementById('subSearch')?.value || '').toLowerCase();
-      const source = (document.getElementById('subSourceFilter')?.value || '');
+      const q        = (document.getElementById('subSearch')?.value || '').toLowerCase();
+      const source   = (document.getElementById('subSourceFilter')?.value || '');
+      const center   = (document.getElementById('segCenterFilter')?.value || '');
+      const leadStat = (document.getElementById('segLeadFilter')?.value || '');
+      const unsub    = (document.getElementById('segUnsubFilter')?.value || '');
+
       let filtered = allRows;
       if (q) filtered = filtered.filter(r =>
         (r.email || '').toLowerCase().includes(q) || (r.name || '').toLowerCase().includes(q)
       );
       if (source === 'none') filtered = filtered.filter(r => !r.attribution_source);
       else if (source) filtered = filtered.filter(r => r.attribution_source === source);
+
+      if (center === '__unset__') filtered = filtered.filter(r => !r.result_center);
+      else if (center) filtered = filtered.filter(r => r.result_center === center);
+
+      if (leadStat === '__unset__') filtered = filtered.filter(r => !r.lead_status);
+      else if (leadStat) filtered = filtered.filter(r => r.lead_status === leadStat);
+
+      if (unsub === 'subscribed') filtered = filtered.filter(r => !r.is_unsubscribed);
+
       renderSubscribers(filtered);
+      updateSendSegmentBtn(filtered.length);
+    }
+
+    function getActiveSegmentFilters() {
+      const center   = (document.getElementById('segCenterFilter')?.value || '');
+      const leadStat = (document.getElementById('segLeadFilter')?.value || '');
+      const unsub    = (document.getElementById('segUnsubFilter')?.value || '');
+      return { center, leadStat, unsub };
+    }
+
+    function isSegmentFilterActive() {
+      const { center, leadStat, unsub } = getActiveSegmentFilters();
+      return !!(center || leadStat || unsub);
+    }
+
+    function updateSendSegmentBtn(count) {
+      const btn = document.getElementById('sendSegmentBtn');
+      if (!btn) return;
+      const active = isSegmentFilterActive();
+      btn.disabled = !active || count === 0;
+    }
+
+    // ── Send-to-Segment Modal ─────────────────────────────────────────────────
+    function openSendSegmentModal() {
+      const { center, leadStat, unsub } = getActiveSegmentFilters();
+      const tbody  = document.getElementById('subBody');
+      const rows   = tbody ? tbody.querySelectorAll('tr[data-id]') : [];
+      const count  = rows.length;
+
+      const parts = [];
+      if (center && center !== '__unset__') parts.push(`center = ${center}`);
+      else if (center === '__unset__') parts.push('center not set');
+      if (leadStat && leadStat !== '__unset__') parts.push(`lead status = ${leadStat}`);
+      else if (leadStat === '__unset__') parts.push('lead status not set');
+      if (unsub === 'subscribed') parts.push('subscribed only');
+
+      const preview = document.getElementById('segModalPreview');
+      if (preview) {
+        preview.textContent = `Sending to ${count} subscriber${count !== 1 ? 's' : ''}` +
+          (parts.length ? ` (${parts.join(', ')})` : '') + '.';
+      }
+
+      document.getElementById('segSendResult').style.display = 'none';
+      document.getElementById('segSendBtn').disabled = false;
+      document.getElementById('sendSegmentModal').classList.add('open');
+    }
+
+    function closeSendSegmentModal() {
+      document.getElementById('sendSegmentModal').classList.remove('open');
+    }
+
+    async function sendToSegment() {
+      const subject  = (document.getElementById('segSubject')?.value || '').trim();
+      const body_html = (document.getElementById('segBodyHtml')?.value || '').trim();
+      const resultEl = document.getElementById('segSendResult');
+      const btn      = document.getElementById('segSendBtn');
+
+      if (!subject) { showFlash('Please enter a subject.', 'error'); return; }
+      if (!body_html) { showFlash('Please enter email body HTML.', 'error'); return; }
+
+      const { center, leadStat } = getActiveSegmentFilters();
+
+      // Build filters object for the API — only include non-__unset__ values
+      const filters = {};
+      if (center && center !== '__unset__') filters.result_center = center;
+      if (leadStat && leadStat !== '__unset__') filters.lead_status = leadStat;
+      // Always exclude unsubscribed (API enforces this too)
+
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      resultEl.style.display = 'none';
+
+      try {
+        const res = await adminFetch('/api/admin/subscribers/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subject, body_html, filters }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          resultEl.style.color = 'var(--admin-accent)';
+          resultEl.textContent = `Sent to ${data.sent} subscriber${data.sent !== 1 ? 's' : ''}` +
+            (data.skipped > 0 ? ` (${data.skipped} skipped — cap of 100 reached)` : '') + '.';
+          resultEl.style.display = 'block';
+          showFlash(`Sent to ${data.sent} subscribers.`, 'success');
+        } else {
+          resultEl.style.color = '#e05c5c';
+          resultEl.textContent = data.error || 'Failed to send emails.';
+          resultEl.style.display = 'block';
+          showFlash(data.error || 'Failed to send emails.', 'error');
+        }
+      } catch (err) {
+        resultEl.style.color = '#e05c5c';
+        resultEl.textContent = 'Network error.';
+        resultEl.style.display = 'block';
+        showFlash('Network error.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Emails';
+      }
     }
 
     // ── CSV Export ────────────────────────────────────────────────────────────

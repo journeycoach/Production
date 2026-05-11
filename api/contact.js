@@ -653,6 +653,11 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'db error' });
       }
     }
+    // Public config endpoint — exposes safe public values (no secrets)
+    if (req.method === 'GET' && req.query?.action === 'config') {
+      return res.status(200).json({ calendly_url: process.env.CALENDLY_URL || null });
+    }
+
     // Only allow POST
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });

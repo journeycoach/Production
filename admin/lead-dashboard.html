@@ -359,6 +359,7 @@
       <a href="site.html">Site</a>
       <a href="contacts.html">Contacts</a>
       <a href="subscribers.html">Subscribers</a>
+      <a href="drip-emails.html">Drip Emails</a>
     </nav>
 
     <main class="admin-main">
@@ -415,19 +416,26 @@
               <div class="card-title">Recent Leads</div>
               <span class="card-subtitle" id="recentRangeLabel"></span>
             </div>
-            <p style="color:#7a8492;font-size:0.78rem;margin:0.35rem 0 1rem;">Click any row to open in Contacts or Subscribers. <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c7a96b;vertical-align:middle;margin-right:2px;"></span> = has notes. <span class="badge badge-dual" style="font-size:0.68rem;">dual</span> = also sent contact form.</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;">
+              <p style="color:#7a8492;font-size:0.78rem;margin:0;">Click any row to open. <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#c7a96b;vertical-align:middle;margin-right:2px;"></span> = has notes. <span class="badge badge-dual" style="font-size:0.68rem;">dual</span> = also sent contact form.</p>
+              <select id="leadSortSelect" style="background:#1e2733;border:1px solid rgba(255,255,255,0.1);color:#c5cdd6;font-size:0.8rem;padding:0.3rem 0.6rem;border-radius:4px;cursor:pointer;">
+                <option value="date">Sort: Newest</option>
+                <option value="score-desc">Sort: Score (High → Low)</option>
+                <option value="score-asc">Sort: Score (Low → High)</option>
+              </select>
+            </div>
             <table class="lead-table">
               <thead>
                 <tr>
                   <th>Lead</th>
                   <th>Source</th>
                   <th>Result</th>
-                  <th>Step</th>
+                  <th>Score</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody id="recentLeadsBody">
-                <tr><td colspan="5" class="table-empty">Loading…</td></tr>
+                <tr><td colspan="6" class="table-empty">Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -682,16 +690,20 @@
       const subLeads = subscribers
         .filter(s => inPeriod(s.created_at))
         .map(s => ({
-          type:       'subscriber',
-          name:       s.name || 'Subscriber',
-          email:      s.email || '',
-          source:     normalizeSource(s.attribution_source || s.utm_source || s.source),
-          result:     CENTER_LABELS[s.result_center] || null,
-          step:       s.result_center ? parseInt(s.drip_step || 0, 10) : null,
-          date:       s.created_at,
-          timestamp:  parseDate(s.created_at),
-          notes:      s.notes || null,
-          hasContact: !!s.has_contact,
+          type:                    'subscriber',
+          name:                    s.name || 'Subscriber',
+          email:                   s.email || '',
+          source:                  normalizeSource(s.attribution_source || s.utm_source || s.source),
+          result:                  CENTER_LABELS[s.result_center] || null,
+          result_center:           s.result_center || null,
+          step:                    s.result_center ? parseInt(s.drip_step || 0, 10) : null,
+          drip_step:               s.drip_step || 0,
+          date:                    s.created_at,
+          timestamp:               parseDate(s.created_at),
+          notes:                   s.notes || null,
+          hasContact:              !!s.has_contact,
+          has_booked_call:         !!s.has_booked_call,
+          assessment_call_clicked_at: s.assessment_call_clicked_at || null,
         }));
 
       const ctLeads = contacts
@@ -715,15 +727,27 @@
 
       const tbody = document.getElementById('recentLeadsBody');
       if (!leads.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No lead activity in this period.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No lead activity in this period.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = leads.map(lead => {
+      // Sort based on current sort selection
+      const sortMode = document.getElementById('leadSortSelect')?.value || 'date';
+      const sorted = [...leads].sort((a, b) => {
+        if (sortMode === 'score-desc') return computeLeadScore(b) - computeLeadScore(a);
+        if (sortMode === 'score-asc')  return computeLeadScore(a) - computeLeadScore(b);
+        return new Date(b.date) - new Date(a.date); // default: newest first
+      });
+
+      tbody.innerHTML = sorted.map(lead => {
         const dest      = lead.type === 'subscriber' ? 'subscribers.html' : 'contacts.html';
         const notePip   = lead.notes ? '<span class="note-pip" title="Has notes"></span>' : '';
         const dualBadge = lead.hasContact ? '<span class="badge badge-dual" title="Also submitted contact form" style="margin-right:4px;">dual</span>' : '';
         const typeBadge = lead.type === 'contact' ? '<span class="badge badge-contact" style="margin-right:4px;">form</span>' : '';
+        const score     = computeLeadScore(lead);
+        const scoreBg   = score >= 70 ? '#1a5c3a' : score >= 40 ? '#6b3e00' : '#2a3140';
+        const scoreColor= score >= 70 ? '#4ade80' : score >= 40 ? '#fbbf24' : '#7a8492';
+        const scoreBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;background:${scoreBg};color:${scoreColor};" title="Lead score">${score}</span>`;
         return `<tr onclick="location.href='${dest}'" title="Open in ${lead.type === 'subscriber' ? 'Subscribers' : 'Contacts'}">
           <td>
             <span class="lead-name">${escHtml(lead.name)}${notePip}</span>
@@ -731,10 +755,21 @@
           </td>
           <td>${dualBadge}${typeBadge}<span class="badge">${escHtml(lead.source)}</span></td>
           <td>${lead.result ? `<span class="badge badge-result">${escHtml(lead.result)}</span>` : '<span class="td-muted">—</span>'}</td>
-          <td class="td-muted">${lead.step !== null ? `Step ${lead.step}` : '—'}</td>
+          <td>${scoreBadge}</td>
           <td class="td-muted">${escHtml(formatDate(lead.date))}</td>
         </tr>`;
       }).join('');
+    }
+
+    function computeLeadScore(lead) {
+      let score = 0;
+      if (lead.has_booked_call)            score += 40;
+      if (lead.result_center || lead.result) score += 20;
+      if (lead.assessment_call_clicked_at) score += 15;
+      if (lead.source === 'hidden-ceiling') score += 10;
+      if (parseInt(lead.drip_step || lead.step || 0, 10) > 0) score += 10;
+      if (lead.notes && String(lead.notes).trim()) score += 5;
+      return Math.min(score, 100);
     }
 
     // ── Tab switching ─────────────────────────────────────────────────────────
@@ -977,6 +1012,11 @@
     }
 
     loadLeadDashboard();
+
+    // Re-render lead table when sort changes
+    document.getElementById('leadSortSelect')?.addEventListener('change', () => {
+      if (allSubscribers || allContacts) renderRecentLeads(allSubscribers || [], allContacts || []);
+    });
   </script>
 </body>
 </html>
