@@ -1,11 +1,105 @@
+import crypto from 'crypto';
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 import { runMigrations } from '../_migrate.js';
+import { Resend } from 'resend';
+
+// ── Analytics helper (consolidated from api/admin/analytics.js) ──────────────
+const ALLOWED_WEEKS = new Set([4, 12, 26]);
+
+async function handleAnalytics(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  const rawWeeks = parseInt(req.query.weeks, 10);
+  const weeks = ALLOWED_WEEKS.has(rawWeeks) ? rawWeeks : 12;
+  try {
+    const subscribersOverTime = await sql`
+      SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
+      FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
+      LEFT JOIN subscribers s ON DATE_TRUNC('week', s.created_at AT TIME ZONE 'UTC') = gs.week_start
+      GROUP BY gs.week_start ORDER BY gs.week_start`;
+    const assessmentsOverTime = await sql`
+      SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
+      FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
+      LEFT JOIN subscribers s ON DATE_TRUNC('week', s.created_at AT TIME ZONE 'UTC') = gs.week_start AND s.result_center IS NOT NULL
+      GROUP BY gs.week_start ORDER BY gs.week_start`;
+    const contactsOverTime = await sql`
+      SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(c.id)::int AS count
+      FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
+      LEFT JOIN contact_submissions c ON DATE_TRUNC('week', c.created_at AT TIME ZONE 'UTC') = gs.week_start
+      GROUP BY gs.week_start ORDER BY gs.week_start`;
+    const bookingsOverTime = await sql`
+      SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
+      FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
+      LEFT JOIN subscribers s ON DATE_TRUNC('week', s.booked_call_at AT TIME ZONE 'UTC') = gs.week_start AND s.has_booked_call = true AND s.booked_call_at IS NOT NULL
+      GROUP BY gs.week_start ORDER BY gs.week_start`;
+    const resultCenterRows = await sql`SELECT result_center, COUNT(*)::int AS count FROM subscribers WHERE result_center IS NOT NULL GROUP BY result_center`;
+    const resultCenterCounts = { heart: 0, head: 0, gut: 0 };
+    for (const row of resultCenterRows) {
+      const key = String(row.result_center).toLowerCase();
+      if (key in resultCenterCounts) resultCenterCounts[key] = row.count;
+    }
+    const dripStepDistribution = await sql`SELECT drip_step AS step, COUNT(*)::int AS count FROM subscribers WHERE drip_step IS NOT NULL GROUP BY drip_step ORDER BY drip_step`;
+    return res.status(200).json({ subscribersOverTime, assessmentsOverTime, contactsOverTime, bookingsOverTime, resultCenterCounts, dripStepDistribution });
+  } catch (err) {
+    console.error('analytics GET error:', err);
+    return res.status(500).json({ error: 'Database error' });
+  }
+}
+
+// ── Segment send helper (consolidated from api/admin/subscribers/send.js) ────
+function makeUnsubToken(id) {
+  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(id)).digest('hex').slice(0, 32);
+}
+
+async function handleSegmentSend(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const { subject, body_html, filters = {} } = req.body || {};
+  if (!subject?.trim()) return res.status(400).json({ error: 'subject is required' });
+  if (!body_html?.trim()) return res.status(400).json({ error: 'body_html is required' });
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+  const { result_center, lead_status, is_unsubscribed } = filters;
+  if (is_unsubscribed === true || is_unsubscribed === 'true') {
+    return res.status(400).json({ error: 'Cannot send bulk email to unsubscribed users.' });
+  }
+  const conditions = ['is_unsubscribed IS NOT TRUE'];
+  const params = [];
+  if (result_center && result_center !== '') { params.push(result_center); conditions.push(`result_center = $${params.length}`); }
+  if (lead_status && lead_status !== '')     { params.push(lead_status);   conditions.push(`lead_status = $${params.length}`); }
+  let subscribers;
+  try {
+    subscribers = await sql(`SELECT id, email, name FROM subscribers WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`, params);
+  } catch (err) {
+    console.error('segment send fetch error:', err);
+    return res.status(500).json({ error: 'Database error' });
+  }
+  const total = subscribers.length;
+  const toSend = subscribers.slice(0, 100);
+  const resend = new Resend(resendKey);
+  let sent = 0;
+  for (const sub of toSend) {
+    const token = makeUnsubToken(sub.id);
+    const unsubUrl = `https://journeycoach.co/api/contact?action=unsubscribe&token=${token}`;
+    const firstName = (sub.name || '').trim().split(/\s+/)[0] || 'there';
+    const footer = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:0.78rem;color:#999;text-align:center;"><p style="margin:0 0 6px;">You received this email because you subscribed at journeycoach.co.</p><p style="margin:0;"><a href="${unsubUrl}" style="color:#999;">Unsubscribe</a></p></div>`;
+    try {
+      await resend.emails.send({ from: 'John Paine | Your Journey Coach <hello@journeycoach.co>', to: sub.email, subject: subject.trim(), html: body_html.replace(/\{\{\s*firstName\s*\}\}/g, firstName) + footer });
+      sent++;
+    } catch (err) { console.error(`segment send error for ${sub.email}:`, err); }
+  }
+  return res.status(200).json({ sent, skipped: total - toSend.length, total });
+}
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
   await runMigrations();
+
+  // Analytics sub-resource
+  if (req.query.type === 'analytics') return handleAnalytics(req, res);
+
+  // Segment send sub-resource
+  if (req.query.action === 'send') return handleSegmentSend(req, res);
 
   // Subscriber sub-resource
   if (req.query.type === 'subscribers') {

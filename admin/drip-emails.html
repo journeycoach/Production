@@ -182,7 +182,7 @@
       container.innerHTML = '<p class="table-empty">Loading…</p>';
 
       try {
-        const res = await adminFetch(`/api/admin/drip-emails?campaign=${encodeURIComponent(campaign)}`);
+        const res = await adminFetch(`/api/admin/settings?resource=drip-emails&campaign=${encodeURIComponent(campaign)}`);
         if (!res.ok) throw new Error((await res.json()).error || 'Failed to load');
         const steps = await res.json();
         renderSteps(steps);
@@ -262,7 +262,7 @@
       const is_active  = document.getElementById(`step-active-${id}`).checked;
 
       try {
-        const res = await adminFetch('/api/admin/drip-emails', {
+        const res = await adminFetch('/api/admin/settings?resource=drip-emails', {
           method: 'PUT',
           body: JSON.stringify({ id, subject, body_html, delay_days, is_active })
         });
@@ -290,7 +290,7 @@
       if (!confirm('Delete this drip step? This cannot be undone.')) return;
 
       try {
-        const res = await adminFetch(`/api/admin/drip-emails?id=${id}`, { method: 'DELETE' });
+        const res = await adminFetch(`/api/admin/settings?resource=drip-emails&id=${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error((await res.json()).error || 'Delete failed');
 
         document.getElementById(`step-card-${id}`)?.remove();
@@ -327,7 +327,7 @@
       }
 
       try {
-        const res = await adminFetch('/api/admin/drip-emails', {
+        const res = await adminFetch('/api/admin/settings?resource=drip-emails', {
           method: 'POST',
           body: JSON.stringify({ campaign_name, step_number, subject, body_html, delay_days })
         });
@@ -373,7 +373,7 @@
 
       try {
         const res = await adminFetch(
-          `/api/admin/drip-emails?action=test_send&id=${currentTestStepId}&email=${encodeURIComponent(email)}`
+          `/api/admin/settings?resource=drip-emails&action=test_send&id=${currentTestStepId}&email=${encodeURIComponent(email)}`
         );
         if (!res.ok) throw new Error((await res.json()).error || 'Send failed');
 

@@ -8,6 +8,46 @@ export default async function handler(req, res) {
   if (!requireAuth(req, res)) return;
   await runMigrations();
 
+  // Drip email CRUD (consolidated from api/admin/drip-emails.js)
+  if (req.query?.resource === 'drip-emails') {
+    const { action, campaign, id, email } = req.query || {};
+    if (req.method === 'GET' && action === 'test_send') {
+      if (!id) return res.status(400).json({ error: 'id is required' });
+      if (!email) return res.status(400).json({ error: 'email is required' });
+      const resendKey = process.env.RESEND_API_KEY;
+      if (!resendKey) return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+      try {
+        const rows = await sql`SELECT * FROM campaign_emails WHERE id = ${parseInt(id, 10)}`;
+        if (!rows.length) return res.status(404).json({ error: 'Step not found' });
+        const step = rows[0];
+        await (new Resend(resendKey)).emails.send({ from: 'John Paine | Your Journey Coach <hello@journeycoach.co>', to: email, subject: `[TEST – Step ${step.step_number}] ${step.subject}`, html: `<div style="background:#fffbe6;border:2px solid #f0c040;padding:0.75rem 1.25rem;margin-bottom:1.5rem;border-radius:6px;font-family:sans-serif;font-size:0.85rem;color:#7a5c00;"><strong>&#9888; TEST SEND</strong> — Step ${step.step_number} of ${step.campaign_name} (normally sent ${step.delay_days} day(s) after previous).</div>${step.body_html || ''}` });
+        return res.status(200).json({ ok: true });
+      } catch (err) { console.error('drip test send error:', err); return res.status(500).json({ error: err.message || 'Send failed' }); }
+    }
+    if (req.method === 'GET') {
+      try { const rows = await sql`SELECT * FROM campaign_emails WHERE campaign_name = ${campaign || 'hidden-ceiling'} ORDER BY step_number ASC`; return res.status(200).json(rows); }
+      catch (err) { return res.status(500).json({ error: 'Database error' }); }
+    }
+    if (req.method === 'PUT') {
+      const { id: bodyId, subject, body_html, delay_days, is_active } = req.body || {};
+      if (!bodyId) return res.status(400).json({ error: 'id is required' });
+      try { const rows = await sql`UPDATE campaign_emails SET subject=${subject??null}, body_html=${body_html??null}, delay_days=${delay_days!=null?parseInt(delay_days,10):2}, is_active=${is_active!=null?Boolean(is_active):true} WHERE id=${parseInt(bodyId,10)} RETURNING *`; if (!rows.length) return res.status(404).json({ error: 'Step not found' }); return res.status(200).json(rows[0]); }
+      catch (err) { return res.status(500).json({ error: 'Database error' }); }
+    }
+    if (req.method === 'POST') {
+      const { campaign_name, step_number, subject, body_html, delay_days } = req.body || {};
+      if (!campaign_name || step_number == null) return res.status(400).json({ error: 'campaign_name and step_number are required' });
+      try { const rows = await sql`INSERT INTO campaign_emails (campaign_name, step_number, subject, body_html, delay_days, is_active) VALUES (${campaign_name}, ${parseInt(step_number,10)}, ${subject??null}, ${body_html??null}, ${delay_days!=null?parseInt(delay_days,10):2}, true) RETURNING *`; return res.status(201).json(rows[0]); }
+      catch (err) { if (err.message?.includes('unique')) return res.status(409).json({ error: `Step ${step_number} already exists` }); return res.status(500).json({ error: 'Database error' }); }
+    }
+    if (req.method === 'DELETE') {
+      if (!id) return res.status(400).json({ error: 'id is required' });
+      try { const rows = await sql`DELETE FROM campaign_emails WHERE id=${parseInt(id,10)} RETURNING id`; if (!rows.length) return res.status(404).json({ error: 'Step not found' }); return res.status(200).json({ ok: true }); }
+      catch (err) { return res.status(500).json({ error: 'Database error' }); }
+    }
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   // GET — return all settings as { key: value } map
   if (req.method === 'GET') {
     if (req.query?.resource === 'campaigns') {
