@@ -29,9 +29,12 @@ export default async function handler(req, res) {
 
   if (req.query.action === 'upload') {
     try {
+      const blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.My_PRODUCTION_BLOB_READ_WRITE_TOKEN;
+      if (!blobToken) throw new Error('Blob token not configured');
       const jsonResponse = await handleUpload({
         body: req.body,
         request: req,
+        token: blobToken,
         onBeforeGenerateToken: async (_pathname, clientPayload) => {
           const requestToken = getToken(req);
           if (!verifyToken(requestToken || clientPayload || '')) throw new Error('Unauthorized');
