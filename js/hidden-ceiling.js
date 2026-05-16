@@ -1,5 +1,5 @@
 (function () {
-    const ASSESSMENT_STEPS = [
+    let ASSESSMENT_STEPS = [
         {
             id: 'intro',
             type: 'intro',
@@ -123,6 +123,44 @@
             guideLabel: 'Hidden Ceiling Guide for the Action-Oriented Leader'
         }
     };
+
+    function applyAssessmentConfig(config) {
+        if (!config || typeof config !== 'object') return;
+        const fallbackIntro = ASSESSMENT_STEPS.find(step => step.type === 'intro') || {};
+        const fallbackQuestions = ASSESSMENT_STEPS.filter(step => step.type !== 'intro');
+        const questions = Array.isArray(config.questions) ? config.questions : [];
+
+        ASSESSMENT_STEPS = [
+            {
+                id: 'intro',
+                type: 'intro',
+                eyebrow: config.intro?.eyebrow || fallbackIntro.eyebrow,
+                title: config.intro?.title || fallbackIntro.title,
+                copy: config.intro?.copy || fallbackIntro.copy,
+            },
+            ...fallbackQuestions.map((fallback, index) => {
+                const question = questions[index] || {};
+                const options = Array.isArray(question.options) ? question.options : [];
+                return {
+                    id: fallback.id,
+                    eyebrow: question.eyebrow || fallback.eyebrow,
+                    title: question.title || fallback.title,
+                    options: fallback.options.map((fallbackOption, optionIndex) => ({
+                        title: fallbackOption.title || `Option ${optionIndex + 1}`,
+                        text: options[optionIndex]?.text || fallbackOption.text,
+                    })),
+                };
+            })
+        ];
+    }
+
+    async function loadAssessmentConfig() {
+        try {
+            const response = await fetch('/api/contact?action=config');
+            const data = await response.json().catch(() => ({}));
+            if (response.ok && data.assessment_form) applyAssessmentConfig(data.assessment_form);
+        } catch (_) {}
+    }
 
     const state = {
         stepIndex: 0,
@@ -426,62 +464,68 @@
         await submitAssessment();
     });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const previewCenter = urlParams.get('preview');
-    if (previewCenter && RESULT_META[previewCenter]) {
-        form.hidden = true;
-        resultCard.classList.add('is-visible');
-        
-        // Show loading state in the button
-        const btn = document.getElementById('hc-calendly-btn');
-        if (btn) btn.style.display = 'none';
+    async function initializeAssessment() {
+        await loadAssessmentConfig();
 
-        fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'hidden_ceiling', preview: previewCenter })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                showResult(data);
-            }
-        })
-        .catch(err => console.error('Preview load failed:', err));
-    } else {
-        // Check for saved progress — offer to restore if past the intro step
-        const saved = loadSavedProgress();
-        if (saved && saved.stepIndex > 0) {
-            stepContainer.innerHTML = `
-                <div style="text-align:center;padding:2rem 1rem;">
-                    <p style="font-size:1.05rem;color:var(--color-text-primary);margin:0 0 0.5rem;font-weight:600;">Continue where you left off?</p>
-                    <p style="font-size:0.9rem;color:var(--color-text-secondary);margin:0 0 1.5rem;">You started the assessment earlier. Your answers have been saved.</p>
-                    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-                        <button id="hc-restore-yes" class="hc-btn hc-btn-primary">Continue Assessment</button>
-                        <button id="hc-restore-no" class="hc-btn hc-btn-secondary" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--color-text-secondary);">Start Over</button>
-                    </div>
-                </div>`;
-            nextBtn.hidden = true;
-            document.getElementById('hc-restore-yes').addEventListener('click', () => {
-                Object.assign(state, {
-                    stepIndex: saved.stepIndex,
-                    firstName: saved.firstName || '',
-                    lastName:  saved.lastName  || '',
-                    email:     saved.email     || '',
-                    answers:   { ...state.answers, ...saved.answers }
-                });
-                nextBtn.hidden = false;
-                render();
-            });
-            document.getElementById('hc-restore-no').addEventListener('click', () => {
-                clearProgress();
-                nextBtn.hidden = false;
-                render();
-            });
+        const urlParams = new URLSearchParams(window.location.search);
+        const previewCenter = urlParams.get('preview');
+        if (previewCenter && RESULT_META[previewCenter]) {
+            form.hidden = true;
+            resultCard.classList.add('is-visible');
+            
+            // Show loading state in the button
+            const btn = document.getElementById('hc-calendly-btn');
+            if (btn) btn.style.display = 'none';
+
+            fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'hidden_ceiling', preview: previewCenter })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    showResult(data);
+                }
+            })
+            .catch(err => console.error('Preview load failed:', err));
         } else {
-            render();
+            // Check for saved progress — offer to restore if past the intro step
+            const saved = loadSavedProgress();
+            if (saved && saved.stepIndex > 0) {
+                stepContainer.innerHTML = `
+                    <div style="text-align:center;padding:2rem 1rem;">
+                        <p style="font-size:1.05rem;color:var(--color-text-primary);margin:0 0 0.5rem;font-weight:600;">Continue where you left off?</p>
+                        <p style="font-size:0.9rem;color:var(--color-text-secondary);margin:0 0 1.5rem;">You started the assessment earlier. Your answers have been saved.</p>
+                        <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                            <button id="hc-restore-yes" class="hc-btn hc-btn-primary">Continue Assessment</button>
+                            <button id="hc-restore-no" class="hc-btn hc-btn-secondary" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--color-text-secondary);">Start Over</button>
+                        </div>
+                    </div>`;
+                nextBtn.hidden = true;
+                document.getElementById('hc-restore-yes').addEventListener('click', () => {
+                    Object.assign(state, {
+                        stepIndex: saved.stepIndex,
+                        firstName: saved.firstName || '',
+                        lastName:  saved.lastName  || '',
+                        email:     saved.email     || '',
+                        answers:   { ...state.answers, ...saved.answers }
+                    });
+                    nextBtn.hidden = false;
+                    render();
+                });
+                document.getElementById('hc-restore-no').addEventListener('click', () => {
+                    clearProgress();
+                    nextBtn.hidden = false;
+                    render();
+                });
+            } else {
+                render();
+            }
         }
     }
+
+    initializeAssessment();
 
     function escapeAttr(value) {
         return String(value || '')

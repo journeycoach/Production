@@ -25,6 +25,15 @@
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
     .field-row label { margin: 0; }
+    .assessment-editor-grid { display: grid; gap: 16px; }
+    .assessment-question-card { border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px; background: var(--admin-card-bg-soft); }
+    .assessment-question-head { display: grid; grid-template-columns: minmax(160px, 0.35fr) minmax(280px, 1fr); gap: 14px; margin-bottom: 14px; }
+    .assessment-option-grid { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(130px, 0.22fr); gap: 10px; align-items: end; margin-bottom: 10px; }
+    .assessment-option-grid:last-child { margin-bottom: 0; }
+    @media (max-width: 760px) {
+      .assessment-question-head,
+      .assessment-option-grid { grid-template-columns: 1fr; }
+    }
 
     @media (max-width: 700px) {
       #subTable thead { display: none; }
@@ -151,6 +160,7 @@
         <button type="button" class="page-tab is-active" data-tab="subscribers"       role="tab" aria-selected="true">Subscribers</button>
         <button type="button" class="page-tab"           data-tab="drip-campaigns"    role="tab" aria-selected="false">Drip Campaigns</button>
         <button type="button" class="page-tab"           data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
+        <button type="button" class="page-tab"           data-tab="assessment-form"   role="tab" aria-selected="false">Assessment Form</button>
         <button type="button" class="page-tab"           data-tab="results"           role="tab" aria-selected="false">Result Pages</button>
         <button type="button" class="page-tab"           data-tab="free-guide"        role="tab" aria-selected="false">Free Guide</button>
       </div>
@@ -299,6 +309,48 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- ── Assessment Form tab ─────────────────────────────────────── -->
+      <div class="page-tab-panel" data-panel="assessment-form">
+        <div class="card">
+          <div class="card-title">Hidden Ceiling Assessment Form</div>
+          <div class="guide-box" style="margin-bottom:20px;">
+            <strong>Questions and responses</strong>
+            Edit the intro copy, each assessment question, each response option, and the center each response scores toward.
+            Changes affect the live assessment and future scoring.
+          </div>
+
+          <div class="assessment-question-card" style="margin-bottom:16px;">
+            <div class="field-row">
+              <label>Intro Step</label>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="loadAssessmentFormDefaults()" style="font-size:0.78rem;padding:4px 10px;">Load Defaults</button>
+            </div>
+            <div class="assessment-question-head">
+              <div class="form-group">
+                <label for="assessment_intro_eyebrow">Eyebrow</label>
+                <input type="text" id="assessment_intro_eyebrow" class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="assessment_intro_title">Title</label>
+                <input type="text" id="assessment_intro_title" class="form-control">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="assessment_intro_copy">Intro Copy</label>
+              <textarea id="assessment_intro_copy" class="form-control" rows="3" style="resize:vertical;"></textarea>
+            </div>
+          </div>
+
+          <div id="assessmentQuestionsEditor" class="assessment-editor-grid">
+            <p class="table-empty">Loading assessment form...</p>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn btn-primary" onclick="saveAssessmentFormSettings()">Save Assessment Form</button>
+          <span id="assessment-form-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
+        </div>
       </div>
 
       <!-- ── Assessment Emails tab ───────────────────────────────────── -->
@@ -837,9 +889,90 @@
 </div>`
     };
 
+    const DEFAULT_ASSESSMENT_FORM = {
+      intro: {
+        eyebrow: 'Start Here',
+        title: 'Tell me where to send your guide',
+        copy: 'You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide so you can revisit it later.',
+      },
+      questions: [
+        {
+          id: 'q1',
+          eyebrow: 'Question 1 of 7',
+          title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
+          options: [
+            { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
+            { text: 'I move quickly to take charge and get things back on track.', center: 'action' },
+            { text: 'I worry about how this failure reflects on the team and how others will respond.', center: 'heart' },
+          ],
+        },
+        {
+          id: 'q2',
+          eyebrow: 'Question 2 of 7',
+          title: 'Under pressure, what do others most often need more of from you?',
+          options: [
+            { text: 'Move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
+            { text: 'Be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
+            { text: 'Slow down long enough to consider how decisions are affecting people.', center: 'action' },
+          ],
+        },
+        {
+          id: 'q3',
+          eyebrow: 'Question 3 of 7',
+          title: 'In high-level leadership conversations, where do you naturally contribute most?',
+          options: [
+            { text: 'Systems, long-term implications, and what risks others may be missing.', center: 'head' },
+            { text: 'How people will experience the decision and what it will mean relationally.', center: 'heart' },
+            { text: 'What needs to happen next, who owns it, and how to keep momentum.', center: 'action' },
+          ],
+        },
+        {
+          id: 'q4',
+          eyebrow: 'Question 4 of 7',
+          title: 'When a peer gives you hard feedback, what is your first instinct?',
+          options: [
+            { text: 'Wonder what it means about the relationship or how you are being perceived.', center: 'heart' },
+            { text: 'Step back and assess whether the feedback is accurate and logically sound.', center: 'head' },
+            { text: 'Push back immediately if the feedback feels unfair or unsupported.', center: 'action' },
+          ],
+        },
+        {
+          id: 'q5',
+          eyebrow: 'Question 5 of 7',
+          title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
+          options: [
+            { text: 'Clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
+            { text: 'Awareness of people, tone, and how decisions affect the room.', center: 'heart' },
+            { text: 'Directness, conviction, and the ability to move toward action.', center: 'action' },
+          ],
+        },
+        {
+          id: 'q6',
+          eyebrow: 'Question 6 of 7',
+          title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
+          options: [
+            { text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.', center: 'heart' },
+            { text: 'I enjoy it when it helps me understand patterns, structure, and what is really going on.', center: 'head' },
+            { text: 'I lose patience if it slows decisions down or gets in the way of moving forward.', center: 'action' },
+          ],
+        },
+        {
+          id: 'q7',
+          eyebrow: 'Question 7 of 7',
+          title: 'When the pressure is high, what most naturally guides your leadership decisions?',
+          options: [
+            { text: 'Connection: staying aligned with people, meaning, and shared purpose.', center: 'heart' },
+            { text: 'Truth: understanding what is accurate, objective, and really happening.', center: 'head' },
+            { text: 'Integrity in action: moving with conviction, clarity, and grounded instinct.', center: 'action' },
+          ],
+        },
+      ],
+    };
+
     // ── Tab switching ────────────────────────────────────────────────────────
     let campaignLoaded      = false;
     let emailSettingsLoaded = false;
+    let assessmentFormLoaded = false;
     let deEditorLoaded      = false;
 
     function setDcSubtab(subtab) {
@@ -869,6 +1002,7 @@
       });
       if (tab === 'drip-campaigns'    && !campaignLoaded)      loadCampaign();
       if (tab === 'assessment-emails' && !emailSettingsLoaded)  loadEmailSettings();
+      if (tab === 'assessment-form'   && !assessmentFormLoaded) loadAssessmentFormSettings();
       if (tab === 'results'           && !resultsLoaded)        loadResultSettings();
       if (tab === 'free-guide'        && !freeGuideLoaded)      loadFreeGuideSettings();
     }
@@ -902,6 +1036,139 @@
       btn.addEventListener('click', () => setResultSubtab(btn.dataset.resCenter)));
     document.querySelectorAll('.center-subtab').forEach(btn =>
       btn.addEventListener('click', () => setCenterSubtab(btn.dataset.center)));
+
+    // ── Assessment Form: questions and responses ───────────────────────────
+    function normalizeAssessmentFormConfig(config) {
+      const source = config && typeof config === 'object' ? config : {};
+      const questions = Array.isArray(source.questions) ? source.questions : [];
+      return {
+        intro: {
+          eyebrow: source.intro?.eyebrow || DEFAULT_ASSESSMENT_FORM.intro.eyebrow,
+          title: source.intro?.title || DEFAULT_ASSESSMENT_FORM.intro.title,
+          copy: source.intro?.copy || DEFAULT_ASSESSMENT_FORM.intro.copy,
+        },
+        questions: DEFAULT_ASSESSMENT_FORM.questions.map((fallback, questionIndex) => {
+          const question = questions[questionIndex] || {};
+          const options = Array.isArray(question.options) ? question.options : [];
+          return {
+            id: fallback.id,
+            eyebrow: question.eyebrow || fallback.eyebrow,
+            title: question.title || fallback.title,
+            options: fallback.options.map((fallbackOption, optionIndex) => {
+              const option = options[optionIndex] || {};
+              return {
+                text: option.text || fallbackOption.text,
+                center: ['heart', 'head', 'action'].includes(option.center) ? option.center : fallbackOption.center,
+              };
+            }),
+          };
+        }),
+      };
+    }
+
+    function renderAssessmentFormEditor(config) {
+      const normalized = normalizeAssessmentFormConfig(config);
+      document.getElementById('assessment_intro_eyebrow').value = normalized.intro.eyebrow;
+      document.getElementById('assessment_intro_title').value = normalized.intro.title;
+      document.getElementById('assessment_intro_copy').value = normalized.intro.copy;
+
+      const centerOptions = selected => [
+        ['heart', 'Heart Center'],
+        ['head', 'Head Center'],
+        ['action', 'Gut / Action Center'],
+      ].map(([value, label]) => `<option value="${value}" ${selected === value ? 'selected' : ''}>${label}</option>`).join('');
+
+      document.getElementById('assessmentQuestionsEditor').innerHTML = normalized.questions.map((question, questionIndex) => `
+        <section class="assessment-question-card" data-question-index="${questionIndex}">
+          <div class="field-row">
+            <label style="color:var(--admin-accent);">Question ${questionIndex + 1}</label>
+          </div>
+          <div class="assessment-question-head">
+            <div class="form-group">
+              <label for="assessment_q_${questionIndex}_eyebrow">Eyebrow</label>
+              <input type="text" id="assessment_q_${questionIndex}_eyebrow" class="form-control assessment-question-eyebrow" value="${escHtml(question.eyebrow)}">
+            </div>
+            <div class="form-group">
+              <label for="assessment_q_${questionIndex}_title">Question</label>
+              <textarea id="assessment_q_${questionIndex}_title" class="form-control assessment-question-title" rows="2" style="resize:vertical;">${escHtml(question.title)}</textarea>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <label>Responses</label>
+          </div>
+          ${question.options.map((option, optionIndex) => `
+            <div class="assessment-option-grid" data-option-index="${optionIndex}">
+              <div class="form-group">
+                <label for="assessment_q_${questionIndex}_option_${optionIndex}">Response ${optionIndex + 1}</label>
+                <textarea id="assessment_q_${questionIndex}_option_${optionIndex}" class="form-control assessment-option-text" rows="2" style="resize:vertical;">${escHtml(option.text)}</textarea>
+              </div>
+              <div class="form-group">
+                <label for="assessment_q_${questionIndex}_center_${optionIndex}">Scores Toward</label>
+                <select id="assessment_q_${questionIndex}_center_${optionIndex}" class="form-control assessment-option-center">
+                  ${centerOptions(option.center)}
+                </select>
+              </div>
+            </div>
+          `).join('')}
+        </section>
+      `).join('');
+    }
+
+    function collectAssessmentFormConfig() {
+      const questions = Array.from(document.querySelectorAll('#assessmentQuestionsEditor .assessment-question-card')).map((card, questionIndex) => ({
+        id: DEFAULT_ASSESSMENT_FORM.questions[questionIndex]?.id || `q${questionIndex + 1}`,
+        eyebrow: card.querySelector('.assessment-question-eyebrow')?.value.trim() || '',
+        title: card.querySelector('.assessment-question-title')?.value.trim() || '',
+        options: Array.from(card.querySelectorAll('.assessment-option-grid')).map(optionRow => ({
+          text: optionRow.querySelector('.assessment-option-text')?.value.trim() || '',
+          center: optionRow.querySelector('.assessment-option-center')?.value || 'heart',
+        })),
+      }));
+
+      return {
+        intro: {
+          eyebrow: document.getElementById('assessment_intro_eyebrow')?.value.trim() || '',
+          title: document.getElementById('assessment_intro_title')?.value.trim() || '',
+          copy: document.getElementById('assessment_intro_copy')?.value.trim() || '',
+        },
+        questions,
+      };
+    }
+
+    function loadAssessmentFormDefaults() {
+      renderAssessmentFormEditor(DEFAULT_ASSESSMENT_FORM);
+    }
+
+    async function loadAssessmentFormSettings() {
+      try {
+        const res = await adminFetch('/api/admin/settings');
+        const data = await res.json().catch(() => ({}));
+        const raw = data.data?.assessment_form_config;
+        const config = raw ? JSON.parse(raw) : DEFAULT_ASSESSMENT_FORM;
+        renderAssessmentFormEditor(config);
+        assessmentFormLoaded = true;
+      } catch (err) {
+        document.getElementById('assessmentQuestionsEditor').innerHTML = `<p class="table-empty" style="color:#e05c5c;">Could not load assessment form: ${escHtml(err.message)}</p>`;
+      }
+    }
+
+    async function saveAssessmentFormSettings() {
+      const status = document.getElementById('assessment-form-save-status');
+      const config = normalizeAssessmentFormConfig(collectAssessmentFormConfig());
+      status.textContent = 'Saving...';
+      const res = await adminFetch('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ assessment_form_config: JSON.stringify(config) }),
+      });
+      if (res.ok) {
+        showFlash('Assessment form saved.');
+        status.textContent = 'Saved ✓';
+        setTimeout(() => status.textContent = '', 3000);
+      } else {
+        showFlash('Error saving assessment form.', 'error');
+        status.textContent = '';
+      }
+    }
 
     // Deep-link: ?tab=drip-campaigns etc.
     const urlTab = new URLSearchParams(window.location.search).get('tab');

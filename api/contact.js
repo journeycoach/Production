@@ -37,6 +37,132 @@ async function getEmailSettings(keys) {
   }
 }
 
+const DEFAULT_ASSESSMENT_FORM = {
+  intro: {
+    eyebrow: 'Start Here',
+    title: 'Tell me where to send your guide',
+    copy: 'You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide so you can revisit it later.',
+  },
+  questions: [
+    {
+      id: 'q1',
+      eyebrow: 'Question 1 of 7',
+      title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
+      options: [
+        { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
+        { text: 'I move quickly to take charge and get things back on track.', center: 'action' },
+        { text: 'I worry about how this failure reflects on the team and how others will respond.', center: 'heart' },
+      ],
+    },
+    {
+      id: 'q2',
+      eyebrow: 'Question 2 of 7',
+      title: 'Under pressure, what do others most often need more of from you?',
+      options: [
+        { text: 'Move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
+        { text: 'Be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
+        { text: 'Slow down long enough to consider how decisions are affecting people.', center: 'action' },
+      ],
+    },
+    {
+      id: 'q3',
+      eyebrow: 'Question 3 of 7',
+      title: 'In high-level leadership conversations, where do you naturally contribute most?',
+      options: [
+        { text: 'Systems, long-term implications, and what risks others may be missing.', center: 'head' },
+        { text: 'How people will experience the decision and what it will mean relationally.', center: 'heart' },
+        { text: 'What needs to happen next, who owns it, and how to keep momentum.', center: 'action' },
+      ],
+    },
+    {
+      id: 'q4',
+      eyebrow: 'Question 4 of 7',
+      title: 'When a peer gives you hard feedback, what is your first instinct?',
+      options: [
+        { text: 'Wonder what it means about the relationship or how you are being perceived.', center: 'heart' },
+        { text: 'Step back and assess whether the feedback is accurate and logically sound.', center: 'head' },
+        { text: 'Push back immediately if the feedback feels unfair or unsupported.', center: 'action' },
+      ],
+    },
+    {
+      id: 'q5',
+      eyebrow: 'Question 5 of 7',
+      title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
+      options: [
+        { text: 'Clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
+        { text: 'Awareness of people, tone, and how decisions affect the room.', center: 'heart' },
+        { text: 'Directness, conviction, and the ability to move toward action.', center: 'action' },
+      ],
+    },
+    {
+      id: 'q6',
+      eyebrow: 'Question 6 of 7',
+      title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
+      options: [
+        { text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.', center: 'heart' },
+        { text: 'I enjoy it when it helps me understand patterns, structure, and what is really going on.', center: 'head' },
+        { text: 'I lose patience if it slows decisions down or gets in the way of moving forward.', center: 'action' },
+      ],
+    },
+    {
+      id: 'q7',
+      eyebrow: 'Question 7 of 7',
+      title: 'When the pressure is high, what most naturally guides your leadership decisions?',
+      options: [
+        { text: 'Connection: staying aligned with people, meaning, and shared purpose.', center: 'heart' },
+        { text: 'Truth: understanding what is accurate, objective, and really happening.', center: 'head' },
+        { text: 'Integrity in action: moving with conviction, clarity, and grounded instinct.', center: 'action' },
+      ],
+    },
+  ],
+};
+
+function sanitizeAssessmentFormConfig(config) {
+  const incoming = config && typeof config === 'object' ? config : {};
+  const defaultQuestions = DEFAULT_ASSESSMENT_FORM.questions;
+  const incomingQuestions = Array.isArray(incoming.questions) ? incoming.questions : [];
+
+  return {
+    intro: {
+      eyebrow: cleanText(incoming.intro?.eyebrow || DEFAULT_ASSESSMENT_FORM.intro.eyebrow, 80),
+      title: cleanText(incoming.intro?.title || DEFAULT_ASSESSMENT_FORM.intro.title, 180),
+      copy: cleanText(incoming.intro?.copy || DEFAULT_ASSESSMENT_FORM.intro.copy, 600),
+    },
+    questions: defaultQuestions.map((fallback, index) => {
+      const question = incomingQuestions[index] && typeof incomingQuestions[index] === 'object'
+        ? incomingQuestions[index]
+        : {};
+      const incomingOptions = Array.isArray(question.options) ? question.options : [];
+      return {
+        id: fallback.id,
+        eyebrow: cleanText(question.eyebrow || fallback.eyebrow, 80),
+        title: cleanText(question.title || fallback.title, 400),
+        options: fallback.options.map((fallbackOption, optionIndex) => {
+          const option = incomingOptions[optionIndex] && typeof incomingOptions[optionIndex] === 'object'
+            ? incomingOptions[optionIndex]
+            : {};
+          const center = ['heart', 'head', 'action'].includes(option.center) ? option.center : fallbackOption.center;
+          return {
+            text: cleanText(option.text || fallbackOption.text, 500),
+            center,
+          };
+        }),
+      };
+    }),
+  };
+}
+
+async function getAssessmentFormConfig() {
+  try {
+    const settings = await getEmailSettings(['assessment_form_config']);
+    if (!settings.assessment_form_config) return DEFAULT_ASSESSMENT_FORM;
+    return sanitizeAssessmentFormConfig(JSON.parse(settings.assessment_form_config));
+  } catch (err) {
+    console.error('assessment config error:', err);
+    return DEFAULT_ASSESSMENT_FORM;
+  }
+}
+
 // Helper: replace {{placeholder}} with value
 function interpolateEmail(template, placeholder, value) {
   return template.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
@@ -315,19 +441,16 @@ async function handleHiddenCeiling(req, res) {
     return res.status(429).json({ error: limit.error });
   }
 
-  // Score: each question maps answer index → center
-  const SCORE_MAP = {
-    q1: ['head', 'action', 'heart'],
-    q2: ['head', 'heart', 'action'],
-    q3: ['head', 'heart', 'action'],
-    q4: ['heart', 'head', 'action'],
-    q5: ['head', 'heart', 'action'],
-    q6: ['heart', 'head', 'action'],
-    q7: ['heart', 'head', 'action'],
-  };
+  const assessmentForm = await getAssessmentFormConfig();
+  const scoreMap = Object.fromEntries(
+    assessmentForm.questions.map(question => [
+      question.id,
+      question.options.map(option => option.center),
+    ])
+  );
 
   const scores = { heart: 0, head: 0, action: 0 };
-  for (const [qId, centers] of Object.entries(SCORE_MAP)) {
+  for (const [qId, centers] of Object.entries(scoreMap)) {
     const idx = answers[qId];
     if (idx !== null && idx !== undefined && centers[idx]) {
       scores[centers[idx]]++;
@@ -655,7 +778,10 @@ export default async function handler(req, res) {
     }
     // Public config endpoint — exposes safe public values (no secrets)
     if (req.method === 'GET' && req.query?.action === 'config') {
-      return res.status(200).json({ calendly_url: process.env.CALENDLY_URL || null });
+      return res.status(200).json({
+        calendly_url: process.env.CALENDLY_URL || null,
+        assessment_form: await getAssessmentFormConfig(),
+      });
     }
 
     // Only allow POST
