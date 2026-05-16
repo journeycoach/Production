@@ -6,7 +6,7 @@ import { runMigrations } from './_migrate.js';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const BLENDED_HEAD_HEART_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_heart_action_leader-9BI5nB03jV1HMPNpRcZ5tko5HtP90O.pdf';
+const BLENDED_HEAD_HEART_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_head_heart_leader-2brzSPbUNrrU6V1du7rVfPcH2uTLsc.pdf';
 const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_head_action_leader-fsczgZsPkpuLeDfxYdYW0It1Y6yTrv.pdf';
 const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action'];
 
