@@ -7,7 +7,8 @@ import { runMigrations } from './_migrate.js';
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const BLENDED_HEAD_HEART_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_heart_action_leader-9BI5nB03jV1HMPNpRcZ5tko5HtP90O.pdf';
-const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart'];
+const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_head_action_leader-fsczgZsPkpuLeDfxYdYW0It1Y6yTrv.pdf';
+const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action'];
 
 // Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.
 async function verifyCaptcha(token) {
@@ -212,6 +213,7 @@ function isValidUnsubscribeToken(subscriberId, token) {
 
 function determineAssessmentCenter(scores) {
   if (scores.head === scores.heart && scores.head > scores.action) return 'head_heart';
+  if (scores.head === scores.action && scores.head > scores.heart) return 'head_action';
   return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
 }
 
@@ -1040,6 +1042,20 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
       ],
       guideUrl: BLENDED_HEAD_HEART_GUIDE_URL,
       guideLabel: 'Download Your Guide: The Blended Head-Heart Leader',
+    },
+    head_action: {
+      centerLabel: 'Head + Action Blend',
+      title: 'You lead like a Thinking-Action Blended Leader',
+      summary: 'Your responses point to a leadership pattern that moves between careful analysis and decisive forward motion.',
+      description: 'You likely see structure, risk, and next steps quickly. That blend can help you make sense of complexity while still moving people and work toward practical outcomes.',
+      blindspot: 'Under pressure, this blend can become a cycle of tightening control: think harder, move faster, and leave less room for the human signals that would help the decision land.',
+      nextSteps: [
+        'Notice when the need for certainty is pairing with urgency.',
+        'Separate the next responsible action from the impulse to force resolution.',
+        'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.',
+      ],
+      guideUrl: BLENDED_HEAD_ACTION_GUIDE_URL,
+      guideLabel: 'Download Your Guide: The Blended Head-Action Leader',
     },
   };
 
