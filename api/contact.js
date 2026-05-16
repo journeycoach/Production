@@ -6,6 +6,8 @@ import { runMigrations } from './_migrate.js';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const BLENDED_HEAD_HEART_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_heart_action_leader-9BI5nB03jV1HMPNpRcZ5tko5HtP90O.pdf';
+const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart'];
 
 // Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.
 async function verifyCaptcha(token) {
@@ -208,6 +210,11 @@ function isValidUnsubscribeToken(subscriberId, token) {
   }
 }
 
+function determineAssessmentCenter(scores) {
+  if (scores.head === scores.heart && scores.head > scores.action) return 'head_heart';
+  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+}
+
 // Helper: append unsubscribe footer to drip email HTML
 function withUnsubscribeFooter(html, subscriberId) {
   const token = unsubscribeToken(subscriberId);
@@ -394,7 +401,7 @@ async function handleHiddenCeiling(req, res) {
   const { name, email, company, source, answers, attribution, preview, 'cf-turnstile-response': turnstileToken } = req.body || {};
   const attr = normalizeAttribution(attribution);
 
-  if (preview && ['head', 'heart', 'action'].includes(preview)) {
+  if (preview && RESULT_CENTER_KEYS.includes(preview)) {
       const center = preview;
       const result = { center };
       const scores = { heart: 0, head: 0, action: 0 };
@@ -457,7 +464,7 @@ async function handleHiddenCeiling(req, res) {
     }
   }
 
-  const center = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const center = determineAssessmentCenter(scores);
   const result = { center };
 
   // Save to subscribers with assessment result (best-effort)
@@ -1019,6 +1026,20 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
       ],
       guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
       guideLabel: 'Download Your Guide: The Action-Oriented Leader',
+    },
+    head_heart: {
+      centerLabel: 'Head + Heart Blend',
+      title: 'You lead like a Thinking-Connection Blended Leader',
+      summary: 'Your responses point to a leadership pattern that moves between careful understanding and relational attunement.',
+      description: 'You likely notice both the logic of a situation and the way people are experiencing it. That blend can help you see risks, patterns, trust dynamics, and alignment needs at the same time.',
+      blindspot: 'Under pressure, this blend can become a loop between analyzing what is true and managing how people will feel. The ceiling appears when clarity and connection both matter, but neither fully moves into action.',
+      nextSteps: [
+        'Notice when gathering more perspective is becoming a way to delay the next move.',
+        'Name both the truth of the situation and the relational impact it is creating.',
+        'Use the guide to see where thinking and connection can work together without slowing your leadership.',
+      ],
+      guideUrl: BLENDED_HEAD_HEART_GUIDE_URL,
+      guideLabel: 'Download Your Guide: The Blended Head-Heart Leader',
     },
   };
 

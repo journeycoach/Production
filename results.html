@@ -94,6 +94,7 @@
     <script src="js/nav.js" defer></script>
     <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+    const BLENDED_HEAD_HEART_GUIDE_URL = 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_heart_action_leader-9BI5nB03jV1HMPNpRcZ5tko5HtP90O.pdf';
 
     const RESULT_META = {
         heart: {
@@ -137,8 +138,26 @@
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
             guideLabel: 'Hidden Ceiling Guide for the Action-Oriented Leader'
+        },
+        head_heart: {
+            centerLabel: 'Head + Heart Blend',
+            title: 'You lead like a Thinking-Connection Blended Leader',
+            summary: 'Your responses point to a leadership pattern that moves between careful understanding and relational attunement.',
+            description: 'You likely notice both the logic of a situation and the way people are experiencing it. That blend can help you see risks, patterns, trust dynamics, and alignment needs at the same time.',
+            blindspot: 'Under pressure, this blend can become a loop between analyzing what is true and managing how people will feel. The ceiling appears when clarity and connection both matter, but neither fully moves into action.',
+            nextSteps: [
+                'Notice when gathering more perspective is becoming a way to delay the next move.',
+                'Name both the truth of the situation and the relational impact it is creating.',
+                'Use the guide to see where thinking and connection can work together without slowing your leadership.'
+            ],
+            guideUrl: BLENDED_HEAD_HEART_GUIDE_URL,
+            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Heart Leader'
         }
     };
+
+    function isPrimaryScore(center, key) {
+        return center === key || center.split('_').includes(key);
+    }
 
     (async function init() {
         const params = new URLSearchParams(window.location.search);
@@ -200,7 +219,7 @@
 
             <div class="score-grid">
                 ${scores.map(s => `
-                    <div class="score-card ${s.key === center ? 'is-primary' : ''}">
+                    <div class="score-card ${isPrimaryScore(center, s.key) ? 'is-primary' : ''}">
                         <strong>${s.label}</strong>
                         <span>${s.value}</span>
                     </div>`).join('')}
