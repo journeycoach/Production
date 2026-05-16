@@ -223,8 +223,29 @@
                 padding: 0.8rem 1.75rem;
             }
             #hc-float-btn:hover { transform: translateX(50%) translateY(-2px); }
+            #hc-float-btn.hc-hidden {
+                opacity: 0;
+                pointer-events: none;
+                transform: translateX(50%) translateY(12px);
+            }
         }
     </style>
+    <script>
+        (function () {
+            if (window.innerWidth > 640) return;
+            var btn = document.getElementById('hc-float-btn');
+            var scrolled = false;
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 80 && !scrolled) {
+                    btn.classList.add('hc-hidden');
+                    scrolled = true;
+                } else if (window.scrollY <= 80 && scrolled) {
+                    btn.classList.remove('hc-hidden');
+                    scrolled = false;
+                }
+            }, { passive: true });
+        })();
+    </script>
 
     <!-- Page Loader -->
     <div class="loader-wrapper">
