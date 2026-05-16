@@ -25,14 +25,38 @@
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
     .field-row label { margin: 0; }
-    .assessment-editor-grid { display: grid; gap: 16px; }
-    .assessment-question-card { border: 1px solid var(--admin-border); border-radius: 8px; padding: 18px; background: var(--admin-card-bg-soft); }
+    .assessment-editor-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; flex-wrap: wrap; }
+    .assessment-editor-copy { max-width: 760px; }
+    .assessment-editor-copy .card-title { margin-bottom: 8px; }
+    .assessment-editor-copy p { margin: 0; color: var(--admin-muted); font-size: 0.9rem; line-height: 1.6; }
+    .assessment-score-key { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .assessment-score-pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--admin-border); border-radius: 999px; padding: 7px 11px; background: #fff; font-size: 0.78rem; font-weight: 700; color: var(--admin-text); box-shadow: var(--admin-shadow-sm); }
+    .assessment-score-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .assessment-score-dot.heart { background: #c7a96b; }
+    .assessment-score-dot.head { background: #7b9eb8; }
+    .assessment-score-dot.action { background: #8faa82; }
+    .assessment-editor-grid { display: grid; gap: 18px; }
+    .assessment-question-card { border: 1px solid var(--admin-border); border-radius: 10px; padding: 0; background: #fff; box-shadow: var(--admin-shadow-sm); overflow: hidden; }
+    .assessment-card-body { padding: 18px; }
+    .assessment-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; background: #f7f9fb; border-bottom: 1px solid var(--admin-border); }
+    .assessment-question-titleline { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .assessment-question-number { width: 34px; height: 34px; border-radius: 50%; background: #152233; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 800; flex: 0 0 auto; }
+    .assessment-question-heading { min-width: 0; }
+    .assessment-question-heading strong { display: block; color: var(--admin-text); font-size: 0.94rem; line-height: 1.3; }
+    .assessment-question-heading span { display: block; color: var(--admin-muted); font-size: 0.75rem; margin-top: 2px; }
     .assessment-question-head { display: grid; grid-template-columns: minmax(160px, 0.35fr) minmax(280px, 1fr); gap: 14px; margin-bottom: 14px; }
-    .assessment-option-grid { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(130px, 0.22fr); gap: 10px; align-items: end; margin-bottom: 10px; }
+    .assessment-responses-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 18px 0 10px; color: var(--admin-muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .assessment-response-list { display: grid; gap: 10px; }
+    .assessment-option-grid { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(150px, 0.24fr); gap: 12px; align-items: end; margin-bottom: 0; padding: 12px; background: #f9fafb; border: 1px solid var(--admin-border); border-radius: 8px; }
+    .assessment-option-label { display: inline-flex; align-items: center; gap: 8px; }
+    .assessment-option-letter { width: 22px; height: 22px; border-radius: 999px; background: #e9edf2; color: #243040; display: inline-flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; }
     .assessment-option-grid:last-child { margin-bottom: 0; }
     @media (max-width: 760px) {
       .assessment-question-head,
       .assessment-option-grid { grid-template-columns: 1fr; }
+      .assessment-editor-header { display: block; }
+      .assessment-score-key { justify-content: flex-start; margin-top: 14px; }
+      .assessment-card-header { align-items: flex-start; }
     }
 
     @media (max-width: 700px) {
@@ -317,31 +341,44 @@
       <!-- ── Assessment Form tab ─────────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="assessment-form">
         <div class="card">
-          <div class="card-title">Hidden Ceiling Assessment Form</div>
-          <div class="guide-box" style="margin-bottom:20px;">
-            <strong>Questions and responses</strong>
-            Edit the intro copy, each assessment question, each response option, and the center each response scores toward.
-            Changes affect the live assessment and future scoring.
+          <div class="assessment-editor-header">
+            <div class="assessment-editor-copy">
+              <div class="card-title">Hidden Ceiling Assessment Form</div>
+              <p>Edit the intro copy, each assessment question, each response option, and the center each response scores toward. Changes affect the live assessment and future scoring.</p>
+            </div>
+            <div class="assessment-score-key" aria-label="Assessment scoring key">
+              <span class="assessment-score-pill"><span class="assessment-score-dot heart"></span>Heart</span>
+              <span class="assessment-score-pill"><span class="assessment-score-dot head"></span>Head</span>
+              <span class="assessment-score-pill"><span class="assessment-score-dot action"></span>Gut / Action</span>
+            </div>
           </div>
 
           <div class="assessment-question-card" style="margin-bottom:16px;">
-            <div class="field-row">
-              <label>Intro Step</label>
+            <div class="assessment-card-header">
+              <div class="assessment-question-titleline">
+                <span class="assessment-question-number">0</span>
+                <div class="assessment-question-heading">
+                  <strong>Intro Step</strong>
+                  <span>Capture the visitor's name and email before the assessment begins.</span>
+                </div>
+              </div>
               <button type="button" class="btn btn-ghost btn-sm" onclick="loadAssessmentFormDefaults()" style="font-size:0.78rem;padding:4px 10px;">Load Defaults</button>
             </div>
-            <div class="assessment-question-head">
-              <div class="form-group">
-                <label for="assessment_intro_eyebrow">Eyebrow</label>
-                <input type="text" id="assessment_intro_eyebrow" class="form-control">
+            <div class="assessment-card-body">
+              <div class="assessment-question-head">
+                <div class="form-group">
+                  <label for="assessment_intro_eyebrow">Eyebrow</label>
+                  <input type="text" id="assessment_intro_eyebrow" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label for="assessment_intro_title">Title</label>
+                  <input type="text" id="assessment_intro_title" class="form-control">
+                </div>
               </div>
               <div class="form-group">
-                <label for="assessment_intro_title">Title</label>
-                <input type="text" id="assessment_intro_title" class="form-control">
+                <label for="assessment_intro_copy">Intro Copy</label>
+                <textarea id="assessment_intro_copy" class="form-control" rows="3" style="resize:vertical;"></textarea>
               </div>
-            </div>
-            <div class="form-group">
-              <label for="assessment_intro_copy">Intro Copy</label>
-              <textarea id="assessment_intro_copy" class="form-control" rows="3" style="resize:vertical;"></textarea>
             </div>
           </div>
 
@@ -1170,6 +1207,7 @@
       document.getElementById('assessment_intro_eyebrow').value = normalized.intro.eyebrow;
       document.getElementById('assessment_intro_title').value = normalized.intro.title;
       document.getElementById('assessment_intro_copy').value = normalized.intro.copy;
+      const optionLetters = ['A', 'B', 'C'];
 
       const centerOptions = selected => [
         ['heart', 'Heart Center'],
@@ -1179,36 +1217,50 @@
 
       document.getElementById('assessmentQuestionsEditor').innerHTML = normalized.questions.map((question, questionIndex) => `
         <section class="assessment-question-card" data-question-index="${questionIndex}">
-          <div class="field-row">
-            <label style="color:var(--admin-accent);">Question ${questionIndex + 1}</label>
-          </div>
-          <div class="assessment-question-head">
-            <div class="form-group">
-              <label for="assessment_q_${questionIndex}_eyebrow">Eyebrow</label>
-              <input type="text" id="assessment_q_${questionIndex}_eyebrow" class="form-control assessment-question-eyebrow" value="${escHtml(question.eyebrow)}">
-            </div>
-            <div class="form-group">
-              <label for="assessment_q_${questionIndex}_title">Question</label>
-              <textarea id="assessment_q_${questionIndex}_title" class="form-control assessment-question-title" rows="2" style="resize:vertical;">${escHtml(question.title)}</textarea>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <label>Responses</label>
-          </div>
-          ${question.options.map((option, optionIndex) => `
-            <div class="assessment-option-grid" data-option-index="${optionIndex}">
-              <div class="form-group">
-                <label for="assessment_q_${questionIndex}_option_${optionIndex}">Response ${optionIndex + 1}</label>
-                <textarea id="assessment_q_${questionIndex}_option_${optionIndex}" class="form-control assessment-option-text" rows="2" style="resize:vertical;">${escHtml(option.text)}</textarea>
-              </div>
-              <div class="form-group">
-                <label for="assessment_q_${questionIndex}_center_${optionIndex}">Scores Toward</label>
-                <select id="assessment_q_${questionIndex}_center_${optionIndex}" class="form-control assessment-option-center">
-                  ${centerOptions(option.center)}
-                </select>
+          <div class="assessment-card-header">
+            <div class="assessment-question-titleline">
+              <span class="assessment-question-number">${questionIndex + 1}</span>
+              <div class="assessment-question-heading">
+                <strong>${escHtml(question.title || `Question ${questionIndex + 1}`)}</strong>
+                <span>${escHtml(question.eyebrow || 'Assessment question')}</span>
               </div>
             </div>
-          `).join('')}
+          </div>
+          <div class="assessment-card-body">
+            <div class="assessment-question-head">
+              <div class="form-group">
+                <label for="assessment_q_${questionIndex}_eyebrow">Eyebrow</label>
+                <input type="text" id="assessment_q_${questionIndex}_eyebrow" class="form-control assessment-question-eyebrow" value="${escHtml(question.eyebrow)}">
+              </div>
+              <div class="form-group">
+                <label for="assessment_q_${questionIndex}_title">Question</label>
+                <textarea id="assessment_q_${questionIndex}_title" class="form-control assessment-question-title" rows="2" style="resize:vertical;">${escHtml(question.title)}</textarea>
+              </div>
+            </div>
+            <div class="assessment-responses-title">
+              <span>Responses</span>
+              <span>Each response adds 1 point to its selected center</span>
+            </div>
+            <div class="assessment-response-list">
+              ${question.options.map((option, optionIndex) => `
+                <div class="assessment-option-grid" data-option-index="${optionIndex}">
+                  <div class="form-group">
+                    <label for="assessment_q_${questionIndex}_option_${optionIndex}" class="assessment-option-label">
+                      <span class="assessment-option-letter">${optionLetters[optionIndex] || optionIndex + 1}</span>
+                      Response ${optionIndex + 1}
+                    </label>
+                    <textarea id="assessment_q_${questionIndex}_option_${optionIndex}" class="form-control assessment-option-text" rows="2" style="resize:vertical;">${escHtml(option.text)}</textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="assessment_q_${questionIndex}_center_${optionIndex}">Scores Toward</label>
+                    <select id="assessment_q_${questionIndex}_center_${optionIndex}" class="form-control assessment-option-center">
+                      ${centerOptions(option.center)}
+                    </select>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
         </section>
       `).join('');
     }
