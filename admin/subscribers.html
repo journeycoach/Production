@@ -151,26 +151,26 @@
     /* ── Assessment Editor ───────────────────────────────────────────── */
     .ae-editor-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
 
-    .ae-question { border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-card-bg); overflow: hidden; }
+    .ae-question { border: 1px solid #dde2e8; border-radius: 8px; background: #fff; overflow: hidden; }
     .ae-q-summary { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; list-style: none; user-select: none; transition: background 0.15s; }
     .ae-q-summary::-webkit-details-marker { display: none; }
-    .ae-q-summary:hover { background: color-mix(in srgb, var(--admin-accent) 6%, var(--admin-card-bg)); }
-    .ae-question[open] > .ae-q-summary { border-bottom: 1px solid var(--admin-border); background: color-mix(in srgb, var(--admin-accent) 6%, var(--admin-card-bg)); }
-    .ae-q-num { width: 26px; height: 26px; border-radius: 50%; background: var(--admin-accent); color: var(--admin-bg); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .ae-q-text { flex: 1; font-size: 0.875rem; color: var(--admin-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ae-q-chevron { font-size: 0.65rem; color: var(--admin-muted); transition: transform 0.2s; flex-shrink: 0; }
+    .ae-q-summary:hover { background: #f5f7fa; }
+    .ae-question[open] > .ae-q-summary { border-bottom: 1px solid #dde2e8; background: #f5f7fa; }
+    .ae-q-num { width: 26px; height: 26px; border-radius: 50%; background: var(--admin-accent); color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ae-q-text { flex: 1; font-size: 0.875rem; color: #2d3748; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ae-q-chevron { font-size: 0.65rem; color: #8a95a3; transition: transform 0.2s; flex-shrink: 0; }
     .ae-question[open] .ae-q-chevron { transform: rotate(180deg); }
 
-    .ae-q-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .ae-q-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; background: #fff; }
 
     .ae-responses { display: flex; flex-direction: column; gap: 10px; }
     .ae-response { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; }
-    .ae-opt-ltr { width: 22px; height: 22px; margin-top: 9px; border-radius: 4px; background: var(--admin-border); color: var(--admin-muted); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ae-opt-ltr { width: 22px; height: 22px; margin-top: 9px; border-radius: 4px; background: #e2e8f0; color: #64748b; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .ae-centers { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; }
     .ae-center-pill { display: flex; cursor: pointer; }
     .ae-center-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .ae-center-pill span { font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--cc, #888) 25%, transparent); color: color-mix(in srgb, var(--cc, #888) 70%, var(--admin-muted)); transition: background 0.15s, color 0.15s; white-space: nowrap; }
-    .ae-center-pill input:checked + span { background: color-mix(in srgb, var(--cc, #888) 15%, var(--admin-card-bg)); color: var(--cc, #888); border-color: var(--cc, #888); }
+    .ae-center-pill span { font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--cc, #888) 25%, transparent); color: color-mix(in srgb, var(--cc, #888) 70%, #64748b); transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .ae-center-pill input:checked + span { background: color-mix(in srgb, var(--cc, #888) 12%, #fff); color: var(--cc, #888); border-color: var(--cc, #888); }
     .ae-center-pill:hover span { border-color: color-mix(in srgb, var(--cc, #888) 55%, transparent); }
     @media (max-width: 680px) { .ae-response { grid-template-columns: 22px 1fr; } .ae-centers { grid-column: 2; flex-direction: row; flex-wrap: wrap; padding-top: 0; } }
   </style>
