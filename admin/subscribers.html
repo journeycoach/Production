@@ -469,6 +469,9 @@
             <button type="button" class="res-subtab is-active" data-res-center="heart"  role="tab" aria-selected="true">Heart Center</button>
             <button type="button" class="res-subtab"           data-res-center="head"   role="tab" aria-selected="false">Head Center</button>
             <button type="button" class="res-subtab"           data-res-center="action" role="tab" aria-selected="false">Gut Center</button>
+            <button type="button" class="res-subtab"           data-res-center="head_heart" role="tab" aria-selected="false">Head + Heart</button>
+            <button type="button" class="res-subtab"           data-res-center="head_action" role="tab" aria-selected="false">Head + Action</button>
+            <button type="button" class="res-subtab"           data-res-center="heart_action" role="tab" aria-selected="false">Heart + Action</button>
           </div>
 
           <!-- Heart -->
@@ -556,6 +559,99 @@
               <button type="button" class="btn btn-secondary btn-sm" onclick="window.open('/Hidden-Ceiling.html?preview=action', '_blank')" style="margin-left:8px;">Open Live Preview</button>
             </div>
             <div class="email-preview-panel" id="emailPreview_result_action">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
+          </div>
+
+          <!-- Head + Heart -->
+          <div class="res-subtab-panel" data-res-center-panel="head_heart">
+            <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head + Heart Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head_heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_head_heart_label">Center Label</label><input type="text" id="hc_result_head_heart_label" class="form-control" placeholder="Head + Heart Blend"></div>
+              <div class="form-group"><label for="hc_result_head_heart_title">Title</label><input type="text" id="hc_result_head_heart_title" class="form-control" placeholder="You lead like a Thinking-Connection Blended Leader"></div>
+            </div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_head_heart_summary">Opening Summary</label><textarea id="hc_result_head_heart_summary" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+              <div class="form-group"><label for="hc_result_head_heart_description">What This Says About You</label><textarea id="hc_result_head_heart_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_heart_blindspot">Watch for This Pattern</label><textarea id="hc_result_head_heart_blindspot" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:8px;"><label>Start Here This Week <span style="color:var(--admin-muted);font-weight:400;">(3 bullet points)</span></label></div>
+            <div class="result-grid-3">
+              <textarea id="hc_result_head_heart_step1" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 1..."></textarea>
+              <textarea id="hc_result_head_heart_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2..."></textarea>
+              <textarea id="hc_result_head_heart_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3..."></textarea>
+            </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_head_heart" onclick="toggleResultPreview('head_heart')">&#9654; Preview Result Page</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="window.open('/results.html?center=head_heart&name=Preview&sh=3&sd=3&sa=1', '_blank')" style="margin-left:8px;">Open Live Preview</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_head_heart">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
+          </div>
+
+          <!-- Head + Action -->
+          <div class="res-subtab-panel" data-res-center-panel="head_action">
+            <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head + Action Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_head_action_label">Center Label</label><input type="text" id="hc_result_head_action_label" class="form-control" placeholder="Head + Action Blend"></div>
+              <div class="form-group"><label for="hc_result_head_action_title">Title</label><input type="text" id="hc_result_head_action_title" class="form-control" placeholder="You lead like a Thinking-Action Blended Leader"></div>
+            </div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_head_action_summary">Opening Summary</label><textarea id="hc_result_head_action_summary" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+              <div class="form-group"><label for="hc_result_head_action_description">What This Says About You</label><textarea id="hc_result_head_action_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_head_action_blindspot">Watch for This Pattern</label><textarea id="hc_result_head_action_blindspot" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:8px;"><label>Start Here This Week <span style="color:var(--admin-muted);font-weight:400;">(3 bullet points)</span></label></div>
+            <div class="result-grid-3">
+              <textarea id="hc_result_head_action_step1" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 1..."></textarea>
+              <textarea id="hc_result_head_action_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2..."></textarea>
+              <textarea id="hc_result_head_action_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3..."></textarea>
+            </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_head_action" onclick="toggleResultPreview('head_action')">&#9654; Preview Result Page</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="window.open('/results.html?center=head_action&name=Preview&sh=3&sd=1&sa=3', '_blank')" style="margin-left:8px;">Open Live Preview</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_head_action">
+              <div class="email-preview-header">
+                <span><span class="preview-live-dot"></span>Result Page Preview</span>
+                <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
+              </div>
+              <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
+          </div>
+
+          <!-- Heart + Action -->
+          <div class="res-subtab-panel" data-res-center-panel="heart_action">
+            <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Heart + Action Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('heart_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_heart_action_label">Center Label</label><input type="text" id="hc_result_heart_action_label" class="form-control" placeholder="Heart + Action Blend"></div>
+              <div class="form-group"><label for="hc_result_heart_action_title">Title</label><input type="text" id="hc_result_heart_action_title" class="form-control" placeholder="You lead like a Connection-Action Blended Leader"></div>
+            </div>
+            <div class="result-grid-2">
+              <div class="form-group"><label for="hc_result_heart_action_summary">Opening Summary</label><textarea id="hc_result_heart_action_summary" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+              <div class="form-group"><label for="hc_result_heart_action_description">What This Says About You</label><textarea id="hc_result_heart_action_description" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;"><label for="hc_result_heart_action_blindspot">Watch for This Pattern</label><textarea id="hc_result_heart_action_blindspot" class="form-control" rows="3" style="resize:vertical;"></textarea></div>
+            <div class="form-group" style="margin-bottom:8px;"><label>Start Here This Week <span style="color:var(--admin-muted);font-weight:400;">(3 bullet points)</span></label></div>
+            <div class="result-grid-3">
+              <textarea id="hc_result_heart_action_step1" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 1..."></textarea>
+              <textarea id="hc_result_heart_action_step2" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 2..."></textarea>
+              <textarea id="hc_result_heart_action_step3" class="form-control" rows="3" style="resize:vertical;" placeholder="Bullet 3..."></textarea>
+            </div>
+            <div style="text-align:right;margin-top:16px;">
+              <button type="button" class="btn-preview-toggle" id="previewToggle_result_heart_action" onclick="toggleResultPreview('heart_action')">&#9654; Preview Result Page</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="window.open('/results.html?center=heart_action&name=Preview&sh=1&sd=3&sa=3', '_blank')" style="margin-left:8px;">Open Live Preview</button>
+            </div>
+            <div class="email-preview-panel" id="emailPreview_result_heart_action">
               <div class="email-preview-header">
                 <span><span class="preview-live-dot"></span>Result Page Preview</span>
                 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
@@ -1414,7 +1510,14 @@
         btn.classList.add('active');
         btn.innerHTML = '&#9632; Hide Preview';
         const g = id => (document.getElementById(id) || {}).value || '';
-        const label   = g(`hc_result_${center}_label`)   || { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center' }[center];
+        const label   = g(`hc_result_${center}_label`)   || {
+          heart: 'Heart Center',
+          head: 'Head Center',
+          action: 'Gut Center',
+          head_heart: 'Head + Heart Blend',
+          head_action: 'Head + Action Blend',
+          heart_action: 'Heart + Action Blend',
+        }[center];
         const title   = g(`hc_result_${center}_title`)   || 'Your Hidden Ceiling Result';
         const summary = g(`hc_result_${center}_summary`);
         const desc    = g(`hc_result_${center}_description`);
@@ -1422,7 +1525,14 @@
         const s1      = g(`hc_result_${center}_step1`);
         const s2      = g(`hc_result_${center}_step2`);
         const s3      = g(`hc_result_${center}_step3`);
-        const accent  = { heart: '#c0506a', head: '#4a7ab5', action: '#c7a96b' }[center] || '#c7a96b';
+        const accent  = {
+          heart: '#c0506a',
+          head: '#4a7ab5',
+          action: '#c7a96b',
+          head_heart: '#8b7bb8',
+          head_action: '#6d8fb5',
+          heart_action: '#b88775',
+        }[center] || '#c7a96b';
         const steps   = [s1, s2, s3].filter(Boolean).map(s => `<li style="margin-bottom:10px;">${s}</li>`).join('');
         panel.querySelector('iframe').srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style>
@@ -1837,9 +1947,40 @@
         step1: 'Notice where urgency is outrunning reflection or buy-in.',
         step2: 'Slow down long enough to separate momentum from reactivity.',
         step3: 'Use the guide to spot where force and clarity are getting conflated inside your leadership.',
+      },
+      head_heart: {
+        label: 'Head + Heart Blend',
+        title: 'You lead like a Thinking-Connection Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between careful understanding and relational attunement.',
+        description: 'You likely notice both the logic of a situation and the way people are experiencing it. That blend can help you see risks, patterns, trust dynamics, and alignment needs at the same time.',
+        blindspot: 'Under pressure, this blend can become a loop between analyzing what is true and managing how people will feel. The ceiling appears when clarity and connection both matter, but neither fully moves into action.',
+        step1: 'Notice when gathering more perspective is becoming a way to delay the next move.',
+        step2: 'Name both the truth of the situation and the relational impact it is creating.',
+        step3: 'Use the guide to see where thinking and connection can work together without slowing your leadership.',
+      },
+      head_action: {
+        label: 'Head + Action Blend',
+        title: 'You lead like a Thinking-Action Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between careful analysis and decisive forward motion.',
+        description: 'You likely see structure, risk, and next steps quickly. That blend can help you make sense of complexity while still moving people and work toward practical outcomes.',
+        blindspot: 'Under pressure, this blend can become a cycle of tightening control: think harder, move faster, and leave less room for the human signals that would help the decision land.',
+        step1: 'Notice when the need for certainty is pairing with urgency.',
+        step2: 'Separate the next responsible action from the impulse to force resolution.',
+        step3: 'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.',
+      },
+      heart_action: {
+        label: 'Heart + Action Blend',
+        title: 'You lead like a Connection-Action Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between relational awareness and decisive forward motion.',
+        description: 'You likely sense how decisions affect people while also wanting movement, clarity, and practical traction. That blend can help teams feel both cared for and mobilized.',
+        blindspot: 'Under pressure, this blend can become a push-pull between keeping people with you and getting things moving. The ceiling appears when urgency and relational responsibility start competing instead of collaborating.',
+        step1: 'Notice when momentum is trying to outrun trust.',
+        step2: 'Name the relational impact and the next action in the same conversation.',
+        step3: 'Use the guide to see where connection and action can reinforce each other instead of pulling your leadership in two directions.',
       }
     };
 
+    const RESULT_CENTERS = ['heart', 'head', 'action', 'head_heart', 'head_action', 'heart_action'];
     const RESULT_FIELDS = ['label', 'title', 'summary', 'description', 'blindspot', 'step1', 'step2', 'step3'];
 
     function loadResultDefault(center) {
@@ -1855,7 +1996,7 @@
       const res  = await adminFetch('/api/admin/settings');
       const data = await res.json().catch(() => ({}));
       const s    = data.data || {};
-      ['heart', 'head', 'action'].forEach(center => {
+      RESULT_CENTERS.forEach(center => {
         const d = DEFAULT_RESULT_META[center];
         RESULT_FIELDS.forEach(f => {
           const el = document.getElementById(`hc_result_${center}_${f}`);
@@ -1869,7 +2010,7 @@
       const status = document.getElementById('result-save-status');
       status.textContent = 'Saving…';
       const payload = {};
-      ['heart', 'head', 'action'].forEach(center => {
+      RESULT_CENTERS.forEach(center => {
         RESULT_FIELDS.forEach(f => {
           const el = document.getElementById(`hc_result_${center}_${f}`);
           if (el) payload[`hc_result_${center}_${f}`] = el.value.trim();
