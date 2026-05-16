@@ -31,7 +31,9 @@ const ADMIN_PAGE_LABELS = {
   'testimonials.html': 'Testimonials',
   'tools.html': 'Tools & Resources',
   'bookmarks.html': 'Bookmarks',
-  'contacts.html': 'Contact Submissions'
+  'contacts.html': 'Contact Submissions',
+  'subscribers.html': 'Subscribers & Campaigns',
+  'analytics.html': 'Analytics'
 };
 
 // Check auth on page load — also validates token expiration
@@ -383,7 +385,8 @@ function initGlobalSearch() {
     { title: 'Site Console', desc: 'Manage page sections, navigation, and brand', url: 'site.html' },
     { title: 'Contacts', desc: 'View contact form submissions', url: 'contacts.html' },
     { title: 'Subscribers & Campaigns', desc: 'Manage email subscribers and campaigns', url: 'subscribers.html' },
-    { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' }
+    { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' },
+    { title: 'Analytics', desc: 'View site traffic and lead analytics', url: 'analytics.html' }
   ];
 
   let dynamicIndex = null;

@@ -147,6 +147,32 @@
     /* ── Add step form ── */
     #deAddStepForm { display: none; }
     #deAddStepForm.open { display: block; }
+
+    /* ── Assessment Editor ───────────────────────────────────────────── */
+    .ae-editor-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+
+    .ae-question { border: 1px solid var(--admin-border); border-radius: 8px; background: var(--admin-card-bg); overflow: hidden; }
+    .ae-q-summary { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; list-style: none; user-select: none; transition: background 0.15s; }
+    .ae-q-summary::-webkit-details-marker { display: none; }
+    .ae-q-summary:hover { background: color-mix(in srgb, var(--admin-accent) 6%, var(--admin-card-bg)); }
+    .ae-question[open] > .ae-q-summary { border-bottom: 1px solid var(--admin-border); background: color-mix(in srgb, var(--admin-accent) 6%, var(--admin-card-bg)); }
+    .ae-q-num { width: 26px; height: 26px; border-radius: 50%; background: var(--admin-accent); color: var(--admin-bg); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ae-q-text { flex: 1; font-size: 0.875rem; color: var(--admin-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ae-q-chevron { font-size: 0.65rem; color: var(--admin-muted); transition: transform 0.2s; flex-shrink: 0; }
+    .ae-question[open] .ae-q-chevron { transform: rotate(180deg); }
+
+    .ae-q-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    .ae-responses { display: flex; flex-direction: column; gap: 10px; }
+    .ae-response { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: start; }
+    .ae-opt-ltr { width: 22px; height: 22px; margin-top: 9px; border-radius: 4px; background: var(--admin-border); color: var(--admin-muted); font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ae-centers { display: flex; flex-direction: column; gap: 4px; padding-top: 6px; }
+    .ae-center-pill { display: flex; cursor: pointer; }
+    .ae-center-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .ae-center-pill span { font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--cc, #888) 25%, transparent); color: color-mix(in srgb, var(--cc, #888) 70%, var(--admin-muted)); transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .ae-center-pill input:checked + span { background: color-mix(in srgb, var(--cc, #888) 15%, var(--admin-card-bg)); color: var(--cc, #888); border-color: var(--cc, #888); }
+    .ae-center-pill:hover span { border-color: color-mix(in srgb, var(--cc, #888) 55%, transparent); }
+    @media (max-width: 680px) { .ae-response { grid-template-columns: 22px 1fr; } .ae-centers { grid-column: 2; flex-direction: row; flex-wrap: wrap; padding-top: 0; } }
   </style>
 </head>
 <body>
@@ -172,6 +198,7 @@
       <a href="site.html">Site</a>
       <a href="contacts.html">Contacts</a>
       <a href="subscribers.html" class="active">Subscribers</a>
+      <a href="analytics.html">Analytics</a>
     </nav>
 
     <main class="admin-main" style="max-width:1300px;">
@@ -184,7 +211,7 @@
         <button type="button" class="page-tab is-active" data-tab="subscribers"       role="tab" aria-selected="true">Subscribers</button>
         <button type="button" class="page-tab"           data-tab="drip-campaigns"    role="tab" aria-selected="false">Drip Campaigns</button>
         <button type="button" class="page-tab"           data-tab="assessment-emails" role="tab" aria-selected="false">Assessment Emails</button>
-        <button type="button" class="page-tab"           data-tab="assessment-form"   role="tab" aria-selected="false">Assessment Form</button>
+        <button type="button" class="page-tab"           data-tab="assessment-form"   role="tab" aria-selected="false">Assessment Editor</button>
         <button type="button" class="page-tab"           data-tab="results"           role="tab" aria-selected="false">Result Pages</button>
         <button type="button" class="page-tab"           data-tab="free-guide"        role="tab" aria-selected="false">Free Guide</button>
       </div>
@@ -338,57 +365,30 @@
 
       </div>
 
-      <!-- ── Assessment Form tab ─────────────────────────────────────── -->
+      <!-- ── Assessment Editor tab ─────────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="assessment-form">
-        <div class="card">
-          <div class="assessment-editor-header">
-            <div class="assessment-editor-copy">
-              <div class="card-title">Hidden Ceiling Assessment Form</div>
-              <p>Edit the intro copy, each assessment question, each response option, and the center each response scores toward. Changes affect the live assessment and future scoring.</p>
-            </div>
-            <div class="assessment-score-key" aria-label="Assessment scoring key">
-              <span class="assessment-score-pill"><span class="assessment-score-dot heart"></span>Heart</span>
-              <span class="assessment-score-pill"><span class="assessment-score-dot head"></span>Head</span>
-              <span class="assessment-score-pill"><span class="assessment-score-dot action"></span>Gut / Action</span>
-            </div>
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <div class="card-title" style="margin-bottom:0;">Intro Step</div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="loadAssessmentFormDefaults()">Reset to Defaults</button>
           </div>
-
-          <div class="assessment-question-card" style="margin-bottom:16px;">
-            <div class="assessment-card-header">
-              <div class="assessment-question-titleline">
-                <span class="assessment-question-number">0</span>
-                <div class="assessment-question-heading">
-                  <strong>Intro Step</strong>
-                  <span>Capture the visitor's name and email before the assessment begins.</span>
-                </div>
-              </div>
-              <button type="button" class="btn btn-ghost btn-sm" onclick="loadAssessmentFormDefaults()" style="font-size:0.78rem;padding:4px 10px;">Load Defaults</button>
-            </div>
-            <div class="assessment-card-body">
-              <div class="assessment-question-head">
-                <div class="form-group">
-                  <label for="assessment_intro_eyebrow">Eyebrow</label>
-                  <input type="text" id="assessment_intro_eyebrow" class="form-control">
-                </div>
-                <div class="form-group">
-                  <label for="assessment_intro_title">Title</label>
-                  <input type="text" id="assessment_intro_title" class="form-control">
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="assessment_intro_copy">Intro Copy</label>
-                <textarea id="assessment_intro_copy" class="form-control" rows="3" style="resize:vertical;"></textarea>
-              </div>
-            </div>
+          <input type="hidden" id="assessment_intro_eyebrow">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label for="assessment_intro_title">Intro Title</label>
+            <input type="text" id="assessment_intro_title" class="form-control">
           </div>
-
-          <div id="assessmentQuestionsEditor" class="assessment-editor-grid">
-            <p class="table-empty">Loading assessment form...</p>
+          <div class="form-group">
+            <label for="assessment_intro_copy">Intro Copy</label>
+            <textarea id="assessment_intro_copy" class="form-control" rows="3" style="resize:vertical;"></textarea>
           </div>
         </div>
 
+        <div id="assessmentQuestionsEditor" class="ae-editor-grid">
+          <p class="table-empty">Loading…</p>
+        </div>
+
         <div class="save-bar">
-          <button class="btn btn-primary" onclick="saveAssessmentFormSettings()">Save Assessment Form</button>
+          <button class="btn btn-primary" onclick="saveAssessmentFormSettings()">Save Changes</button>
           <span id="assessment-form-save-status" style="color:var(--admin-muted);font-size:0.875rem;"></span>
         </div>
       </div>
@@ -1363,82 +1363,72 @@
     function renderAssessmentFormEditor(config) {
       const normalized = normalizeAssessmentFormConfig(config);
       document.getElementById('assessment_intro_eyebrow').value = normalized.intro.eyebrow;
-      document.getElementById('assessment_intro_title').value = normalized.intro.title;
-      document.getElementById('assessment_intro_copy').value = normalized.intro.copy;
-      const optionLetters = ['A', 'B', 'C'];
+      document.getElementById('assessment_intro_title').value   = normalized.intro.title;
+      document.getElementById('assessment_intro_copy').value    = normalized.intro.copy;
 
-      const centerOptions = selected => [
-        ['heart', 'Heart Center'],
-        ['head', 'Head Center'],
-        ['action', 'Gut / Action Center'],
-      ].map(([value, label]) => `<option value="${value}" ${selected === value ? 'selected' : ''}>${label}</option>`).join('');
+      const CENTERS = [
+        { value: 'heart',  label: 'Heart', color: '#e05c8a' },
+        { value: 'head',   label: 'Head',  color: '#4a9eda' },
+        { value: 'action', label: 'Gut',   color: '#d97706' },
+      ];
 
-      document.getElementById('assessmentQuestionsEditor').innerHTML = normalized.questions.map((question, questionIndex) => `
-        <section class="assessment-question-card" data-question-index="${questionIndex}">
-          <div class="assessment-card-header">
-            <div class="assessment-question-titleline">
-              <span class="assessment-question-number">${questionIndex + 1}</span>
-              <div class="assessment-question-heading">
-                <strong>${escHtml(question.title || `Question ${questionIndex + 1}`)}</strong>
-                <span>${escHtml(question.eyebrow || 'Assessment question')}</span>
-              </div>
+      document.getElementById('assessmentQuestionsEditor').innerHTML = normalized.questions.map((q, qi) => `
+        <details class="ae-question" data-qi="${qi}">
+          <summary class="ae-q-summary">
+            <span class="ae-q-num">${qi + 1}</span>
+            <span class="ae-q-text">${escHtml(q.title)}</span>
+            <span class="ae-q-chevron">▾</span>
+          </summary>
+          <div class="ae-q-body">
+            <div class="form-group" style="margin-bottom:14px;">
+              <label>Question</label>
+              <textarea class="form-control ae-q-title" rows="2" style="resize:vertical;">${escHtml(q.title)}</textarea>
             </div>
-          </div>
-          <div class="assessment-card-body">
-            <div class="assessment-question-head">
-              <div class="form-group">
-                <label for="assessment_q_${questionIndex}_eyebrow">Eyebrow</label>
-                <input type="text" id="assessment_q_${questionIndex}_eyebrow" class="form-control assessment-question-eyebrow" value="${escHtml(question.eyebrow)}">
-              </div>
-              <div class="form-group">
-                <label for="assessment_q_${questionIndex}_title">Question</label>
-                <textarea id="assessment_q_${questionIndex}_title" class="form-control assessment-question-title" rows="2" style="resize:vertical;">${escHtml(question.title)}</textarea>
-              </div>
-            </div>
-            <div class="assessment-responses-title">
-              <span>Responses</span>
-              <span>Each response adds 1 point to its selected center</span>
-            </div>
-            <div class="assessment-response-list">
-              ${question.options.map((option, optionIndex) => `
-                <div class="assessment-option-grid" data-option-index="${optionIndex}">
-                  <div class="form-group">
-                    <label for="assessment_q_${questionIndex}_option_${optionIndex}" class="assessment-option-label">
-                      <span class="assessment-option-letter">${optionLetters[optionIndex] || optionIndex + 1}</span>
-                      Response ${optionIndex + 1}
-                    </label>
-                    <textarea id="assessment_q_${questionIndex}_option_${optionIndex}" class="form-control assessment-option-text" rows="2" style="resize:vertical;">${escHtml(option.text)}</textarea>
-                  </div>
-                  <div class="form-group">
-                    <label for="assessment_q_${questionIndex}_center_${optionIndex}">Scores Toward</label>
-                    <select id="assessment_q_${questionIndex}_center_${optionIndex}" class="form-control assessment-option-center">
-                      ${centerOptions(option.center)}
-                    </select>
+            <div class="ae-responses">
+              ${q.options.map((opt, oi) => `
+                <div class="ae-response" data-oi="${oi}">
+                  <span class="ae-opt-ltr">${'ABC'[oi]}</span>
+                  <textarea class="form-control ae-opt-text" rows="2" style="resize:vertical;">${escHtml(opt.text)}</textarea>
+                  <div class="ae-centers" role="group" aria-label="Center">
+                    ${CENTERS.map(c => `
+                      <label class="ae-center-pill" style="--cc:${c.color}">
+                        <input type="radio" name="ae_center_${qi}_${oi}" value="${c.value}" ${opt.center === c.value ? 'checked' : ''}>
+                        <span>${c.label}</span>
+                      </label>
+                    `).join('')}
                   </div>
                 </div>
               `).join('')}
             </div>
           </div>
-        </section>
+        </details>
       `).join('');
+
+      // Live-update the summary line as the user edits question text
+      document.querySelectorAll('#assessmentQuestionsEditor .ae-q-title').forEach(ta => {
+        ta.addEventListener('input', () => {
+          const preview = ta.closest('.ae-question').querySelector('.ae-q-text');
+          if (preview) preview.textContent = ta.value;
+        });
+      });
     }
 
     function collectAssessmentFormConfig() {
-      const questions = Array.from(document.querySelectorAll('#assessmentQuestionsEditor .assessment-question-card')).map((card, questionIndex) => ({
-        id: DEFAULT_ASSESSMENT_FORM.questions[questionIndex]?.id || `q${questionIndex + 1}`,
-        eyebrow: card.querySelector('.assessment-question-eyebrow')?.value.trim() || '',
-        title: card.querySelector('.assessment-question-title')?.value.trim() || '',
-        options: Array.from(card.querySelectorAll('.assessment-option-grid')).map(optionRow => ({
-          text: optionRow.querySelector('.assessment-option-text')?.value.trim() || '',
-          center: optionRow.querySelector('.assessment-option-center')?.value || 'heart',
+      const questions = Array.from(document.querySelectorAll('#assessmentQuestionsEditor .ae-question')).map((card, qi) => ({
+        id:      DEFAULT_ASSESSMENT_FORM.questions[qi]?.id      || `q${qi + 1}`,
+        eyebrow: DEFAULT_ASSESSMENT_FORM.questions[qi]?.eyebrow || `Question ${qi + 1} of 7`,
+        title:   card.querySelector('.ae-q-title')?.value.trim() || '',
+        options: Array.from(card.querySelectorAll('.ae-response')).map(row => ({
+          text:   row.querySelector('.ae-opt-text')?.value.trim() || '',
+          center: row.querySelector('input[type="radio"]:checked')?.value || 'heart',
         })),
       }));
 
       return {
         intro: {
-          eyebrow: document.getElementById('assessment_intro_eyebrow')?.value.trim() || '',
-          title: document.getElementById('assessment_intro_title')?.value.trim() || '',
-          copy: document.getElementById('assessment_intro_copy')?.value.trim() || '',
+          eyebrow: document.getElementById('assessment_intro_eyebrow')?.value.trim() || DEFAULT_ASSESSMENT_FORM.intro.eyebrow,
+          title:   document.getElementById('assessment_intro_title')?.value.trim() || '',
+          copy:    document.getElementById('assessment_intro_copy')?.value.trim()  || '',
         },
         questions,
       };

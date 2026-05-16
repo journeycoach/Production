@@ -217,9 +217,9 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/variables.css?v=10">
-  <link rel="stylesheet" href="/css/style.css?v=10">
-  <link rel="stylesheet" href="/css/responsive.css?v=10">
+  <link rel="stylesheet" href="/css/variables.css?v=11">
+  <link rel="stylesheet" href="/css/style.css?v=11">
+  <link rel="stylesheet" href="/css/responsive.css?v=11">
   <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
   <link rel="apple-touch-icon" href="/assets/images/favicon.png">
@@ -360,9 +360,9 @@ function render404Html() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post Not Found | Your Journey Coach</title>
-  <link rel="stylesheet" href="/css/variables.css?v=10">
-  <link rel="stylesheet" href="/css/style.css?v=10">
-  <link rel="stylesheet" href="/css/responsive.css?v=10">
+  <link rel="stylesheet" href="/css/variables.css?v=11">
+  <link rel="stylesheet" href="/css/style.css?v=11">
+  <link rel="stylesheet" href="/css/responsive.css?v=11">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
