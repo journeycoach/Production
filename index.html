@@ -377,6 +377,118 @@
             </div>
         </section>
 
+        <!-- Hidden Ceiling Assessment CTA -->
+        <section id="hidden-ceiling-cta" class="hc-banner">
+            <div class="hc-top-line"></div>
+            <div class="hc-inner">
+                <span class="eyebrow hc-eyebrow">Free Assessment</span>
+                <h2 class="hc-headline">What's holding you back<br>isn't <em>what</em> you think.</h2>
+                <p class="hc-sub">Every leader has a ceiling they can't quite see. The ones who break through know exactly what theirs is. Find out yours in 5 minutes.</p>
+                <a href="/Hidden-Ceiling.html" class="hc-btn">
+                    Discover Your Hidden Ceiling
+                    <svg viewBox="0 0 20 20" fill="currentColor" style="width:18px;height:18px;flex-shrink:0;">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </a>
+                <p class="hc-footnote">5 minutes &nbsp;·&nbsp; Free &nbsp;·&nbsp; No account required</p>
+            </div>
+            <div class="hc-bottom-line"></div>
+        </section>
+        <style>
+            .hc-banner {
+                position: relative;
+                padding: 5.5rem 1.5rem;
+                background: var(--color-bg-primary);
+                overflow: hidden;
+                text-align: center;
+            }
+            .hc-banner::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse 90% 70% at 50% 50%, rgba(199,169,107,0.08) 0%, transparent 68%);
+                pointer-events: none;
+            }
+            .hc-top-line, .hc-bottom-line {
+                position: absolute;
+                left: 0; right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(199,169,107,0.45) 25%, rgba(199,169,107,0.45) 75%, transparent);
+            }
+            .hc-top-line { top: 0; }
+            .hc-bottom-line { bottom: 0; }
+            .hc-inner {
+                position: relative;
+                z-index: 1;
+                max-width: 680px;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1.2rem;
+            }
+            .hc-eyebrow {
+                color: var(--color-accent-gold) !important;
+                letter-spacing: 0.18em;
+            }
+            .hc-headline {
+                font-family: 'Playfair Display', serif;
+                font-size: clamp(2rem, 4.5vw, 3rem);
+                font-weight: 700;
+                line-height: 1.22;
+                color: var(--color-text-primary);
+                margin: 0;
+            }
+            .hc-headline em {
+                font-style: italic;
+                color: var(--color-accent-gold);
+            }
+            .hc-sub {
+                font-size: 1.05rem;
+                color: var(--color-text-secondary);
+                line-height: 1.75;
+                max-width: 520px;
+                margin: 0;
+            }
+            .hc-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 0.6rem;
+                padding: 1rem 2.4rem;
+                background: var(--color-accent-gold);
+                color: #0a0e14;
+                font-family: Inter, sans-serif;
+                font-size: 0.9rem;
+                font-weight: 700;
+                letter-spacing: 0.04em;
+                text-decoration: none;
+                border-radius: 999px;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                animation: hc-pulse 2.8s ease-out infinite;
+            }
+            .hc-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 28px rgba(199,169,107,0.4);
+                animation: none;
+            }
+            @keyframes hc-pulse {
+                0%   { box-shadow: 0 0 0 0 rgba(199,169,107,0.55); }
+                70%  { box-shadow: 0 0 0 16px rgba(199,169,107,0); }
+                100% { box-shadow: 0 0 0 0 rgba(199,169,107,0); }
+            }
+            .hc-footnote {
+                font-size: 0.78rem;
+                color: var(--color-text-muted);
+                letter-spacing: 0.06em;
+                margin: 0;
+            }
+            @media (max-width: 600px) {
+                .hc-banner { padding: 4rem 1.25rem; }
+                .hc-btn { width: 100%; justify-content: center; padding: 1.1rem 1.5rem; }
+            }
+        </style>
+
         <!-- Recognition Strip -->
         <section class="recognition-strip" id="recognition-strip" aria-label="Professional recognition">
             <div class="container recognition-strip-inner">
