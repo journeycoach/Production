@@ -189,6 +189,7 @@
                 <option value="action">Gut/Action</option>
                 <option value="head_heart">Head + Heart Blend</option>
                 <option value="head_action">Head + Action Blend</option>
+                <option value="heart_action">Heart + Action Blend</option>
                 <option value="__unset__">Center not set</option>
               </select>
               <select id="segLeadFilter" onchange="filterSubscribers()" style="background:var(--admin-bg);border:1px solid var(--admin-border);border-radius:6px;color:var(--admin-text);font-size:0.82rem;padding:5px 8px;">
@@ -1887,8 +1888,8 @@
 
     // ── Subscribers list ─────────────────────────────────────────────────────
     // ── Constants ────────────────────────────────────────────────────────────
-    const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center', head_heart: 'Head + Heart Blend', head_action: 'Head + Action Blend' };
-    const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82', head_heart: '#8b7bb8', head_action: '#6d8fb5' };
+    const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center', head_heart: 'Head + Heart Blend', head_action: 'Head + Action Blend', heart_action: 'Heart + Action Blend' };
+    const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82', head_heart: '#8b7bb8', head_action: '#6d8fb5', heart_action: '#b88775' };
     const FUNNEL_LABELS = { 'hidden-ceiling': 'Assessment', 'homepage': 'Free Guide', 'website': 'Free Guide', 'free-guide': 'Free Guide', 'contact': 'Contact Form' };
     const FUNNEL_COLORS = { 'hidden-ceiling': '#c7a96b', 'homepage': '#7b9eb8', 'website': '#7b9eb8', 'free-guide': '#7b9eb8', 'contact': '#8faa82' };
     const SOURCE_BADGE_MAP = {
