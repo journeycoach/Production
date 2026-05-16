@@ -180,6 +180,52 @@
 </head>
 
 <body>
+    <!-- Floating Hidden Ceiling CTA -->
+    <a href="/Hidden-Ceiling.html" id="hc-float-btn">Discover Your Hidden Ceiling →</a>
+    <style>
+        #hc-float-btn {
+            position: fixed;
+            top: 88px;
+            right: 24px;
+            z-index: 900;
+            display: inline-flex;
+            align-items: center;
+            padding: 0.7rem 1.5rem;
+            background: var(--color-accent-gold);
+            color: #0a0e14;
+            font-family: Inter, sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-decoration: none;
+            border-radius: 999px;
+            box-shadow: 0 4px 20px rgba(199,169,107,0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+            animation: hc-pulse 2.8s ease-out infinite;
+        }
+        #hc-float-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(199,169,107,0.5);
+            animation: none;
+        }
+        @keyframes hc-pulse {
+            0%   { box-shadow: 0 4px 20px rgba(199,169,107,0.35), 0 0 0 0 rgba(199,169,107,0.5); }
+            70%  { box-shadow: 0 4px 20px rgba(199,169,107,0.35), 0 0 0 14px rgba(199,169,107,0); }
+            100% { box-shadow: 0 4px 20px rgba(199,169,107,0.35), 0 0 0 0 rgba(199,169,107,0); }
+        }
+        @media (max-width: 640px) {
+            #hc-float-btn {
+                top: auto;
+                bottom: 24px;
+                right: 50%;
+                transform: translateX(50%);
+                font-size: 0.85rem;
+                padding: 0.8rem 1.75rem;
+            }
+            #hc-float-btn:hover { transform: translateX(50%) translateY(-2px); }
+        }
+    </style>
+
     <!-- Page Loader -->
     <div class="loader-wrapper">
         <div class="breathing-circle"></div>
@@ -212,36 +258,7 @@
                     stagnation and discover their core motivations.</p>
                 <div class="hero-btns reveal-text delay-200">
                     <a href="/#contact" class="btn-primary-outline" data-site-cta="smart">Let's Talk</a>
-                    <a href="/Hidden-Ceiling.html" class="hc-hero-btn">Discover Your Hidden Ceiling →</a>
                 </div>
-                <style>
-                    .hc-hero-btn {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 0.85rem 2rem;
-                        background: var(--color-accent-gold);
-                        color: #0a0e14;
-                        font-family: Inter, sans-serif;
-                        font-size: 0.88rem;
-                        font-weight: 700;
-                        letter-spacing: 0.03em;
-                        text-decoration: none;
-                        border-radius: 999px;
-                        transition: transform 0.2s ease, box-shadow 0.2s ease;
-                        animation: hc-pulse 2.8s ease-out infinite;
-                    }
-                    .hc-hero-btn:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 10px 28px rgba(199,169,107,0.45);
-                        animation: none;
-                    }
-                    @keyframes hc-pulse {
-                        0%   { box-shadow: 0 0 0 0 rgba(199,169,107,0.55); }
-                        70%  { box-shadow: 0 0 0 16px rgba(199,169,107,0); }
-                        100% { box-shadow: 0 0 0 0 rgba(199,169,107,0); }
-                    }
-                </style>
             </div>
         </section>
 
