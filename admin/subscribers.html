@@ -408,6 +408,9 @@
             <button type="button" class="center-subtab is-active" data-center="heart"  role="tab" aria-selected="true">Heart Center</button>
             <button type="button" class="center-subtab"           data-center="head"   role="tab" aria-selected="false">Head Center</button>
             <button type="button" class="center-subtab"           data-center="action" role="tab" aria-selected="false">Gut Center</button>
+            <button type="button" class="center-subtab"           data-center="head_heart" role="tab" aria-selected="false">Head + Heart</button>
+            <button type="button" class="center-subtab"           data-center="head_action" role="tab" aria-selected="false">Head + Action</button>
+            <button type="button" class="center-subtab"           data-center="heart_action" role="tab" aria-selected="false">Heart + Action</button>
           </div>
 
           <!-- Heart -->
@@ -476,6 +479,81 @@
               </div>
               <textarea id="hc_email_action_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
               <div class="email-preview-panel" id="emailPreview_action">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- Head + Heart -->
+          <div class="center-subtab-panel" data-center-panel="head_heart">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_head_heart_subject">Subject Line</label>
+              <input type="text" id="hc_email_head_heart_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_head_heart_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('head_heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_head_heart" onclick="toggleEmailPreview('hc_email_head_heart_body','previewToggle_head_heart','emailPreview_head_heart')">&#9654; Preview</button>
+                </div>
+              </div>
+              <textarea id="hc_email_head_heart_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+              <div class="email-preview-panel" id="emailPreview_head_heart">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- Head + Action -->
+          <div class="center-subtab-panel" data-center-panel="head_action">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_head_action_subject">Subject Line</label>
+              <input type="text" id="hc_email_head_action_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_head_action_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('head_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_head_action" onclick="toggleEmailPreview('hc_email_head_action_body','previewToggle_head_action','emailPreview_head_action')">&#9654; Preview</button>
+                </div>
+              </div>
+              <textarea id="hc_email_head_action_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+              <div class="email-preview-panel" id="emailPreview_head_action">
+                <div class="email-preview-header">
+                  <span><span class="preview-live-dot"></span>Email Preview</span>
+                  <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
+                </div>
+                <iframe sandbox="allow-same-origin"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- Heart + Action -->
+          <div class="center-subtab-panel" data-center-panel="heart_action">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label for="hc_email_heart_action_subject">Subject Line</label>
+              <input type="text" id="hc_email_heart_action_subject" class="form-control" placeholder="Your Hidden Ceiling Assessment Result">
+            </div>
+            <div class="form-group">
+              <div class="field-row">
+                <label for="hc_email_heart_action_body">Email Body <span style="color:var(--admin-muted);font-weight:400;">(HTML)</span></label>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="loadCenterDefault('heart_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button>
+                  <button type="button" class="btn-preview-toggle" id="previewToggle_heart_action" onclick="toggleEmailPreview('hc_email_heart_action_body','previewToggle_heart_action','emailPreview_heart_action')">&#9654; Preview</button>
+                </div>
+              </div>
+              <textarea id="hc_email_heart_action_body" class="form-control" rows="18" style="font-family:monospace;font-size:0.82rem;resize:vertical;" placeholder="Leave blank to use the built-in default. Use {{firstName}}, {{scoreHeart}}, {{scoreHead}}, {{scoreAction}}, {{calendlyUrl}}."></textarea>
+              <div class="email-preview-panel" id="emailPreview_heart_action">
                 <div class="email-preview-header">
                   <span><span class="preview-live-dot"></span>Email Preview</span>
                   <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample data used for placeholders</span>
@@ -1025,6 +1103,86 @@
 </div>`
     };
 
+    const ASSESSMENT_EMAIL_CENTERS = ['heart', 'head', 'action', 'head_heart', 'head_action', 'heart_action'];
+
+    function buildAssessmentEmailDefault(meta) {
+      const stepsHtml = meta.nextSteps.map(step => `<li style="margin-bottom:0.5em;">${escHtml(step)}</li>`).join('');
+      return `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
+  <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">${escHtml(meta.centerLabel)}</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">${escHtml(meta.title)}</h1>
+  <p>Hi {{firstName}},</p>
+  <p>${escHtml(meta.summary)} Your personalized guide is already on its way to your inbox.</p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">What this says about you</h2>
+  <p style="margin-top:0;">${escHtml(meta.description)}</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Watch for this pattern</h2>
+  <p style="margin-top:0;">${escHtml(meta.blindspot)}</p>
+  <h2 style="font-size:1rem;color:#c7a96b;margin-top:1.5rem;margin-bottom:0.25em;">Start here this week</h2>
+  <ul style="margin-top:0;padding-left:1.25em;color:#333;">${stepsHtml}</ul>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: {{scoreHeart}} &nbsp;·&nbsp; Head: {{scoreHead}} &nbsp;·&nbsp; Action: {{scoreAction}}</p>
+  <p style="margin-top:1.5rem;">
+    <a href="${meta.guideUrl}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">${escHtml(meta.guideLabel)} ↓</a>
+  </p>
+  <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
+  <p style="margin-top:1rem;">
+    <a href="{{calendlyUrl}}" style="display:inline-block;background:transparent;color:#c7a96b;text-decoration:none;padding:12px 28px;border-radius:4px;border:1px solid #c7a96b;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Book a 20-Minute Alignment Call →</a>
+  </p>
+  <p style="margin-top:2.5rem;color:#555;">With respect,</p>
+  <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
+  <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
+  <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
+</div>`;
+    }
+
+    Object.assign(DEFAULT_HC_BODIES, {
+      head_heart: buildAssessmentEmailDefault({
+        centerLabel: 'Head + Heart Blend',
+        title: 'You lead like a Thinking-Connection Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between careful understanding and relational attunement.',
+        description: 'You likely notice both the logic of a situation and the way people are experiencing it. That blend can help you see risks, patterns, trust dynamics, and alignment needs at the same time.',
+        blindspot: 'Under pressure, this blend can become a loop between analyzing what is true and managing how people will feel. The ceiling appears when clarity and connection both matter, but neither fully moves into action.',
+        nextSteps: [
+          'Notice when gathering more perspective is becoming a way to delay the next move.',
+          'Name both the truth of the situation and the relational impact it is creating.',
+          'Use the guide to see where thinking and connection can work together without slowing your leadership.',
+        ],
+        guideUrl: 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_head_heart_leader-2brzSPbUNrrU6V1du7rVfPcH2uTLsc.pdf',
+        guideLabel: 'Download Your Guide: The Blended Head-Heart Leader',
+      }),
+      head_action: buildAssessmentEmailDefault({
+        centerLabel: 'Head + Action Blend',
+        title: 'You lead like a Thinking-Action Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between careful analysis and decisive forward motion.',
+        description: 'You likely see structure, risk, and next steps quickly. That blend can help you make sense of complexity while still moving people and work toward practical outcomes.',
+        blindspot: 'Under pressure, this blend can become a cycle of tightening control: think harder, move faster, and leave less room for the human signals that would help the decision land.',
+        nextSteps: [
+          'Notice when the need for certainty is pairing with urgency.',
+          'Separate the next responsible action from the impulse to force resolution.',
+          'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.',
+        ],
+        guideUrl: 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_head_action_leader-WI9P4x8V9zcuI4gjloEP3MtgsLUbGi.pdf',
+        guideLabel: 'Download Your Guide: The Blended Head-Action Leader',
+      }),
+      heart_action: buildAssessmentEmailDefault({
+        centerLabel: 'Heart + Action Blend',
+        title: 'You lead like a Connection-Action Blended Leader',
+        summary: 'Your responses point to a leadership pattern that moves between relational awareness and decisive forward motion.',
+        description: 'You likely sense how decisions affect people while also wanting movement, clarity, and practical traction. That blend can help teams feel both cared for and mobilized.',
+        blindspot: 'Under pressure, this blend can become a push-pull between keeping people with you and getting things moving. The ceiling appears when urgency and relational responsibility start competing instead of collaborating.',
+        nextSteps: [
+          'Notice when momentum is trying to outrun trust.',
+          'Name the relational impact and the next action in the same conversation.',
+          'Use the guide to see where connection and action can reinforce each other instead of pulling your leadership in two directions.',
+        ],
+        guideUrl: 'https://ygqljhwrzlmxcysm.public.blob.vercel-storage.com/hidden_ceiling_blended_heart_action_leader-9BI5nB03jV1HMPNpRcZ5tko5HtP90O.pdf',
+        guideLabel: 'Download Your Guide: The Blended Heart-Action Leader',
+      }),
+    });
+
     const DEFAULT_ASSESSMENT_FORM = {
       intro: {
         eyebrow: 'Start Here',
@@ -1335,7 +1493,7 @@
       const res  = await adminFetch('/api/admin/settings');
       const data = await res.json().catch(() => ({}));
       const s    = data.data || {};
-      ['heart', 'head', 'action'].forEach(center => {
+      ASSESSMENT_EMAIL_CENTERS.forEach(center => {
         document.getElementById(`hc_email_${center}_subject`).value = s[`hc_email_${center}_subject`] || DEFAULT_SUBJECT;
         document.getElementById(`hc_email_${center}_body`).value    = s[`hc_email_${center}_body`]    || DEFAULT_HC_BODIES[center];
       });
@@ -1346,7 +1504,7 @@
       const status = document.getElementById('email-save-status');
       status.textContent = 'Saving…';
       const payload = {};
-      ['heart', 'head', 'action'].forEach(center => {
+      ASSESSMENT_EMAIL_CENTERS.forEach(center => {
         payload[`hc_email_${center}_subject`] = document.getElementById(`hc_email_${center}_subject`).value.trim();
         payload[`hc_email_${center}_body`]    = document.getElementById(`hc_email_${center}_body`).value.trim();
       });
