@@ -239,10 +239,27 @@ function isValidUnsubscribeToken(subscriberId, token) {
 }
 
 function determineAssessmentCenter(scores) {
+  // Exact two-way tie (both greater than third) → blended
   if (scores.head === scores.heart && scores.head > scores.action) return 'head_heart';
   if (scores.head === scores.action && scores.head > scores.heart) return 'head_action';
   if (scores.heart === scores.action && scores.heart > scores.head) return 'heart_action';
-  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+
+  // Near-tie: top two differ by exactly 1 AND third is at least 2 below second → blended
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const [first, second, third] = sorted;
+  if (first[1] - second[1] === 1 && second[1] - third[1] >= 2) {
+    // Canonical key is the two center names sorted alphabetically and joined with '_'
+    const pair = [first[0], second[0]].sort().join('_');
+    // Map sorted pair → result center key
+    const BLEND_MAP = {
+      'head_heart':   'head_heart',
+      'action_head':  'head_action',
+      'action_heart': 'heart_action',
+    };
+    if (BLEND_MAP[pair]) return BLEND_MAP[pair];
+  }
+
+  return first[0];
 }
 
 // Helper: append unsubscribe footer to drip email HTML

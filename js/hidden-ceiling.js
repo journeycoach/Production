@@ -239,6 +239,7 @@
     const progressCaption = document.getElementById('hc-progress-caption');
     const progressBar = document.getElementById('hc-progress-bar');
     const resultCard = document.getElementById('hc-result-card');
+    const instinctHint = document.getElementById('hc-instinct-hint');
 
     function render() {
         const step = ASSESSMENT_STEPS[state.stepIndex];
@@ -253,6 +254,8 @@
         const isLast = state.stepIndex === totalSteps - 1;
         nextBtn.hidden = false;
         nextBtn.textContent = isLast ? 'Get My Results' : 'Continue';
+
+        if (instinctHint) instinctHint.style.display = step.type === 'intro' ? 'none' : '';
 
         if (step.type === 'intro') {
             stepContainer.innerHTML = `
