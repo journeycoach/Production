@@ -25,7 +25,7 @@ async function handleAnalytics(req, res) {
     const contactsOverTime = await sql`
       SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(c.id)::int AS count
       FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
-      LEFT JOIN contact_submissions c ON DATE_TRUNC('week', c.created_at AT TIME ZONE 'UTC') = gs.week_start
+      LEFT JOIN contact_submissions c ON DATE_TRUNC('week', c.submitted_at AT TIME ZONE 'UTC') = gs.week_start
       GROUP BY gs.week_start ORDER BY gs.week_start`;
     const bookingsOverTime = await sql`
       SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
