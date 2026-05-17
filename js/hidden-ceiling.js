@@ -109,8 +109,8 @@
             guideLabel: 'Hidden Ceiling Guide for the Thinking-Oriented Leader'
         },
         action: {
-            centerLabel: 'Gut Center',
-            title: 'You lead from the Gut Center',
+            centerLabel: 'Action Center',
+            title: 'You lead from the Action Center',
             summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
             description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
             blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
@@ -418,7 +418,7 @@
         if (elScoreGrid) elScoreGrid.innerHTML = [
             { label: 'Heart', value: scores.heart },
             { label: 'Head',  value: scores.head },
-            { label: 'Gut',   value: scores.action }
+            { label: 'Action', value: scores.action }
         ].map((score) => `
             <div class="hc-score-card">
                 <strong>${score.label} score</strong>

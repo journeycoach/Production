@@ -39,6 +39,10 @@
         .score-card.is-primary { border-color: var(--color-accent-gold); background: color-mix(in srgb, var(--color-accent-gold) 8%, var(--color-bg-secondary)); }
         .score-card strong { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 0.5rem; font-weight: 500; }
         .score-card span { font-size: 2rem; font-weight: 700; color: var(--color-text-primary); font-family: var(--font-heading); }
+        .score-bar-track { background: rgba(255,255,255,0.06); border-radius: 999px; height: 5px; margin-top: 0.6rem; overflow: hidden; }
+        .score-bar-fill { height: 100%; border-radius: 999px; background: rgba(255,255,255,0.18); transition: width 0.6s ease; }
+        .score-card.is-primary .score-bar-fill { background: var(--color-accent-gold); }
+        .score-of { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.3rem; display: block; }
         .cta-block { background: color-mix(in srgb, var(--color-accent-gold) 8%, var(--color-bg-secondary)); border: 1px solid rgba(199,169,107,0.2); border-top: 3px solid var(--color-accent-gold); border-radius: 0 0 8px 8px; padding: 2rem; margin-top: 2.5rem; text-align: center; }
         .cta-block h3 { font-family: var(--font-heading); font-size: 1.35rem; color: var(--color-text-primary); margin: 0 0 0.75rem; }
         .cta-block p { color: var(--color-text-secondary); font-size: 0.92rem; line-height: 1.65; margin-bottom: 1.5rem; }
@@ -233,10 +237,11 @@
         document.querySelector('meta[property="og:title"]').setAttribute('content', `${meta.title} | Your Journey Coach`);
         document.querySelector('meta[property="og:description"]').setAttribute('content', meta.summary);
 
+        const total = sh + sd + sa;
         const scores = [
-            { label: 'Heart', value: sh, key: 'heart' },
-            { label: 'Head',  value: sd, key: 'head' },
-            { label: 'Gut',   value: sa, key: 'action' }
+            { label: 'Heart',  value: sh, key: 'heart' },
+            { label: 'Head',   value: sd, key: 'head' },
+            { label: 'Action', value: sa, key: 'action' }
         ];
 
         const pageUrl = encodeURIComponent(window.location.href);
@@ -252,6 +257,10 @@
                     <div class="score-card ${isPrimaryScore(center, s.key) ? 'is-primary' : ''}">
                         <strong>${s.label}</strong>
                         <span>${s.value}</span>
+                        <div class="score-bar-track">
+                            <div class="score-bar-fill" style="width:${total > 0 ? Math.round((s.value / total) * 100) : 0}%"></div>
+                        </div>
+                        <span class="score-of">${s.value} of ${total}</span>
                     </div>`).join('')}
             </div>
 

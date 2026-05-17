@@ -50,7 +50,7 @@ const DEFAULT_ASSESSMENT_FORM = {
   questions: [
     {
       id: 'q1',
-      eyebrow: 'Question 1 of 7',
+      eyebrow: 'Question 1 of 9',
       title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
       options: [
         { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
@@ -60,7 +60,7 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q2',
-      eyebrow: 'Question 2 of 7',
+      eyebrow: 'Question 2 of 9',
       title: 'Under pressure, what do others most often need more of from you?',
       options: [
         { text: 'Move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
@@ -70,7 +70,7 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q3',
-      eyebrow: 'Question 3 of 7',
+      eyebrow: 'Question 3 of 9',
       title: 'In high-level leadership conversations, where do you naturally contribute most?',
       options: [
         { text: 'Systems, long-term implications, and what risks others may be missing.', center: 'head' },
@@ -80,7 +80,7 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q4',
-      eyebrow: 'Question 4 of 7',
+      eyebrow: 'Question 4 of 9',
       title: 'When a peer gives you hard feedback, what is your first instinct?',
       options: [
         { text: 'Wonder what it means about the relationship or how you are being perceived.', center: 'heart' },
@@ -90,7 +90,7 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q5',
-      eyebrow: 'Question 5 of 7',
+      eyebrow: 'Question 5 of 9',
       title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
       options: [
         { text: 'Clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
@@ -100,7 +100,7 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q6',
-      eyebrow: 'Question 6 of 7',
+      eyebrow: 'Question 6 of 9',
       title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
       options: [
         { text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.', center: 'heart' },
@@ -110,7 +110,27 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q7',
-      eyebrow: 'Question 7 of 7',
+      eyebrow: 'Question 7 of 9',
+      title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+      options: [
+        { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
+        { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.', center: 'action' },
+        { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
+      ],
+    },
+    {
+      id: 'q8',
+      eyebrow: 'Question 8 of 9',
+      title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
+      options: [
+        { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.', center: 'action' },
+        { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.', center: 'heart' },
+        { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.', center: 'head' },
+      ],
+    },
+    {
+      id: 'q9',
+      eyebrow: 'Question 9 of 9',
       title: 'When the pressure is high, what most naturally guides your leadership decisions?',
       options: [
         { text: 'Connection: staying aligned with people, meaning, and shared purpose.', center: 'heart' },
@@ -132,22 +152,28 @@ function sanitizeAssessmentFormConfig(config) {
       title: cleanText(incoming.intro?.title || DEFAULT_ASSESSMENT_FORM.intro.title, 180),
       copy: cleanText(incoming.intro?.copy || DEFAULT_ASSESSMENT_FORM.intro.copy, 600),
     },
-    questions: defaultQuestions.map((fallback, index) => {
+    questions: Array.from({ length: Math.max(defaultQuestions.length, incomingQuestions.length) }, (_, index) => {
+      const fallback = defaultQuestions[index] || {};
       const question = incomingQuestions[index] && typeof incomingQuestions[index] === 'object'
         ? incomingQuestions[index]
         : {};
+      const fallbackOptions = Array.isArray(fallback.options) ? fallback.options : [];
       const incomingOptions = Array.isArray(question.options) ? question.options : [];
+      const optionCount = Math.max(fallbackOptions.length, incomingOptions.length);
       return {
-        id: fallback.id,
-        eyebrow: cleanText(question.eyebrow || fallback.eyebrow, 80),
-        title: cleanText(question.title || fallback.title, 400),
-        options: fallback.options.map((fallbackOption, optionIndex) => {
+        id: fallback.id || question.id || `q${index + 1}`,
+        eyebrow: cleanText(question.eyebrow || fallback.eyebrow || `Question ${index + 1}`, 80),
+        title: cleanText(question.title || fallback.title || '', 400),
+        options: Array.from({ length: optionCount }, (__, optionIndex) => {
+          const fallbackOption = fallbackOptions[optionIndex] || {};
           const option = incomingOptions[optionIndex] && typeof incomingOptions[optionIndex] === 'object'
             ? incomingOptions[optionIndex]
             : {};
-          const center = ['heart', 'head', 'action'].includes(option.center) ? option.center : fallbackOption.center;
+          const center = ['heart', 'head', 'action'].includes(option.center)
+            ? option.center
+            : (['heart', 'head', 'action'].includes(fallbackOption.center) ? fallbackOption.center : 'head');
           return {
-            text: cleanText(option.text || fallbackOption.text, 500),
+            text: cleanText(option.text || fallbackOption.text || '', 500),
             center,
           };
         }),
