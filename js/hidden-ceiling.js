@@ -9,7 +9,7 @@
         },
         {
             id: 'q1',
-            eyebrow: 'Question 1 of 7',
+            eyebrow: 'Question 1 of 9',
             title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
             options: [
                 { title: 'Option 1', text: 'I pull back to analyze the data and find where the logic failed.' },
@@ -19,7 +19,7 @@
         },
         {
             id: 'q2',
-            eyebrow: 'Question 2 of 7',
+            eyebrow: 'Question 2 of 9',
             title: 'Under pressure, what do others most often need more of from you?',
             options: [
                 { title: 'Option 1', text: 'Move forward with less over-analysis and trust your judgment sooner.' },
@@ -29,7 +29,7 @@
         },
         {
             id: 'q3',
-            eyebrow: 'Question 3 of 7',
+            eyebrow: 'Question 3 of 9',
             title: 'In high-level leadership conversations, where do you naturally contribute most?',
             options: [
                 { title: 'Option 1', text: 'Systems, long-term implications, and what risks others may be missing.' },
@@ -39,7 +39,7 @@
         },
         {
             id: 'q4',
-            eyebrow: 'Question 4 of 7',
+            eyebrow: 'Question 4 of 9',
             title: 'When a peer gives you hard feedback, what is your first instinct?',
             options: [
                 { title: 'Option 1', text: 'Wonder what it means about the relationship or how you are being perceived.' },
@@ -49,7 +49,7 @@
         },
         {
             id: 'q5',
-            eyebrow: 'Question 5 of 7',
+            eyebrow: 'Question 5 of 9',
             title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
             options: [
                 { title: 'Option 1', text: 'Clear thinking, objectivity, and well-reasoned ideas.' },
@@ -59,7 +59,7 @@
         },
         {
             id: 'q6',
-            eyebrow: 'Question 6 of 7',
+            eyebrow: 'Question 6 of 9',
             title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
             options: [
                 { title: 'Option 1', text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.' },
@@ -69,7 +69,27 @@
         },
         {
             id: 'q7',
-            eyebrow: 'Question 7 of 7',
+            eyebrow: 'Question 7 of 9',
+            title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+            options: [
+                { title: 'Option 1', text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.' },
+                { title: 'Option 2', text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.' },
+                { title: 'Option 3', text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.' },
+            ],
+        },
+        {
+            id: 'q8',
+            eyebrow: 'Question 8 of 9',
+            title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
+            options: [
+                { title: 'Option 1', text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.' },
+                { title: 'Option 2', text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.' },
+                { title: 'Option 3', text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.' },
+            ],
+        },
+        {
+            id: 'q9',
+            eyebrow: 'Question 9 of 9',
             title: 'When the pressure is high, what most naturally guides your leadership decisions?',
             options: [
                 { title: 'Option 1', text: 'Connection: staying aligned with people, meaning, and shared purpose.' },
