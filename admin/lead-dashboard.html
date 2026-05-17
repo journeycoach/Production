@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lead Dashboard — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
     .range-bar {
       display: flex;
@@ -334,6 +335,23 @@
       .funnel-layout { grid-template-columns: 1fr; }
       .funnel-visual-wrap { max-width: 100%; }
     }
+
+    /* ── Analytics tab ─────────────────────────────────────────────────────── */
+    #tab-analytics .an-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+    #tab-analytics .an-controls label { font-size: 0.875rem; color: var(--admin-muted); font-family: var(--admin-body-font); }
+    #tab-analytics .an-controls select { background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; font-family: var(--admin-body-font); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    #tab-analytics .an-metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    #tab-analytics .an-metric-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
+    #tab-analytics .an-metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-muted); }
+    #tab-analytics .an-metric-value { font-size: 2rem; font-weight: 700; font-family: var(--admin-heading-font); color: var(--admin-text); line-height: 1.1; }
+    #tab-analytics .an-metric-value.accent { color: var(--admin-accent); }
+    #tab-analytics .an-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    #tab-analytics .an-chart-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; }
+    #tab-analytics .an-chart-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; font-family: var(--admin-body-font); }
+    #tab-analytics .an-chart-wrap.doughnut { max-width: 280px; margin: 0 auto; }
+    #tab-analytics .an-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--admin-muted); font-size: 0.9rem; }
+    #tab-analytics .an-error { display: flex; align-items: center; justify-content: center; min-height: 200px; color: #e05c5c; font-size: 0.9rem; }
+    @media (max-width: 800px) { #tab-analytics .an-charts-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -359,7 +377,6 @@
       <a href="site.html">Site</a>
       <a href="contacts.html">Contacts</a>
       <a href="subscribers.html">Subscribers</a>
-      <a href="analytics.html">Analytics</a>
     </nav>
 
     <main class="admin-main">
@@ -375,6 +392,7 @@
       <div class="main-tab-bar">
         <button class="main-tab is-active" id="mainTab-overview" onclick="switchTab('overview')">Overview</button>
         <button class="main-tab" id="mainTab-funnel" onclick="switchTab('funnel')">Sales Funnel</button>
+        <button class="main-tab" id="mainTab-analytics" onclick="switchTab('analytics')">Analytics</button>
       </div>
 
       <!-- Date range toggle -->
@@ -491,6 +509,21 @@
           </div>
         </div>
       </div><!-- /tab-funnel -->
+
+      <!-- ── Analytics tab ──────────────────────────────────────────────────── -->
+      <div id="tab-analytics" style="display:none;">
+        <div class="an-controls">
+          <label for="anWeeksSelect">Date range</label>
+          <select id="anWeeksSelect" onchange="loadAnalyticsCharts(this.value)">
+            <option value="4">Last 4 weeks</option>
+            <option value="12" selected>Last 12 weeks</option>
+            <option value="26">Last 26 weeks</option>
+          </select>
+        </div>
+        <div id="analyticsTabContent">
+          <div class="an-loading">Loading analytics…</div>
+        </div>
+      </div><!-- /tab-analytics -->
 
     </main>
   </div>
@@ -777,11 +810,110 @@
 
     // ── Tab switching ─────────────────────────────────────────────────────────
 
+    let analyticsLoaded = false;
     function switchTab(name) {
-      ['overview', 'funnel'].forEach(t => {
+      ['overview', 'funnel', 'analytics'].forEach(t => {
         document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
         document.getElementById('mainTab-' + t).classList.toggle('is-active', t === name);
       });
+      // Hide period range bar on analytics tab (has its own weeks selector)
+      document.querySelector('.range-bar').style.display = name === 'analytics' ? 'none' : '';
+      // Lazy-load on first visit
+      if (name === 'analytics' && !analyticsLoaded) {
+        analyticsLoaded = true;
+        loadAnalyticsCharts(12);
+      }
+    }
+
+    // ── Analytics charts ──────────────────────────────────────────────────────
+
+    Chart.defaults.color = '#7a8492';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+    const AN_GOLD  = '#c7a96b', AN_BLUE = '#5b8fd4', AN_GREEN = '#4caf7d', AN_TEAL = '#3eafc0';
+    const AN_FILL  = 'rgba(199,169,107,0.07)';
+    const anCharts = {};
+
+    function anDestroyChart(id) {
+      if (anCharts[id]) { anCharts[id].destroy(); delete anCharts[id]; }
+    }
+
+    function anWeekLabel(iso) {
+      const d = new Date(iso + 'T00:00:00Z');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+
+    const anTooltip = { backgroundColor: '#22262a', borderColor: '#333', borderWidth: 1, titleColor: '#f0ece4', bodyColor: '#7a8492', padding: 10 };
+
+    function anLineChart(id, title, labels, data, color) {
+      anDestroyChart(id);
+      anCharts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+        type: 'line',
+        data: { labels, datasets: [{ label: title, data, borderColor: color, backgroundColor: AN_FILL, borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, fill: true, tension: 0.35 }] },
+        options: { responsive: true, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: anTooltip }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { maxRotation: 45, font: { size: 11 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0, font: { size: 11 } } } } },
+      });
+    }
+
+    function anDoughnutChart(id, data) {
+      anDestroyChart(id);
+      const total = (data.heart || 0) + (data.head || 0) + (data.action || 0);
+      anCharts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: ['Heart', 'Head', 'Action'], datasets: [{ data: [data.heart || 0, data.head || 0, data.action || 0], backgroundColor: [AN_GOLD, AN_BLUE, AN_GREEN], borderColor: '#22262a', borderWidth: 3, hoverOffset: 6 }] },
+        options: { responsive: true, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 16, font: { size: 13 }, color: '#f0ece4', usePointStyle: true, pointStyleWidth: 10 } }, tooltip: { ...anTooltip, callbacks: { label(ctx) { const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0.0'; return ` ${ctx.parsed} (${pct}%)`; } } } } },
+      });
+    }
+
+    function anBarChart(id, rows) {
+      anDestroyChart(id);
+      anCharts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+        type: 'bar',
+        data: { labels: rows.map(r => `Step ${r.step}`), datasets: [{ label: 'Subscribers', data: rows.map(r => r.count), backgroundColor: 'rgba(91,143,212,0.6)', borderColor: AN_BLUE, borderWidth: 1, borderRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display: false }, tooltip: anTooltip }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { font: { size: 11 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0, font: { size: 11 } } } } },
+      });
+    }
+
+    function renderAnalyticsDashboard(d) {
+      const labels        = d.subscribersOverTime.map(r => anWeekLabel(r.week));
+      const totalSubs     = d.subscribersOverTime.reduce((s, r) => s + r.count, 0);
+      const totalAssess   = d.assessmentsOverTime.reduce((s, r) => s + r.count, 0);
+      const totalBookings = d.bookingsOverTime.reduce((s, r) => s + r.count, 0);
+      const bookingRate   = totalSubs > 0 ? ((totalBookings / totalSubs) * 100).toFixed(1) + '%' : '—';
+
+      document.getElementById('analyticsTabContent').innerHTML = `
+        <div class="an-metric-cards">
+          <div class="an-metric-card"><div class="an-metric-label">New Subscribers</div><div class="an-metric-value">${totalSubs.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Assessments</div><div class="an-metric-value">${totalAssess.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Call Bookings</div><div class="an-metric-value">${totalBookings.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Booking Rate</div><div class="an-metric-value accent">${bookingRate}</div></div>
+        </div>
+        <div class="an-charts-row" style="margin-bottom:20px;">
+          <div class="an-chart-card"><h2>Result Center Distribution</h2><div class="an-chart-wrap doughnut"><canvas id="anChartDoughnut"></canvas></div></div>
+          <div class="an-chart-card"><h2>Drip Step Distribution</h2><div class="an-chart-wrap"><canvas id="anChartBar"></canvas></div></div>
+        </div>
+        <div class="an-charts-row">
+          <div class="an-chart-card"><h2>New Subscribers per Week</h2><div class="an-chart-wrap"><canvas id="anChartSubs"></canvas></div></div>
+          <div class="an-chart-card"><h2>Assessment Completions per Week</h2><div class="an-chart-wrap"><canvas id="anChartAssess"></canvas></div></div>
+          <div class="an-chart-card"><h2>Contact Form Submissions per Week</h2><div class="an-chart-wrap"><canvas id="anChartContacts"></canvas></div></div>
+          <div class="an-chart-card"><h2>Call Bookings per Week</h2><div class="an-chart-wrap"><canvas id="anChartBookings"></canvas></div></div>
+        </div>`;
+
+      anLineChart('anChartSubs',     'Subscribers',          labels, d.subscribersOverTime.map(r => r.count), AN_GOLD);
+      anLineChart('anChartAssess',   'Assessments',          labels, d.assessmentsOverTime.map(r => r.count), AN_TEAL);
+      anLineChart('anChartContacts', 'Contact Submissions',  labels, d.contactsOverTime.map(r => r.count),    AN_GREEN);
+      anLineChart('anChartBookings', 'Call Bookings',        labels, d.bookingsOverTime.map(r => r.count),    AN_BLUE);
+      anDoughnutChart('anChartDoughnut', d.resultCenterCounts);
+      anBarChart('anChartBar', d.dripStepDistribution);
+    }
+
+    async function loadAnalyticsCharts(weeks) {
+      document.getElementById('analyticsTabContent').innerHTML = '<div class="an-loading">Loading analytics…</div>';
+      try {
+        const res  = await adminFetch(`/api/admin/contacts?type=analytics&weeks=${weeks}`);
+        if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.error || `HTTP ${res.status}`); }
+        renderAnalyticsDashboard(await res.json());
+      } catch (err) {
+        document.getElementById('analyticsTabContent').innerHTML = `<div class="an-error">Failed to load analytics: ${escHtml(err.message)}</div>`;
+      }
     }
 
     // ── Funnel visual ─────────────────────────────────────────────────────────

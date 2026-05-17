@@ -33,7 +33,7 @@ async function handleAnalytics(req, res) {
       LEFT JOIN subscribers s ON DATE_TRUNC('week', s.booked_call_at AT TIME ZONE 'UTC') = gs.week_start AND s.has_booked_call = true AND s.booked_call_at IS NOT NULL
       GROUP BY gs.week_start ORDER BY gs.week_start`;
     const resultCenterRows = await sql`SELECT result_center, COUNT(*)::int AS count FROM subscribers WHERE result_center IS NOT NULL GROUP BY result_center`;
-    const resultCenterCounts = { heart: 0, head: 0, gut: 0 };
+    const resultCenterCounts = { heart: 0, head: 0, action: 0 };
     for (const row of resultCenterRows) {
       const key = String(row.result_center).toLowerCase();
       if (key in resultCenterCounts) resultCenterCounts[key] = row.count;
