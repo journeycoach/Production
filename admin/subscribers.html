@@ -236,7 +236,7 @@
                 <option value="">All Centers</option>
                 <option value="heart">Heart</option>
                 <option value="head">Head</option>
-                <option value="action">Gut/Action</option>
+                <option value="action">Action</option>
                 <option value="head_heart">Head + Heart Blend</option>
                 <option value="head_action">Head + Action Blend</option>
                 <option value="heart_action">Heart + Action Blend</option>
@@ -406,7 +406,7 @@
           <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
             <button type="button" class="center-subtab is-active" data-center="heart"  role="tab" aria-selected="true">Heart Center</button>
             <button type="button" class="center-subtab"           data-center="head"   role="tab" aria-selected="false">Head Center</button>
-            <button type="button" class="center-subtab"           data-center="action" role="tab" aria-selected="false">Gut Center</button>
+            <button type="button" class="center-subtab"           data-center="action" role="tab" aria-selected="false">Action Center</button>
             <button type="button" class="center-subtab"           data-center="head_heart" role="tab" aria-selected="false">Head + Heart</button>
             <button type="button" class="center-subtab"           data-center="head_action" role="tab" aria-selected="false">Head + Action</button>
             <button type="button" class="center-subtab"           data-center="heart_action" role="tab" aria-selected="false">Heart + Action</button>
@@ -582,7 +582,7 @@
           <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
             <button type="button" class="res-subtab is-active" data-res-center="heart"  role="tab" aria-selected="true">Heart Center</button>
             <button type="button" class="res-subtab"           data-res-center="head"   role="tab" aria-selected="false">Head Center</button>
-            <button type="button" class="res-subtab"           data-res-center="action" role="tab" aria-selected="false">Gut Center</button>
+            <button type="button" class="res-subtab"           data-res-center="action" role="tab" aria-selected="false">Action Center</button>
             <button type="button" class="res-subtab"           data-res-center="head_heart" role="tab" aria-selected="false">Head + Heart</button>
             <button type="button" class="res-subtab"           data-res-center="head_action" role="tab" aria-selected="false">Head + Action</button>
             <button type="button" class="res-subtab"           data-res-center="heart_action" role="tab" aria-selected="false">Heart + Action</button>
@@ -652,10 +652,10 @@
 
           <!-- Action / Gut -->
           <div class="res-subtab-panel" data-res-center-panel="action">
-            <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Gut Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
+            <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Action Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
-              <div class="form-group"><label for="hc_result_action_label">Center Label</label><input type="text" id="hc_result_action_label" class="form-control" placeholder="Gut Center"></div>
-              <div class="form-group"><label for="hc_result_action_title">Title</label><input type="text" id="hc_result_action_title" class="form-control" placeholder="You lead from the Gut Center"></div>
+              <div class="form-group"><label for="hc_result_action_label">Center Label</label><input type="text" id="hc_result_action_label" class="form-control" placeholder="Action Center"></div>
+              <div class="form-group"><label for="hc_result_action_title">Title</label><input type="text" id="hc_result_action_title" class="form-control" placeholder="You lead from the Action Center"></div>
             </div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_action_summary">Opening Summary</label><textarea id="hc_result_action_summary" class="form-control" rows="4" style="resize:vertical;"></textarea></div>
@@ -1069,8 +1069,8 @@
 
       action: `<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
   <p style="color:#888;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;margin-top:0;">Your Journey Coach</p>
-  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">Gut Center</p>
-  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">You lead from the Gut Center</h1>
+  <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">Action Center</p>
+  <h1 style="font-family:Georgia,serif;font-size:1.5rem;color:#1a1d1e;margin-bottom:0.5em;line-height:1.3;">You lead from the Action Center</h1>
   <p>Hi {{firstName}},</p>
   <p>Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results. Your personalized guide is already on its way to your inbox.</p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
@@ -1732,7 +1732,7 @@
         const label   = g(`hc_result_${center}_label`)   || {
           heart: 'Heart Center',
           head: 'Head Center',
-          action: 'Gut Center',
+          action: 'Action Center',
           head_heart: 'Head + Heart Blend',
           head_action: 'Head + Action Blend',
           heart_action: 'Heart + Action Blend',
@@ -1776,7 +1776,7 @@
   <div class="scores">
     <div class="score-chip"><span class="val">72</span><span class="lbl">Heart</span></div>
     <div class="score-chip"><span class="val">58</span><span class="lbl">Head</span></div>
-    <div class="score-chip"><span class="val">64</span><span class="lbl">Gut</span></div>
+    <div class="score-chip"><span class="val">64</span><span class="lbl">Action</span></div>
   </div>
   ${summary ? `<div class="section-label">Opening Summary</div><p>${summary}</p>` : ''}
   ${desc    ? `<div class="section-label">What This Says About You</div><p>${desc}</p>` : ''}
@@ -2158,8 +2158,8 @@
         step3: 'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.',
       },
       action: {
-        label: 'Gut Center',
-        title: 'You lead from the Gut Center',
+        label: 'Action Center',
+        title: 'You lead from the Action Center',
         summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
         description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
         blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
@@ -2248,7 +2248,7 @@
 
     // ── Subscribers list ─────────────────────────────────────────────────────
     // ── Constants ────────────────────────────────────────────────────────────
-    const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Gut Center', head_heart: 'Head + Heart Blend', head_action: 'Head + Action Blend', heart_action: 'Heart + Action Blend' };
+    const CENTER_LABELS = { heart: 'Heart Center', head: 'Head Center', action: 'Action Center', head_heart: 'Head + Heart Blend', head_action: 'Head + Action Blend', heart_action: 'Heart + Action Blend' };
     const CENTER_COLORS = { heart: '#c7a96b', head: '#7b9eb8', action: '#8faa82', head_heart: '#8b7bb8', head_action: '#6d8fb5', heart_action: '#b88775' };
     const FUNNEL_LABELS = { 'hidden-ceiling': 'Assessment', 'homepage': 'Free Guide', 'website': 'Free Guide', 'free-guide': 'Free Guide', 'contact': 'Contact Form' };
     const FUNNEL_COLORS = { 'hidden-ceiling': '#c7a96b', 'homepage': '#7b9eb8', 'website': '#7b9eb8', 'free-guide': '#7b9eb8', 'contact': '#8faa82' };
