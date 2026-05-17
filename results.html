@@ -208,26 +208,7 @@
         const q4     = params.get('q4');
         const q7     = params.get('q7');
 
-        // Three-way tie — show retake prompt instead of a false result
-        if (center === 'inconclusive') {
-            document.getElementById('results-loading').style.display = 'none';
-            document.getElementById('results-content').innerHTML = `
-                <p class="results-eyebrow">Assessment Complete</p>
-                <h1 class="results-title" style="font-size:2rem;">Your results are split evenly</h1>
-                <p class="results-summary">You scored equally across all three leadership centers — Heart, Head, and Action. This is rare and genuinely interesting, but it means we cannot confidently identify a primary pattern from this pass.</p>
-                <div class="results-card">
-                    <div class="results-card-label">What this means</div>
-                    <p>An even split usually means one of two things: you lead differently in different contexts (situational range is a real strength), or the questions did not create enough separation to reveal your primary center. Either way, a conversation will clarify this faster than a second attempt.</p>
-                </div>
-                <div style="text-align:center;margin-top:2rem;">
-                    <a href="/Hidden-Ceiling.html" class="btn-primary" style="margin-right:1rem;">Retake the Assessment</a>
-                    <a href="/contact.html" class="btn-secondary">Book a Call Instead</a>
-                </div>`;
-            document.getElementById('results-content').style.display = 'block';
-            return;
-        }
-
-        // Verify token — redirect fabricated URLs back to assessment
+        // Verify token first — redirect fabricated URLs back to assessment
         if (tok) {
             try {
                 const vRes = await fetch(`/api/contact?action=verify_result&center=${encodeURIComponent(center)}&sh=${sh}&sd=${sd}&sa=${sa}&token=${encodeURIComponent(tok)}`);
@@ -236,10 +217,17 @@
                     window.location.replace('/Hidden-Ceiling.html');
                     return;
                 }
-            } catch (_) { /* network error — allow through rather than block */ }
+            } catch (_) { /* network error — allow through rather than block a real result */ }
         } else {
-            // No token at all → redirect (covers direct URL fabrication)
+            // No token → redirect (covers direct URL fabrication)
             window.location.replace('/Hidden-Ceiling.html');
+            return;
+        }
+
+        // Three-way tie — redirect to dedicated inconclusive page
+        if (center === 'inconclusive') {
+            const ip = new URLSearchParams({ sh, sd, sa, name });
+            window.location.replace(`/inconclusive.html?${ip.toString()}`);
             return;
         }
 

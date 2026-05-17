@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZM9X6CN8YK');</script>
+    <title>Your Results | Your Journey Coach</title>
+    <meta name="description" content="Your Hidden Ceiling assessment results were evenly split. Here is what that means and what to do next.">
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/variables.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/responsive.css?v=11">
+    <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+    <style>
+        .inc-wrap { max-width: 780px; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
+        .inc-eyebrow { font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent-gold); font-weight: 600; margin-bottom: 0.6rem; }
+        .inc-title { font-family: var(--font-heading); font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--color-text-primary); margin: 0 0 1rem; line-height: 1.2; }
+        .inc-summary { font-size: 1.1rem; color: var(--color-text-secondary); line-height: 1.75; margin-bottom: 2.5rem; }
+        .inc-card { background: var(--color-bg-secondary); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 2rem; margin-bottom: 1.5rem; }
+        .inc-card-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent-gold); font-weight: 600; margin-bottom: 0.75rem; }
+        .inc-card p { color: var(--color-text-secondary); font-size: 0.97rem; line-height: 1.75; margin: 0; }
+        .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+        .score-card { background: var(--color-bg-secondary); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 1.25rem 1rem; text-align: center; }
+        .score-card strong { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 0.5rem; font-weight: 500; }
+        .score-card span { font-size: 2rem; font-weight: 700; color: var(--color-text-primary); font-family: var(--font-heading); }
+        .score-bar-track { background: rgba(255,255,255,0.06); border-radius: 999px; height: 5px; margin-top: 0.6rem; overflow: hidden; }
+        .score-bar-fill { height: 100%; border-radius: 999px; background: rgba(255,255,255,0.28); }
+        .split-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3em 0.85em; border-radius: 999px; margin-bottom: 1.5rem; background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+        .inc-meaning-list { list-style: none; padding: 0; margin: 0; }
+        .inc-meaning-list li { color: var(--color-text-secondary); font-size: 0.97rem; line-height: 1.7; padding: 0.75rem 0 0.75rem 1.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .inc-meaning-list li:last-child { border-bottom: none; }
+        .inc-meaning-list li::before { content: '→'; position: absolute; left: 0; color: var(--color-accent-gold); }
+        .inc-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2.5rem; }
+        .inc-actions .btn-primary { flex: 1; text-align: center; min-width: 200px; }
+        .inc-actions .btn-outline { flex: 1; text-align: center; min-width: 200px; display: inline-flex; align-items: center; justify-content: center; padding: 0.85rem 1.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.05em; text-decoration: none; border: 1px solid rgba(199,169,107,0.4); color: var(--color-accent-gold); transition: background 0.2s, border-color 0.2s; }
+        .inc-actions .btn-outline:hover { background: rgba(199,169,107,0.08); border-color: var(--color-accent-gold); }
+        .inc-note { text-align: center; margin-top: 2rem; font-size: 0.83rem; color: var(--color-text-muted); }
+        .inc-note a { color: var(--color-accent-gold); text-decoration: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="loader-wrapper"><div class="breathing-circle"></div></div>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo" id="nav-logo">
+                <img src="/assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+            </a>
+            <ul class="nav-links" id="nav-links-list"></ul>
+            <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="inc-wrap">
+            <p class="inc-eyebrow">Assessment Complete</p>
+            <h1 class="inc-title">Your results came out evenly split</h1>
+            <p class="inc-summary">You scored equally across Heart, Head, and Action. That is rare — and it is telling. Here is what it means and what to do next.</p>
+
+            <span class="split-badge">◎ Evenly Distributed</span>
+
+            <div class="score-grid" id="score-grid">
+                <div class="score-card">
+                    <strong>Heart</strong>
+                    <span id="score-heart">—</span>
+                    <div class="score-bar-track"><div class="score-bar-fill" style="width:33%"></div></div>
+                </div>
+                <div class="score-card">
+                    <strong>Head</strong>
+                    <span id="score-head">—</span>
+                    <div class="score-bar-track"><div class="score-bar-fill" style="width:33%"></div></div>
+                </div>
+                <div class="score-card">
+                    <strong>Action</strong>
+                    <span id="score-action">—</span>
+                    <div class="score-bar-track"><div class="score-bar-fill" style="width:33%"></div></div>
+                </div>
+            </div>
+
+            <div class="inc-card">
+                <div class="inc-card-label">What an even split means</div>
+                <p>An equal distribution across all three centers usually points to one of two things:</p>
+                <ul class="inc-meaning-list" style="margin-top:1rem;">
+                    <li><strong>Situational range.</strong> You adapt your leadership style depending on the context — which is a genuine strength, but it can also mean your default pattern is harder to see from the inside.</li>
+                    <li><strong>Insufficient separation.</strong> The questions did not create enough contrast to surface your primary center. This can happen when someone leads from a well-practiced professional identity rather than instinct.</li>
+                    <li><strong>A genuinely blended profile.</strong> Some leaders operate from all three centers in close balance. If that is you, a coaching conversation is the most reliable way to identify which center leads under real pressure.</li>
+                </ul>
+            </div>
+
+            <div class="inc-card">
+                <div class="inc-card-label">What to do next</div>
+                <p>A 30-minute assessment call cuts through the ambiguity faster than any assessment can. We will look at specific leadership moments — decisions you have made, feedback you have received, and patterns others have named in you — and identify your center from there. You can also retake the assessment and focus on answering from your first instinct rather than your best judgment.</p>
+            </div>
+
+            <div class="inc-actions">
+                <a href="/contact.html" class="btn-primary">Book a Free Assessment Call</a>
+                <a href="/Hidden-Ceiling.html" class="btn-outline">Retake the Assessment</a>
+            </div>
+
+            <p class="inc-note">On a retake, choose the response that feels most automatic — not the most leader-like answer. <a href="/Hidden-Ceiling.html">Take it again.</a></p>
+        </div>
+    </main>
+
+    <footer style="padding:3rem 0;background:var(--color-bg-primary);border-top:1px solid rgba(255,255,255,0.05);">
+        <div class="container" style="text-align:center;">
+            <p style="color:var(--color-text-muted);font-size:0.85rem;margin:0;">© <span id="footer-year"></span> Your Journey Coach · <a href="/" style="color:var(--color-accent-gold);text-decoration:none;">journeycoach.co</a></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script>
+        document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+        // Populate scores from URL params
+        const p = new URLSearchParams(window.location.search);
+        const sh = parseInt(p.get('sh'), 10) || 0;
+        const sd = parseInt(p.get('sd'), 10) || 0;
+        const sa = parseInt(p.get('sa'), 10) || 0;
+        const name = p.get('name') || '';
+
+        if (sh || sd || sa) {
+            document.getElementById('score-heart').textContent  = sh;
+            document.getElementById('score-head').textContent   = sd;
+            document.getElementById('score-action').textContent = sa;
+        }
+
+        if (name) {
+            document.querySelector('.inc-eyebrow').textContent = `Assessment Complete · ${name}'s Result`;
+        }
+    </script>
+</body>
+</html>
