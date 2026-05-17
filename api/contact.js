@@ -55,7 +55,7 @@ const DEFAULT_ASSESSMENT_FORM = {
       options: [
         { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
         { text: 'I move quickly to take charge and get things back on track.', center: 'action' },
-        { text: 'I worry about how this failure reflects on the team and how others will respond.', center: 'heart' },
+        { text: 'My focus goes immediately to the team. I want to understand how they are being affected and what they need from me.', center: 'heart' },
       ],
     },
     {
@@ -83,9 +83,9 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 4 of 9',
       title: 'When a peer gives you hard feedback, what is your first instinct?',
       options: [
-        { text: 'Wonder what it means about the relationship or how you are being perceived.', center: 'heart' },
+        { text: 'You focus on the relational context. You want to understand what is behind the feedback before you respond.', center: 'heart' },
         { text: 'Step back and assess whether the feedback is accurate and logically sound.', center: 'head' },
-        { text: 'Push back immediately if the feedback feels unfair or unsupported.', center: 'action' },
+        { text: 'You address it directly. If it does not hold up, you say so and explain why.', center: 'action' },
       ],
     },
     {
@@ -511,6 +511,10 @@ async function handleHiddenCeiling(req, res) {
     }
   }
 
+  // Capture Q4 and Q7 answer centers for consistency cross-check on results page
+  const q4Center = scoreMap['q4']?.[answers['q4']] || null;
+  const q7Center = scoreMap['q7']?.[answers['q7']] || null;
+
   const center = determineAssessmentCenter(scores);
   const result = { center };
 
@@ -623,7 +627,7 @@ async function handleHiddenCeiling(req, res) {
   };
   const hasResultOverride = Object.values(rcRaw).some(v => v);
 
-  return res.status(200).json({ ok: true, result, scores, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+  return res.status(200).json({ ok: true, result, scores, q4Center, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
 }
 
 async function handleCronDrip(req, res) {

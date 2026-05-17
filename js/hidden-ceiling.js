@@ -14,7 +14,7 @@
             options: [
                 { title: 'Option 1', text: 'I pull back to analyze the data and find where the logic failed.' },
                 { title: 'Option 2', text: 'I move quickly to take charge and get things back on track.' },
-                { title: 'Option 3', text: 'I worry about how this failure reflects on the team and how others will respond.' },
+                { title: 'Option 3', text: 'My focus goes immediately to the team. I want to understand how they are being affected and what they need from me.' },
             ],
         },
         {
@@ -42,9 +42,9 @@
             eyebrow: 'Question 4 of 9',
             title: 'When a peer gives you hard feedback, what is your first instinct?',
             options: [
-                { title: 'Option 1', text: 'Wonder what it means about the relationship or how you are being perceived.' },
+                { title: 'Option 1', text: 'You focus on the relational context. You want to understand what is behind the feedback before you respond.' },
                 { title: 'Option 2', text: 'Step back and assess whether the feedback is accurate and logically sound.' },
-                { title: 'Option 3', text: 'Push back immediately if the feedback feels unfair or unsupported.' },
+                { title: 'Option 3', text: 'You address it directly. If it does not hold up, you say so and explain why.' },
             ],
         },
         {
@@ -387,7 +387,7 @@
             try { sessionStorage.setItem('hc_result_email', state.email); } catch (_) {}
 
             // Redirect to shareable results page
-            const { result, scores } = data;
+            const { result, scores, q4Center, q7Center } = data;
             const params = new URLSearchParams({
                 center: result.center,
                 name:   state.firstName || state.email.split('@')[0],
@@ -395,6 +395,8 @@
                 sd:     scores.head,
                 sa:     scores.action
             });
+            if (q4Center) params.set('q4', q4Center);
+            if (q7Center) params.set('q7', q7Center);
             window.location.href = `/results.html?${params.toString()}`;
 
         } catch (error) {
