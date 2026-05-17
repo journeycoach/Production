@@ -387,7 +387,7 @@
             try { sessionStorage.setItem('hc_result_email', state.email); } catch (_) {}
 
             // Redirect to shareable results page
-            const { result, scores, q4Center, q7Center } = data;
+            const { result, scores, resultToken, q4Center, q7Center } = data;
             const params = new URLSearchParams({
                 center: result.center,
                 name:   state.firstName || state.email.split('@')[0],
@@ -395,6 +395,7 @@
                 sd:     scores.head,
                 sa:     scores.action
             });
+            if (resultToken) params.set('tok', resultToken);
             if (q4Center) params.set('q4', q4Center);
             if (q7Center) params.set('q7', q7Center);
             window.location.href = `/results.html?${params.toString()}`;

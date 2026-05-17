@@ -9,7 +9,17 @@ const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const BLENDED_HEAD_HEART_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf';
 const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf';
 const BLENDED_HEART_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf';
-const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action', 'heart_action'];
+const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action', 'heart_action', 'inconclusive'];
+
+// Sign assessment result to prevent URL fabrication
+function signResult(center, sh, sd, sa) {
+  const secret = process.env.ADMIN_JWT_SECRET || 'fallback';
+  return crypto.createHmac('sha256', secret).update(`${center}.${sh}.${sd}.${sa}`).digest('hex').slice(0, 16);
+}
+
+function verifyResult(center, sh, sd, sa, token) {
+  return token === signResult(center, sh, sd, sa);
+}
 
 // Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.
 async function verifyCaptcha(token) {
@@ -239,6 +249,9 @@ function isValidUnsubscribeToken(subscriberId, token) {
 }
 
 function determineAssessmentCenter(scores) {
+  // Three-way tie → inconclusive, prompt retake
+  if (scores.head === scores.heart && scores.heart === scores.action) return 'inconclusive';
+
   // Exact two-way tie (both greater than third) → blended
   if (scores.head === scores.heart && scores.head > scores.action) return 'head_heart';
   if (scores.head === scores.action && scores.head > scores.heart) return 'head_action';
@@ -248,9 +261,7 @@ function determineAssessmentCenter(scores) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   const [first, second, third] = sorted;
   if (first[1] - second[1] === 1 && second[1] - third[1] >= 2) {
-    // Canonical key is the two center names sorted alphabetically and joined with '_'
     const pair = [first[0], second[0]].sort().join('_');
-    // Map sorted pair → result center key
     const BLEND_MAP = {
       'head_heart':   'head_heart',
       'action_head':  'head_action',
@@ -469,7 +480,8 @@ async function handleHiddenCeiling(req, res) {
         ].filter(Boolean),
       };
       const hasResultOverride = Object.values(rcRaw).some(v => v);
-      return res.status(200).json({ ok: true, result, scores, emailSent: true, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+      const resultToken = signResult(center, scores.heart, scores.head, scores.action);
+      return res.status(200).json({ ok: true, result, scores, resultToken, emailSent: true, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
   }
 
   // Honeypot — bots fill the company field
@@ -627,7 +639,8 @@ async function handleHiddenCeiling(req, res) {
   };
   const hasResultOverride = Object.values(rcRaw).some(v => v);
 
-  return res.status(200).json({ ok: true, result, scores, q4Center, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+  const resultToken = signResult(center, scores.heart, scores.head, scores.action);
+  return res.status(200).json({ ok: true, result, scores, resultToken, q4Center, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
 }
 
 async function handleCronDrip(req, res) {
@@ -840,6 +853,13 @@ export default async function handler(req, res) {
         calendly_url: process.env.CALENDLY_URL || null,
         assessment_form: await getAssessmentFormConfig(),
       });
+    }
+
+    // Verify a result token to confirm URL was server-generated
+    if (req.method === 'GET' && req.query?.action === 'verify_result') {
+      const { center, sh, sd, sa, token } = req.query;
+      const valid = verifyResult(center, sh, sd, sa, token);
+      return res.status(200).json({ valid });
     }
 
     // Only allow POST
