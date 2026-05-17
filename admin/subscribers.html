@@ -156,7 +156,7 @@
     .ae-q-summary::-webkit-details-marker { display: none; }
     .ae-q-summary:hover { background: #f5f7fa; }
     .ae-question[open] > .ae-q-summary { border-bottom: 1px solid #dde2e8; background: #f5f7fa; }
-    .ae-q-num { width: 26px; height: 26px; border-radius: 50%; background: var(--admin-accent); color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ae-q-num { min-width: 36px; height: 24px; border-radius: 4px; background: var(--admin-accent); color: #fff; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0 7px; letter-spacing: 0.03em; }
     .ae-q-text { flex: 1; font-size: 0.875rem; color: #2d3748; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ae-q-chevron { font-size: 0.65rem; color: #8a95a3; transition: transform 0.2s; flex-shrink: 0; }
     .ae-question[open] .ae-q-chevron { transform: rotate(180deg); }
@@ -1191,7 +1191,7 @@
       questions: [
         {
           id: 'q1',
-          eyebrow: 'Question 1 of 7',
+          eyebrow: 'Question 1 of 9',
           title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
           options: [
             { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
@@ -1201,7 +1201,7 @@
         },
         {
           id: 'q2',
-          eyebrow: 'Question 2 of 7',
+          eyebrow: 'Question 2 of 9',
           title: 'Under pressure, what do others most often need more of from you?',
           options: [
             { text: 'Move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
@@ -1211,7 +1211,7 @@
         },
         {
           id: 'q3',
-          eyebrow: 'Question 3 of 7',
+          eyebrow: 'Question 3 of 9',
           title: 'In high-level leadership conversations, where do you naturally contribute most?',
           options: [
             { text: 'Systems, long-term implications, and what risks others may be missing.', center: 'head' },
@@ -1221,7 +1221,7 @@
         },
         {
           id: 'q4',
-          eyebrow: 'Question 4 of 7',
+          eyebrow: 'Question 4 of 9',
           title: 'When a peer gives you hard feedback, what is your first instinct?',
           options: [
             { text: 'Wonder what it means about the relationship or how you are being perceived.', center: 'heart' },
@@ -1231,7 +1231,7 @@
         },
         {
           id: 'q5',
-          eyebrow: 'Question 5 of 7',
+          eyebrow: 'Question 5 of 9',
           title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
           options: [
             { text: 'Clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
@@ -1241,7 +1241,7 @@
         },
         {
           id: 'q6',
-          eyebrow: 'Question 6 of 7',
+          eyebrow: 'Question 6 of 9',
           title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
           options: [
             { text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.', center: 'heart' },
@@ -1251,7 +1251,27 @@
         },
         {
           id: 'q7',
-          eyebrow: 'Question 7 of 7',
+          eyebrow: 'Question 7 of 9',
+          title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+          options: [
+            { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
+            { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.', center: 'action' },
+            { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
+          ],
+        },
+        {
+          id: 'q8',
+          eyebrow: 'Question 8 of 9',
+          title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
+          options: [
+            { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.', center: 'action' },
+            { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.', center: 'heart' },
+            { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.', center: 'head' },
+          ],
+        },
+        {
+          id: 'q9',
+          eyebrow: 'Question 9 of 9',
           title: 'When the pressure is high, what most naturally guides your leadership decisions?',
           options: [
             { text: 'Connection: staying aligned with people, meaning, and shared purpose.', center: 'heart' },
@@ -1368,13 +1388,13 @@
       const CENTERS = [
         { value: 'heart',  label: 'Heart', color: '#e05c8a' },
         { value: 'head',   label: 'Head',  color: '#4a9eda' },
-        { value: 'action', label: 'Gut',   color: '#d97706' },
+        { value: 'action', label: 'Action', color: '#d97706' },
       ];
 
       document.getElementById('assessmentQuestionsEditor').innerHTML = normalized.questions.map((q, qi) => `
         <details class="ae-question" data-qi="${qi}">
           <summary class="ae-q-summary">
-            <span class="ae-q-num">${qi + 1}</span>
+            <span class="ae-q-num">Q${qi + 1}</span>
             <span class="ae-q-text">${escHtml(q.title)}</span>
             <span class="ae-q-chevron">▾</span>
           </summary>
@@ -1415,7 +1435,7 @@
     function collectAssessmentFormConfig() {
       const questions = Array.from(document.querySelectorAll('#assessmentQuestionsEditor .ae-question')).map((card, qi) => ({
         id:      DEFAULT_ASSESSMENT_FORM.questions[qi]?.id      || `q${qi + 1}`,
-        eyebrow: DEFAULT_ASSESSMENT_FORM.questions[qi]?.eyebrow || `Question ${qi + 1} of 7`,
+        eyebrow: DEFAULT_ASSESSMENT_FORM.questions[qi]?.eyebrow || `Question ${qi + 1} of 9`,
         title:   card.querySelector('.ae-q-title')?.value.trim() || '',
         options: Array.from(card.querySelectorAll('.ae-response')).map(row => ({
           text:   row.querySelector('.ae-opt-text')?.value.trim() || '',
