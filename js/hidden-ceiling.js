@@ -294,7 +294,6 @@
 
         const selected = state.answers[step.id];
         stepContainer.innerHTML = `
-            <span class="hc-step-eyebrow">${step.eyebrow}</span>
             <h3 class="hc-step-title">${step.title}</h3>
             <div class="hc-choice-list">
                 ${step.options.map((option, index) => `
