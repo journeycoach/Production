@@ -42,8 +42,7 @@
         .score-bar-track { background: rgba(255,255,255,0.06); border-radius: 999px; height: 5px; margin-top: 0.6rem; overflow: hidden; }
         .score-bar-fill { height: 100%; border-radius: 999px; background: rgba(255,255,255,0.18); transition: width 0.6s ease; }
         .score-card.is-primary .score-bar-fill { background: var(--color-accent-gold); }
-        .score-of { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.3rem; display: block; }
-        .confidence-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3em 0.85em; border-radius: 999px; margin-bottom: 1.5rem; }
+.confidence-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.3em 0.85em; border-radius: 999px; margin-bottom: 1.5rem; }
         .confidence-badge.strong  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
         .confidence-badge.clear   { background: rgba(199,169,107,0.12); color: var(--color-accent-gold); border: 1px solid rgba(199,169,107,0.25); }
         .confidence-badge.moderate { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
@@ -205,7 +204,6 @@
         const sd     = parseInt(params.get('sd'), 10) || 0;
         const sa     = parseInt(params.get('sa'), 10) || 0;
         const tok    = params.get('tok');
-        const q7     = params.get('q7');
 
         // Verify token first — redirect fabricated URLs back to assessment
         if (tok) {

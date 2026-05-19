@@ -532,8 +532,6 @@ async function handleHiddenCeiling(req, res) {
     }
   }
 
-  // Capture Q4 and Q7 answer centers for consistency cross-check on results page
-  const q4Center = scoreMap['q4']?.[answers['q4']] || null;
   const q7Center = scoreMap['q7']?.[answers['q7']] || null;
 
   const center = determineAssessmentCenter(scores);
@@ -649,7 +647,7 @@ async function handleHiddenCeiling(req, res) {
   const hasResultOverride = Object.values(rcRaw).some(v => v);
 
   const resultToken = signResult(center, scores.heart, scores.head, scores.action);
-  return res.status(200).json({ ok: true, result, scores, resultToken, q4Center, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+  return res.status(200).json({ ok: true, result, scores, resultToken, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
 }
 
 async function handleCronDrip(req, res) {
