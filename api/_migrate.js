@@ -206,5 +206,91 @@ export async function runMigrations() {
     )
   `;
 
+  // Ensure site_settings table exists (may have been created outside migrations)
+  await sql`
+    CREATE TABLE IF NOT EXISTS site_settings (
+      setting_key   TEXT PRIMARY KEY,
+      setting_value TEXT,
+      updated_at    TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  // Seed correct 9-question assessment config if DB has a stale version (< 9 questions)
+  try {
+    const existing = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'assessment_form_config'`;
+    let isStale = true;
+    if (existing.length > 0 && existing[0].setting_value) {
+      try {
+        const c = JSON.parse(existing[0].setting_value);
+        if (Array.isArray(c.questions) && c.questions.length >= 9) isStale = false;
+      } catch (_) {}
+    }
+    if (isStale) {
+      const correctConfig = JSON.stringify({
+        intro: {
+          eyebrow: 'Start Here',
+          title: 'Tell me where to send your guide',
+          copy: 'You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide so you can revisit it later.',
+        },
+        questions: [
+          { id: 'q1', eyebrow: 'Question 1 of 9', title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?', options: [
+            { text: 'You pull back to analyze the data and find where the logic failed.', center: 'head' },
+            { text: 'You move quickly to take charge and get things back on track.', center: 'action' },
+            { text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.', center: 'heart' },
+          ]},
+          { id: 'q2', eyebrow: 'Question 2 of 9', title: 'Under pressure, what do others most often tell you that you need to do differently?', options: [
+            { text: 'You need to move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
+            { text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
+            { text: 'You need to slow down long enough to consider how decisions are affecting people.', center: 'action' },
+          ]},
+          { id: 'q3', eyebrow: 'Question 3 of 9', title: 'In high-level leadership conversations, where do you naturally contribute most?', options: [
+            { text: 'You track how people will experience the decision and what it will mean relationally.', center: 'heart' },
+            { text: 'You name the system-level risks, the long-term implications, and what others may be missing.', center: 'head' },
+            { text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.', center: 'action' },
+          ]},
+          { id: 'q4', eyebrow: 'Question 4 of 9', title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?', options: [
+            { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.', center: 'action' },
+            { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.', center: 'head' },
+            { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.', center: 'heart' },
+          ]},
+          { id: 'q5', eyebrow: 'Question 5 of 9', title: 'In leadership meetings, what kind of contribution do you instinctively value most?', options: [
+            { text: 'You value awareness of people, tone, and how decisions affect the room.', center: 'heart' },
+            { text: 'You value directness, conviction, and the ability to move things forward.', center: 'action' },
+            { text: 'You value clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
+          ]},
+          { id: 'q6', eyebrow: 'Question 6 of 9', title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?', options: [
+            { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.', center: 'action' },
+            { text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.', center: 'head' },
+            { text: 'You can do it, but you would rather focus on the people and context behind the numbers.', center: 'heart' },
+          ]},
+          { id: 'q7', eyebrow: 'Question 7 of 9', title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?', options: [
+            { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
+            { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.', center: 'action' },
+            { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
+          ]},
+          { id: 'q8', eyebrow: 'Question 8 of 9', title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?', options: [
+            { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.', center: 'action' },
+            { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.', center: 'heart' },
+            { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.', center: 'head' },
+          ]},
+          { id: 'q9', eyebrow: 'Question 9 of 9', title: 'When the pressure is high, what most naturally guides your leadership decisions?', options: [
+            { text: 'You return to truth — understanding what is accurate, objective, and really happening.', center: 'head' },
+            { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.', center: 'heart' },
+            { text: 'You return to action — moving with conviction, clarity, and grounded instinct.', center: 'action' },
+          ]},
+        ],
+      });
+      await sql`
+        INSERT INTO site_settings (setting_key, setting_value, updated_at)
+        VALUES ('assessment_form_config', ${correctConfig}, NOW())
+        ON CONFLICT (setting_key) DO UPDATE
+          SET setting_value = EXCLUDED.setting_value,
+              updated_at    = NOW()
+      `;
+    }
+  } catch (seedErr) {
+    console.error('assessment config seed error:', seedErr);
+  }
+
   migrated = true;
 }
