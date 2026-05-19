@@ -3,20 +3,37 @@ import { sql } from '../_db.js';
 import { Resend } from 'resend';
 import { runMigrations } from '../_migrate.js';
 
+// Disable Vercel's automatic body parsing so we can read the raw bytes
+// needed for HMAC signature verification.
+export const config = { api: { bodyParser: false } };
+
 function escapeHtml(str) {
   return String(str || '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
 // Verify Calendly HMAC-SHA256 webhook signature.
 // Header format: "t=<timestamp>,v1=<hex-sig>"
-function verifySignature(req) {
+// Calendly signs: "<timestamp>.<raw-body-string>"
+function verifySignature(rawBody, headers) {
   const secret = process.env.CALENDLY_WEBHOOK_SECRET;
   if (!secret) return true; // not configured — skip verification in dev
 
-  const sigHeader = req.headers['calendly-webhook-signature'] || '';
-  const parts = Object.fromEntries(sigHeader.split(',').map(p => p.split('=')));
+  const sigHeader = headers['calendly-webhook-signature'] || '';
+  const parts = Object.fromEntries(sigHeader.split(',').map(p => {
+    const idx = p.indexOf('=');
+    return [p.slice(0, idx), p.slice(idx + 1)];
+  }));
   const timestamp = parts.t;
   const received  = parts.v1;
   if (!timestamp || !received) return false;
@@ -24,20 +41,17 @@ function verifySignature(req) {
   // Reject messages older than 5 minutes
   if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
 
-  // Calendly signs: "<timestamp>.<raw-body-string>"
-  // Vercel pre-parses JSON bodies; re-serialize to approximate the raw body.
-  const rawBody = JSON.stringify(req.body);
-  const payload = `${timestamp}.${rawBody}`;
+  const payload = `${timestamp}.${rawBody.toString('utf8')}`;
   const expected = crypto
     .createHmac('sha256', secret)
     .update(payload)
     .digest('hex');
 
   try {
-    return crypto.timingSafeEqual(
-      Buffer.from(received, 'hex'),
-      Buffer.from(expected, 'hex')
-    );
+    const receivedBuf = Buffer.from(received, 'hex');
+    const expectedBuf = Buffer.from(expected, 'hex');
+    if (receivedBuf.length !== expectedBuf.length) return false;
+    return crypto.timingSafeEqual(receivedBuf, expectedBuf);
   } catch {
     return false;
   }
@@ -80,12 +94,22 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // Verify Calendly signature
-  if (!verifySignature(req)) {
+  // Read raw body before parsing (bodyParser is disabled above)
+  let rawBody;
+  let body;
+  try {
+    rawBody = await readRawBody(req);
+    body = JSON.parse(rawBody.toString('utf8'));
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON body' });
+  }
+
+  // Verify Calendly signature against the true raw bytes
+  if (!verifySignature(rawBody, req.headers)) {
     return res.status(401).json({ error: 'Invalid signature' });
   }
 
-  const { event, payload } = req.body || {};
+  const { event, payload } = body || {};
 
   // Only process new bookings; acknowledge everything else silently
   if (event !== 'invitee.created') {

@@ -33,7 +33,7 @@ async function handleAnalytics(req, res) {
       LEFT JOIN subscribers s ON DATE_TRUNC('week', s.booked_call_at AT TIME ZONE 'UTC') = gs.week_start AND s.has_booked_call = true AND s.booked_call_at IS NOT NULL
       GROUP BY gs.week_start ORDER BY gs.week_start`;
     const resultCenterRows = await sql`SELECT result_center, COUNT(*)::int AS count FROM subscribers WHERE result_center IS NOT NULL GROUP BY result_center`;
-    const resultCenterCounts = { heart: 0, head: 0, action: 0 };
+    const resultCenterCounts = { heart: 0, head: 0, action: 0, head_heart: 0, head_action: 0, heart_action: 0, inconclusive: 0 };
     for (const row of resultCenterRows) {
       const key = String(row.result_center).toLowerCase();
       if (key in resultCenterCounts) resultCenterCounts[key] = row.count;
@@ -48,7 +48,7 @@ async function handleAnalytics(req, res) {
 
 // ── Segment send helper (consolidated from api/admin/subscribers/send.js) ────
 function makeUnsubToken(id) {
-  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(id)).digest('hex').slice(0, 32);
+  return crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(String(id)).digest('hex');
 }
 
 async function handleSegmentSend(req, res) {
@@ -79,7 +79,7 @@ async function handleSegmentSend(req, res) {
   let sent = 0;
   for (const sub of toSend) {
     const token = makeUnsubToken(sub.id);
-    const unsubUrl = `https://journeycoach.co/api/contact?action=unsubscribe&token=${token}`;
+    const unsubUrl = `https://journeycoach.co/api/contact?action=unsubscribe&id=${sub.id}&token=${token}`;
     const firstName = (sub.name || '').trim().split(/\s+/)[0] || 'there';
     const footer = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:0.78rem;color:#999;text-align:center;"><p style="margin:0 0 6px;">You received this email because you subscribed at journeycoach.co.</p><p style="margin:0;"><a href="${unsubUrl}" style="color:#999;">Unsubscribe</a></p></div>`;
     try {

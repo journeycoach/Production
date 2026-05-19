@@ -61,6 +61,7 @@ export async function runMigrations() {
   `;
   await sql`
     ALTER TABLE contact_submissions
+      ADD COLUMN IF NOT EXISTS submitted_at              TIMESTAMPTZ DEFAULT NOW(),
       ADD COLUMN IF NOT EXISTS attribution_source        TEXT,
       ADD COLUMN IF NOT EXISTS first_attribution_source  TEXT,
       ADD COLUMN IF NOT EXISTS landing_page              TEXT,
@@ -203,6 +204,43 @@ export async function runMigrations() {
       calendly_event_uuid TEXT UNIQUE NOT NULL,
       email               TEXT,
       created_at          TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS tools (
+      id          SERIAL PRIMARY KEY,
+      title       TEXT NOT NULL,
+      category    TEXT DEFAULT 'General',
+      description TEXT,
+      type        TEXT,
+      file_url    TEXT,
+      external_url TEXT,
+      image_url   TEXT,
+      is_hidden   BOOLEAN DEFAULT FALSE,
+      sort_order  INT DEFAULT 0,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS bookmark_categories (
+      id         SERIAL PRIMARY KEY,
+      title      TEXT NOT NULL,
+      sort_order INT DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS bookmarks (
+      id          SERIAL PRIMARY KEY,
+      title       TEXT NOT NULL,
+      url         TEXT NOT NULL,
+      category_id INT REFERENCES bookmark_categories(id) ON DELETE SET NULL,
+      description TEXT,
+      sort_order  INT DEFAULT 0,
+      created_at  TIMESTAMPTZ DEFAULT NOW()
     )
   `;
 
