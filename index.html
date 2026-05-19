@@ -578,6 +578,19 @@
                         </div>
                     </div>
 
+                    <!-- Area of Interest -->
+                    <div class="cf-field" style="max-width: 320px;">
+                        <label for="cf-interest" class="cf-label">&#127775; Area of Interest</label>
+                        <select id="cf-interest" name="interest" class="cf-input" style="cursor:pointer;">
+                            <option value="">— Select one —</option>
+                            <option value="Executive Coaching">Executive Coaching</option>
+                            <option value="Leadership Development">Leadership Development</option>
+                            <option value="Team Development">Team Development</option>
+                            <option value="Enneagram Assessment">Enneagram Assessment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
                     <!-- Message -->
                     <div class="cf-field">
                         <label for="cf-message" class="cf-label">Tell me a little about what you are looking for today.
@@ -752,6 +765,18 @@
             </style>
 
             <script>
+                // Smooth-scroll CTA links to center the form in the viewport
+                document.querySelectorAll('a[href="#contact"], a[href="/#contact"]').forEach(link => {
+                    link.addEventListener('click', e => {
+                        const form = document.getElementById('contact-form');
+                        if (!form) return;
+                        e.preventDefault();
+                        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
+                });
+            </script>
+
+            <script>
                 (() => {
                     const CONTACT_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
                     const form = document.getElementById('contact-form');
@@ -835,6 +860,7 @@
                                 name: document.getElementById('cf-name').value.trim(),
                                 email: document.getElementById('cf-email').value.trim(),
                                 phone: document.getElementById('cf-phone').value.trim(),
+                                interest: document.getElementById('cf-interest').value || null,
                                 message: document.getElementById('cf-message').value.trim(),
                                 _honey: document.getElementById('cf-honey').value,
                                 attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,

@@ -216,7 +216,7 @@ export default async function handler(req, res) {
         SELECT id, name, email, phone, interest, message, is_read, submitted_at,
           attribution_source, first_attribution_source, landing_page, referrer,
           utm_source, utm_medium, utm_campaign, utm_term, utm_content, attribution,
-          email_status, email_status_at
+          email_status, email_status_at, lead_status, has_booked_call, booked_call_at
         FROM contact_submissions
         ORDER BY submitted_at DESC
       `;
@@ -228,8 +228,40 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'PUT') {
-    const { id, is_read } = req.body || {};
+    const { id, is_read, lead_status, has_booked_call, booked_call_at } = req.body || {};
     if (!id) return res.status(400).json({ error: 'id is required' });
+
+    // Update lead_status
+    if (lead_status !== undefined) {
+      try {
+        const val = lead_status === '' ? null : lead_status;
+        await sql`UPDATE contact_submissions SET lead_status = ${val} WHERE id = ${id}`;
+        return res.status(200).json({ ok: true });
+      } catch (err) {
+        console.error('contacts PUT lead_status error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+    }
+
+    // Update has_booked_call / booked_call_at
+    if (has_booked_call !== undefined || booked_call_at !== undefined) {
+      try {
+        let callAt = null;
+        if (booked_call_at) {
+          callAt = new Date(booked_call_at).toISOString();
+        } else if (has_booked_call) {
+          callAt = new Date().toISOString();
+        }
+        const hasBooked = has_booked_call !== undefined ? has_booked_call : !!callAt;
+        await sql`UPDATE contact_submissions SET has_booked_call = ${hasBooked}, booked_call_at = ${callAt} WHERE id = ${id}`;
+        return res.status(200).json({ ok: true });
+      } catch (err) {
+        console.error('contacts PUT booked_call error:', err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+    }
+
+    // Update is_read
     try {
       const rows = await sql`
         UPDATE contact_submissions SET is_read = ${is_read} WHERE id = ${id} RETURNING *

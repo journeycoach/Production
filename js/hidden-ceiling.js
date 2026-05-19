@@ -9,67 +9,60 @@
         },
         {
             id: 'q1',
-            eyebrow: 'Question 1 of 9',
             title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
             options: [
-                { title: 'Option 1', text: 'I pull back to analyze the data and find where the logic failed.' },
-                { title: 'Option 2', text: 'I move quickly to take charge and get things back on track.' },
-                { title: 'Option 3', text: 'My focus goes immediately to the team. I want to understand how they are being affected and what they need from me.' },
+                { title: 'Option 1', text: 'You pull back to analyze the data and find where the logic failed.' },
+                { title: 'Option 2', text: 'You move quickly to take charge and get things back on track.' },
+                { title: 'Option 3', text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.' },
             ],
         },
         {
             id: 'q2',
-            eyebrow: 'Question 2 of 9',
-            title: 'Under pressure, what do others most often need more of from you?',
+            title: 'Under pressure, what do others most often tell you that you need to do differently?',
             options: [
-                { title: 'Option 1', text: 'Move forward with less over-analysis and trust your judgment sooner.' },
-                { title: 'Option 2', text: 'Be more direct about priorities instead of managing everyone\'s feelings first.' },
-                { title: 'Option 3', text: 'Slow down long enough to consider how decisions are affecting people.' },
+                { title: 'Option 1', text: 'You need to move forward with less over-analysis and trust your judgment sooner.' },
+                { title: 'Option 2', text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.' },
+                { title: 'Option 3', text: 'You need to slow down long enough to consider how decisions are affecting people.' },
             ],
         },
         {
             id: 'q3',
-            eyebrow: 'Question 3 of 9',
             title: 'In high-level leadership conversations, where do you naturally contribute most?',
             options: [
-                { title: 'Option 1', text: 'Systems, long-term implications, and what risks others may be missing.' },
-                { title: 'Option 2', text: 'How people will experience the decision and what it will mean relationally.' },
-                { title: 'Option 3', text: 'What needs to happen next, who owns it, and how to keep momentum.' },
+                { title: 'Option 1', text: 'You track how people will experience the decision and what it will mean relationally.' },
+                { title: 'Option 2', text: 'You name the system-level risks, the long-term implications, and what others may be missing.' },
+                { title: 'Option 3', text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.' },
             ],
         },
         {
             id: 'q4',
-            eyebrow: 'Question 4 of 9',
-            title: 'When a peer gives you hard feedback, what is your first instinct?',
+            title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
             options: [
-                { title: 'Option 1', text: 'You focus on the relational context. You want to understand what is behind the feedback before you respond.' },
-                { title: 'Option 2', text: 'Step back and assess whether the feedback is accurate and logically sound.' },
-                { title: 'Option 3', text: 'You address it directly. If it does not hold up, you say so and explain why.' },
+                { title: 'Option 1', text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.' },
+                { title: 'Option 2', text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.' },
+                { title: 'Option 3', text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.' },
             ],
         },
         {
             id: 'q5',
-            eyebrow: 'Question 5 of 9',
             title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
             options: [
-                { title: 'Option 1', text: 'Clear thinking, objectivity, and well-reasoned ideas.' },
-                { title: 'Option 2', text: 'Awareness of people, tone, and how decisions affect the room.' },
-                { title: 'Option 3', text: 'Directness, conviction, and the ability to move toward action.' },
+                { title: 'Option 1', text: 'You value awareness of people, tone, and how decisions affect the room.' },
+                { title: 'Option 2', text: 'You value directness, conviction, and the ability to move things forward.' },
+                { title: 'Option 3', text: 'You value clear thinking, objectivity, and well-reasoned ideas.' },
             ],
         },
         {
             id: 'q6',
-            eyebrow: 'Question 6 of 9',
             title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
             options: [
-                { title: 'Option 1', text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.' },
-                { title: 'Option 2', text: 'I enjoy it when it helps me understand patterns, structure, and what is really going on.' },
-                { title: 'Option 3', text: 'I lose patience if it slows decisions down or gets in the way of moving forward.' },
+                { title: 'Option 1', text: 'You lose patience when it slows decisions down or gets in the way of moving forward.' },
+                { title: 'Option 2', text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.' },
+                { title: 'Option 3', text: 'You can do it, but you would rather focus on the people and context behind the numbers.' },
             ],
         },
         {
             id: 'q7',
-            eyebrow: 'Question 7 of 9',
             title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
             options: [
                 { title: 'Option 1', text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.' },
@@ -79,7 +72,6 @@
         },
         {
             id: 'q8',
-            eyebrow: 'Question 8 of 9',
             title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
             options: [
                 { title: 'Option 1', text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.' },
@@ -89,12 +81,11 @@
         },
         {
             id: 'q9',
-            eyebrow: 'Question 9 of 9',
             title: 'When the pressure is high, what most naturally guides your leadership decisions?',
             options: [
-                { title: 'Option 1', text: 'Connection: staying aligned with people, meaning, and shared purpose.' },
-                { title: 'Option 2', text: 'Truth: understanding what is accurate, objective, and really happening.' },
-                { title: 'Option 3', text: 'Integrity in action: moving with conviction, clarity, and grounded instinct.' },
+                { title: 'Option 1', text: 'You return to truth — understanding what is accurate, objective, and really happening.' },
+                { title: 'Option 2', text: 'You return to connection — staying aligned with people, meaning, and shared purpose.' },
+                { title: 'Option 3', text: 'You return to action — moving with conviction, clarity, and grounded instinct.' },
             ],
         }
     ];
@@ -130,7 +121,7 @@
         },
         action: {
             centerLabel: 'Action Center',
-            title: 'You lead from the Action Center',
+            title: 'You lead like an Action-Oriented Leader',
             summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
             description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
             blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
@@ -141,6 +132,48 @@
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
             guideLabel: 'Hidden Ceiling Guide for the Action-Oriented Leader'
+        },
+        head_heart: {
+            centerLabel: 'Head + Heart Blend',
+            title: 'You lead like a Thinking-Connection Blended Leader',
+            summary: 'Your responses point to a leadership pattern that moves between careful understanding and relational attunement.',
+            description: 'You likely notice both the logic of a situation and the way people are experiencing it. That blend can help you see risks, patterns, trust dynamics, and alignment needs at the same time.',
+            blindspot: 'Under pressure, this blend can become a loop between analyzing what is true and managing how people will feel. The ceiling appears when clarity and connection both matter, but neither fully moves into action.',
+            nextSteps: [
+                'Notice when gathering more perspective is becoming a way to delay the next move.',
+                'Name both the truth of the situation and the relational impact it is creating.',
+                'Use the guide to see where thinking and connection can work together without slowing your leadership.'
+            ],
+            guideUrl: '/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf',
+            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Heart Leader'
+        },
+        head_action: {
+            centerLabel: 'Head + Action Blend',
+            title: 'You lead like a Thinking-Action Blended Leader',
+            summary: 'Your responses point to a leadership pattern that moves between careful analysis and decisive forward motion.',
+            description: 'You likely see structure, risk, and next steps quickly. That blend can help you make sense of complexity while still moving people and work toward practical outcomes.',
+            blindspot: 'Under pressure, this blend can become a cycle of tightening control: think harder, move faster, and leave less room for the human signals that would help the decision land.',
+            nextSteps: [
+                'Notice when the need for certainty is pairing with urgency.',
+                'Separate the next responsible action from the impulse to force resolution.',
+                'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.'
+            ],
+            guideUrl: '/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf',
+            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Action Leader'
+        },
+        heart_action: {
+            centerLabel: 'Heart + Action Blend',
+            title: 'You lead like a Connection-Action Blended Leader',
+            summary: 'Your responses point to a leadership pattern that moves between relational awareness and decisive forward motion.',
+            description: 'You likely sense how decisions affect people while also wanting movement, clarity, and practical traction. That blend can help teams feel both cared for and mobilized.',
+            blindspot: 'Under pressure, this blend can become a push-pull between keeping people with you and getting things moving. The ceiling appears when urgency and relational responsibility start competing instead of collaborating.',
+            nextSteps: [
+                'Notice when momentum is trying to outrun trust.',
+                'Name the relational impact and the next action in the same conversation.',
+                'Use the guide to see where connection and action can reinforce each other instead of pulling your leadership in two directions.'
+            ],
+            guideUrl: '/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf',
+            guideLabel: 'Hidden Ceiling Guide for the Blended Heart-Action Leader'
         }
     };
 
@@ -202,7 +235,7 @@
     };
 
     // --- localStorage progress save/restore ---
-    const HC_STORAGE_KEY = 'hc_progress_v1';
+    const HC_STORAGE_KEY = 'hc_progress_v2';
 
     function saveProgress() {
         try {
@@ -237,6 +270,8 @@
     const stepContainer = document.getElementById('hc-step-container');
     const errorEl = document.getElementById('hc-form-error');
     const nextBtn = document.getElementById('hc-next-btn');
+    const backBtn = document.getElementById('hc-back-btn');
+    const actionsDiv = document.getElementById('hc-actions');
     const progressLabel = document.getElementById('hc-progress-label');
     const progressCaption = document.getElementById('hc-progress-caption');
     const progressBar = document.getElementById('hc-progress-bar');
@@ -246,16 +281,31 @@
     function render() {
         const step = ASSESSMENT_STEPS[state.stepIndex];
         const totalSteps = ASSESSMENT_STEPS.length;
+        const questionCount = totalSteps - 1; // intro step doesn't count
         const progressPercent = ((state.stepIndex + 1) / totalSteps) * 100;
 
-        progressLabel.textContent = `Step ${state.stepIndex + 1} of ${totalSteps}`;
-        progressCaption.textContent = step.type === 'intro' ? 'Getting started' : 'Assessment';
+        if (step.type === 'intro') {
+            progressLabel.textContent = 'Getting started';
+            progressCaption.textContent = '';
+        } else {
+            progressLabel.textContent = `Question ${state.stepIndex} of ${questionCount}`;
+            progressCaption.textContent = 'Assessment';
+        }
         progressBar.style.width = `${progressPercent}%`;
         errorEl.textContent = '';
 
         const isLast = state.stepIndex === totalSteps - 1;
         nextBtn.hidden = false;
         nextBtn.textContent = isLast ? 'Get My Results' : 'Continue';
+
+        // Back button: hide on intro, show on all question steps
+        if (backBtn) {
+            backBtn.hidden = state.stepIndex === 0;
+        }
+        // Align actions: center single button (intro), space-between when back is shown
+        if (actionsDiv) {
+            actionsDiv.style.justifyContent = state.stepIndex === 0 ? 'flex-end' : 'space-between';
+        }
 
         if (instinctHint) instinctHint.style.display = step.type === 'intro' ? 'none' : '';
 
@@ -353,6 +403,28 @@
     async function submitAssessment() {
         if (!validateCurrentStep()) return;
 
+        // Guard: every question must have a non-null answer before we submit.
+        // The step-by-step flow normally ensures this, but a localStorage-restored
+        // session could theoretically carry null values from a prior partial save.
+        const unansweredIds = Object.entries(state.answers)
+            .filter(([, v]) => v === null || v === undefined)
+            .map(([k]) => k);
+        if (unansweredIds.length > 0) {
+            errorEl.textContent = 'Please answer every question before submitting.';
+            return;
+        }
+
+        // Fix #1: Check for expired Turnstile token before we disable the button
+        // and show the loading state. If expired, reset the widget and prompt user.
+        const turnstileToken = window._hcAssessmentTurnstileToken || '';
+        if (!turnstileToken) {
+            if (window.turnstile) {
+                window.turnstile.reset(document.getElementById('hc-assessment-turnstile'));
+            }
+            errorEl.textContent = 'The security check expired — please complete it above and try again.';
+            return;
+        }
+
         nextBtn.disabled = true;
         stepContainer.innerHTML = `
             <div style="text-align:center;padding:2.5rem 1rem;">
@@ -372,7 +444,7 @@
                     source: new URLSearchParams(window.location.search).get('source') || 'hidden-ceiling',
                     attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
                     answers: state.answers,
-                    'cf-turnstile-response': window._hcAssessmentTurnstileToken || ''
+                    'cf-turnstile-response': turnstileToken
                 })
             });
 
@@ -388,7 +460,7 @@
             try { sessionStorage.setItem('hc_result_email', state.email); } catch (_) {}
 
             // Redirect to shareable results page
-            const { result, scores, resultToken, q4Center, q7Center } = data;
+            const { result, scores, resultToken, q7Center } = data;
             const params = new URLSearchParams({
                 center: result.center,
                 name:   state.firstName || state.email.split('@')[0],
@@ -397,7 +469,6 @@
                 sa:     scores.action
             });
             if (resultToken) params.set('tok', resultToken);
-            if (q4Center) params.set('q4', q4Center);
             if (q7Center) params.set('q7', q7Center);
             window.location.href = `/results.html?${params.toString()}`;
 
@@ -473,6 +544,16 @@
         form.hidden = true;
         resultCard.classList.add('is-visible');
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            if (state.stepIndex > 0) {
+                state.stepIndex -= 1;
+                saveProgress();
+                render();
+            }
+        });
     }
 
     nextBtn.addEventListener('click', async () => {

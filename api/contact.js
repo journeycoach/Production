@@ -63,19 +63,19 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 1 of 9',
       title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
       options: [
-        { text: 'I pull back to analyze the data and find where the logic failed.', center: 'head' },
-        { text: 'I move quickly to take charge and get things back on track.', center: 'action' },
-        { text: 'My focus goes immediately to the team. I want to understand how they are being affected and what they need from me.', center: 'heart' },
+        { text: 'You pull back to analyze the data and find where the logic failed.', center: 'head' },
+        { text: 'You move quickly to take charge and get things back on track.', center: 'action' },
+        { text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.', center: 'heart' },
       ],
     },
     {
       id: 'q2',
       eyebrow: 'Question 2 of 9',
-      title: 'Under pressure, what do others most often need more of from you?',
+      title: 'Under pressure, what do others most often tell you that you need to do differently?',
       options: [
-        { text: 'Move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
-        { text: 'Be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
-        { text: 'Slow down long enough to consider how decisions are affecting people.', center: 'action' },
+        { text: 'You need to move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
+        { text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
+        { text: 'You need to slow down long enough to consider how decisions are affecting people.', center: 'action' },
       ],
     },
     {
@@ -83,19 +83,19 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 3 of 9',
       title: 'In high-level leadership conversations, where do you naturally contribute most?',
       options: [
-        { text: 'Systems, long-term implications, and what risks others may be missing.', center: 'head' },
-        { text: 'How people will experience the decision and what it will mean relationally.', center: 'heart' },
-        { text: 'What needs to happen next, who owns it, and how to keep momentum.', center: 'action' },
+        { text: 'You track how people will experience the decision and what it will mean relationally.', center: 'heart' },
+        { text: 'You name the system-level risks, the long-term implications, and what others may be missing.', center: 'head' },
+        { text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.', center: 'action' },
       ],
     },
     {
       id: 'q4',
       eyebrow: 'Question 4 of 9',
-      title: 'When a peer gives you hard feedback, what is your first instinct?',
+      title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
       options: [
-        { text: 'You focus on the relational context. You want to understand what is behind the feedback before you respond.', center: 'heart' },
-        { text: 'Step back and assess whether the feedback is accurate and logically sound.', center: 'head' },
-        { text: 'You address it directly. If it does not hold up, you say so and explain why.', center: 'action' },
+        { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.', center: 'action' },
+        { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.', center: 'head' },
+        { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.', center: 'heart' },
       ],
     },
     {
@@ -103,9 +103,9 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 5 of 9',
       title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
       options: [
-        { text: 'Clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
-        { text: 'Awareness of people, tone, and how decisions affect the room.', center: 'heart' },
-        { text: 'Directness, conviction, and the ability to move toward action.', center: 'action' },
+        { text: 'You value awareness of people, tone, and how decisions affect the room.', center: 'heart' },
+        { text: 'You value directness, conviction, and the ability to move things forward.', center: 'action' },
+        { text: 'You value clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
       ],
     },
     {
@@ -113,9 +113,9 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 6 of 9',
       title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
       options: [
-        { text: 'I can do it, but I\'d rather focus on the people and context behind the numbers.', center: 'heart' },
-        { text: 'I enjoy it when it helps me understand patterns, structure, and what is really going on.', center: 'head' },
-        { text: 'I lose patience if it slows decisions down or gets in the way of moving forward.', center: 'action' },
+        { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.', center: 'action' },
+        { text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.', center: 'head' },
+        { text: 'You can do it, but you would rather focus on the people and context behind the numbers.', center: 'heart' },
       ],
     },
     {
@@ -143,9 +143,9 @@ const DEFAULT_ASSESSMENT_FORM = {
       eyebrow: 'Question 9 of 9',
       title: 'When the pressure is high, what most naturally guides your leadership decisions?',
       options: [
-        { text: 'Connection: staying aligned with people, meaning, and shared purpose.', center: 'heart' },
-        { text: 'Truth: understanding what is accurate, objective, and really happening.', center: 'head' },
-        { text: 'Integrity in action: moving with conviction, clarity, and grounded instinct.', center: 'action' },
+        { text: 'You return to truth — understanding what is accurate, objective, and really happening.', center: 'head' },
+        { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.', center: 'heart' },
+        { text: 'You return to action — moving with conviction, clarity, and grounded instinct.', center: 'action' },
       ],
     },
   ],
@@ -501,7 +501,7 @@ async function handleHiddenCeiling(req, res) {
 
   const limit = await enforceSubmissionRateLimit(req, 'hidden_ceiling', email, {
     maxPerHour: 8,
-    maxPerDayPerEmail: 3,
+    maxPerDayPerEmail: 6,
   });
   if (!limit.allowed) {
     return res.status(429).json({ error: limit.error });
@@ -514,6 +514,15 @@ async function handleHiddenCeiling(req, res) {
       question.options.map(option => option.center),
     ])
   );
+
+  // Require every question to have a valid answer before scoring.
+  const missingQuestions = assessmentForm.questions.filter(q => {
+    const idx = answers[q.id];
+    return idx === null || idx === undefined || !q.options[idx];
+  });
+  if (missingQuestions.length > 0) {
+    return res.status(400).json({ error: 'All questions must be answered before your result can be scored.' });
+  }
 
   const scores = { heart: 0, head: 0, action: 0 };
   for (const [qId, centers] of Object.entries(scoreMap)) {
@@ -1086,7 +1095,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
     },
     action: {
       centerLabel: 'Action Center',
-      title: 'You lead from the Action Center',
+      title: 'You lead like an Action-Oriented Leader',
       summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
       description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
       blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',

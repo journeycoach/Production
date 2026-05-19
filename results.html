@@ -137,7 +137,7 @@
         },
         action: {
             centerLabel: 'Action Center',
-            title: 'You lead from the Action Center',
+            title: 'You lead like an Action-Oriented Leader',
             summary: 'Your responses point to a leadership pattern that instinctively values movement, decisiveness, and the ability to convert energy into results.',
             description: 'You likely create traction quickly. People experience you as someone who can cut through noise, set direction, and keep a team from stalling out in uncertainty.',
             blindspot: 'Under pressure, that strength can harden into impatience, over-control, or the urge to move faster than the system around you can metabolize. Speed starts solving anxiety instead of solving the right problem.',
@@ -205,7 +205,6 @@
         const sd     = parseInt(params.get('sd'), 10) || 0;
         const sa     = parseInt(params.get('sa'), 10) || 0;
         const tok    = params.get('tok');
-        const q4     = params.get('q4');
         const q7     = params.get('q7');
 
         // Verify token first — redirect fabricated URLs back to assessment
@@ -285,18 +284,6 @@
             return `<span class="confidence-badge moderate">◉ Moderate match — a coaching call can add clarity</span>`;
         }
 
-        // Consistency note: Q4 and Q7 both ask about receiving feedback — if answers differ, flag it
-        function consistencyNote() {
-            if (!q4 || !q7 || q4 === q7) return '';
-            return `
-                <div style="margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:8px;background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);">
-                    <p style="margin:0;font-size:0.82rem;color:var(--color-text-muted);line-height:1.6;">
-                        <strong style="color:var(--color-text-secondary);font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;">Worth exploring</strong><br>
-                        Your responses to feedback varied depending on the relationship context — one question involved a peer, the other a trusted colleague. That difference can be meaningful. A coaching conversation is a good place to unpack it.
-                    </p>
-                </div>`;
-        }
-
         const pageUrl = encodeURIComponent(window.location.href);
         const shareText = encodeURIComponent(`I just took the Hidden Ceiling assessment by @journeycoach — ${meta.title}`);
 
@@ -306,7 +293,6 @@
             <p class="results-summary">${meta.summary}</p>
 
             ${confidenceBadge()}
-            ${consistencyNote()}
             <div class="score-grid">
                 ${scores.map(s => `
                     <div class="score-card ${isPrimaryScore(center, s.key) ? 'is-primary' : ''}">
