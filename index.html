@@ -765,14 +765,32 @@
             </style>
 
             <script>
-                // Smooth-scroll CTA links to center the form in the viewport
+                function scrollToContactForm(smooth) {
+                    const form = document.getElementById('contact-form');
+                    if (!form) return;
+                    const rect = form.getBoundingClientRect();
+                    const formTop = window.scrollY + rect.top;
+                    const target = formTop - Math.max(0, (window.innerHeight - rect.height) / 2);
+                    window.scrollTo({ top: Math.max(0, target), behavior: smooth ? 'smooth' : 'instant' });
+                }
+
+                // Intercept CTA link clicks
                 document.querySelectorAll('a[href="#contact"], a[href="/#contact"]').forEach(link => {
                     link.addEventListener('click', e => {
-                        const form = document.getElementById('contact-form');
-                        if (!form) return;
                         e.preventDefault();
-                        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        history.pushState(null, '', '/#contact');
+                        scrollToContactForm(true);
                     });
+                });
+
+                // Handle page load or direct navigation to /#contact
+                if (window.location.hash === '#contact') {
+                    window.addEventListener('load', () => scrollToContactForm(false));
+                }
+
+                // Handle back/forward navigation to #contact hash
+                window.addEventListener('hashchange', () => {
+                    if (window.location.hash === '#contact') scrollToContactForm(true);
                 });
             </script>
 
