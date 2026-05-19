@@ -984,7 +984,7 @@
                     _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
                         sitekey: SITEKEY,
                         size: 'compact',
-                        appearance: 'interaction-only',
+                        appearance: 'always',
                         callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
                         'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
                         'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
