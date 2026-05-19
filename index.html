@@ -556,12 +556,12 @@
                         <input type="text" id="cf-honey" name="_honey" tabindex="-1" autocomplete="off">
                     </div>
 
-                    <!-- Row: Name + Email + Phone -->
-                    <div id="cf-row-top" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem;">
+                    <!-- Row: Name + Email -->
+                    <div id="cf-row-top" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                         <div class="cf-field">
                             <label for="cf-name" class="cf-label">Full Name <span
                                     style="color:var(--color-accent-gold)">*</span></label>
-                            <input type="text" id="cf-name" name="name" required placeholder="Jane-Smith"
+                            <input type="text" id="cf-name" name="name" required placeholder="Jane Smith"
                                 class="cf-input">
                         </div>
                         <div class="cf-field">
@@ -570,25 +570,27 @@
                             <input type="email" id="cf-email" name="email" required placeholder="jane@company.com"
                                 class="cf-input">
                         </div>
+                    </div>
+
+                    <!-- Row: Phone + Area of Interest -->
+                    <div id="cf-row-mid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
                         <div class="cf-field">
                             <label for="cf-phone" class="cf-label">Phone Number <span
                                     style="color:var(--color-accent-gold)">*</span></label>
                             <input type="tel" id="cf-phone" name="phone" required placeholder="+1 555‑123‑4567"
                                 class="cf-input">
                         </div>
-                    </div>
-
-                    <!-- Area of Interest -->
-                    <div class="cf-field" style="max-width: 320px;">
-                        <label for="cf-interest" class="cf-label">&#127775; Area of Interest</label>
-                        <select id="cf-interest" name="interest" class="cf-input" style="cursor:pointer;">
-                            <option value="">— Select one —</option>
-                            <option value="Executive Coaching">Executive Coaching</option>
-                            <option value="Leadership Development">Leadership Development</option>
-                            <option value="Team Development">Team Development</option>
-                            <option value="Enneagram Assessment">Enneagram Assessment</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <div class="cf-field">
+                            <label for="cf-interest" class="cf-label">&#127775; Area of Interest</label>
+                            <select id="cf-interest" name="interest" class="cf-input" style="cursor:pointer;">
+                                <option value="">— Select one —</option>
+                                <option value="Executive Coaching">Executive Coaching</option>
+                                <option value="Leadership Development">Leadership Development</option>
+                                <option value="Team Development">Team Development</option>
+                                <option value="Enneagram Assessment">Enneagram Assessment</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Message -->
@@ -722,9 +724,9 @@
                         border-radius: 6px;
                     }
 
-                    /* Stack name / email / phone vertically — single column on mobile */
-                    /* !important needed to override the inline style on this element */
-                    #cf-row-top {
+                    /* Stack rows vertically — single column on mobile */
+                    /* !important needed to override the inline style on these elements */
+                    #cf-row-top, #cf-row-mid {
                         grid-template-columns: 1fr !important;
                         gap: 1.25rem;
                     }
