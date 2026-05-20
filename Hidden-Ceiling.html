@@ -973,8 +973,8 @@
                 if (_subWidgetId === undefined && document.getElementById('hc-sub-turnstile')) {
                     _subWidgetId = window.turnstile.render('#hc-sub-turnstile', {
                         sitekey: SITEKEY,
-                        size: 'invisible',
-                        appearance: 'interaction-only',
+                        size: 'compact',
+                        appearance: 'always',
                         callback(t) { _subToken = t; window._hcSubTurnstileToken = t; },
                         'expired-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
                         'error-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
