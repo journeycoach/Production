@@ -1,8 +1,10 @@
 node_modules/
 venv/
 .env
+.env.backup
 .netlify/
 .vercel
 .env*.local
 .DS_Store
 **/.DS_Store
+backups/
