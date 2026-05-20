@@ -270,7 +270,6 @@
     const stepContainer = document.getElementById('hc-step-container');
     const errorEl = document.getElementById('hc-form-error');
     const nextBtn = document.getElementById('hc-next-btn');
-    const backBtn = document.getElementById('hc-back-btn');
     const actionsDiv = document.getElementById('hc-actions');
     const progressLabel = document.getElementById('hc-progress-label');
     const progressCaption = document.getElementById('hc-progress-caption');
@@ -298,14 +297,6 @@
         nextBtn.hidden = false;
         nextBtn.textContent = isLast ? 'Get My Results' : 'Continue';
 
-        // Back button: hide on intro, show on all question steps
-        if (backBtn) {
-            backBtn.hidden = state.stepIndex === 0;
-        }
-        // Align actions: center single button (intro), space-between when back is shown
-        if (actionsDiv) {
-            actionsDiv.style.justifyContent = state.stepIndex === 0 ? 'flex-end' : 'space-between';
-        }
 
         if (instinctHint) instinctHint.style.display = step.type === 'intro' ? 'none' : '';
 
@@ -544,16 +535,6 @@
         form.hidden = true;
         resultCard.classList.add('is-visible');
         resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            if (state.stepIndex > 0) {
-                state.stepIndex -= 1;
-                saveProgress();
-                render();
-            }
-        });
     }
 
     nextBtn.addEventListener('click', async () => {
