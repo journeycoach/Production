@@ -2,7 +2,7 @@
  * Journey Coach — Database Backup Script
  *
  * One-time setup:
- *   1. Create a file called .env.backup in this folder
+ *   1. Create a plain text file called backup.config in this folder
  *   2. Add one line:  DATABASE_URL=your_connection_string_from_vercel
  *      (Vercel → project → Settings → Environment Variables → DATABASE_URL)
  *
@@ -20,10 +20,10 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ── Load DATABASE_URL from .env.backup ───────────────────────────────────────
-const envPath = path.join(__dirname, '.env.backup');
+const envPath = path.join(__dirname, 'backup.config');
 if (!fs.existsSync(envPath)) {
-  console.error('\n  ERROR: .env.backup file not found.');
-  console.error('  Create a file called .env.backup in this folder with:');
+  console.error('\n  ERROR: backup.config file not found.');
+  console.error('  Create a file called backup.config in this folder with:');
   console.error('  DATABASE_URL=your_connection_string_from_vercel\n');
   process.exit(1);
 }
@@ -31,7 +31,7 @@ const envLine = fs.readFileSync(envPath, 'utf8')
   .split('\n')
   .find(l => l.startsWith('DATABASE_URL='));
 if (!envLine) {
-  console.error('\n  ERROR: DATABASE_URL not found in .env.backup.\n');
+  console.error('\n  ERROR: DATABASE_URL not found in backup.config.\n');
   process.exit(1);
 }
 const DATABASE_URL = envLine.replace('DATABASE_URL=', '').trim();
