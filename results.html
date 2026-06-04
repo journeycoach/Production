@@ -237,6 +237,9 @@
                     window.location.replace('/Hidden-Ceiling.html');
                     return;
                 }
+                if (vData.calendly_url) {
+                    try { sessionStorage.setItem('hc_calendly_url', vData.calendly_url); } catch (_) {}
+                }
             } catch (_) { /* network error — allow through rather than block a real result */ }
         } else {
             // No token → redirect (covers direct URL fabrication)

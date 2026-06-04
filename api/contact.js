@@ -867,7 +867,10 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && req.query?.action === 'verify_result') {
       const { center, sh, sd, sa, token } = req.query;
       const valid = verifyResult(center, sh, sd, sa, token);
-      return res.status(200).json({ valid });
+      return res.status(200).json({
+        valid,
+        calendly_url: valid ? (process.env.CALENDLY_URL || null) : null
+      });
     }
 
     // Only allow POST
