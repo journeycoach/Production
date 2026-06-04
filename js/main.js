@@ -210,13 +210,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let current = 0;
         let timer = null;
 
+        function setMaxTrackHeight() {
+            let max = 0;
+            cards.forEach(card => {
+                const wasActive = card.classList.contains('is-active');
+                if (!wasActive) card.classList.add('is-active');
+                const h = card.offsetHeight;
+                if (h > max) max = h;
+                if (!wasActive) card.classList.remove('is-active');
+            });
+            track.style.height = max + 'px';
+        }
+
+        window.addEventListener('resize', setMaxTrackHeight, { passive: true });
+
         function goTo(n) {
             cards[current].classList.remove('is-active');
             if (dots[current]) dots[current].classList.remove('is-active');
             current = ((n % testimonials.length) + testimonials.length) % testimonials.length;
             cards[current].classList.add('is-active');
             if (dots[current]) dots[current].classList.add('is-active');
-            track.style.height = cards[current].offsetHeight + 'px';
         }
 
         function startTimer() {
@@ -263,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Set initial track height after layout
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            track.style.height = cards[0].offsetHeight + 'px';
+            setMaxTrackHeight();
             if (testimonials.length > 1) startTimer();
         }));
     }

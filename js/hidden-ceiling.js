@@ -209,7 +209,10 @@
         try {
             const response = await fetch('/api/contact?action=config');
             const data = await response.json().catch(() => ({}));
-            if (response.ok && data.assessment_form) applyAssessmentConfig(data.assessment_form);
+            if (response.ok) {
+                if (data.assessment_form) applyAssessmentConfig(data.assessment_form);
+                if (data.result_meta) Object.assign(RESULT_META, data.result_meta);
+            }
         } catch (_) {}
     }
 
@@ -235,6 +238,13 @@
     // --- localStorage progress save/restore ---
     const HC_STORAGE_KEY = 'hc_progress_v2';
 
+    function getConfigSignature(steps) {
+        return steps
+            .filter(s => s.type !== 'intro')
+            .map(s => s.id + ':' + s.options.map(o => o.text).join('|'))
+            .join(';');
+    }
+
     function saveProgress() {
         try {
             localStorage.setItem(HC_STORAGE_KEY, JSON.stringify({
@@ -242,7 +252,8 @@
                 firstName: state.firstName,
                 lastName:  state.lastName,
                 email:     state.email,
-                answers:   state.answers
+                answers:   state.answers,
+                configSig: getConfigSignature(ASSESSMENT_STEPS)
             }));
         } catch (_) {}
     }
@@ -257,6 +268,10 @@
             if (!raw) return null;
             const saved = JSON.parse(raw);
             if (!saved || saved.stepIndex == null) return null;
+            if (saved.configSig !== getConfigSignature(ASSESSMENT_STEPS)) {
+                localStorage.removeItem(HC_STORAGE_KEY);
+                return null;
+            }
             return saved;
         } catch (_) { return null; }
     }
@@ -279,12 +294,14 @@
         const step = ASSESSMENT_STEPS[state.stepIndex];
         const totalSteps = ASSESSMENT_STEPS.length;
         const questionCount = totalSteps - 1; // intro step doesn't count
-        const progressPercent = ((state.stepIndex + 1) / totalSteps) * 100;
 
+        let progressPercent = 0;
         if (step.type === 'intro') {
+            progressPercent = 5;
             progressLabel.textContent = 'Getting started';
             progressCaption.textContent = '';
         } else {
+            progressPercent = 10 + Math.round(((state.stepIndex - 1) / (questionCount - 1)) * 80);
             progressLabel.textContent = `Question ${state.stepIndex} of ${questionCount}`;
             progressCaption.textContent = 'Assessment';
         }
@@ -518,6 +535,15 @@
                 <span>${parseInt(score.value, 10)}</span>
             </div>
         `).join('');
+
+        const elGuidePanel = document.getElementById('hc-guide-panel');
+        const elGuideLabel = document.getElementById('hc-result-guide-label');
+        const elGuideBtn   = document.getElementById('hc-result-guide-btn');
+        if (elGuidePanel && elGuideLabel && elGuideBtn) {
+            elGuideLabel.textContent = meta.guideLabel || defaults.guideLabel;
+            elGuideBtn.href = meta.guideUrl || defaults.guideUrl;
+            elGuidePanel.style.display = 'flex';
+        }
 
         if (calendly_url) {
             const btn = document.getElementById('hc-calendly-btn');

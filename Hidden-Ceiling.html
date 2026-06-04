@@ -32,6 +32,9 @@
     <link rel="preconnect" href="https://www.googletagmanager.com">
     <link rel="preconnect" href="https://www.google-analytics.com">
 
+    <!-- Preload Critical LCP Background Image / Hero Image -->
+    <link rel="preload" href="assets/images/hidden-ceiling-guide.webp" as="image" fetchpriority="high">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -708,9 +711,14 @@
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
                 <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+                <span class="logo-brand">Your Journey Coach</span>
             </a>
             <ul class="nav-links" id="nav-links-list">
-                <!-- Populated dynamically by js/nav.js from data/nav.json -->
+                <li><a href="/#welcome">About</a></li>
+                <li><a href="enneagram.html">Enneagram</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="tools.html">Resources</a></li>
+                <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
             </ul>
             <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
                 <span></span>
@@ -861,6 +869,13 @@
                                     <div class="hc-result-panel">
                                         <strong>Start here this week</strong>
                                         <ul class="hc-result-list" id="hc-result-actions"></ul>
+                                    </div>
+                                    <div class="hc-result-panel" id="hc-guide-panel" style="display:none;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                                        <div>
+                                            <strong>Your Guide</strong>
+                                            <p id="hc-result-guide-label" style="font-size:0.95rem;margin:0;"></p>
+                                        </div>
+                                        <a href="#" id="hc-result-guide-btn" target="_blank" rel="noopener noreferrer" class="hc-btn hc-btn-primary" style="white-space:nowrap;font-size:0.85rem;padding:0.6rem 1.2rem;">Download Guide</a>
                                     </div>
                                 </div>
 

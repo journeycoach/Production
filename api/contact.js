@@ -859,6 +859,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && req.query?.action === 'config') {
       return res.status(200).json({
         assessment_form: await getAssessmentFormConfig(),
+        result_meta: getResultMetaConfig()
       });
     }
 
@@ -1060,9 +1061,8 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-function buildHiddenCeilingEmail(firstName, center, scores) {
-  const esc = escapeHtml;
-  const meta = {
+export function getResultMetaConfig() {
+  return {
     heart: {
       centerLabel: 'Heart Center',
       title: 'You lead like a Connection-Oriented Leader',
@@ -1074,7 +1074,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         "Name the decision before you manage everyone's reaction to it.",
         'Use the guide to spot the situations where connection quietly turns into self-protection.',
       ],
-      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf',
+      guideUrl: '/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf',
       guideLabel: 'Download Your Guide: The Connection-Oriented Leader',
     },
     head: {
@@ -1088,7 +1088,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         'Pair your analysis with a visible relational read on the team.',
         'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.',
       ],
-      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf',
+      guideUrl: '/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf',
       guideLabel: 'Download Your Guide: The Thinking-Oriented Leader',
     },
     action: {
@@ -1102,7 +1102,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
         'Slow down long enough to separate momentum from reactivity.',
         'Use the guide to spot where force and clarity are getting conflated inside your leadership.',
       ],
-      guideUrl: 'https://journeycoach.co/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
+      guideUrl: '/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
       guideLabel: 'Download Your Guide: The Action-Oriented Leader',
     },
     head_heart: {
@@ -1148,9 +1148,16 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
       guideLabel: 'Download Your Guide: The Blended Heart-Action Leader',
     },
   };
+}
 
+function buildHiddenCeilingEmail(firstName, center, scores) {
+  const esc = escapeHtml;
+  const meta = getResultMetaConfig();
   const m = meta[center] || meta.heart;
   const stepsHtml = m.nextSteps.map(s => `<li style="margin-bottom:0.5em;">${esc(s)}</li>`).join('');
+
+  // Make guideUrl absolute for email
+  const guideUrl = m.guideUrl.startsWith('/') ? `https://journeycoach.co${m.guideUrl}` : m.guideUrl;
 
   return `
 <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
@@ -1169,7 +1176,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p style="color:#888;font-size:0.85rem;">Your scores &nbsp;—&nbsp; Heart: ${scores.heart} &nbsp;·&nbsp; Head: ${scores.head} &nbsp;·&nbsp; Action: ${scores.action}</p>
   <p style="margin-top:1.5rem;">
-    <a href="${m.guideUrl}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">${esc(m.guideLabel)} ↓</a>
+    <a href="${guideUrl}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">${esc(m.guideLabel)} ↓</a>
   </p>
   <p>If you would like to explore what your results mean in the context of your specific situation, I would be glad to have a conversation.</p>
   <p style="margin-top:1rem;">

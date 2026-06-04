@@ -266,8 +266,15 @@ function renderPostHtml(post, showAssessmentCta = true) {
     <div class="container">
       <a href="/" class="logo" id="nav-logo">
         <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+        <span class="logo-brand">Your Journey Coach</span>
       </a>
-      <ul class="nav-links" id="nav-links-list"></ul>
+      <ul class="nav-links" id="nav-links-list">
+        <li><a href="/#welcome">About</a></li>
+        <li><a href="/enneagram.html">Enneagram</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+        <li><a href="/tools.html">Resources</a></li>
+        <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
+      </ul>
       <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
         <span></span><span></span><span></span>
       </div>
@@ -370,8 +377,17 @@ function render404Html() {
   <div class="loader-wrapper"><div class="breathing-circle"></div></div>
   <nav class="navbar">
     <div class="container">
-      <a href="/" class="logo" id="nav-logo"><img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img"></a>
-      <ul class="nav-links" id="nav-links-list"></ul>
+      <a href="/" class="logo" id="nav-logo">
+        <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+        <span class="logo-brand">Your Journey Coach</span>
+      </a>
+      <ul class="nav-links" id="nav-links-list">
+        <li><a href="/#welcome">About</a></li>
+        <li><a href="/enneagram.html">Enneagram</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+        <li><a href="/tools.html">Resources</a></li>
+        <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
+      </ul>
       <div class="hamburger" id="hamburger" role="button"><span></span><span></span><span></span></div>
     </div>
   </nav>
