@@ -11,81 +11,81 @@
             id: 'q1',
             title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
             options: [
-                { title: 'Option 1', text: 'You pull back to analyze the data and find where the logic failed.' },
-                { title: 'Option 2', text: 'You move quickly to take charge and get things back on track.' },
-                { title: 'Option 3', text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.' },
+                { text: 'You pull back to analyze the data and find where the logic failed.' },
+                { text: 'You move quickly to take charge and get things back on track.' },
+                { text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.' },
             ],
         },
         {
             id: 'q2',
             title: 'Under pressure, what do others most often tell you that you need to do differently?',
             options: [
-                { title: 'Option 1', text: 'You need to move forward with less over-analysis and trust your judgment sooner.' },
-                { title: 'Option 2', text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.' },
-                { title: 'Option 3', text: 'You need to slow down long enough to consider how decisions are affecting people.' },
+                { text: 'You need to move forward with less over-analysis and trust your judgment sooner.' },
+                { text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.' },
+                { text: 'You need to slow down long enough to consider how decisions are affecting people.' },
             ],
         },
         {
             id: 'q3',
             title: 'In high-level leadership conversations, where do you naturally contribute most?',
             options: [
-                { title: 'Option 1', text: 'You track how people will experience the decision and what it will mean relationally.' },
-                { title: 'Option 2', text: 'You name the system-level risks, the long-term implications, and what others may be missing.' },
-                { title: 'Option 3', text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.' },
+                { text: 'You track how people will experience the decision and what it will mean relationally.' },
+                { text: 'You name the system-level risks, the long-term implications, and what others may be missing.' },
+                { text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.' },
             ],
         },
         {
             id: 'q4',
             title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
             options: [
-                { title: 'Option 1', text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.' },
-                { title: 'Option 2', text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.' },
-                { title: 'Option 3', text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.' },
+                { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.' },
+                { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.' },
+                { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.' },
             ],
         },
         {
             id: 'q5',
             title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
             options: [
-                { title: 'Option 1', text: 'You value awareness of people, tone, and how decisions affect the room.' },
-                { title: 'Option 2', text: 'You value directness, conviction, and the ability to move things forward.' },
-                { title: 'Option 3', text: 'You value clear thinking, objectivity, and well-reasoned ideas.' },
+                { text: 'You value awareness of people, tone, and how decisions affect the room.' },
+                { text: 'You value directness, conviction, and the ability to move things forward.' },
+                { text: 'You value clear thinking, objectivity, and well-reasoned ideas.' },
             ],
         },
         {
             id: 'q6',
             title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
             options: [
-                { title: 'Option 1', text: 'You lose patience when it slows decisions down or gets in the way of moving forward.' },
-                { title: 'Option 2', text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.' },
-                { title: 'Option 3', text: 'You can do it, but you would rather focus on the people and context behind the numbers.' },
+                { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.' },
+                { text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.' },
+                { text: 'You can do it, but you would rather focus on the people and context behind the numbers.' },
             ],
         },
         {
             id: 'q7',
             title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
             options: [
-                { title: 'Option 1', text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.' },
-                { title: 'Option 2', text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.' },
-                { title: 'Option 3', text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.' },
+                { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.' },
+                { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.' },
+                { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.' },
             ],
         },
         {
             id: 'q8',
             title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
             options: [
-                { title: 'Option 1', text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.' },
-                { title: 'Option 2', text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.' },
-                { title: 'Option 3', text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.' },
+                { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.' },
+                { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.' },
+                { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.' },
             ],
         },
         {
             id: 'q9',
             title: 'When the pressure is high, what most naturally guides your leadership decisions?',
             options: [
-                { title: 'Option 1', text: 'You return to truth — understanding what is accurate, objective, and really happening.' },
-                { title: 'Option 2', text: 'You return to connection — staying aligned with people, meaning, and shared purpose.' },
-                { title: 'Option 3', text: 'You return to action — moving with conviction, clarity, and grounded instinct.' },
+                { text: 'You return to truth — understanding what is accurate, objective, and really happening.' },
+                { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.' },
+                { text: 'You return to action — moving with conviction, clarity, and grounded instinct.' },
             ],
         }
     ];
@@ -196,10 +196,8 @@
                 const options = Array.isArray(question.options) ? question.options : [];
                 return {
                     id: fallback.id,
-                    eyebrow: question.eyebrow || fallback.eyebrow,
                     title: question.title || fallback.title,
                     options: fallback.options.map((fallbackOption, optionIndex) => ({
-                        title: fallbackOption.title || `Option ${optionIndex + 1}`,
                         text: options[optionIndex]?.text || fallbackOption.text,
                     })),
                 };
@@ -302,9 +300,9 @@
 
         if (step.type === 'intro') {
             stepContainer.innerHTML = `
-                <span class="hc-step-eyebrow">${step.eyebrow}</span>
-                <h3 class="hc-step-title">${step.title}</h3>
-                <p class="hc-step-copy">${step.copy}</p>
+                <span class="hc-step-eyebrow">${escapeAttr(step.eyebrow)}</span>
+                <h3 class="hc-step-title">${escapeAttr(step.title)}</h3>
+                <p class="hc-step-copy">${escapeAttr(step.copy)}</p>
                 <div class="hc-field-grid">
                     <div class="hc-field">
                         <label for="hc-firstName">First Name</label>
@@ -335,12 +333,12 @@
 
         const selected = state.answers[step.id];
         stepContainer.innerHTML = `
-            <h3 class="hc-step-title">${step.title}</h3>
+            <h3 class="hc-step-title">${escapeAttr(step.title)}</h3>
             <div class="hc-choice-list">
                 ${step.options.map((option, index) => `
                     <label class="hc-choice ${selected === index ? 'is-selected' : ''}">
                         <input type="radio" name="${step.id}" value="${index}" ${selected === index ? 'checked' : ''}>
-                        <span>${option.text}</span>
+                        <span>${escapeAttr(option.text)}</span>
                     </label>
                 `).join('')}
             </div>
@@ -447,11 +445,17 @@
             // Clear saved progress before redirecting
             clearProgress();
 
-            // Store email in sessionStorage so the results page can use it for click tracking
-            try { sessionStorage.setItem('hc_result_email', state.email); } catch (_) {}
+            // Store email and Calendly URL in sessionStorage.
+            // The Calendly URL is gated here — only set after a real captcha-
+            // verified assessment submission so the public config endpoint
+            // doesn't have to expose it.
+            try {
+                sessionStorage.setItem('hc_result_email', state.email);
+                if (data.calendly_url) sessionStorage.setItem('hc_calendly_url', data.calendly_url);
+            } catch (_) {}
 
             // Redirect to shareable results page
-            const { result, scores, resultToken, q7Center } = data;
+            const { result, scores, resultToken, emailSent } = data;
             const params = new URLSearchParams({
                 center: result.center,
                 name:   state.firstName || state.email.split('@')[0],
@@ -460,7 +464,7 @@
                 sa:     scores.action
             });
             if (resultToken) params.set('tok', resultToken);
-            if (q7Center) params.set('q7', q7Center);
+            if (emailSent)   params.set('em', '1');
             window.location.href = `/results.html?${params.toString()}`;
 
         } catch (error) {

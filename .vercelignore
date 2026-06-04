@@ -1,0 +1,10 @@
+CLAUDE.md
+backup.js
+backup.sh
+backup.config
+backups/
+.DS_Store
+**/.DS_Store
+.env
+.env.*
+*.sql

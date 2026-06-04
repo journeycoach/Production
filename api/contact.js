@@ -14,11 +14,14 @@ const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_actio
 // Sign assessment result to prevent URL fabrication
 function signResult(center, sh, sd, sa) {
   const secret = process.env.ADMIN_JWT_SECRET || 'fallback';
-  return crypto.createHmac('sha256', secret).update(`${center}.${sh}.${sd}.${sa}`).digest('hex').slice(0, 16);
+  return crypto.createHmac('sha256', secret).update(`${center}.${sh}.${sd}.${sa}`).digest('hex').slice(0, 32);
 }
 
 function verifyResult(center, sh, sd, sa, token) {
-  return token === signResult(center, sh, sd, sa);
+  if (!token) return false;
+  const full = signResult(center, sh, sd, sa); // 32 chars
+  // Accept both new 32-char tokens and legacy 16-char tokens already in circulation
+  return token === full || token === full.slice(0, 16);
 }
 
 // Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.
@@ -60,7 +63,6 @@ const DEFAULT_ASSESSMENT_FORM = {
   questions: [
     {
       id: 'q1',
-      eyebrow: 'Question 1 of 9',
       title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
       options: [
         { text: 'You pull back to analyze the data and find where the logic failed.', center: 'head' },
@@ -70,7 +72,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q2',
-      eyebrow: 'Question 2 of 9',
       title: 'Under pressure, what do others most often tell you that you need to do differently?',
       options: [
         { text: 'You need to move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
@@ -80,7 +81,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q3',
-      eyebrow: 'Question 3 of 9',
       title: 'In high-level leadership conversations, where do you naturally contribute most?',
       options: [
         { text: 'You track how people will experience the decision and what it will mean relationally.', center: 'heart' },
@@ -90,7 +90,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q4',
-      eyebrow: 'Question 4 of 9',
       title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
       options: [
         { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.', center: 'action' },
@@ -100,7 +99,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q5',
-      eyebrow: 'Question 5 of 9',
       title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
       options: [
         { text: 'You value awareness of people, tone, and how decisions affect the room.', center: 'heart' },
@@ -110,7 +108,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q6',
-      eyebrow: 'Question 6 of 9',
       title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
       options: [
         { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.', center: 'action' },
@@ -120,7 +117,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q7',
-      eyebrow: 'Question 7 of 9',
       title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
       options: [
         { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
@@ -130,7 +126,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q8',
-      eyebrow: 'Question 8 of 9',
       title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
       options: [
         { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.', center: 'action' },
@@ -140,7 +135,6 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q9',
-      eyebrow: 'Question 9 of 9',
       title: 'When the pressure is high, what most naturally guides your leadership decisions?',
       options: [
         { text: 'You return to truth — understanding what is accurate, objective, and really happening.', center: 'head' },
@@ -172,7 +166,6 @@ function sanitizeAssessmentFormConfig(config) {
       const optionCount = Math.max(fallbackOptions.length, incomingOptions.length);
       return {
         id: fallback.id || question.id || `q${index + 1}`,
-        eyebrow: cleanText(question.eyebrow || fallback.eyebrow || `Question ${index + 1}`, 80),
         title: cleanText(question.title || fallback.title || '', 400),
         options: Array.from({ length: optionCount }, (__, optionIndex) => {
           const fallbackOption = fallbackOptions[optionIndex] || {};
@@ -456,7 +449,8 @@ async function handleSubscribe(req, res) {
 }
 
 async function handleHiddenCeiling(req, res) {
-  const { name, email, company, source, answers, attribution, preview, 'cf-turnstile-response': turnstileToken } = req.body || {};
+  const { name, email, company, answers, attribution, preview, 'cf-turnstile-response': turnstileToken } = req.body || {};
+  const source = cleanText(req.body?.source || 'hidden-ceiling', 120);
   const attr = normalizeAttribution(attribution);
 
   if (preview && RESULT_CENTER_KEYS.includes(preview)) {
@@ -481,7 +475,8 @@ async function handleHiddenCeiling(req, res) {
       };
       const hasResultOverride = Object.values(rcRaw).some(v => v);
       const resultToken = signResult(center, scores.heart, scores.head, scores.action);
-      return res.status(200).json({ ok: true, result, scores, resultToken, emailSent: true, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+      // Preview responses intentionally omit calendly_url — admin preview only
+      return res.status(200).json({ ok: true, result, scores, resultToken, emailSent: true, result_content: hasResultOverride ? resultContent : null });
   }
 
   // Honeypot — bots fill the company field
@@ -532,8 +527,6 @@ async function handleHiddenCeiling(req, res) {
     }
   }
 
-  const q7Center = scoreMap['q7']?.[answers['q7']] || null;
-
   const center = determineAssessmentCenter(scores);
   const result = { center };
 
@@ -580,52 +573,58 @@ async function handleHiddenCeiling(req, res) {
     console.error('hidden ceiling subscriber save error:', dbErr);
   }
 
-  // Send personalised result email (best-effort)
+  // Send personalised result email (best-effort).
+  // Inconclusive results (3-3-3 tie) have no guide to send. Skip entirely —
+  // buildHiddenCeilingEmail has no inconclusive template and falls back to
+  // Heart Center content, which would directly contradict the page the user
+  // lands on. The user is already directed to retake or book a call instead.
   let emailSent = false;
   let emailError = null;
-  try {
-    const resendKey = process.env.RESEND_API_KEY;
-    if (!resendKey) {
-      emailError = 'Results email could not be delivered automatically.';
-    } else {
-      const firstName = escapeHtml(name.trim().split(' ')[0] || 'there');
-
-      // Load DB-overridden email template (if set in Admin → Subscribers → Assessment Emails)
-      const dbKeys = [`hc_email_${center}_subject`, `hc_email_${center}_body`];
-      const es = await getEmailSettings(dbKeys);
-      const dbBody = es[`hc_email_${center}_body`];
-      const dbSubject = es[`hc_email_${center}_subject`];
-
-      let subject, html;
-      if (dbBody) {
-        // Use the admin-edited template; interpolate all supported placeholders
-        const calendlyUrl = process.env.CALENDLY_URL || '#';
-        subject = dbSubject || 'Your Hidden Ceiling Assessment Result';
-        html = dbBody;
-        html = interpolateEmail(html, 'firstName',    firstName);
-        html = interpolateEmail(html, 'scoreHeart',   String(scores.heart));
-        html = interpolateEmail(html, 'scoreHead',    String(scores.head));
-        html = interpolateEmail(html, 'scoreAction',  String(scores.action));
-        html = interpolateEmail(html, 'calendlyUrl',  calendlyUrl);
-        subject = interpolateEmail(subject, 'firstName', firstName);
+  if (center !== 'inconclusive') {
+    try {
+      const resendKey = process.env.RESEND_API_KEY;
+      if (!resendKey) {
+        emailError = 'Results email could not be delivered automatically.';
       } else {
-        // Fall back to the hardcoded template
-        subject = 'Your Hidden Ceiling Assessment Result';
-        html = buildHiddenCeilingEmail(firstName, center, scores);
-      }
+        const firstName = escapeHtml(name.trim().split(' ')[0] || 'there');
 
-      const resend = new Resend(resendKey);
-      await resend.emails.send({
-        from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
-        to: email,
-        subject,
-        html,
-      });
-      emailSent = true;
+        // Load DB-overridden email template (if set in Admin → Subscribers → Assessment Emails)
+        const dbKeys = [`hc_email_${center}_subject`, `hc_email_${center}_body`];
+        const es = await getEmailSettings(dbKeys);
+        const dbBody = es[`hc_email_${center}_body`];
+        const dbSubject = es[`hc_email_${center}_subject`];
+
+        let subject, html;
+        if (dbBody) {
+          // Use the admin-edited template; interpolate all supported placeholders
+          const calendlyUrl = process.env.CALENDLY_URL || '#';
+          subject = dbSubject || 'Your Hidden Ceiling Assessment Result';
+          html = dbBody;
+          html = interpolateEmail(html, 'firstName',    firstName);
+          html = interpolateEmail(html, 'scoreHeart',   String(scores.heart));
+          html = interpolateEmail(html, 'scoreHead',    String(scores.head));
+          html = interpolateEmail(html, 'scoreAction',  String(scores.action));
+          html = interpolateEmail(html, 'calendlyUrl',  calendlyUrl);
+          subject = interpolateEmail(subject, 'firstName', firstName);
+        } else {
+          // Fall back to the hardcoded template
+          subject = 'Your Hidden Ceiling Assessment Result';
+          html = buildHiddenCeilingEmail(firstName, center, scores);
+        }
+
+        const resend = new Resend(resendKey);
+        await resend.emails.send({
+          from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
+          to: email,
+          subject,
+          html,
+        });
+        emailSent = true;
+      }
+    } catch (emailErr) {
+      emailError = 'Results email could not be delivered automatically.';
+      console.error('Hidden ceiling email failed:', emailErr.message);
     }
-  } catch (emailErr) {
-    emailError = 'Results email could not be delivered automatically.';
-    console.error('Hidden ceiling email failed:', emailErr.message);
   }
 
   // Load result page content overrides (if saved in Admin → Result Pages)
@@ -647,7 +646,7 @@ async function handleHiddenCeiling(req, res) {
   const hasResultOverride = Object.values(rcRaw).some(v => v);
 
   const resultToken = signResult(center, scores.heart, scores.head, scores.action);
-  return res.status(200).json({ ok: true, result, scores, resultToken, q7Center, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
+  return res.status(200).json({ ok: true, result, scores, resultToken, emailSent, emailError, calendly_url: process.env.CALENDLY_URL || null, result_content: hasResultOverride ? resultContent : null });
 }
 
 async function handleCronDrip(req, res) {
@@ -854,10 +853,11 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'db error' });
       }
     }
-    // Public config endpoint — exposes safe public values (no secrets)
+    // Public config endpoint — exposes safe public values (no secrets).
+    // calendly_url is intentionally excluded here; it is only returned in
+    // the authenticated assessment POST response so bots cannot scrape it.
     if (req.method === 'GET' && req.query?.action === 'config') {
       return res.status(200).json({
-        calendly_url: process.env.CALENDLY_URL || null,
         assessment_form: await getAssessmentFormConfig(),
       });
     }

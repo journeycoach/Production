@@ -27,6 +27,11 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -702,7 +707,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
@@ -723,7 +728,7 @@
                     <div class="reveal-img delay-100" style="position: relative;">
                         <!-- Subtle glow behind the book -->
                         <div style="position: absolute; top: 50%; left: 50%; width: 80%; height: 80%; transform: translate(-50%, -50%); background: var(--color-accent-gold); filter: blur(60px); opacity: 0.15; border-radius: 50%;"></div>
-                        <img src="assets/images/hidden-ceiling-guide.png" alt="Hidden Ceiling Guide" 
+                        <img src="assets/images/hidden-ceiling-guide.webp" alt="Hidden Ceiling Guide" 
                              style="position: relative; max-width: 100%; width: 210px; height: auto; filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.6)); transform: perspective(1200px) rotateY(-12deg) rotateX(4deg) rotateZ(-2deg); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);"
                              onmouseover="this.style.transform='perspective(1200px) rotateY(-4deg) rotateX(2deg) rotateZ(0deg)'"
                              onmouseout="this.style.transform='perspective(1200px) rotateY(-12deg) rotateX(4deg) rotateZ(-2deg)'">
@@ -826,8 +831,8 @@
                                 <div class="hc-step-card" id="hc-step-container"></div>
                                 <div class="hc-error" id="hc-form-error" aria-live="polite"></div>
                                 <input type="text" id="hc-company" name="company" class="hc-hidden" tabindex="-1" autocomplete="off">
-                                <div id="hc-assessment-turnstile" style="margin-bottom:0.5rem;"></div>
                                 <div class="hc-actions" id="hc-actions" style="justify-content:flex-end;">
+                                    <div id="hc-assessment-turnstile"></div>
                                     <button type="button" class="hc-btn hc-btn-primary" id="hc-next-btn">Continue</button>
                                 </div>
                             </form>
@@ -899,7 +904,7 @@
         <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
             <!-- Footer Logo -->
             <a href="/">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
             </a>
             <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
             <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
@@ -912,10 +917,10 @@
         </div>
     </footer>
 
-    <script src="js/attribution.js?v=1"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/hidden-ceiling.js?v=2"></script>
+    <script src="js/attribution.js?v=1" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/hidden-ceiling.js?v=2" defer></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
     <script>
         document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
@@ -973,7 +978,7 @@
                     _subWidgetId = window.turnstile.render('#hc-sub-turnstile', {
                         sitekey: SITEKEY,
                         size: 'compact',
-                        appearance: 'always',
+                        appearance: 'interaction-only',
                         callback(t) { _subToken = t; window._hcSubTurnstileToken = t; },
                         'expired-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
                         'error-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
@@ -983,7 +988,7 @@
                     _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
                         sitekey: SITEKEY,
                         size: 'compact',
-                        appearance: 'always',
+                        appearance: 'interaction-only',
                         callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
                         'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
                         'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },

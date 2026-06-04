@@ -90,13 +90,14 @@ export default async function handler(req, res) {
     console.error('admin login rate limit check error:', err);
   }
 
+  // HMAC both values with the same key so the comparison is always over equal-length
+  // 32-byte digests — never leaks the correct password's length via timing.
   let match = false;
   try {
-    const a = Buffer.from(password);
-    const b = Buffer.from(adminPassword);
-    if (a.length === b.length) {
-      match = crypto.timingSafeEqual(a, b);
-    }
+    const secret = process.env.ADMIN_JWT_SECRET;
+    const hmacA = crypto.createHmac('sha256', secret).update(String(password)).digest();
+    const hmacB = crypto.createHmac('sha256', secret).update(String(adminPassword)).digest();
+    match = crypto.timingSafeEqual(hmacA, hmacB);
   } catch {
     match = false;
   }

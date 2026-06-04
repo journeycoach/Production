@@ -60,6 +60,8 @@
         .retake-link a { color: var(--color-accent-gold); text-decoration: none; }
         .error-state { text-align: center; padding: 6rem 1rem; }
         .error-state p { color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+        .email-confirm { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--color-text-muted); margin: -0.5rem 0 1.5rem; }
+        .email-confirm svg { flex-shrink: 0; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -67,7 +69,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="/assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list"></ul>
             <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
@@ -207,6 +209,8 @@
         const sd     = parseInt(params.get('sd'), 10) || 0;
         const sa     = parseInt(params.get('sa'), 10) || 0;
         const tok    = params.get('tok');
+        const emailSent = params.get('em') === '1';
+        const resultEmail = (() => { try { return sessionStorage.getItem('hc_result_email') || ''; } catch(_) { return ''; } })();
 
         // Verify token first — redirect fabricated URLs back to assessment
         if (tok) {
@@ -285,19 +289,30 @@
             return `<span class="confidence-badge moderate">◉ Moderate match — a coaching call can add clarity</span>`;
         }
 
-        const pageUrl = encodeURIComponent(window.location.href);
+        // Strip the email-sent flag from shared URLs — it's only meaningful
+        // for the original submitter and would show a confusing message to anyone
+        // who follows the link.
+        const shareUrlObj = new URL(window.location.href);
+        shareUrlObj.searchParams.delete('em');
+        const pageUrl = encodeURIComponent(shareUrlObj.toString());
         const shareText = encodeURIComponent(`I just took the Hidden Ceiling assessment by @journeycoach — ${meta.title}`);
 
         document.getElementById('results-content').innerHTML = `
-            <p class="results-eyebrow">${meta.centerLabel} · ${name}'s Result</p>
-            <h1 class="results-title">${meta.title}</h1>
-            <p class="results-summary">${meta.summary}</p>
+            <p class="results-eyebrow">${escHtml(meta.centerLabel)} · ${escHtml(name)}'s Result</p>
+            <h1 class="results-title">${escHtml(meta.title)}</h1>
+            <p class="results-summary">${escHtml(meta.summary)}</p>
+
+            ${emailSent ? `
+            <p class="email-confirm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.45 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16h1.42z"/></svg>
+                Your guide${resultEmail ? ` is on its way to <strong>${escHtml(resultEmail)}</strong>` : ' has been sent'} — check your inbox.
+            </p>` : ''}
 
             ${confidenceBadge()}
             <div class="score-grid">
                 ${scores.map(s => `
                     <div class="score-card ${isPrimaryScore(center, s.key) ? 'is-primary' : ''}">
-                        <strong>${s.label}</strong>
+                        <strong>${escHtml(s.label)}</strong>
                         <span>${s.value}</span>
                         <div class="score-bar-track">
                             <div class="score-bar-fill" style="width:${total > 0 ? Math.round((s.value / total) * 100) : 0}%"></div>
@@ -307,12 +322,12 @@
 
             <div class="results-card">
                 <div class="results-card-label">Your Leadership Pattern</div>
-                <p>${meta.description}</p>
+                <p>${escHtml(meta.description)}</p>
             </div>
 
             <div class="results-card">
                 <div class="results-card-label">Your Blindspot Under Pressure</div>
-                <p>${meta.blindspot}</p>
+                <p>${escHtml(meta.blindspot)}</p>
             </div>
 
             <div class="results-card">
@@ -325,9 +340,9 @@
             <div class="results-card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                 <div>
                     <div class="results-card-label">Your Guide</div>
-                    <p style="margin:0;">${meta.guideLabel}</p>
+                    <p style="margin:0;">${escHtml(meta.guideLabel)}</p>
                 </div>
-                <a href="${meta.guideUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="white-space:nowrap;">Download Guide</a>
+                <a href="${escHtml(meta.guideUrl)}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="white-space:nowrap;">Download Guide</a>
             </div>
 
             <div class="cta-block">
@@ -367,21 +382,19 @@
             }).catch(() => {});
         });
 
-        // Load Calendly URL from API config
+        // Calendly URL is gated — only available via sessionStorage set after
+        // a real captcha-verified assessment submission, never from a public endpoint.
         try {
-            const cfgRes = await fetch('/api/contact?action=config');
-            if (cfgRes.ok) {
-                const cfg = await cfgRes.json();
-                if (cfg.calendly_url) {
-                    const btn = document.getElementById('results-calendly-btn');
-                    btn.href = cfg.calendly_url;
-                    btn.style.display = 'inline-flex';
-                    const email = (() => { try { return sessionStorage.getItem('hc_result_email'); } catch(_){return null;} })();
-                    if (email) {
-                        btn.addEventListener('click', () => {
-                            fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'track_click', email }) }).catch(()=>{});
-                        });
-                    }
+            const calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
+            if (calendlyUrl) {
+                const btn = document.getElementById('results-calendly-btn');
+                btn.href = calendlyUrl;
+                btn.style.display = 'inline-flex';
+                const email = sessionStorage.getItem('hc_result_email') || null;
+                if (email) {
+                    btn.addEventListener('click', () => {
+                        fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'track_click', email }) }).catch(()=>{});
+                    });
                 }
             }
         } catch (_) {}

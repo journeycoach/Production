@@ -27,23 +27,37 @@ const ADMIN_PAGE_LABELS = {
   'site.html': 'Site Console',
   'posts.html': 'Blog Posts',
   'post-edit.html': 'Post Editor',
-  'lead-dashboard.html': 'Lead Dashboard',
+  'lead-dashboard.html': 'Reporting',
   'testimonials.html': 'Testimonials',
   'tools.html': 'Tools & Resources',
   'bookmarks.html': 'Bookmarks',
   'contacts.html': 'Contact Submissions',
-  'subscribers.html': 'Subscribers & Campaigns',
-  'analytics.html': 'Analytics'
+  'subscribers.html': 'Subscribers & Campaigns'
 };
 
-// Check auth on page load — also validates token expiration
+// Check auth on page load — also validates token expiration.
+// Immediately redirects if localStorage marker is absent.
+// Fires a background server ping so a stale/expired cookie clears the
+// marker and redirects rather than leaving the admin stuck with 401s.
 function requireAdminAuth() {
   const marker = localStorage.getItem(ADMIN_SESSION_MARKER_KEY);
   if (!marker && !consumeLegacyAdminToken()) {
     window.location.href = '/admin/index.html';
     return null;
   }
-  return marker || localStorage.getItem(ADMIN_SESSION_MARKER_KEY);
+
+  // Background server validation — catches expired cookies without blocking the UI
+  fetch('/api/admin/auth', { method: 'GET', credentials: 'same-origin' })
+    .then(res => {
+      if (!res.ok) {
+        setAdminSessionMarker(false);
+        localStorage.removeItem(LEGACY_ADMIN_TOKEN_KEY);
+        window.location.href = '/admin/index.html';
+      }
+    })
+    .catch(() => { /* network error — leave session intact, API calls will surface 401s */ });
+
+  return marker;
 }
 
 function hasAdminSessionMarker() {
@@ -381,12 +395,13 @@ function initGlobalSearch() {
     { title: 'Testimonials', desc: 'Manage client testimonials', url: 'testimonials.html' },
     { title: 'Tools & Resources', desc: 'Manage tools, guides, and resources', url: 'tools.html' },
     { title: 'Bookmarks', desc: 'Manage saved bookmarks', url: 'bookmarks.html' },
-    { title: 'Leads Dashboard', desc: 'View assessment leads and data', url: 'lead-dashboard.html' },
+    { title: 'Reporting', desc: 'Lead overview, funnel analysis, and site analytics', url: 'lead-dashboard.html' },
+    { title: 'Reporting — Analytics', desc: 'Time-series charts: subscribers, assessments, bookings', url: 'lead-dashboard.html?tab=analytics' },
+    { title: 'Reporting — Sales Funnel', desc: 'Visual funnel and conversion insight cards', url: 'lead-dashboard.html?tab=funnel' },
     { title: 'Site Console', desc: 'Manage page sections, navigation, and brand', url: 'site.html' },
     { title: 'Contacts', desc: 'View contact form submissions', url: 'contacts.html' },
     { title: 'Subscribers & Campaigns', desc: 'Manage email subscribers and campaigns', url: 'subscribers.html' },
-    { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' },
-    { title: 'Analytics', desc: 'View site traffic and lead analytics', url: 'analytics.html' }
+    { title: 'Drip Campaigns', desc: 'Edit hidden ceiling drip emails', url: 'subscribers.html?tab=drip-campaigns' }
   ];
 
   let dynamicIndex = null;

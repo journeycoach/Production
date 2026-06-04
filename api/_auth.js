@@ -5,7 +5,8 @@ export const ADMIN_SESSION_COOKIE = 'yjc_admin_session';
 
 export function createToken() {
   const expires = String(Date.now() + EXPIRES_MS);
-  const payload = Buffer.from(expires).toString('base64');
+  const nonce   = crypto.randomBytes(16).toString('hex');
+  const payload = Buffer.from(`${expires}:${nonce}`).toString('base64');
   const sig = crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(payload).digest('hex');
   return `${payload}.${sig}`;
 }
@@ -16,12 +17,15 @@ export function verifyToken(token) {
     const [payload, sig] = token.split('.');
     if (!payload || !sig) return false;
     const expectedSig = crypto.createHmac('sha256', process.env.ADMIN_JWT_SECRET).update(payload).digest('hex');
-    if (sig.length !== expectedSig.length) return false;
-    const sigBuf = Buffer.from(sig, 'hex');
+    // Both digests are always 64 hex chars — safe to compare without length check
+    const sigBuf = Buffer.from(sig.slice(0, 64).padEnd(64, '0'), 'hex');
     const expBuf = Buffer.from(expectedSig, 'hex');
+    if (sig.length !== expectedSig.length) return false;
     if (!crypto.timingSafeEqual(sigBuf, expBuf)) return false;
-    const expires = parseInt(Buffer.from(payload, 'base64').toString(), 10);
-    return Date.now() < expires;
+    // Payload is "expires:nonce" (new) or just "expires" (legacy) — both parse correctly
+    const decoded = Buffer.from(payload, 'base64').toString();
+    const expires = parseInt(decoded.split(':')[0], 10);
+    return Number.isFinite(expires) && Date.now() < expires;
   } catch { return false; }
 }
 

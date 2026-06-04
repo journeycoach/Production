@@ -167,6 +167,14 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
+    <!-- Preload Critical LCP Background Image -->
+    <link rel="preload" href="assets/images/hero-mountain.webp" as="image" fetchpriority="high">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -256,7 +264,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
@@ -337,7 +345,7 @@
                     <h3 class="reveal-text delay-400"><i>Helping you lead with authenticity and clarity.</i></h3>
                 </div>
                 <div class="split-image reveal-img">
-                    <img id="welcome-img" src="assets/images/enneagram-session.png"
+                    <img id="welcome-img" src="assets/images/enneagram-session.webp"
                         alt="Executive Coaching Enneagram Session" loading="lazy">
                 </div>
             </div>
@@ -363,7 +371,7 @@
                         strengthens presence and execution.</p>
                 </div>
                 <div class="split-image reveal-img delay-100">
-                    <img src="assets/images/about.png" alt="Forest Path Journey" loading="lazy">
+                    <img src="assets/images/about.webp" alt="Forest Path Journey" loading="lazy">
                     <div class="book-icon-overlay floating"
                         style="background: transparent; box-shadow: none; display: flex; align-items: center; justify-content: center;">
                         <svg viewBox="0 0 100 100"
@@ -517,7 +525,7 @@
                     </div>
                 </div>
                 <div class="split-image reveal-img delay-100">
-                    <img id="about-portrait-img" src="assets/images/about_john.jpg" alt="John - Executive Coach"
+                    <img id="about-portrait-img" src="assets/images/about_john.webp" alt="John - Executive Coach"
                         style="border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" loading="lazy">
                 </div>
             </div>
@@ -602,11 +610,6 @@
                             class="cf-input" style="resize: vertical; min-height: 120px;"></textarea>
                     </div>
 
-                    <!-- Production Turnstile site key is domain-specific. Do not replace this with the Test key. -->
-                    <div id="contact-turnstile" class="cf-turnstile"></div>
-                    <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" value="">
-
-                    
                     <!-- Submit -->
                     <button type="submit" id="cf-submit" style="
                         margin-top: 0.5rem;
@@ -637,6 +640,10 @@
                             <path d="M12 2a10 10 0 0 1 10 10" />
                         </svg>
                     </button>
+
+                    <!-- Production Turnstile site key is domain-specific. Do not replace this with the Test key. -->
+                    <div id="contact-turnstile" class="cf-turnstile"></div>
+                    <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" value="">
 
                     <!-- Feedback messages -->
                     <div id="cf-success"
@@ -923,28 +930,28 @@
 
             <!-- Footer Logo -->
             <a href="/">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
             </a>
 
             <!-- Credentials in Footer -->
             <div class="footer-credentials"
                 style="display: flex; justify-content: center; align-items: center; gap: 3rem; flex-wrap: wrap; opacity: 0.85; filter: grayscale(100%); transition: all 0.3s ease;">
-                <img src="assets/images/credential-icf.png" alt="ICF Professional Certified Coach"
+                <img src="assets/images/credential-icf.webp" alt="ICF Professional Certified Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ieq9.jpg" alt="iEQ9 Accredited Practitioner"
+                <img src="assets/images/credential-ieq9.webp" alt="iEQ9 Accredited Practitioner"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ipec.png" alt="iPEC Certified Professional Coach"
+                <img src="assets/images/credential-ipec.webp" alt="iPEC Certified Professional Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ipec-cpc.png" alt="iPEC Certified Professional Coach (CPC)"
+                <img src="assets/images/credential-ipec-cpc.webp" alt="iPEC Certified Professional Coach (CPC)"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
@@ -978,10 +985,10 @@
         </div>
     </footer>
 
-    <script src="js/attribution.js?v=1"></script>
-    <script src="js/site-styles.js"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/main.js?v=4"></script>
+    <script src="js/attribution.js?v=1" defer></script>
+    <script src="js/site-styles.js" defer></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js?v=4" defer></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
     <script>
         document.getElementById('home-subscribe-form').addEventListener('submit', async (e) => {

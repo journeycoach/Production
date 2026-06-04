@@ -8,3 +8,4 @@ backup.config
 .DS_Store
 **/.DS_Store
 backups/
+*.sql

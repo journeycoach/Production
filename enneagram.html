@@ -18,6 +18,11 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -47,7 +52,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
@@ -148,7 +153,7 @@
                 </div>
 
                 <div class="split-image reveal-img delay-200">
-                    <img src="assets/images/enneagram-wheel.jpeg" alt="The Enneagram Wheel" loading="lazy"
+                    <img src="assets/images/enneagram-wheel.webp" alt="The Enneagram Wheel" loading="lazy"
                         style="border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); object-fit: contain; background: white; padding: 2rem;">
                 </div>
             </div>
@@ -157,7 +162,7 @@
         <!-- iEQ9 Credential Image -->
         <section style="padding: 3rem 0; text-align: center; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.05);">
             <div class="container">
-                <img src="assets/images/credential-ieq9.jpg" alt="iEQ9 Accredited Practitioner — Integrative Enneagram Solutions" loading="lazy"
+                <img src="assets/images/credential-ieq9.webp" alt="iEQ9 Accredited Practitioner — Integrative Enneagram Solutions" loading="lazy"
                     style="max-width: 340px; width: 90%; height: auto; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
             </div>
         </section>
@@ -192,28 +197,28 @@
 
             <!-- Footer Logo -->
             <a href="/">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
             </a>
 
             <!-- Credentials in Footer -->
             <div class="footer-credentials"
                 style="display: flex; justify-content: center; align-items: center; gap: 3rem; flex-wrap: wrap; opacity: 0.85; filter: grayscale(100%); transition: all 0.3s ease;">
-                <img src="assets/images/credential-icf.png" alt="ICF Professional Certified Coach"
+                <img src="assets/images/credential-icf.webp" alt="ICF Professional Certified Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ieq9.jpg" alt="iEQ9 Accredited Practitioner"
+                <img src="assets/images/credential-ieq9.webp" alt="iEQ9 Accredited Practitioner"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ipec.png" alt="iPEC Certified Professional Coach"
+                <img src="assets/images/credential-ipec.webp" alt="iPEC Certified Professional Coach"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
                     onmouseout="this.style.filter='grayscale(100%)'; this.parentNode.style.opacity='0.85'">
-                <img src="assets/images/credential-ipec-cpc.png" alt="iPEC Certified Professional Coach (CPC)"
+                <img src="assets/images/credential-ipec-cpc.webp" alt="iPEC Certified Professional Coach (CPC)"
                     style="max-height: 55px; width: auto; mix-blend-mode: multiply; transition: filter 0.3s ease; cursor: pointer;"
                     loading="lazy"
                     onmouseover="this.style.filter='grayscale(0%)'; this.parentNode.style.opacity='1'"
@@ -242,8 +247,8 @@
     </footer>
 
 
-    <script src="js/nav.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js" defer></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 

@@ -24,6 +24,11 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -215,7 +220,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
@@ -255,7 +260,7 @@
         <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
             <!-- Footer Logo -->
             <a href="/">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
             </a>
             <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
             <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
@@ -269,9 +274,9 @@
     </footer>
 
 
-    <script src="js/nav.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/tools.js"></script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/tools.js" defer></script>
     <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 

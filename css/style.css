@@ -996,7 +996,7 @@ ul {
 }
 
 .hero-section {
-    background: url('../assets/images/hero-mountain.png') no-repeat center center/cover;
+    background: url('../assets/images/hero-mountain.webp') no-repeat center center/cover;
     /* Optional slight brightness boost to the image itself if needed */
     /* filter: brightness(1.1); */
 }

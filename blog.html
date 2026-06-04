@@ -24,6 +24,11 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
 
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
     <!-- Styles -->
     <link rel="stylesheet" href="css/variables.css?v=11">
     <link rel="stylesheet" href="css/style.css?v=11">
@@ -34,9 +39,6 @@
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <link rel="apple-touch-icon" href="assets/images/favicon.png">
     <link rel="canonical" href="https://journeycoach.co/blog.html" id="canonical-url">
-
-    <!-- Marked JS for parsing Markdown -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         .blog-header {
@@ -102,225 +104,6 @@
             font-size: 0.9rem;
             align-self: flex-start;
         }
-
-        /* Single Post Styles */
-        #single-post-view {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 4rem 1.5rem;
-            display: none;
-        }
-
-        .post-layout {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 3.5rem;
-            align-items: start;
-        }
-
-        .post-sidebar-inner {
-            position: sticky;
-            top: 100px;
-        }
-
-        .sidebar-cta {
-            background: color-mix(in srgb, var(--color-accent-gold) 8%, var(--color-bg-secondary));
-            border: 1px solid rgba(199, 169, 107, 0.18);
-            border-top: 3px solid var(--color-accent-gold);
-            border-radius: 0 0 8px 8px;
-            padding: 1.75rem;
-        }
-
-        .sidebar-cta-eyebrow {
-            font-size: 0.72rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--color-accent-gold);
-            font-weight: 600;
-            margin-bottom: 0.6rem;
-        }
-
-        .sidebar-cta h3 {
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            color: var(--color-text-primary);
-            margin-bottom: 0.75rem;
-            line-height: 1.3;
-        }
-
-        .sidebar-cta p {
-            color: var(--color-text-secondary);
-            font-size: 0.88rem;
-            line-height: 1.65;
-            margin-bottom: 1.25rem;
-        }
-
-        .sidebar-cta .btn-primary {
-            display: block;
-            text-align: center;
-            font-size: 0.85rem;
-            padding: 0.65rem 1rem;
-        }
-
-        @media (max-width: 860px) {
-            .post-layout {
-                grid-template-columns: 1fr;
-            }
-            .post-sidebar {
-                order: -1;
-            }
-            .post-sidebar-inner {
-                position: static;
-            }
-        }
-
-        .back-link {
-            color: var(--color-accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .back-link:hover {
-            color: var(--color-text-primary);
-        }
-
-        .post-header {
-            margin-bottom: 3rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 2rem;
-        }
-
-        .post-title {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .post-meta {
-            color: var(--color-text-muted);
-            font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
-
-        .post-content {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            color: var(--color-text-secondary);
-        }
-
-        .post-content h2,
-        .post-content h3 {
-            color: var(--color-text-primary);
-            margin-top: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .post-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .post-content ul,
-        .post-content ol {
-            margin-bottom: 1.5rem;
-            padding-left: 2rem;
-        }
-
-        .post-content li {
-            margin-bottom: 0.5rem;
-        }
-
-        .post-content blockquote {
-            border-left: 4px solid var(--color-accent-gold);
-            padding-left: 1.5rem;
-            margin-left: 0;
-            margin-right: 0;
-            font-style: italic;
-            color: var(--color-text-primary);
-        }
-
-        .post-content img {
-            max-width: 100%;
-            border-radius: 4px;
-            margin: 2rem 0;
-        }
-
-        .post-share {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
-            flex-wrap: wrap;
-        }
-
-        .post-share-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--color-text-muted);
-            margin-right: 0.25rem;
-        }
-
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            padding: 0.45rem 1rem;
-            border-radius: 4px;
-            font-size: 0.82rem;
-            font-weight: 500;
-            letter-spacing: 0.03em;
-            text-decoration: none;
-            border: 1px solid transparent;
-            cursor: pointer;
-            background: none;
-            transition: opacity 0.2s, background 0.2s;
-        }
-
-        .share-btn svg {
-            width: 15px;
-            height: 15px;
-            flex-shrink: 0;
-        }
-
-        .share-btn-linkedin {
-            background: #0A66C2;
-            color: #ffffff;
-        }
-
-        .share-btn-linkedin:hover { opacity: 0.88; }
-
-        .share-btn-x {
-            background: #000000;
-            color: #ffffff;
-            border-color: rgba(255,255,255,0.15);
-        }
-
-        .share-btn-x:hover { opacity: 0.82; }
-
-        .share-btn-copy {
-            background: rgba(255,255,255,0.06);
-            color: var(--color-text-secondary);
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        .share-btn-copy:hover {
-            background: rgba(255,255,255,0.1);
-            color: var(--color-text-primary);
-        }
-
-        .share-btn-copy.copied {
-            color: #6fcf97;
-            border-color: rgba(111, 207, 151, 0.3);
-        }
     </style>
 </head>
 
@@ -334,7 +117,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" id="nav-logo">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
             </a>
             <ul class="nav-links" id="nav-links-list">
                 <!-- Populated dynamically by js/nav.js from data/nav.json -->
@@ -369,66 +152,6 @@
             </section>
         </div>
 
-        <!-- Single Post View -->
-        <div id="single-post-view">
-            <a href="blog.html" class="back-link" id="back-to-blog">
-                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-                </svg>
-                Back to all posts
-            </a>
-
-            <div class="post-layout">
-                <!-- Main content -->
-                <div class="post-main">
-                    <div class="post-header fade-in-up">
-                        <h1 class="post-title" id="post-title">Loading...</h1>
-                        <div class="post-meta">
-                            <span id="post-date"></span> &nbsp;|&nbsp; By <span id="post-author">John Paine</span>
-                        </div>
-                    </div>
-
-                    <div class="post-content fade-in-up delay-1" id="post-content">
-                        <!-- Post content injected by blog.js -->
-                    </div>
-
-                    <div class="post-share">
-                <span class="post-share-label">Share</span>
-                <a id="share-linkedin" href="#" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-linkedin">
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.23 0z"/>
-                    </svg>
-                    LinkedIn
-                </a>
-                <a id="share-x" href="#" target="_blank" rel="noopener noreferrer" class="share-btn share-btn-x">
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    X
-                </a>
-                <button id="share-copy" class="share-btn share-btn-copy">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                    </svg>
-                    Copy Link
-                </button>
-                    </div>
-                </div><!-- /.post-main -->
-
-                <!-- Sidebar -->
-                <aside class="post-sidebar" id="blog-assessment-sidebar">
-                    <div class="post-sidebar-inner">
-                        <div class="sidebar-cta">
-                            <p class="sidebar-cta-eyebrow">Free · 2 Minutes</p>
-                            <h3>Discover your leadership blind spot</h3>
-                            <p>The Hidden Ceiling Assessment reveals the specific pattern that limits leaders in your center — and what to do about it.</p>
-                            <a href="/Hidden-Ceiling.html" class="btn-primary">Take the Free Assessment</a>
-                        </div>
-                    </div>
-                </aside>
-
-            </div><!-- /.post-layout -->
-        </div><!-- /#single-post-view -->
     </main>
 
     <footer
@@ -436,7 +159,7 @@
         <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
             <!-- Footer Logo -->
             <a href="/">
-                <img src="assets/images/logo.png" alt="Your Journey Coach" class="footer-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
             </a>
             <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
             <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
@@ -449,23 +172,10 @@
         </div>
     </footer>
 
-    <script src="js/nav.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/blog.js"></script>
-    <script>
-      document.getElementById('footer-year').textContent = new Date().getFullYear();
-      // Control assessment sidebar visibility via Site Console toggle
-      fetch('/api/content?type=sections&page=blog')
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          const section = (data?.data || []).find(s => s.section_key === 'assessment-cta');
-          if (section && section.is_visible === false) {
-            const el = document.getElementById('blog-assessment-sidebar');
-            if (el) el.style.display = 'none';
-          }
-        })
-        .catch(() => {});
-    </script>
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/blog.js" defer></script>
+    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
 </body>
 
 </html>

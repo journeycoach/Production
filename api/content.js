@@ -265,7 +265,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <nav class="navbar">
     <div class="container">
       <a href="/" class="logo" id="nav-logo">
-        <img src="/assets/images/logo.png" alt="Your Journey Coach" class="logo-img">
+        <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
       </a>
       <ul class="nav-links" id="nav-links-list"></ul>
       <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
@@ -321,7 +321,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
   </main>
   <footer style="padding:3rem 0;background:var(--color-bg-primary);border-top:1px solid rgba(255,255,255,.05);margin-top:4rem;">
     <div class="container" style="display:flex;flex-direction:column;align-items:center;gap:2rem;">
-      <a href="/"><img src="/assets/images/logo.png" alt="Your Journey Coach" class="footer-logo"></a>
+      <a href="/"><img src="/assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo"></a>
       <nav id="footer-nav-links" style="display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;"></nav>
       <p style="color:var(--color-text-muted);font-size:.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
       <div style="display:flex;gap:1.5rem;">
@@ -330,9 +330,9 @@ function renderPostHtml(post, showAssessmentCta = true) {
       </div>
     </div>
   </footer>
-  <script src="/js/nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/js/site-styles.js"></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/site-styles.js" defer></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
     document.getElementById('share-copy').addEventListener('click', function() {
@@ -370,7 +370,7 @@ function render404Html() {
   <div class="loader-wrapper"><div class="breathing-circle"></div></div>
   <nav class="navbar">
     <div class="container">
-      <a href="/" class="logo" id="nav-logo"><img src="/assets/images/logo.png" alt="Your Journey Coach" class="logo-img"></a>
+      <a href="/" class="logo" id="nav-logo"><img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img"></a>
       <ul class="nav-links" id="nav-links-list"></ul>
       <div class="hamburger" id="hamburger" role="button"><span></span><span></span><span></span></div>
     </div>
@@ -381,8 +381,8 @@ function render404Html() {
     <p style="color:var(--color-text-secondary);margin-bottom:2rem;">This post may have moved or been removed.</p>
     <a href="/blog.html" style="color:var(--color-accent-gold);text-decoration:none;font-size:.9rem;text-transform:uppercase;letter-spacing:.08em;">&larr; Back to all posts</a>
   </main>
-  <script src="/js/nav.js"></script>
-  <script src="/js/main.js"></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/main.js" defer></script>
 </body>
 </html>`;
 }
