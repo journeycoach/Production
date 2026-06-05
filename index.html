@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZM9X6CN8YK');</script>
+    <script src="js/gtm.js" defer></script>
     <title>Executive Leadership Coaching | Elevate Your Impact</title>
     <meta name="description"
         content="Premium executive coaching for high-impact leaders. Unlock your potential and drive organizational success.">
@@ -238,22 +237,7 @@
             }
         }
     </style>
-    <script>
-        (function () {
-            if (window.innerWidth > 640) return;
-            var btn = document.getElementById('hc-float-btn');
-            var scrolled = false;
-            window.addEventListener('scroll', function () {
-                if (window.scrollY > 80 && !scrolled) {
-                    btn.classList.add('hc-hidden');
-                    scrolled = true;
-                } else if (window.scrollY <= 80 && scrolled) {
-                    btn.classList.remove('hc-hidden');
-                    scrolled = false;
-                }
-            }, { passive: true });
-        })();
-    </script>
+
 
     <!-- Page Loader -->
     <div class="loader-wrapper">
@@ -778,155 +762,7 @@
                 }
             </style>
 
-            <script>
-                function scrollToContactForm(smooth) {
-                    const form = document.getElementById('contact-form');
-                    if (!form) return;
-                    const rect = form.getBoundingClientRect();
-                    const formTop = window.scrollY + rect.top;
-                    const target = formTop - Math.max(0, (window.innerHeight - rect.height) / 2);
-                    window.scrollTo({ top: Math.max(0, target), behavior: smooth ? 'smooth' : 'instant' });
-                }
 
-                // Intercept CTA link clicks
-                document.querySelectorAll('a[href="#contact"], a[href="/#contact"]').forEach(link => {
-                    link.addEventListener('click', e => {
-                        e.preventDefault();
-                        history.pushState(null, '', '/#contact');
-                        scrollToContactForm(true);
-                    });
-                });
-
-                // Handle page load or direct navigation to /#contact
-                if (window.location.hash === '#contact') {
-                    window.addEventListener('load', () => scrollToContactForm(false));
-                }
-
-                // Handle back/forward navigation to #contact hash
-                window.addEventListener('hashchange', () => {
-                    if (window.location.hash === '#contact') scrollToContactForm(true);
-                });
-            </script>
-
-            <script>
-                (() => {
-                    const CONTACT_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
-                    const form = document.getElementById('contact-form');
-                    const btn = document.getElementById('cf-submit');
-                    const spinner = document.getElementById('cf-spinner');
-                    const btnText = document.getElementById('cf-btn-text');
-                    const successEl = document.getElementById('cf-success');
-                    const errorEl = document.getElementById('cf-error');
-                    const turnstileTokenInput = document.getElementById('cf-turnstile-response');
-                    let turnstileWidgetId = null;
-
-                    function setTurnstileToken(token = '') {
-                        turnstileTokenInput.value = token;
-                    }
-
-                    function resetTurnstile() {
-                        setTurnstileToken('');
-                        if (window.turnstile && turnstileWidgetId !== null) {
-                            window.turnstile.reset(turnstileWidgetId);
-                        }
-                    }
-
-                    window.renderContactTurnstile = function () {
-                        if (!window.turnstile || turnstileWidgetId !== null) return;
-
-                        turnstileWidgetId = window.turnstile.render('#contact-turnstile', {
-                            sitekey: CONTACT_TURNSTILE_SITEKEY,
-                            callback(token) {
-                                setTurnstileToken(token || '');
-                                errorEl.style.display = 'none';
-                            },
-                            'expired-callback'() {
-                                setTurnstileToken('');
-                            },
-                            'error-callback'() {
-                                setTurnstileToken('');
-                                errorEl.textContent = 'The CAPTCHA could not be loaded. Please refresh the page and try again.';
-                                errorEl.style.display = 'block';
-                            }
-                        });
-
-                        // Also render subscribe form widget (interaction-only: invisible unless challenge needed)
-                        if (document.getElementById('home-sub-turnstile') && !window._homeSubTurnstileId) {
-                            window._homeSubTurnstileId = window.turnstile.render('#home-sub-turnstile', {
-                                sitekey: CONTACT_TURNSTILE_SITEKEY,
-                                size: 'compact',
-                                appearance: 'interaction-only',
-                                callback(token) { window._homeSubTurnstileToken = token; },
-                                'expired-callback'() { window._homeSubTurnstileToken = ''; },
-                                'error-callback'() { window._homeSubTurnstileToken = ''; },
-                            });
-                        }
-                    };
-
-                    form.addEventListener('submit', async function (e) {
-                        e.preventDefault();
-
-                        // Reset feedback
-                        successEl.style.display = 'none';
-                        errorEl.style.display = 'none';
-
-                        const turnstileToken = turnstileTokenInput.value.trim();
-                        if (!turnstileToken) {
-                            errorEl.textContent = 'Please complete the CAPTCHA before sending your message.';
-                            errorEl.style.display = 'block';
-                            if (window.turnstile && turnstileWidgetId !== null) {
-                                window.turnstile.reset(turnstileWidgetId);
-                            }
-                            return;
-                        }
-
-                        // Loading state
-                        btn.disabled = true;
-                        btn.style.opacity = '0.7';
-                        btn.style.cursor = 'not-allowed';
-                        btnText.textContent = 'Sending...';
-                        spinner.style.display = 'block';
-
-                        try {
-                            const payload = {
-                                name: document.getElementById('cf-name').value.trim(),
-                                email: document.getElementById('cf-email').value.trim(),
-                                phone: document.getElementById('cf-phone').value.trim(),
-                                interest: document.getElementById('cf-interest').value || null,
-                                message: document.getElementById('cf-message').value.trim(),
-                                _honey: document.getElementById('cf-honey').value,
-                                attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
-                                'cf-turnstile-response': turnstileToken
-                            };
-                            const res = await fetch('/api/contact', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(payload),
-                            });
-                            if (res.ok) {
-                                form.reset();
-                                resetTurnstile();
-                                successEl.style.display = 'block';
-                                successEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                            } else {
-                                const data = await res.json().catch(() => ({}));
-                                errorEl.textContent = data.error || 'Something went wrong. Please try again in a moment or use the contact form below.';
-                                errorEl.style.display = 'block';
-                                resetTurnstile();
-                            }
-                        } catch (err) {
-                            errorEl.style.display = 'block';
-                            resetTurnstile();
-                        } finally {
-                            btn.disabled = false;
-                            btn.style.opacity = '1';
-                            btn.style.cursor = 'pointer';
-                            btnText.textContent = 'Send Message';
-                            spinner.style.display = 'none';
-                        }
-                    });
-                })();
-            </script>
         </section>
     </main>
 
@@ -994,53 +830,7 @@
     <script src="js/site-styles.js" defer></script>
     <script src="js/nav.js" defer></script>
     <script src="js/main.js?v=4" defer></script>
-    <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
-    <script>
-        document.getElementById('home-subscribe-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const msg = document.getElementById('home-subscribe-msg');
-            btn.disabled = true;
-            btn.textContent = 'Sending…';
-            try {
-                const res = await fetch('/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'subscribe',
-                        email: document.getElementById('home-sub-email').value.trim(),
-                        source: 'homepage',
-                        attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
-                        'cf-turnstile-response': window._homeSubTurnstileToken || ''
-                    })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    msg.textContent = 'Check your inbox — the guide is on its way.';
-                    msg.style.color = 'var(--color-accent-gold)';
-                    msg.style.display = 'block';
-                    document.getElementById('home-sub-email').value = '';
-                    btn.textContent = 'Sent!';
-                    window._homeSubTurnstileToken = '';
-                    if (window.turnstile && window._homeSubTurnstileId !== undefined) window.turnstile.reset(window._homeSubTurnstileId);
-                } else {
-                    msg.textContent = data.error || 'Something went wrong. Please try again.';
-                    msg.style.color = '#e07070';
-                    msg.style.display = 'block';
-                    btn.disabled = false;
-                    btn.textContent = 'Get the Guide';
-                    window._homeSubTurnstileToken = '';
-                    if (window.turnstile && window._homeSubTurnstileId !== undefined) window.turnstile.reset(window._homeSubTurnstileId);
-                }
-            } catch {
-                msg.textContent = 'Network error. Please try again.';
-                msg.style.color = '#e07070';
-                msg.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = 'Get the Guide';
-            }
-        });
-    </script>
+    <script src="js/home-page.js" defer></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=renderContactTurnstile&render=explicit" async defer></script>
 </body>
 

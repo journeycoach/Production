@@ -654,3 +654,95 @@
             .replace(/>/g, '&gt;');
     }
 })();
+
+// --- Subscription Form Handler ---
+(function () {
+    const subForm = document.getElementById('subscribe-form');
+    if (!subForm) return;
+    subForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const msg = document.getElementById('subscribe-msg');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Sending…';
+        }
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'subscribe',
+                    name: document.getElementById('sub-name').value.trim(),
+                    email: document.getElementById('sub-email').value.trim(),
+                    source: 'hidden-ceiling',
+                    attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
+                    'cf-turnstile-response': window._hcSubTurnstileToken || ''
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (msg) {
+                    msg.textContent = 'Check your inbox — the guide is on its way.';
+                    msg.style.color = 'var(--color-accent-gold)';
+                    msg.style.display = 'block';
+                }
+                e.target.querySelector('input[type="email"]').value = '';
+                e.target.querySelector('input[type="text"]').value = '';
+                if (btn) btn.textContent = 'Sent!';
+            } else {
+                if (msg) {
+                    msg.textContent = data.error || 'Something went wrong. Please try again.';
+                    msg.style.color = '#e07070';
+                    msg.style.display = 'block';
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Send Me the Guide';
+                }
+            }
+        } catch {
+            if (msg) {
+                msg.textContent = 'Network error. Please try again.';
+                msg.style.color = '#e07070';
+                msg.style.display = 'block';
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Send Me the Guide';
+            }
+        }
+    });
+})();
+
+// --- Cloudflare Turnstile Verification ---
+(function () {
+    const SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
+    let _subWidgetId, _subToken = '';
+    let _assessWidgetId, _assessToken = '';
+
+    function initWidget() {
+        if (!window.turnstile) return;
+        if (_subWidgetId === undefined && document.getElementById('hc-sub-turnstile')) {
+            _subWidgetId = window.turnstile.render('#hc-sub-turnstile', {
+                sitekey: SITEKEY,
+                size: 'compact',
+                appearance: 'interaction-only',
+                callback(t) { _subToken = t; window._hcSubTurnstileToken = t; },
+                'expired-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
+                'error-callback'() { _subToken = ''; window._hcSubTurnstileToken = ''; },
+            });
+        }
+        if (_assessWidgetId === undefined && document.getElementById('hc-assessment-turnstile')) {
+            _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
+                sitekey: SITEKEY,
+                size: 'compact',
+                appearance: 'interaction-only',
+                callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
+                'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+                'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+            });
+        }
+    }
+    window.initHcSubTurnstile = initWidget;
+})();

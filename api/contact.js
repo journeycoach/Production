@@ -14,14 +14,14 @@ const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_actio
 // Sign assessment result to prevent URL fabrication
 function signResult(center, sh, sd, sa) {
   const secret = process.env.ADMIN_JWT_SECRET || 'fallback';
-  return crypto.createHmac('sha256', secret).update(`${center}.${sh}.${sd}.${sa}`).digest('hex').slice(0, 32);
+  return crypto.createHmac('sha256', secret).update(`${center}.${sh}.${sd}.${sa}`).digest('hex');
 }
 
 function verifyResult(center, sh, sd, sa, token) {
   if (!token) return false;
-  const full = signResult(center, sh, sd, sa); // 32 chars
-  // Accept both new 32-char tokens and legacy 16-char tokens already in circulation
-  return token === full || token === full.slice(0, 16);
+  const full = signResult(center, sh, sd, sa); // 64 chars
+  // Accept new 64-char tokens, 32-char tokens, and legacy 16-char tokens already in circulation
+  return token === full || token === full.slice(0, 32) || token === full.slice(0, 16);
 }
 
 // Verify a Cloudflare Turnstile token. Returns true if valid, false otherwise.

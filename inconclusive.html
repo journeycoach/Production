@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZM9X6CN8YK');</script>
+    <script src="js/gtm.js" defer></script>
     <title>Your Results | Your Journey Coach</title>
     <meta name="description" content="Your Hidden Ceiling assessment results were evenly split. Here is what that means and what to do next.">
     <meta name="robots" content="noindex">
@@ -204,37 +204,6 @@
 
     <script src="js/main.js" defer></script>
     <script src="js/nav.js" defer></script>
-    <script>
-        document.getElementById('footer-year').textContent = new Date().getFullYear();
-
-        const p = new URLSearchParams(window.location.search);
-        const sh = parseInt(p.get('sh'), 10) || 0;
-        const sd = parseInt(p.get('sd'), 10) || 0;
-        const sa = parseInt(p.get('sa'), 10) || 0;
-        const name = p.get('name') || '';
-
-        if (sh || sd || sa) {
-            document.getElementById('score-heart').textContent  = sh;
-            document.getElementById('score-head').textContent   = sd;
-            document.getElementById('score-action').textContent = sa;
-        }
-
-        if (name) {
-            document.getElementById('inc-eyebrow').textContent = `Assessment Complete · ${name}'s Result`;
-        }
-
-        // Calendly URL is gated — only in sessionStorage if user came through
-        // the assessment (set after captcha-verified submission).
-        try {
-            const calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
-            if (calendlyUrl) {
-                const btn = document.getElementById('inc-contact-btn');
-                btn.href = calendlyUrl;
-                btn.textContent = 'Book a 20-Min Call';
-                btn.target = '_blank';
-                btn.rel = 'noopener noreferrer';
-            }
-        } catch (_) {}
-    </script>
+    <script src="js/inconclusive-page.js" defer></script>
 </body>
 </html>

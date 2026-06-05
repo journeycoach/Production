@@ -178,6 +178,11 @@
     }
 
     function init() {
+        const footerYearEl = document.getElementById('footer-year');
+        if (footerYearEl) {
+            footerYearEl.textContent = new Date().getFullYear();
+        }
+
         // Race API fetch against a 2-second timeout so the nav always renders quickly.
         // If API is unreachable or slow, the fallback config is used immediately.
         const timeout = new Promise((_, reject) =>

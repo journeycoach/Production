@@ -14,16 +14,22 @@ function escHtml(str) {
 // Uses a denylist so legitimate formatting (h2, blockquote, img, etc.) is preserved.
 function sanitizePostHtml(html) {
   if (!html) return '';
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<iframe[\s\S]*?\/?>(\s*<\/iframe>)?/gi, '')
-    .replace(/<object[\s\S]*?\/?>(\s*<\/object>)?/gi, '')
-    .replace(/<embed[^>]*\/?>/gi, '')
-    .replace(/<form[\s\S]*?<\/form>/gi, '')
-    .replace(/\s+on\w+\s*=\s*(['"])[^'"]*\1/gi, '')
-    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '')
-    .replace(/(href|src|action)\s*=\s*(['"])\s*javascript:[^'"]*\2/gi, '$1=$2#$2');
+  let sanitized = html;
+  let prev;
+  do {
+    prev = sanitized;
+    sanitized = sanitized
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<iframe[\s\S]*?\/?>(\s*<\/iframe>)?/gi, '')
+      .replace(/<object[\s\S]*?\/?>(\s*<\/object>)?/gi, '')
+      .replace(/<embed[^>]*\/?>/gi, '')
+      .replace(/<form[\s\S]*?<\/form>/gi, '')
+      .replace(/\s+on\w+\s*=\s*(['"])[^'"]*\1/gi, '')
+      .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '')
+      .replace(/(href|src|action)\s*=\s*(['"])\s*javascript:[^'"]*\2/gi, '$1=$2#$2');
+  } while (sanitized !== prev);
+  return sanitized;
 }
 
 // Keys from site_settings that are safe to expose to the public frontend.

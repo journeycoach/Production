@@ -19,6 +19,18 @@ function hashValue(value) {
   return crypto.createHash('sha256').update(`${LOGIN_RATE_LIMIT_SALT}:${value}`).digest('hex');
 }
 
+function verifyPassword(password, storedHash) {
+  const parts = storedHash.split('$');
+  if (parts.length !== 4 || parts[0] !== 'pbkdf2') {
+    return false;
+  }
+  const iterations = parseInt(parts[1], 10);
+  const salt = parts[2];
+  const hash = parts[3];
+  const verifyHash = crypto.pbkdf2Sync(String(password), salt, iterations, 64, 'sha512').toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(verifyHash, 'hex'));
+}
+
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -74,8 +86,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Password required' });
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
+  const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+  if (!adminPasswordHash) {
     return res.status(500).json({ error: 'Server misconfiguration' });
   }
 
@@ -90,14 +102,9 @@ export default async function handler(req, res) {
     console.error('admin login rate limit check error:', err);
   }
 
-  // HMAC both values with the same key so the comparison is always over equal-length
-  // 32-byte digests — never leaks the correct password's length via timing.
   let match = false;
   try {
-    const secret = process.env.ADMIN_JWT_SECRET;
-    const hmacA = crypto.createHmac('sha256', secret).update(String(password)).digest();
-    const hmacB = crypto.createHmac('sha256', secret).update(String(adminPassword)).digest();
-    match = crypto.timingSafeEqual(hmacA, hmacB);
+    match = verifyPassword(password, adminPasswordHash);
   } catch {
     match = false;
   }
