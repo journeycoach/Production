@@ -309,8 +309,20 @@
         errorEl.textContent = '';
 
         const isLast = state.stepIndex === totalSteps - 1;
+        window._hcIsLastStep = isLast;
         nextBtn.hidden = false;
         nextBtn.textContent = isLast ? 'Get My Results' : 'Continue';
+
+        const turnstileEl = document.getElementById('hc-assessment-turnstile');
+        if (turnstileEl) {
+            if (isLast) {
+                if (typeof window.renderAssessmentTurnstile === 'function') {
+                    window.renderAssessmentTurnstile();
+                }
+            } else {
+                turnstileEl.style.display = 'none';
+            }
+        }
 
 
         if (instinctHint) instinctHint.style.display = step.type === 'intro' ? 'none' : '';
@@ -424,7 +436,9 @@
         // and show the loading state. If expired, reset the widget and prompt user.
         const turnstileToken = window._hcAssessmentTurnstileToken || '';
         if (!turnstileToken) {
-            if (window.turnstile) {
+            if (typeof window.renderAssessmentTurnstile === 'function') {
+                window.renderAssessmentTurnstile();
+            } else if (window.turnstile) {
                 window.turnstile.reset(document.getElementById('hc-assessment-turnstile'));
             }
             errorEl.textContent = 'The security check expired — please complete it above and try again.';
@@ -721,6 +735,30 @@
     let _subWidgetId, _subToken = '';
     let _assessWidgetId, _assessToken = '';
 
+    function renderAssessmentTurnstile() {
+        if (!window.turnstile) return;
+        const container = document.getElementById('hc-assessment-turnstile');
+        if (!container) return;
+
+        container.style.display = 'block';
+
+        if (_assessWidgetId === undefined) {
+            _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
+                sitekey: SITEKEY,
+                size: 'compact',
+                appearance: 'interaction-only',
+                callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
+                'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+                'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
+            });
+        } else {
+            window.turnstile.reset(_assessWidgetId);
+            _assessToken = '';
+            window._hcAssessmentTurnstileToken = '';
+        }
+    }
+    window.renderAssessmentTurnstile = renderAssessmentTurnstile;
+
     function initWidget() {
         if (!window.turnstile) return;
         if (_subWidgetId === undefined && document.getElementById('hc-sub-turnstile')) {
@@ -734,14 +772,9 @@
             });
         }
         if (_assessWidgetId === undefined && document.getElementById('hc-assessment-turnstile')) {
-            _assessWidgetId = window.turnstile.render('#hc-assessment-turnstile', {
-                sitekey: SITEKEY,
-                size: 'compact',
-                appearance: 'interaction-only',
-                callback(t) { _assessToken = t; window._hcAssessmentTurnstileToken = t; },
-                'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
-                'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
-            });
+            if (window._hcIsLastStep) {
+                renderAssessmentTurnstile();
+            }
         }
     }
     window.initHcSubTurnstile = initWidget;
