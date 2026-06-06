@@ -87,7 +87,8 @@ export default async function handler(req, res) {
   }
 
   const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-  if (!adminPasswordHash) {
+  const adminPasswordPlain = process.env.ADMIN_PASSWORD;
+  if (!adminPasswordHash && !adminPasswordPlain) {
     return res.status(500).json({ error: 'Server misconfiguration' });
   }
 
@@ -104,7 +105,15 @@ export default async function handler(req, res) {
 
   let match = false;
   try {
-    match = verifyPassword(password, adminPasswordHash);
+    if (adminPasswordHash) {
+      match = verifyPassword(password, adminPasswordHash);
+    } else if (adminPasswordPlain) {
+      console.warn('Warning: ADMIN_PASSWORD_HASH is not set. Falling back to plain ADMIN_PASSWORD.');
+      const secret = process.env.ADMIN_JWT_SECRET || 'fallback_secret';
+      const hmacA = crypto.createHmac('sha256', secret).update(String(password)).digest();
+      const hmacB = crypto.createHmac('sha256', secret).update(String(adminPasswordPlain)).digest();
+      match = crypto.timingSafeEqual(hmacA, hmacB);
+    }
   } catch {
     match = false;
   }
