@@ -177,8 +177,12 @@
 
         // Update page meta for sharing
         document.title = `${meta.title} | Your Journey Coach`;
-        document.querySelector('meta[property="og:title"]').setAttribute('content', `${meta.title} | Your Journey Coach`);
-        document.querySelector('meta[property="og:description"]').setAttribute('content', meta.summary);
+        const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+        if (ogTitleMeta) ogTitleMeta.setAttribute('content', `${meta.title} | Your Journey Coach`);
+        const ogDescMeta = document.querySelector('meta[property="og:description"]');
+        if (ogDescMeta) ogDescMeta.setAttribute('content', meta.summary);
+        const ogImageMeta = document.querySelector('meta[property="og:image"]');
+        if (ogImageMeta) ogImageMeta.setAttribute('content', `https://journeycoach.co/assets/images/og-${center}.png`);
 
         const total = sh + sd + sa;
         const scores = [
@@ -294,16 +298,40 @@
         // Calendly URL is gated — only available via sessionStorage set after
         // a real captcha-verified assessment submission, never from a public endpoint.
         try {
-            const calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
+            let calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
             if (calendlyUrl) {
+                const email = sessionStorage.getItem('hc_result_email') || '';
+                
+                // Prefill user details, custom answers (scores summary), and UTM tags for tracking
+                try {
+                    const urlObj = new URL(calendlyUrl);
+                    if (name && name !== 'Leader') {
+                        urlObj.searchParams.set('name', name);
+                    }
+                    if (email) {
+                        urlObj.searchParams.set('email', email);
+                    }
+                    
+                    const centerLabel = (RESULT_META[center] && RESULT_META[center].centerLabel) || center;
+                    const a1Value = `Center: ${centerLabel} (Scores - Heart: ${sh}, Head: ${sd}, Action: ${sa})`;
+                    urlObj.searchParams.set('a1', a1Value);
+                    
+                    urlObj.searchParams.set('utm_source', 'assessment');
+                    urlObj.searchParams.set('utm_medium', 'results_page');
+                    urlObj.searchParams.set('utm_campaign', center);
+                    
+                    calendlyUrl = urlObj.toString();
+                } catch (_) {}
+
                 const btn = document.getElementById('results-calendly-btn');
-                btn.href = calendlyUrl;
-                btn.style.display = 'inline-flex';
-                const email = sessionStorage.getItem('hc_result_email') || null;
-                if (email) {
-                    btn.addEventListener('click', () => {
-                        fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'track_click', email }) }).catch(()=>{});
-                    });
+                if (btn) {
+                    btn.href = calendlyUrl;
+                    btn.style.display = 'inline-flex';
+                    if (email) {
+                        btn.addEventListener('click', () => {
+                            fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'track_click', email }) }).catch(()=>{});
+                        });
+                    }
                 }
             }
         } catch (_) {}

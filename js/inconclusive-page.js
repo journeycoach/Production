@@ -19,8 +19,30 @@
     // Calendly URL is gated — only in sessionStorage if user came through
     // the assessment (set after captcha-verified submission).
     try {
-        const calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
+        let calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
         if (calendlyUrl) {
+            const email = sessionStorage.getItem('hc_result_email') || '';
+            
+            // Prefill user details, custom answers (scores summary), and UTM tags for tracking
+            try {
+                const urlObj = new URL(calendlyUrl);
+                if (name && name !== 'Leader') {
+                    urlObj.searchParams.set('name', name);
+                }
+                if (email) {
+                    urlObj.searchParams.set('email', email);
+                }
+                
+                const a1Value = `Center: Evenly Distributed (Scores - Heart: ${sh}, Head: ${sd}, Action: ${sa})`;
+                urlObj.searchParams.set('a1', a1Value);
+                
+                urlObj.searchParams.set('utm_source', 'assessment');
+                urlObj.searchParams.set('utm_medium', 'results_page');
+                urlObj.searchParams.set('utm_campaign', 'inconclusive');
+                
+                calendlyUrl = urlObj.toString();
+            } catch (_) {}
+
             const btn = document.getElementById('inc-contact-btn');
             if (btn) {
                 btn.href = calendlyUrl;
