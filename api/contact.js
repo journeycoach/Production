@@ -120,7 +120,7 @@ const DEFAULT_ASSESSMENT_FORM = {
       title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
       options: [
         { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
-        { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.', center: 'action' },
+        { text: 'Your immediate impulse is to operationalize it — you focus on what concrete change is being requested so you can make it, or your guard goes up about who is questioning your approach.', center: 'action' },
         { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
       ],
     },
@@ -139,7 +139,7 @@ const DEFAULT_ASSESSMENT_FORM = {
       options: [
         { text: 'You return to truth — understanding what is accurate, objective, and really happening.', center: 'head' },
         { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.', center: 'heart' },
-        { text: 'You return to action — moving with conviction, clarity, and grounded instinct.', center: 'action' },
+        { text: 'You return to action — moving with conviction, gut instinct, and decisive execution.', center: 'action' },
       ],
     },
   ],
