@@ -68,7 +68,7 @@ async function handleSegmentSend(req, res) {
   if (lead_status && lead_status !== '')     { params.push(lead_status);   conditions.push(`lead_status = $${params.length}`); }
   let subscribers;
   try {
-    subscribers = await sql(`SELECT id, email, name FROM subscribers WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`, params);
+    subscribers = await sql.query(`SELECT id, email, name FROM subscribers WHERE ${conditions.join(' AND ')} ORDER BY created_at DESC`, params);
   } catch (err) {
     console.error('segment send fetch error:', err);
     return res.status(500).json({ error: 'Database error' });
