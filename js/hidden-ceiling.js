@@ -36,11 +36,11 @@
         },
         {
             id: 'q4',
-            title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
+            title: 'When an important issue is being avoided, what is your natural leadership response?',
             options: [
-                { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.' },
-                { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.' },
-                { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.' },
+                { text: 'I address it directly, name what needs to be faced, and clarify what has to happen next.' },
+                { text: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.' },
+                { text: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.' },
             ],
         },
         {
@@ -65,9 +65,9 @@
             id: 'q7',
             title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
             options: [
-                { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.' },
-                { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.' },
-                { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.' },
+                { text: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.' },
+                { text: 'I focus on what needs to change, improve, or be addressed moving forward.' },
+                { text: 'I analyze the feedback and compare it against other data points before fully accepting it.' },
             ],
         },
         {
@@ -207,7 +207,7 @@
 
     async function loadAssessmentConfig() {
         try {
-            const response = await fetch('/api/contact?action=config');
+            const response = await fetch('/api/contact?action=config', { cache: 'no-store' });
             const data = await response.json().catch(() => ({}));
             if (response.ok) {
                 if (data.assessment_form) applyAssessmentConfig(data.assessment_form);

@@ -2,6 +2,95 @@ import { sql } from './_db.js';
 
 let migrated = false;
 
+const ASSESSMENT_COPY_FIXES = {
+  q4: {
+    oldTitles: [
+      'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
+      'When a peer gives you hard feedback, what is your first instinct?',
+      'When an important issue is being avoided, what is your natural leadership response?',
+    ],
+    title: 'When an important issue is being avoided, what is your natural leadership response?',
+    oldOptions: {
+      heart: [
+        'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.',
+        'You focus on the relational context. You want to understand what is behind the feedback before you respond.',
+      ],
+      head: [
+        'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.',
+        'Step back and assess whether the feedback is accurate and logically sound.',
+        'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.',
+      ],
+      action: [
+        'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.',
+        'You address it directly. If it does not hold up, you say so and explain why.',
+      ],
+    },
+    options: {
+      heart: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.',
+      head: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.',
+      action: 'I address it directly, name what needs to be faced, and clarify what has to happen next.',
+    },
+  },
+  q7: {
+    oldTitles: [
+      'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+    ],
+    title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+    oldOptions: {
+      heart: [
+        'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.',
+        'You immediately wonder how the feedback may have affected your relationship or how others may be experiencing you.',
+      ],
+      action: [
+        'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.',
+        'Your immediate impulse is to operationalize it — you focus on what concrete change is being requested so you can make it, or your guard goes up about who is questioning your approach.',
+        'You instinctively focus on what needs to change, improve, or be addressed moving forward.',
+      ],
+      head: [
+        'You mentally compare the feedback against other observations before deciding how much weight to give it.',
+        'You internally analyze the feedback and compare it against other data points before fully accepting it.',
+      ],
+    },
+    options: {
+      heart: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.',
+      action: 'I focus on what needs to change, improve, or be addressed moving forward.',
+      head: 'I analyze the feedback and compare it against other data points before fully accepting it.',
+    },
+  },
+};
+
+function applyAssessmentCopyFixes(config) {
+  if (!config || typeof config !== 'object' || !Array.isArray(config.questions)) {
+    return { config, changed: false };
+  }
+
+  let changed = false;
+  const questions = config.questions.map((question) => {
+    const fix = ASSESSMENT_COPY_FIXES[question?.id];
+    if (!fix || !question || typeof question !== 'object') return question;
+
+    const nextQuestion = { ...question };
+    if (fix.oldTitles.includes(nextQuestion.title) && nextQuestion.title !== fix.title) {
+      nextQuestion.title = fix.title;
+      changed = true;
+    }
+
+    if (Array.isArray(nextQuestion.options)) {
+      nextQuestion.options = nextQuestion.options.map((option) => {
+        const text = fix.options[option?.center];
+        const oldTexts = fix.oldOptions[option?.center] || [];
+        if (!text || option.text === text || !oldTexts.includes(option.text)) return option;
+        changed = true;
+        return { ...option, text };
+      });
+    }
+
+    return nextQuestion;
+  });
+
+  return { config: { ...config, questions }, changed };
+}
+
 export async function runMigrations() {
   if (migrated) return;
 
@@ -300,11 +389,11 @@ export async function runMigrations() {
           },
           {
             id: 'q4',
-            title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
+            title: 'When an important issue is being avoided, what is your natural leadership response?',
             options: [
-              { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.', center: 'action' },
-              { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.', center: 'head' },
-              { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.', center: 'heart' },
+              { text: 'I address it directly, name what needs to be faced, and clarify what has to happen next.', center: 'action' },
+              { text: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.', center: 'head' },
+              { text: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.', center: 'heart' },
             ],
           },
           {
@@ -329,9 +418,9 @@ export async function runMigrations() {
             id: 'q7',
             title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
             options: [
-              { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
-              { text: 'You acknowledge it, ask one clarifying question, and start thinking about what you will do differently.', center: 'action' },
-              { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
+              { text: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.', center: 'heart' },
+              { text: 'I focus on what needs to change, improve, or be addressed moving forward.', center: 'action' },
+              { text: 'I analyze the feedback and compare it against other data points before fully accepting it.', center: 'head' },
             ],
           },
           {
@@ -364,6 +453,24 @@ export async function runMigrations() {
     }
   } catch (seedErr) {
     console.error('assessment config seed error:', seedErr);
+  }
+
+  try {
+    const existing = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'assessment_form_config'`;
+    if (existing.length > 0 && existing[0].setting_value) {
+      const parsed = JSON.parse(existing[0].setting_value);
+      const { config, changed } = applyAssessmentCopyFixes(parsed);
+      if (changed) {
+        await sql`
+          UPDATE site_settings
+          SET setting_value = ${JSON.stringify(config)},
+              updated_at = NOW()
+          WHERE setting_key = 'assessment_form_config'
+        `;
+      }
+    }
+  } catch (copyErr) {
+    console.error('assessment copy correction error:', copyErr);
   }
 
   migrated = true;

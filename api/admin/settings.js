@@ -3,9 +3,17 @@ import { requireAuth } from '../_auth.js';
 import { Resend } from 'resend';
 import { runMigrations } from '../_migrate.js';
 
+function setNoStoreHeaders(res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (!requireAuth(req, res)) return;
+  setNoStoreHeaders(res);
   await runMigrations();
 
   // Drip email CRUD (consolidated from api/admin/drip-emails.js)

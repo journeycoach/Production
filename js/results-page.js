@@ -111,7 +111,7 @@
 
         // Fetch dynamic configuration first (contains RESULT_META updates)
         try {
-            const configRes = await fetch('/api/contact?action=config');
+            const configRes = await fetch('/api/contact?action=config', { cache: 'no-store' });
             const configData = await configRes.json().catch(() => ({}));
             if (configRes.ok && configData.result_meta) {
                 Object.assign(RESULT_META, configData.result_meta);
@@ -155,6 +155,7 @@
         try {
             const res = await fetch('/api/contact', {
                 method: 'POST',
+                cache: 'no-store',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'hidden_ceiling', preview: center })
             });

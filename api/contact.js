@@ -11,6 +11,13 @@ const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/
 const BLENDED_HEART_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf';
 const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action', 'heart_action', 'inconclusive'];
 
+function setNoStoreHeaders(res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+}
+
 // Sign assessment result to prevent URL fabrication
 function signResult(center, sh, sd, sa) {
   const secret = process.env.ADMIN_JWT_SECRET || 'fallback';
@@ -90,11 +97,11 @@ const DEFAULT_ASSESSMENT_FORM = {
     },
     {
       id: 'q4',
-      title: 'Two high-performing members of your team are in a sustained conflict that is starting to affect results. What is your first move?',
+      title: 'When an important issue is being avoided, what is your natural leadership response?',
       options: [
-        { text: 'You address it directly and promptly with both of them — you are clear about expectations and focus on what needs to change in the work dynamic.', center: 'action' },
-        { text: 'You analyze what is underneath the conflict — whether it is structural, a clarity gap, or a deeper incompatibility — before deciding how to intervene.', center: 'head' },
-        { text: 'You sit down with each person individually first — you want to understand what each one is experiencing before you address it as a group.', center: 'heart' },
+        { text: 'I address it directly, name what needs to be faced, and clarify what has to happen next.', center: 'action' },
+        { text: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.', center: 'head' },
+        { text: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.', center: 'heart' },
       ],
     },
     {
@@ -119,9 +126,9 @@ const DEFAULT_ASSESSMENT_FORM = {
       id: 'q7',
       title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
       options: [
-        { text: 'You feel it personally — you reflect on whether you have let this person or your team down, and want to make sure the relationship is okay.', center: 'heart' },
-        { text: 'Your immediate impulse is to operationalize it — you focus on what concrete change is being requested so you can make it, or your guard goes up about who is questioning your approach.', center: 'action' },
-        { text: 'You mentally compare the feedback against other observations before deciding how much weight to give it.', center: 'head' },
+        { text: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.', center: 'heart' },
+        { text: 'I focus on what needs to change, improve, or be addressed moving forward.', center: 'action' },
+        { text: 'I analyze the feedback and compare it against other data points before fully accepting it.', center: 'head' },
       ],
     },
     {
@@ -857,6 +864,7 @@ export default async function handler(req, res) {
     // calendly_url is intentionally excluded here; it is only returned in
     // the authenticated assessment POST response so bots cannot scrape it.
     if (req.method === 'GET' && req.query?.action === 'config') {
+      setNoStoreHeaders(res);
       return res.status(200).json({
         assessment_form: await getAssessmentFormConfig(),
         result_meta: getResultMetaConfig()
@@ -865,6 +873,7 @@ export default async function handler(req, res) {
 
     // Verify a result token to confirm URL was server-generated
     if (req.method === 'GET' && req.query?.action === 'verify_result') {
+      setNoStoreHeaders(res);
       const { center, sh, sd, sa, token } = req.query;
       const valid = verifyResult(center, sh, sd, sa, token);
       return res.status(200).json({

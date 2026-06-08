@@ -102,6 +102,7 @@ function escHtml(str) {
 // Authenticated fetch wrapper
 function adminFetch(path, options = {}) {
   return fetch(path, {
+    cache: 'no-store',
     ...options,
     credentials: 'same-origin',
     headers: {
