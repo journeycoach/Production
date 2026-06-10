@@ -606,7 +606,6 @@ ul {
 .results-section {
     padding-top: 3rem;
     padding-bottom: 3rem;
-    overflow: hidden;
 }
 
 .results-section .centered-heading {
@@ -628,22 +627,30 @@ ul {
 
 .marquee-slider {
     overflow: hidden;
+    padding: 0.5rem 0 1rem;
     /* Fade edges with a mask so cards softly appear/disappear */
     -webkit-mask-image: linear-gradient(
         to right,
         transparent 0%,
-        black 8%,
-        black 92%,
+        black 6%,
+        black 94%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to right,
         transparent 0%,
-        black 8%,
-        black 92%,
+        black 6%,
+        black 94%,
         transparent 100%
     );
     cursor: default;
+    /* Break out of the .container max-width so the strip goes edge-to-edge */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
 }
 
 .marquee-track {
