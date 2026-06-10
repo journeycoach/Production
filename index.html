@@ -280,6 +280,116 @@
             </div>
         </section>
 
+        <!-- Credibility Trust Bar -->
+        <section id="trust-bar" aria-label="Credentials and recognition">
+            <div class="trust-bar-inner">
+                <div class="trust-item">
+                    <img src="assets/images/CredentialBadges_PCC_Grey.jpg" alt="ICF Professional Certified Coach (PCC)" class="trust-badge-img">
+                    <span class="trust-label">ICF PCC Certified Coach</span>
+                </div>
+                <div class="trust-divider" aria-hidden="true"></div>
+                <div class="trust-item">
+                    <svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+                    <span class="trust-label">Top 15 Coaches in Dallas, 2026<br><em>Influence Digest Media</em></span>
+                </div>
+                <div class="trust-divider" aria-hidden="true"></div>
+                <div class="trust-item">
+                    <svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+                    <span class="trust-label">Verified Client Results</span>
+                </div>
+                <div class="trust-divider" aria-hidden="true"></div>
+                <div class="trust-item">
+                    <svg class="trust-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    <a href="https://www.linkedin.com/in/john-paine/" target="_blank" rel="noopener noreferrer" class="trust-label trust-link">Connect on LinkedIn</a>
+                </div>
+            </div>
+            <style>
+                #trust-bar {
+                    background: var(--color-bg-secondary);
+                    border-bottom: 1px solid rgba(0,0,0,0.07);
+                }
+                .trust-bar-inner {
+                    max-width: var(--container-width);
+                    margin: 0 auto;
+                    padding: 0.85rem 2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0;
+                    flex-wrap: wrap;
+                }
+                .trust-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.65rem;
+                    padding: 0.4rem 2rem;
+                }
+                .trust-badge-img {
+                    height: 32px;
+                    width: auto;
+                    filter: grayscale(40%);
+                    opacity: 0.85;
+                }
+                .trust-icon {
+                    width: 20px;
+                    height: 20px;
+                    fill: var(--color-accent-gold);
+                    flex-shrink: 0;
+                }
+                .trust-label {
+                    font-family: var(--font-body);
+                    font-size: 0.78rem;
+                    font-weight: 500;
+                    color: var(--color-text-secondary);
+                    line-height: 1.4;
+                    letter-spacing: 0.01em;
+                }
+                .trust-label em {
+                    font-style: normal;
+                    color: var(--color-text-muted);
+                    font-size: 0.72rem;
+                    display: block;
+                }
+                .trust-link {
+                    text-decoration: none;
+                    transition: color 0.2s ease;
+                }
+                .trust-link:hover {
+                    color: var(--color-accent-gold);
+                }
+                .trust-divider {
+                    width: 1px;
+                    height: 28px;
+                    background: rgba(0,0,0,0.1);
+                    flex-shrink: 0;
+                }
+                @media (max-width: 768px) {
+                    .trust-bar-inner {
+                        gap: 0.5rem;
+                        padding: 0.75rem 1rem;
+                        justify-content: center;
+                    }
+                    .trust-item {
+                        padding: 0.35rem 0.75rem;
+                    }
+                    .trust-divider {
+                        display: none;
+                    }
+                }
+                @media (max-width: 480px) {
+                    .trust-bar-inner {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.6rem;
+                        padding: 1rem 1.25rem;
+                    }
+                    .trust-item {
+                        padding: 0 0;
+                    }
+                }
+            </style>
+        </section>
+
         <!-- Email Opt-in (hidden until lead_magnet_enabled in Admin Settings) -->
         <section id="lead-magnet-strip" style="display:none;padding: 3rem 1.5rem; background: #f0e8d8;">
             <div class="container" style="max-width: 780px; display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; justify-content: space-between; background: #fff; border: 2px solid #d4b896; border-radius: 20px; padding: 2rem 3rem; box-shadow: 0 4px 24px rgba(180,140,80,0.12);">

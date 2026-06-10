@@ -158,19 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(payload => {
                 const testimonials = payload.data || [];
                 if (testimonials.length > 0) {
-                    renderRotatingTestimonials(testimonials, testimonialsContainer);
+                    renderMarqueeTestimonials(testimonials, testimonialsContainer);
                 }
             })
             .catch(error => console.error('Error loading testimonials:', error));
     }
 
-    function renderRotatingTestimonials(testimonials, container) {
+    function renderMarqueeTestimonials(testimonials, container) {
         container.innerHTML = '';
         if (!testimonials.length) return;
 
-        const createCard = (item) => {
+        const createCard = (item, ariaHidden) => {
             const card = document.createElement('article');
             card.className = 'testimonial-card';
+            if (ariaHidden) card.setAttribute('aria-hidden', 'true');
 
             const quoteEl = document.createElement('p');
             quoteEl.className = 'quote';
@@ -192,93 +193,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return card;
         };
 
-        const rotator = document.createElement('div');
-        rotator.className = 'testimonials-rotator';
-        rotator.setAttribute('aria-roledescription', 'carousel');
+        // Outer wrapper clips overflow
+        const slider = document.createElement('div');
+        slider.className = 'marquee-slider';
+        slider.setAttribute('aria-label', 'Client testimonials');
 
+        // The scrolling track — duplicated for seamless loop
         const track = document.createElement('div');
-        track.className = 'testimonials-track';
+        track.className = 'marquee-track';
 
-        const cards = [], dots = [];
-        testimonials.forEach((item, i) => {
-            const card = createCard(item);
-            if (i === 0) card.classList.add('is-active');
-            track.appendChild(card);
-            cards.push(card);
-        });
+        // Original set (visible, readable by screen readers)
+        testimonials.forEach(item => track.appendChild(createCard(item, false)));
+        // Duplicate set (aria-hidden so screen readers don't repeat)
+        testimonials.forEach(item => track.appendChild(createCard(item, true)));
 
-        let current = 0;
-        let timer = null;
+        slider.appendChild(track);
+        container.appendChild(slider);
 
-        function setMaxTrackHeight() {
-            let max = 0;
-            cards.forEach(card => {
-                const wasActive = card.classList.contains('is-active');
-                if (!wasActive) card.classList.add('is-active');
-                const h = card.offsetHeight;
-                if (h > max) max = h;
-                if (!wasActive) card.classList.remove('is-active');
-            });
-            track.style.height = max + 'px';
-        }
+        // Pause on hover / focus
+        slider.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
+        slider.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
+        slider.addEventListener('focusin',    () => track.style.animationPlayState = 'paused');
+        slider.addEventListener('focusout',   () => track.style.animationPlayState = 'running');
 
-        window.addEventListener('resize', setMaxTrackHeight, { passive: true });
-
-        function goTo(n) {
-            cards[current].classList.remove('is-active');
-            if (dots[current]) dots[current].classList.remove('is-active');
-            current = ((n % testimonials.length) + testimonials.length) % testimonials.length;
-            cards[current].classList.add('is-active');
-            if (dots[current]) dots[current].classList.add('is-active');
-        }
-
-        function startTimer() {
-            clearInterval(timer);
-            timer = setInterval(() => goTo(current + 1), 6000);
-        }
-
-        if (testimonials.length > 1) {
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'rotator-arrow prev';
-            prevBtn.innerHTML = '&#8249;';
-            prevBtn.setAttribute('aria-label', 'Previous testimonial');
-            prevBtn.addEventListener('click', () => { goTo(current - 1); startTimer(); });
-
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'rotator-arrow next';
-            nextBtn.innerHTML = '&#8250;';
-            nextBtn.setAttribute('aria-label', 'Next testimonial');
-            nextBtn.addEventListener('click', () => { goTo(current + 1); startTimer(); });
-
-            const dotsEl = document.createElement('div');
-            dotsEl.className = 'rotator-dots';
-            testimonials.forEach((_, i) => {
-                const dot = document.createElement('button');
-                dot.className = 'rotator-dot' + (i === 0 ? ' is-active' : '');
-                dot.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
-                dot.addEventListener('click', () => { goTo(i); startTimer(); });
-                dotsEl.appendChild(dot);
-                dots.push(dot);
-            });
-
-            rotator.appendChild(prevBtn);
-            rotator.appendChild(track);
-            rotator.appendChild(nextBtn);
-            rotator.appendChild(dotsEl);
-        } else {
-            rotator.appendChild(track);
-        }
-
-        rotator.addEventListener('mouseenter', () => clearInterval(timer));
-        rotator.addEventListener('mouseleave', () => startTimer());
-
-        container.appendChild(rotator);
-
-        // Set initial track height after layout
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            setMaxTrackHeight();
-            if (testimonials.length > 1) startTimer();
-        }));
+        // Dynamically set animation duration based on number of cards
+        // (~8s per card gives a comfortable reading pace)
+        const duration = testimonials.length * 8;
+        track.style.animationDuration = duration + 's';
     }
 
 
