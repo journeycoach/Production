@@ -694,10 +694,8 @@ ul {
 
 @media (prefers-reduced-motion: reduce) {
     .marquee-track {
-        animation: none;
-        flex-wrap: wrap;
-        width: auto;
-        justify-content: center;
+        /* Slow crawl instead of full stop — keeps the layout working */
+        animation-duration: 120s !important;
     }
 }
 
