@@ -55,6 +55,9 @@ const PUBLIC_SETTINGS_KEYS = [
   'recognition_show_homepage',
   'recognition_show_about',
   'recognition_show_footer',
+  'recognition_show_trust_bar',
+  'show_verified_impact',
+  'testimonial_speed',
 ];
 
 export default async function handler(req, res) {
@@ -344,8 +347,8 @@ function renderPostHtml(post, showAssessmentCta = true) {
     </div>
   </footer>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/site-styles.js" defer></script>
+  <script src="/js/main.js?v=6" defer></script>
+  <script src="/js/site-styles.js?v=2" defer></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
     document.getElementById('share-copy').addEventListener('click', function() {
@@ -404,7 +407,7 @@ function render404Html() {
     <a href="/blog.html" style="color:var(--color-accent-gold);text-decoration:none;font-size:.9rem;text-transform:uppercase;letter-spacing:.08em;">&larr; Back to all posts</a>
   </main>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js" defer></script>
+  <script src="/js/main.js?v=6" defer></script>
 </body>
 </html>`;
 }

@@ -105,6 +105,29 @@
     const footerOrg = document.getElementById('recognition-footer-org');
     if (footerTitle) footerTitle.textContent = `${title}, ${year}`;
     if (footerOrg) footerOrg.textContent = organization;
+
+    // ── Trust bar award item ──
+    const trustAwardText = document.getElementById('trust-bar-award-text');
+    if (trustAwardText) {
+      trustAwardText.innerHTML = `${title}, ${year}<br><em>${organization}</em>`;
+    }
+    if (data.recognition_show_trust_bar === 'false') {
+      const trustAward = document.getElementById('trust-bar-award');
+      const trustAwardDivider = document.getElementById('trust-bar-award-divider');
+      if (trustAward) trustAward.style.display = 'none';
+      if (trustAwardDivider) trustAwardDivider.style.display = 'none';
+    }
+  }
+
+  function applyTestimonialSettings(data) {
+    // Hide Verified Impact section if toggled off in admin
+    if (data.show_verified_impact === 'false') {
+      const resultsSection = document.getElementById('results');
+      if (resultsSection) resultsSection.style.display = 'none';
+    }
+    // Expose marquee speed for main.js to pick up
+    const speedMap = { slow: 14, normal: 8, fast: 4 };
+    window.__testimonialSpeed = speedMap[data.testimonial_speed] || 8;
   }
 
   window.applySiteCtaTargets = applyCtas;
@@ -150,6 +173,7 @@
     }
 
     applyRecognition(data);
+    applyTestimonialSettings(data);
     applyCtas();
     window.dispatchEvent(new CustomEvent('site-settings-loaded', {
       detail: {

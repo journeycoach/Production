@@ -216,9 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
         slider.addEventListener('focusin',    () => track.style.animationPlayState = 'paused');
         slider.addEventListener('focusout',   () => track.style.animationPlayState = 'running');
 
-        // Dynamically set animation duration based on number of cards
-        // (~8s per card gives a comfortable reading pace)
-        const duration = testimonials.length * 8;
+        // Speed set by admin (slow=14s, normal=8s, fast=4s per card); default 8
+        const baseSpeed = window.__testimonialSpeed || 8;
+        const duration = testimonials.length * baseSpeed;
         track.style.animationDuration = duration + 's';
     }
 

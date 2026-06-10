@@ -212,11 +212,43 @@
               <input type="checkbox" id="recognitionShowFooter" checked />
               Footer badge
             </label>
+            <label class="inline-check" for="recognitionShowTrustBar">
+              <input type="checkbox" id="recognitionShowTrustBar" checked />
+              Trust bar award
+            </label>
           </div>
 
           <div class="form-actions" style="margin-top:1.25rem;">
             <button type="submit" class="btn btn-primary">Save Recognition</button>
             <span class="status-text" id="recognitionStatus"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- Testimonials Display Settings -->
+      <div class="card recognition-manager">
+        <div class="card-title">Testimonials Display</div>
+        <form id="testimonialDisplayForm">
+          <div class="recognition-grid">
+            <div class="form-group">
+              <label for="testimonialSpeed">Marquee Scroll Speed</label>
+              <select id="testimonialSpeed">
+                <option value="slow">Slow (leisurely read)</option>
+                <option value="normal" selected>Normal (default)</option>
+                <option value="fast">Fast (quick scan)</option>
+              </select>
+              <span class="form-hint">Controls how quickly testimonial cards scroll across the Verified Impact section.</span>
+            </div>
+            <div class="form-group" style="display:flex; align-items:center; padding-top:1.5rem;">
+              <label class="inline-check" for="showVerifiedImpact">
+                <input type="checkbox" id="showVerifiedImpact" checked />
+                Show Verified Impact section on homepage
+              </label>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:1.25rem;">
+            <button type="submit" class="btn btn-primary">Save Display Settings</button>
+            <span class="status-text" id="testimonialDisplayStatus"></span>
           </div>
         </form>
       </div>
@@ -341,6 +373,7 @@
       document.getElementById('recognitionShowHomepage').checked = data.recognition_show_homepage !== 'false';
       document.getElementById('recognitionShowAbout').checked = data.recognition_show_about !== 'false';
       document.getElementById('recognitionShowFooter').checked = data.recognition_show_footer !== 'false';
+      document.getElementById('recognitionShowTrustBar').checked = data.recognition_show_trust_bar !== 'false';
     }
 
     document.getElementById('recognitionForm').addEventListener('submit', async (e) => {
@@ -356,7 +389,8 @@
         recognition_full_text: document.getElementById('recognitionFullText').value.trim(),
         recognition_show_homepage: String(document.getElementById('recognitionShowHomepage').checked),
         recognition_show_about: String(document.getElementById('recognitionShowAbout').checked),
-        recognition_show_footer: String(document.getElementById('recognitionShowFooter').checked)
+        recognition_show_footer: String(document.getElementById('recognitionShowFooter').checked),
+        recognition_show_trust_bar: String(document.getElementById('recognitionShowTrustBar').checked),
       };
 
       const res = await adminFetch('/api/admin/settings', {
@@ -375,6 +409,38 @@
 
     loadTestimonials();
     loadRecognitionSettings();
+
+    // Testimonials Display Settings
+    async function loadTestimonialDisplaySettings() {
+      const res = await adminFetch('/api/admin/settings');
+      if (!res.ok) return;
+      const { data = {} } = await res.json();
+      document.getElementById('testimonialSpeed').value = data.testimonial_speed || 'normal';
+      document.getElementById('showVerifiedImpact').checked = data.show_verified_impact !== 'false';
+    }
+
+    document.getElementById('testimonialDisplayForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('testimonialDisplayStatus');
+      status.textContent = 'Saving...';
+      const payload = {
+        testimonial_speed: document.getElementById('testimonialSpeed').value,
+        show_verified_impact: String(document.getElementById('showVerifiedImpact').checked),
+      };
+      const res = await adminFetch('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        status.textContent = 'Display settings saved.';
+        showFlash('Display settings saved.');
+      } else {
+        status.textContent = 'Error saving settings.';
+        showFlash('Error saving display settings.', 'error');
+      }
+    });
+
+    loadTestimonialDisplaySettings();
   </script>
 </body>
 </html>
