@@ -93,8 +93,7 @@ window.addEventListener('hashchange', () => {
         if (document.getElementById('home-sub-turnstile') && !window._homeSubTurnstileId) {
             window._homeSubTurnstileId = window.turnstile.render('#home-sub-turnstile', {
                 sitekey: CONTACT_TURNSTILE_SITEKEY,
-                size: 'compact',
-                appearance: 'interaction-only',
+                appearance: 'never',
                 callback(token) { window._homeSubTurnstileToken = token; },
                 'expired-callback'() { window._homeSubTurnstileToken = ''; },
                 'error-callback'() { window._homeSubTurnstileToken = ''; },
