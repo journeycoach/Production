@@ -73,18 +73,18 @@ export default async function handler(req, res) {
     switch (type) {
       case 'testimonials': {
         const rows = await sql`
-          SELECT id,
-            COALESCE(NULLIF(short_quote, ''), quote) as quote,
-            quote as full_quote,
-            long_quote,
-            author,
-            client_role,
-            industry,
-            display_location,
-            is_featured
-          FROM testimonials
-          WHERE COALESCE(display_location, 'homepage') IN ('homepage', 'all')
-          ORDER BY is_featured DESC, sort_order ASC, created_at ASC
+          SELECT t.id,
+            COALESCE(NULLIF(t.short_quote, ''), t.quote) as quote,
+            t.quote as full_quote,
+            t.long_quote,
+            t.author,
+            t.client_role,
+            t.industry,
+            t.display_location,
+            t.is_featured
+          FROM testimonials t
+          WHERE COALESCE(t.display_location, 'homepage') IN ('homepage', 'all')
+          ORDER BY t.is_featured DESC, t.sort_order ASC, t.created_at ASC
         `;
         return res.status(200).json({ data: rows });
       }

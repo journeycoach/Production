@@ -23,11 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 article.className = 'testimonial-item';
                 article.id = 'testimonial-' + item.id;
 
-                const quoteText = (item.long_quote && item.long_quote.trim().length > 0) ? item.long_quote : (item.full_quote || item.quote);
+                // Always show the longest version on this page
+                const quoteText = item.long_quote?.trim() || item.full_quote?.trim() || item.quote || "";
 
                 const quoteP = document.createElement('p');
                 quoteP.className = 'testimonial-quote';
-                quoteP.textContent = `"${quoteText}"`;
+                quoteP.textContent = quoteText ? `\u201c${quoteText}\u201d` : "";
                 
                 const authorDiv = document.createElement('div');
                 
