@@ -169,13 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!testimonials.length) return;
 
         const createCard = (item, ariaHidden) => {
-            const card = document.createElement('article');
-            card.className = 'testimonial-card';
-            if (ariaHidden) card.setAttribute('aria-hidden', 'true');
-
-            const quoteEl = document.createElement('p');
-            quoteEl.className = 'quote';
-            
             // For the homepage carousel card, prioritize `short_quote` if it exists.
             // If not, use `quote` and truncate it to 120 characters.
             let displayQuote = item.short_quote || item.quote || "";
@@ -192,15 +185,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayQuote = displayQuote.substr(0, Math.min(displayQuote.length, displayQuote.lastIndexOf(" "))) + "...";
             }
 
+            const card = document.createElement(hasMore ? 'a' : 'article');
+            card.className = 'testimonial-card';
+            if (hasMore) {
+                card.href = '/testimonials.html#testimonial-' + item.id;
+                card.style.textDecoration = 'none';
+                card.style.color = 'inherit';
+            }
+            if (ariaHidden) card.setAttribute('aria-hidden', 'true');
+
+            const quoteEl = document.createElement('p');
+            quoteEl.className = 'quote';
             quoteEl.textContent = '\u201c' + displayQuote + '\u201d';
 
             if (hasMore) {
-                const readMore = document.createElement('a');
-                readMore.href = '/testimonials.html#testimonial-' + item.id;
+                const readMore = document.createElement('span');
                 readMore.className = 'read-more-link';
                 readMore.textContent = 'Read full quote \u2192';
                 readMore.style.color = 'var(--color-accent-gold)';
-                readMore.style.textDecoration = 'none';
                 readMore.style.fontSize = '0.85em';
                 readMore.style.marginLeft = '8px';
                 readMore.style.whiteSpace = 'nowrap';
