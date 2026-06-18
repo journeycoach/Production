@@ -623,12 +623,57 @@ ul {
 /* ── Verified Impact – continuous marquee ── */
 .testimonials-slider {
     padding: 1.5rem 0 0.5rem;
+    position: relative;
+}
+
+.carousel-wrapper {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    display: flex;
+    align-items: center;
+}
+
+.carousel-btn {
+    position: absolute;
+    z-index: 10;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-accent-gold);
+    color: var(--color-accent-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    font-size: 1.2rem;
+}
+
+.carousel-btn:hover {
+    background: var(--color-accent-gold);
+    color: #fff;
+}
+
+.carousel-btn.prev {
+    left: max(10px, calc(50vw - 570px));
+}
+
+.carousel-btn.next {
+    right: max(10px, calc(50vw - 570px));
 }
 
 .marquee-slider {
-    overflow: hidden;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     padding: 0.5rem 0 1rem;
-    /* Fade edges with a mask so cards softly appear/disappear */
     -webkit-mask-image: linear-gradient(
         to right,
         transparent 0%,
@@ -643,27 +688,18 @@ ul {
         black 94%,
         transparent 100%
     );
-    cursor: default;
-    /* Break out of the .container max-width so the strip goes edge-to-edge */
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    width: 100%;
+}
+
+.marquee-slider::-webkit-scrollbar {
+    display: none;
 }
 
 .marquee-track {
     display: flex;
     gap: 1.5rem;
     width: max-content;
-    animation: marquee-scroll linear infinite;
-    will-change: transform;
-}
-
-@keyframes marquee-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }  /* scroll exactly one copy width */
+    padding: 0 max(1rem, calc(50vw - 570px + 3rem));
 }
 
 .testimonial-card {
@@ -693,9 +729,8 @@ ul {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .marquee-track {
-        /* Slow crawl instead of full stop — keeps the layout working */
-        animation-duration: 120s !important;
+    .marquee-slider {
+        scroll-behavior: auto;
     }
 }
 

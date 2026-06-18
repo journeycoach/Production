@@ -215,33 +215,47 @@ document.addEventListener('DOMContentLoaded', () => {
             return card;
         };
 
-        // Outer wrapper clips overflow
+        // Interactive carousel wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'carousel-wrapper';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        prevBtn.setAttribute('aria-label', 'Previous testimonial');
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        nextBtn.setAttribute('aria-label', 'Next testimonial');
+
         const slider = document.createElement('div');
         slider.className = 'marquee-slider';
         slider.setAttribute('aria-label', 'Client testimonials');
 
-        // The scrolling track — duplicated for seamless loop
         const track = document.createElement('div');
         track.className = 'marquee-track';
 
-        // Original set (visible, readable by screen readers)
+        // Original set only - no need for duplicates in snap-scroll
         testimonials.forEach(item => track.appendChild(createCard(item, false)));
-        // Duplicate set (aria-hidden so screen readers don't repeat)
-        testimonials.forEach(item => track.appendChild(createCard(item, true)));
 
         slider.appendChild(track);
-        container.appendChild(slider);
+        wrapper.appendChild(prevBtn);
+        wrapper.appendChild(slider);
+        wrapper.appendChild(nextBtn);
 
-        // Pause on hover / focus
-        slider.addEventListener('mouseenter', () => track.style.animationPlayState = 'paused');
-        slider.addEventListener('mouseleave', () => track.style.animationPlayState = 'running');
-        slider.addEventListener('focusin',    () => track.style.animationPlayState = 'paused');
-        slider.addEventListener('focusout',   () => track.style.animationPlayState = 'running');
+        container.appendChild(wrapper);
 
-        // Speed set by admin (slow=14s, normal=8s, fast=4s per card); default 8
-        const baseSpeed = window.__testimonialSpeed || 8;
-        const duration = testimonials.length * baseSpeed;
-        track.style.animationDuration = duration + 's';
+        // Navigation logic
+        nextBtn.addEventListener('click', () => {
+            const cardWidth = track.firstElementChild.offsetWidth + 24; // gap is 1.5rem ~ 24px
+            slider.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            const cardWidth = track.firstElementChild.offsetWidth + 24;
+            slider.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+        });
     }
 
 
