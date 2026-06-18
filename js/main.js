@@ -176,10 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const quoteEl = document.createElement('p');
             quoteEl.className = 'quote';
             
-            let displayQuote = item.quote || "";
-            let hasMore = (item.long_quote && item.long_quote.trim().length > 0) || displayQuote.length > 120;
+            // For the homepage carousel card, prioritize `short_quote` if it exists.
+            // If not, use `quote` and truncate it to 120 characters.
+            let displayQuote = item.short_quote || item.quote || "";
+            let originalQuoteText = item.quote || "";
+            let hasLongQuote = (item.long_quote && item.long_quote.trim().length > 0);
             
-            if (displayQuote.length > 120) {
+            // It has more to read if it has an explicit long quote, or if we had to fall back
+            // to truncating the standard quote.
+            let hasMore = hasLongQuote || originalQuoteText.length > 120;
+            
+            // If we don't have a specific short_quote, we truncate the standard quote
+            if (!item.short_quote && displayQuote.length > 120) {
                 displayQuote = displayQuote.substr(0, 120);
                 displayQuote = displayQuote.substr(0, Math.min(displayQuote.length, displayQuote.lastIndexOf(" "))) + "...";
             }
