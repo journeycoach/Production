@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
+    <script src="js/gtm.js" defer></script>
+    <title>Client Testimonials | Your Journey Coach</title>
+    <meta name="description"
+        content="Read testimonials from leaders who have partnered with Your Journey Coach.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Client Testimonials | Your Journey Coach">
+    <meta property="og:description" content="Read testimonials from leaders who have partnered with Your Journey Coach.">
+    <meta property="og:image" content="https://journeycoach.co/assets/images/about_john.jpg">
+    <meta property="og:url" content="https://journeycoach.co/testimonials.html">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/responsive.css?v=11">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="canonical" href="https://journeycoach.co/testimonials.html">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
+
+    <style>
+        .tools-header {
+            padding-top: 120px;
+            padding-bottom: 36px;
+            text-align: center;
+            background-color: var(--color-bg-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .testimonial-item {
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--color-accent-gold);
+            border-radius: 8px;
+            padding: 2.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .testimonial-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--color-accent-gold-dim);
+        }
+        
+        /* Highlight target for hash navigation */
+        .testimonial-item:target {
+            border-color: var(--color-accent-gold);
+            box-shadow: 0 0 0 2px var(--color-accent-gold);
+        }
+
+        .testimonial-quote {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--color-text-primary);
+            font-style: italic;
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-author {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .testimonial-meta {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 768px) {
+            .testimonial-item {
+                padding: 1.5rem;
+            }
+            .testimonial-quote {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Page Loader -->
+    <div class="loader-wrapper">
+        <div class="breathing-circle"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo" id="nav-logo">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+                <span class="logo-brand">Your Journey Coach</span>
+            </a>
+            <ul class="nav-links" id="nav-links-list">
+                <li><a href="/#welcome">About</a></li>
+                <li><a href="enneagram.html">Enneagram</a></li>
+                <li><a href="blog.html">Blog</a></li>
+                <li><a href="tools.html">Resources</a></li>
+                <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Header -->
+        <section class="tools-header">
+            <div class="container">
+                <h1 class="reveal-text delay-100">Client Stories</h1>
+                <p class="reveal-text delay-200"
+                    style="color: var(--color-text-secondary); max-width: 600px; margin: 1rem auto 0 auto;">
+                    Hear directly from the leaders and executives who have transformed their approach to leadership.
+                </p>
+            </div>
+        </section>
+
+        <!-- Testimonials List Area -->
+        <section class="container" style="min-height: 400px; padding-top: 4rem; padding-bottom: 6rem;">
+            <div id="testimonials-container" class="testimonials-grid">
+                <p style="text-align: center; color: var(--color-text-muted);">
+                    Loading testimonials...
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer
+        style="padding: 3rem 0; background: var(--color-bg-primary); border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4rem;">
+        <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+            <!-- Footer Logo -->
+            <a href="/">
+                <img src="assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo">
+            </a>
+            <nav id="footer-nav-links" style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;"></nav>
+            <p style="color: var(--color-text-muted); font-size: 0.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="/privacy.html" style="color: var(--color-text-muted); font-size: 0.8rem; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='var(--color-accent-gold)'" onmouseout="this.style.color='var(--color-text-muted)'">Privacy Policy</a>
+                <a href="/admin" style="color: var(--color-text-muted); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: color 0.3s ease;"
+                    onmouseover="this.style.color='var(--color-accent-gold)'"
+                    onmouseout="this.style.color='var(--color-text-muted)'">Admin Login</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="js/nav.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/testimonials.js" defer></script>
+</body>
+
+</html>

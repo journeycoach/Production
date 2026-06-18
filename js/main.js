@@ -175,7 +175,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const quoteEl = document.createElement('p');
             quoteEl.className = 'quote';
-            quoteEl.textContent = '\u201c' + item.quote + '\u201d';
+            
+            let displayQuote = item.quote || "";
+            let hasMore = (item.long_quote && item.long_quote.trim().length > 0) || displayQuote.length > 120;
+            
+            if (displayQuote.length > 120) {
+                displayQuote = displayQuote.substr(0, 120);
+                displayQuote = displayQuote.substr(0, Math.min(displayQuote.length, displayQuote.lastIndexOf(" "))) + "...";
+            }
+
+            quoteEl.textContent = '\u201c' + displayQuote + '\u201d';
+
+            if (hasMore) {
+                const readMore = document.createElement('a');
+                readMore.href = '/testimonials.html#testimonial-' + item.id;
+                readMore.className = 'read-more-link';
+                readMore.textContent = 'Read full quote \u2192';
+                readMore.style.color = 'var(--color-accent-gold)';
+                readMore.style.textDecoration = 'none';
+                readMore.style.fontSize = '0.85em';
+                readMore.style.marginLeft = '8px';
+                readMore.style.whiteSpace = 'nowrap';
+                quoteEl.appendChild(readMore);
+            }
 
             const authorDiv = document.createElement('div');
             authorDiv.className = 'author';
