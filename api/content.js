@@ -75,6 +75,7 @@ export default async function handler(req, res) {
         const rows = await sql`
           SELECT id,
             COALESCE(NULLIF(short_quote, ''), quote) as quote,
+            quote as full_quote,
             long_quote,
             author,
             client_role,

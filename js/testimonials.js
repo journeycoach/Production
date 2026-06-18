@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 article.className = 'testimonial-item reveal-text';
                 article.id = 'testimonial-' + item.id;
 
-                const quoteText = (item.long_quote && item.long_quote.trim().length > 0) ? item.long_quote : item.quote;
+                const quoteText = (item.long_quote && item.long_quote.trim().length > 0) ? item.long_quote : (item.full_quote || item.quote);
 
                 const quoteP = document.createElement('p');
                 quoteP.className = 'testimonial-quote';

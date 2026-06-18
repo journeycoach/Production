@@ -169,44 +169,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!testimonials.length) return;
 
         const createCard = (item, ariaHidden) => {
-            // For the homepage carousel card, prioritize `short_quote` if it exists.
-            // If not, use `quote` and truncate it to 120 characters.
-            let displayQuote = item.short_quote || item.quote || "";
-            let originalQuoteText = item.quote || "";
+            const card = document.createElement('article');
+            card.className = 'testimonial-card';
+            if (ariaHidden) card.setAttribute('aria-hidden', 'true');
+
+            // The API returns `quote` (already the short version) and `full_quote` (the original).
+            let displayQuote = item.quote || "";
+            let fullQuote = item.full_quote || item.quote || "";
             let hasLongQuote = (item.long_quote && item.long_quote.trim().length > 0);
-            
-            // It has more to read if it has an explicit long quote, or if we had to fall back
-            // to truncating the standard quote.
-            let hasMore = hasLongQuote || originalQuoteText.length > 120;
-            
-            // If we don't have a specific short_quote, we truncate the standard quote
-            if (!item.short_quote && displayQuote.length > 120) {
+
+            // There is a longer version if: a long_quote exists, or the full quote is longer than what we're showing
+            let hasMore = hasLongQuote || (fullQuote.length > displayQuote.length);
+
+            // Truncate the display quote if it's still long (no short_quote was set)
+            if (displayQuote.length > 120) {
                 displayQuote = displayQuote.substr(0, 120);
                 displayQuote = displayQuote.substr(0, Math.min(displayQuote.length, displayQuote.lastIndexOf(" "))) + "...";
+                hasMore = true;
             }
-
-            const card = document.createElement(hasMore ? 'a' : 'article');
-            card.className = 'testimonial-card';
-            if (hasMore) {
-                card.href = '/testimonials.html#testimonial-' + item.id;
-                card.style.textDecoration = 'none';
-                card.style.color = 'inherit';
-            }
-            if (ariaHidden) card.setAttribute('aria-hidden', 'true');
 
             const quoteEl = document.createElement('p');
             quoteEl.className = 'quote';
-            quoteEl.textContent = '\u201c' + displayQuote + '\u201d';
 
             if (hasMore) {
+                // Make the quote text itself a link
+                const quoteLink = document.createElement('a');
+                quoteLink.href = '/testimonials.html#testimonial-' + item.id;
+                quoteLink.style.color = 'inherit';
+                quoteLink.style.textDecoration = 'none';
+                quoteLink.style.borderBottom = '1px solid var(--color-accent-gold-dim)';
+                quoteLink.style.transition = 'border-color 0.3s ease';
+                quoteLink.textContent = '\u201c' + displayQuote + '\u201d';
+                quoteLink.addEventListener('mouseenter', () => quoteLink.style.borderBottomColor = 'var(--color-accent-gold)');
+                quoteLink.addEventListener('mouseleave', () => quoteLink.style.borderBottomColor = 'var(--color-accent-gold-dim)');
+                quoteEl.appendChild(quoteLink);
+
                 const readMore = document.createElement('span');
                 readMore.className = 'read-more-link';
-                readMore.textContent = 'Read full quote \u2192';
+                readMore.textContent = ' Read more \u2192';
                 readMore.style.color = 'var(--color-accent-gold)';
                 readMore.style.fontSize = '0.85em';
-                readMore.style.marginLeft = '8px';
                 readMore.style.whiteSpace = 'nowrap';
                 quoteEl.appendChild(readMore);
+            } else {
+                quoteEl.textContent = '\u201c' + displayQuote + '\u201d';
             }
 
             const authorDiv = document.createElement('div');
