@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             testimonials.forEach(item => {
                 const article = document.createElement('article');
-                article.className = 'testimonial-item reveal-text';
+                article.className = 'testimonial-item';
                 article.id = 'testimonial-' + item.id;
 
                 const quoteText = (item.long_quote && item.long_quote.trim().length > 0) ? item.long_quote : (item.full_quote || item.quote);
@@ -48,11 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 container.appendChild(article);
             });
-
-            // Make dynamically loaded items visible
-            setTimeout(() => {
-                document.querySelectorAll('.testimonial-item').forEach(el => el.classList.add('is-visible'));
-            }, 50);
 
             // Handle hash scrolling if a specific testimonial was linked
             if (window.location.hash) {
