@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.appendChild(article);
             });
 
+            // Make dynamically loaded items visible
+            setTimeout(() => {
+                document.querySelectorAll('.testimonial-item').forEach(el => el.classList.add('is-visible'));
+            }, 50);
+
             // Handle hash scrolling if a specific testimonial was linked
             if (window.location.hash) {
                 const targetId = window.location.hash.substring(1);
