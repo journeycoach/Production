@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('testimonials-container');
+    const container = document.getElementById('testimonials-page-list');
 
     if (!container) return;
 
