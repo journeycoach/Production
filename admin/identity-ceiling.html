@@ -7,19 +7,23 @@
   <title>Identity Ceiling Assessment — Admin</title>
   <link rel="stylesheet" href="css/admin.css" />
   <style>
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--admin-border); padding-bottom: 0; }
-    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--admin-muted); cursor: pointer; font-size: 1rem; padding: 10px 16px; transition: all 0.2s; font-weight: 500; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid var(--admin-border); }
+    .tab-btn { background: none; border: none; border-bottom: 3px solid transparent; color: var(--admin-muted); cursor: pointer; font-size: 1rem; padding: 10px 18px; transition: all 0.2s; font-weight: 500; margin-bottom: -1px; }
     .tab-btn:hover { color: var(--admin-text); }
     .tab-btn.active { color: var(--admin-accent); border-bottom-color: var(--admin-accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .card-title-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .card-title-header h3 { margin: 0; font-size: 1.1rem; color: var(--admin-text); }
-    .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .option-row input { flex: 1; }
-    .option-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--admin-accent) 15%, transparent); color: var(--admin-accent); border: 1px solid var(--admin-accent); font-weight: 600; white-space: nowrap; min-width: 120px; text-align: center; }
-    .save-bar { position: sticky; bottom: 0; background: var(--admin-bg); padding: 16px 0; border-top: 1px solid var(--admin-border); margin-top: 20px; display: flex; justify-content: flex-end; z-index: 100; }
-    .loading-state { text-align: center; padding: 40px; color: var(--admin-muted); }
+    .card-title-header h3 { margin: 0; font-size: 1.05rem; color: var(--admin-text); }
+    .option-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .option-row input { width: 100%; }
+    .ceiling-badge { font-size: 0.72rem; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--admin-accent) 15%, transparent); color: var(--admin-accent); border: 1px solid color-mix(in srgb, var(--admin-accent) 40%, transparent); font-weight: 700; white-space: nowrap; text-align: center; letter-spacing: 0.04em; }
+    .save-bar { position: sticky; bottom: 0; background: var(--admin-bg); padding: 14px 0; border-top: 1px solid var(--admin-border); margin-top: 24px; display: flex; justify-content: flex-end; align-items: center; gap: 16px; z-index: 100; }
+    .unsaved-notice { font-size: 0.85rem; color: var(--admin-muted); display: none; }
+    .unsaved-notice.visible { display: block; color: #f0a500; }
+    .loading-state { text-align: center; padding: 60px; color: var(--admin-muted); font-size: 0.95rem; }
+    .question-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--admin-muted); margin-bottom: 4px; }
+    .section-divider { border: none; border-top: 1px solid var(--admin-border); margin: 24px 0; }
   </style>
 </head>
 <body>
@@ -50,33 +54,33 @@
 
     <main class="admin-main">
       <div class="admin-page-title">
-        <h1>Identity Hidden Ceiling Assessment</h1>
+        <h1>Identity Hidden Ceiling — Assessment Editor</h1>
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="questions" onclick="switchTab('questions')">Questions</button>
-        <button class="tab-btn" data-tab="profiles" onclick="switchTab('profiles')">Result Profiles</button>
+        <button class="tab-btn active" data-tab="questions">Questions &amp; Options</button>
+        <button class="tab-btn" data-tab="profiles">Result Profiles</button>
       </div>
 
-      <div id="loading" class="loading-state">Loading assessment data...</div>
+      <div id="loading" class="loading-state">Loading assessment data…</div>
 
-      <form id="assessmentForm" style="display: none;">
+      <form id="assessmentForm" style="display:none;" onsubmit="saveData(event)">
+        <!-- ── Questions Tab ── -->
         <div id="questionsTab" class="tab-content active">
-          <!-- Render 10 questions + tie breaker -->
           <div id="questionsContainer"></div>
         </div>
 
+        <!-- ── Profiles Tab ── -->
         <div id="profilesTab" class="tab-content">
-          <!-- Render 6 profiles -->
           <div id="profilesContainer"></div>
         </div>
 
         <div class="save-bar">
+          <span class="unsaved-notice" id="unsavedNotice">You have unsaved changes</span>
           <button type="submit" class="btn btn-primary" id="saveBtn">Save Changes</button>
         </div>
       </form>
-
     </main>
   </div>
 
@@ -84,29 +88,36 @@
   <script>
     requireAdminAuth();
 
-    let assessmentData = {
-      questions: [],
-      profiles: []
-    };
+    let assessmentData = { questions: [], results: {} };
+    let isDirty = false;
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-      document.getElementById(`${tabId}Tab`).classList.add('active');
+    // ── Tabs ──────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+      });
+    });
+
+    // ── Unsaved changes indicator ─────────────────────────────────
+    function markDirty() {
+      isDirty = true;
+      document.getElementById('unsavedNotice').classList.add('visible');
     }
 
+    // ── Load ──────────────────────────────────────────────────────
     async function loadData() {
       try {
         const res = await adminFetch('/api/admin/settings?resource=identity-ceiling');
-        if (!res.ok) throw new Error('Failed to load assessment data');
-        // API returns { questions: [...], results: {...} } directly (no .data wrapper)
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
         const json = await res.json();
         assessmentData = {
           questions: json.questions || [],
-          results: json.results || {}
+          results:   json.results   || {}
         };
-        renderData();
+        renderAll();
         document.getElementById('loading').style.display = 'none';
         document.getElementById('assessmentForm').style.display = 'block';
       } catch (err) {
@@ -114,137 +125,212 @@
       }
     }
 
-    function renderData() {
-      const qContainer = document.getElementById('questionsContainer');
-      const pContainer = document.getElementById('profilesContainer');
-      
-      qContainer.innerHTML = '';
-      pContainer.innerHTML = '';
+    // ── Render ────────────────────────────────────────────────────
+    function renderAll() {
+      renderQuestions();
+      renderProfiles();
+    }
 
-      // Render Questions
+    function renderQuestions() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
       (assessmentData.questions || []).forEach((q, qIndex) => {
-        const isTieBreaker = q.is_tie_breaker || q.id === 'tie_breaker' || qIndex >= 10;
-        const qTitleStr = isTieBreaker ? 'Tie-Breaker Question' : `Question ${qIndex + 1}`;
-        
-        let html = `
-          <div class="card">
-            <div class="card-title-header">
-              <h3>${qTitleStr}</h3>
-            </div>
-            <div class="form-group">
-              <label>Title</label>
-              <input type="text" value="${escapeHtml(q.title)}" onchange="updateQuestionTitle(${qIndex}, this.value)" required />
-            </div>
-            <div class="form-group">
-              <label>Options</label>
-        `;
+        const isTB = q.id === 'tie-breaker' || q.id === 'tie_breaker' || qIndex >= 10;
+        const label = isTB ? 'Tie-Breaker Question' : `Question ${qIndex + 1}`;
 
-        (q.options || []).forEach((opt, oIndex) => {
-          html += `
-            <div class="option-row">
-              <input type="text" value="${escapeHtml(opt.text)}" onchange="updateQuestionOption(${qIndex}, ${oIndex}, this.value)" required />
-              <div class="option-badge" title="Mapping: ${escapeHtml(opt.ceiling || 'None')}">${escapeHtml(opt.ceiling || 'None')}</div>
-            </div>
-          `;
-        });
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '1.5rem';
 
-        html += `
-            </div>
+        // Header
+        card.innerHTML = `
+          <div class="card-title-header">
+            <h3>${label}</h3>
+            <span class="ceiling-badge" style="background:none;border-color:var(--admin-border);color:var(--admin-muted);">id: ${esc(q.id)}</span>
           </div>
-        `;
-        qContainer.innerHTML += html;
+
+          <div class="form-group">
+            <div class="question-label">Question Text</div>
+            <textarea rows="2" data-qindex="${qIndex}" data-field="title"
+                      style="resize:vertical;">${esc(q.title)}</textarea>
+          </div>
+
+          <div class="question-label" style="margin-top:12px;">Answer Options</div>
+          <div class="options-edit" data-qindex="${qIndex}">
+            ${(q.options || []).map((opt, oIndex) => `
+              <div class="option-row">
+                <input type="text"
+                       data-qindex="${qIndex}"
+                       data-oindex="${oIndex}"
+                       data-field="option-text"
+                       value="${esc(opt.text)}" />
+                <span class="ceiling-badge">${esc(opt.ceiling || '—')}</span>
+              </div>`).join('')}
+          </div>`;
+
+        container.appendChild(card);
       });
 
-      // Render Result Profiles (results is a keyed object, not an array)
+      // Attach listeners
+      container.querySelectorAll('[data-field="title"]').forEach(el => {
+        el.addEventListener('input', () => {
+          const qi = parseInt(el.dataset.qindex, 10);
+          assessmentData.questions[qi].title = el.value;
+          markDirty();
+        });
+      });
+
+      container.querySelectorAll('[data-field="option-text"]').forEach(el => {
+        el.addEventListener('input', () => {
+          const qi = parseInt(el.dataset.qindex, 10);
+          const oi = parseInt(el.dataset.oindex, 10);
+          assessmentData.questions[qi].options[oi].text = el.value;
+          markDirty();
+        });
+      });
+    }
+
+    function renderProfiles() {
+      const container = document.getElementById('profilesContainer');
+      container.innerHTML = '';
+
       Object.entries(assessmentData.results || {}).forEach(([key, p]) => {
         const steps = Array.isArray(p.steps) ? p.steps : ['', '', ''];
-        let html = `
-          <div class="card">
-            <div class="card-title-header">
-              <h3>${escapeHtml(p.label || key)}</h3>
-              <div class="option-badge" style="min-width:80px;">${escapeHtml(key)}</div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Label</label>
-                <input type="text" value="${escapeHtml(p.label)}" onchange="updateProfileKey('${key}', 'label', this.value)" required />
-              </div>
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '2rem';
+
+        card.innerHTML = `
+          <div class="card-title-header">
+            <h3>${esc(p.label || key)}</h3>
+            <span class="ceiling-badge">${esc(key)}</span>
+          </div>
+
+          <div class="form-group">
+            <div class="question-label">Label (displayed as the result title)</div>
+            <input type="text" data-key="${key}" data-field="label" value="${esc(p.label || '')}" />
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="form-group">
+            <div class="question-label">The Diagnosis</div>
+            <textarea rows="4" data-key="${key}" data-field="diagnosis">${esc(p.diagnosis || '')}</textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="question-label">The Ceiling</div>
+            <textarea rows="4" data-key="${key}" data-field="ceiling">${esc(p.ceiling || '')}</textarea>
+          </div>
+
+          <div class="form-group">
+            <div class="question-label">Core Pattern (shown in italics on result card)</div>
+            <input type="text" data-key="${key}" data-field="pattern" value="${esc(p.pattern || '')}" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <div class="question-label">The Cost</div>
+              <textarea rows="3" data-key="${key}" data-field="cost">${esc(p.cost || '')}</textarea>
             </div>
             <div class="form-group">
-              <label>Diagnosis</label>
-              <textarea rows="3" onchange="updateProfileKey('${key}', 'diagnosis', this.value)" required>${escapeHtml(p.diagnosis)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>The Ceiling</label>
-              <textarea rows="3" onchange="updateProfileKey('${key}', 'ceiling', this.value)" required>${escapeHtml(p.ceiling)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Core Pattern (shown in italics)</label>
-              <input type="text" value="${escapeHtml(p.pattern)}" onchange="updateProfileKey('${key}', 'pattern', this.value)" />
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>The Cost</label>
-                <textarea rows="2" onchange="updateProfileKey('${key}', 'cost', this.value)">${escapeHtml(p.cost)}</textarea>
-              </div>
-              <div class="form-group">
-                <label>The Shift</label>
-                <textarea rows="2" onchange="updateProfileKey('${key}', 'shift', this.value)">${escapeHtml(p.shift)}</textarea>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Development Step 1</label>
-              <textarea rows="2" onchange="updateProfileStep('${key}', 0, this.value)">${escapeHtml(steps[0])}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Development Step 2</label>
-              <textarea rows="2" onchange="updateProfileStep('${key}', 1, this.value)">${escapeHtml(steps[1])}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Development Step 3</label>
-              <textarea rows="2" onchange="updateProfileStep('${key}', 2, this.value)">${escapeHtml(steps[2])}</textarea>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>CTA Text (optional)</label>
-                <input type="text" value="${escapeHtml(p.cta_text || '')}" placeholder="Schedule an Alignment Call" onchange="updateProfileKey('${key}', 'cta_text', this.value)" />
-              </div>
-              <div class="form-group">
-                <label>CTA URL (optional)</label>
-                <input type="text" value="${escapeHtml(p.cta_url || '')}" placeholder="https://calendly.com/..." onchange="updateProfileKey('${key}', 'cta_url', this.value)" />
-              </div>
+              <div class="question-label">The Shift</div>
+              <textarea rows="3" data-key="${key}" data-field="shift">${esc(p.shift || '')}</textarea>
             </div>
           </div>
-        `;
-        pContainer.innerHTML += html;
+
+          <hr class="section-divider">
+
+          <div class="form-group">
+            <div class="question-label">Development Step 1</div>
+            <textarea rows="2" data-key="${key}" data-field="step0">${esc(steps[0] || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <div class="question-label">Development Step 2</div>
+            <textarea rows="2" data-key="${key}" data-field="step1">${esc(steps[1] || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <div class="question-label">Development Step 3</div>
+            <textarea rows="2" data-key="${key}" data-field="step2">${esc(steps[2] || '')}</textarea>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="form-row">
+            <div class="form-group">
+              <div class="question-label">CTA Button Text (optional)</div>
+              <input type="text" data-key="${key}" data-field="cta_text"
+                     value="${esc(p.cta_text || '')}"
+                     placeholder="Schedule an Alignment Call" />
+            </div>
+            <div class="form-group">
+              <div class="question-label">CTA URL (optional)</div>
+              <input type="text" data-key="${key}" data-field="cta_url"
+                     value="${esc(p.cta_url || '')}"
+                     placeholder="https://calendly.com/..." />
+            </div>
+          </div>`;
+
+        container.appendChild(card);
+      });
+
+      // Attach listeners to all profile fields
+      container.querySelectorAll('[data-key]').forEach(el => {
+        el.addEventListener('input', () => {
+          const key   = el.dataset.key;
+          const field = el.dataset.field;
+          if (!assessmentData.results[key]) assessmentData.results[key] = {};
+
+          if (field.startsWith('step')) {
+            // step0, step1, step2 → steps array
+            const idx = parseInt(field.replace('step', ''), 10);
+            if (!Array.isArray(assessmentData.results[key].steps)) {
+              assessmentData.results[key].steps = ['', '', ''];
+            }
+            assessmentData.results[key].steps[idx] = el.value;
+          } else {
+            assessmentData.results[key][field] = el.value;
+          }
+          markDirty();
+        });
       });
     }
 
-    function updateQuestionTitle(qIndex, val) {
-      assessmentData.questions[qIndex].title = val;
-    }
+    // ── Save ──────────────────────────────────────────────────────
+    async function saveData(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
 
-    function updateQuestionOption(qIndex, oIndex, val) {
-      assessmentData.questions[qIndex].options[oIndex].text = val;
-    }
-
-    // Update a scalar field on a result profile
-    function updateProfileKey(key, field, val) {
-      if (!assessmentData.results[key]) assessmentData.results[key] = {};
-      assessmentData.results[key][field] = val;
-    }
-
-    // Update an individual step inside a profile's steps array
-    function updateProfileStep(key, stepIndex, val) {
-      if (!assessmentData.results[key]) assessmentData.results[key] = {};
-      if (!Array.isArray(assessmentData.results[key].steps)) {
-        assessmentData.results[key].steps = ['', '', ''];
+      try {
+        const res = await adminFetch('/api/admin/settings?resource=identity-ceiling', {
+          method: 'PUT',
+          body: JSON.stringify({
+            questions: assessmentData.questions,
+            results:   assessmentData.results
+          })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Failed to save');
+        }
+        isDirty = false;
+        document.getElementById('unsavedNotice').classList.remove('visible');
+        showFlash('Assessment saved successfully.');
+      } catch (err) {
+        showFlash(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
       }
-      assessmentData.results[key].steps[stepIndex] = val;
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
+    // ── Utility ───────────────────────────────────────────────────
+    function esc(str) {
+      if (str == null) return '';
       return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -252,31 +338,9 @@
         .replace(/"/g, '&quot;');
     }
 
-    document.getElementById('assessmentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('saveBtn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-      
-      try {
-        const res = await adminFetch('/api/admin/settings?resource=identity-ceiling', {
-          method: 'PUT',
-          body: JSON.stringify({
-            questions: assessmentData.questions,
-            results: assessmentData.results
-          })
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Failed to save');
-        }
-        showFlash('Assessment updated successfully.');
-      } catch (err) {
-        showFlash(err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save Changes';
-      }
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', e => {
+      if (isDirty) { e.preventDefault(); e.returnValue = ''; }
     });
 
     loadData();

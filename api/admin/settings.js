@@ -184,6 +184,9 @@ export default async function handler(req, res) {
 
   // Admin Identity Ceiling logic
   if (req.query?.resource === 'identity-ceiling') {
+    // Ensure table exists before any query
+    await runMigrations();
+
     if (req.method === 'GET') {
       try {
         const configRows = await sql`SELECT setting_key, setting_value FROM identity_ceiling_config`;
@@ -193,6 +196,7 @@ export default async function handler(req, res) {
         }
         return res.status(200).json(config);
       } catch (err) {
+        console.error('identity-ceiling GET error:', err);
         return res.status(500).json({ error: 'Failed to load config' });
       }
     }
