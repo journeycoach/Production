@@ -35,8 +35,12 @@ function determineResult(scores, tieBreakerCeiling) {
   const [first, second] = sorted;
 
   if (second && first[1] === second[1]) {
-    // There is a tie — use the tie-breaker if we have one
-    if (tieBreakerCeiling && scores[tieBreakerCeiling] !== undefined) {
+    const tiedCeilings = sorted
+      .filter(([, score]) => score === first[1])
+      .map(([ceiling]) => ceiling);
+
+    // There is a tie — use the tie-breaker only if it resolves one of the tied ceilings.
+    if (tieBreakerCeiling && tiedCeilings.includes(tieBreakerCeiling)) {
       return tieBreakerCeiling;
     }
     // No tie-breaker provided — still return the first-sorted (alphabetically stable)

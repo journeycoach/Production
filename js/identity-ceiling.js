@@ -2,6 +2,7 @@
     let ASSESSMENT_STEPS = [];
     let RESULT_PROFILES = {};
     let configLoaded = false;
+    const IDENTITY_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
 
     // Default fallback (in case API fails — only intro, shows error)
     const DEFAULT_STEPS = [
@@ -18,23 +19,71 @@
     let currentStepIndex = 0;
     let answers = {};
     let turnstileToken = null;
+    let turnstileWidgetId = null;
     let isTieBreakerActive = false;
 
     // DOM refs — resolved after DOMContentLoaded
     let container, stepsContainer, resultView, progressWrapper, progressBar, progressText, loadingOverlay;
 
-    // ── Turnstile callback (must be global for CF) ────────────────
-    window.onTurnstileSuccess = function (token) {
-        turnstileToken = token;
+    // ── Turnstile helpers ────────────────────────────────────────
+    function setCaptchaMessage(message, isError = true) {
+        const msgEl = document.getElementById('captcha-error');
+        if (!msgEl) return;
+        msgEl.textContent = message || '';
+        msgEl.style.display = message ? 'block' : 'none';
+        msgEl.style.color = isError ? '#ff6b6b' : 'var(--color-text-muted)';
+    }
+
+    function setTurnstileToken(token = '') {
+        turnstileToken = token || null;
         const submitBtn = document.getElementById('btn-submit');
         if (submitBtn) submitBtn.disabled = false;
+        if (token) setCaptchaMessage('');
+    }
 
-        // If the user clicked Submit before Turnstile loaded, submit now
-        if (window._identityPendingSubmit) {
-            window._identityPendingSubmit = false;
-            handleSubmitClick();
+    function resetTurnstile() {
+        setTurnstileToken('');
+        if (window.turnstile && turnstileWidgetId !== null) {
+            window.turnstile.reset(turnstileWidgetId);
         }
-    };
+    }
+
+    function renderIdentityTurnstile() {
+        const tsContainer = document.getElementById('cf-turnstile-container');
+        if (!tsContainer) return;
+
+        if (!window.turnstile) {
+            setCaptchaMessage('Security check is loading. Please try again in a moment.', false);
+            return;
+        }
+
+        if (turnstileWidgetId !== null) return;
+
+        try {
+            turnstileWidgetId = window.turnstile.render(tsContainer, {
+                sitekey: IDENTITY_TURNSTILE_SITEKEY,
+                size: 'compact',
+                theme: 'dark',
+                callback(token) {
+                    setTurnstileToken(token);
+                },
+                'expired-callback'() {
+                    setTurnstileToken('');
+                    setCaptchaMessage('The security check expired. Please complete it again.');
+                },
+                'error-callback'() {
+                    setTurnstileToken('');
+                    setCaptchaMessage('The security check could not load. Please refresh the page and try again.');
+                },
+            });
+            setCaptchaMessage('');
+        } catch (err) {
+            console.error('Identity Ceiling: Turnstile render failed', err);
+            setCaptchaMessage('The security check could not load. Please refresh the page and try again.');
+        }
+    }
+
+    window.initIdentityTurnstile = renderIdentityTurnstile;
 
     // ── Progress persistence ──────────────────────────────────────
     function loadSavedProgress() {
@@ -140,6 +189,11 @@
                 const totalQs = isTieBreakerActive ? 11 : 10;
                 const isLastStep = (index === ASSESSMENT_STEPS.length - 1);
 
+                if (isLastStep) {
+                    turnstileToken = null;
+                    turnstileWidgetId = null;
+                }
+
                 stepEl.innerHTML = `
                     <span class="step-eyebrow">Question ${qNum} of ${totalQs}</span>
                     <h2 class="step-title">${step.title}</h2>
@@ -158,9 +212,12 @@
                     <div class="step-navigation">
                         <button type="button" class="btn-prev" data-action="prev" data-step="${index}">Back</button>
                         ${isLastStep
-                            ? `<div id="cf-turnstile-container"></div>
+                            ? `<div class="captcha-submit-group">
+                               <div id="cf-turnstile-container" class="identity-turnstile"></div>
+                               <div id="captcha-error" class="error-message" style="display:none;"></div>
                                <button type="button" id="btn-submit" class="btn-submit"
-                                       data-action="submit" disabled>Reveal My Ceiling</button>`
+                                       data-action="submit">Reveal My Ceiling</button>
+                               </div>`
                             : `<button type="button" class="btn-next" data-action="next"
                                        data-step="${index}">Next Question</button>`}
                     </div>`;
@@ -191,16 +248,6 @@
                 if (errEl) errEl.style.display = 'none';
             });
         });
-
-        // ── Turnstile ──
-        const tsContainer = document.getElementById('cf-turnstile-container');
-        if (tsContainer && window.turnstile) {
-            turnstile.render(tsContainer, {
-                sitekey: '0x4AAAAAAAi7L9v8aBstBq6Y',
-                callback: 'onTurnstileSuccess',
-                theme: 'dark'
-            });
-        }
     }
 
     // Delegated click handler — no inline onclick needed
@@ -241,6 +288,11 @@
             progressBar.style.width = `${Math.min(percent, 100)}%`;
             progressText.textContent = `Question ${index} of ${totalQs}`;
         }
+
+        const step = ASSESSMENT_STEPS[index];
+        if (step && step.type !== 'intro' && index === ASSESSMENT_STEPS.length - 1) {
+            renderIdentityTurnstile();
+        }
     }
 
     // ── Navigation ────────────────────────────────────────────────
@@ -279,7 +331,13 @@
 
         // After Q10 (index 10), check for a tie before advancing
         if (currentIndex === 10 && !isTieBreakerActive) {
-            if (checkForTie() && window._tieBreakerQuestion) {
+            const tiedCeilings = getTiedCeilings();
+            if (tiedCeilings.length > 1 && window._tieBreakerQuestion) {
+                window._tieBreakerQuestion = {
+                    ...window._tieBreakerQuestion,
+                    options: (window._tieBreakerQuestion.options || [])
+                        .filter(option => tiedCeilings.includes(option.ceiling)),
+                };
                 isTieBreakerActive = true;
                 ASSESSMENT_STEPS.push(window._tieBreakerQuestion);
                 renderSteps();
@@ -291,7 +349,7 @@
         showStep(currentIndex + 1);
     }
 
-    function checkForTie() {
+    function getTiedCeilings() {
         const tallies = {};
         for (let i = 1; i <= 10; i++) {
             const step = ASSESSMENT_STEPS[i];
@@ -302,13 +360,13 @@
             if (ceilingKey) tallies[ceilingKey] = (tallies[ceilingKey] || 0) + 1;
         }
 
-        let maxCount = 0;
-        let tieExists = false;
-        for (const count of Object.values(tallies)) {
-            if (count > maxCount) { maxCount = count; tieExists = false; }
-            else if (count === maxCount) { tieExists = true; }
-        }
-        return tieExists;
+        const counts = Object.values(tallies);
+        if (!counts.length) return [];
+
+        const maxCount = Math.max(...counts);
+        return Object.entries(tallies)
+            .filter(([, count]) => count === maxCount)
+            .map(([ceiling]) => ceiling);
     }
 
     // ── Submission ────────────────────────────────────────────────
@@ -334,7 +392,8 @@
         }
 
         if (!turnstileToken) {
-            window._identityPendingSubmit = true;
+            renderIdentityTurnstile();
+            setCaptchaMessage('Please complete the security check before revealing your result.');
             return;
         }
 
@@ -368,10 +427,9 @@
 
             if (!response.ok) {
                 alert(data.error || 'There was a problem submitting. Please try again.');
-                if (window.turnstile) turnstile.reset();
-                turnstileToken = null;
+                resetTurnstile();
                 const btn = document.getElementById('btn-submit');
-                if (btn) btn.disabled = true;
+                if (btn) btn.disabled = false;
                 loadingOverlay.classList.remove('active');
                 return;
             }
@@ -381,6 +439,7 @@
         } catch (err) {
             console.error('Submit error:', err);
             alert('A network error occurred. Please try again.');
+            resetTurnstile();
             loadingOverlay.classList.remove('active');
         }
     }
