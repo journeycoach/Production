@@ -114,7 +114,7 @@
     async function loadConfig() {
         try {
             loadingOverlay.classList.add('active');
-            const res = await fetch('/api/identity-ceiling');
+            const res = await fetch('/api/identity-ceiling', { cache: 'no-store' });
             if (!res.ok) throw new Error(`API returned ${res.status}`);
             const data = await res.json();
 

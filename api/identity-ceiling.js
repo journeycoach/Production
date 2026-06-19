@@ -101,6 +101,8 @@ export default async function handler(req, res) {
     await runMigrations();
 
     if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
       const configRows = await sql`SELECT setting_key, setting_value FROM identity_ceiling_config`;
       const config = {};
       for (const row of configRows) {
