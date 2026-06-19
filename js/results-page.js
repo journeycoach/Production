@@ -187,11 +187,19 @@
         if (ogImageMeta) ogImageMeta.setAttribute('content', `https://journeycoach.co/assets/images/og-${center}.png`);
 
         const total = sh + sd + sa;
+        const scoreValues = { heart: sh, head: sd, action: sa };
         const scores = [
             { label: 'Heart',  value: sh, key: 'heart' },
             { label: 'Head',   value: sd, key: 'head' },
             { label: 'Action', value: sa, key: 'action' }
         ];
+        const resultKeys = center.split('_').filter(key => scoreValues[key] !== undefined);
+        const resultScore = resultKeys.reduce((sum, key) => sum + scoreValues[key], 0);
+        const resultPercent = total > 0 ? Math.round((resultScore / total) * 100) : 0;
+        const resultScoreLabel = resultKeys.length > 1 ? 'Combined match score' : 'Match score';
+        const resultScoreDetail = resultKeys.length > 1
+            ? `${resultScore} of ${total} responses matched the centers in your blended result.`
+            : `${resultScore} of ${total} responses matched your primary result center.`;
 
         // Confidence badge: computed from score spread
         const isBlended = center.includes('_');
@@ -224,6 +232,17 @@
             </p>` : ''}
 
             ${confidenceBadge()}
+            <div class="result-score-metric">
+                <div>
+                    <div class="results-card-label">${resultScoreLabel}</div>
+                    <div class="result-score-value">${resultScore}<span>/${total || 0}</span></div>
+                </div>
+                <p class="result-score-detail">
+                    ${escHtml(resultScoreDetail)}
+                    <strong>${resultPercent}% alignment</strong> with ${escHtml(meta.centerLabel)}.
+                </p>
+            </div>
+
             <div class="score-grid">
                 ${scores.map(s => `
                     <div class="score-card ${isPrimaryScore(center, s.key) ? 'is-primary' : ''}">
