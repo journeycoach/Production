@@ -249,8 +249,8 @@
                     </div>
                 </div>
                 <p class="result-score-detail">
-                    <strong>${resultScore}/${total || 0}</strong> responses contributed to this result.
-                    ${escHtml(resultScoreDetail)} This indicates ${escHtml(confidence.label.toLowerCase())} in your ${escHtml(meta.centerLabel)} result.
+                    ${escHtml(resultScoreDetail)}
+                    This indicates ${escHtml(confidence.label.toLowerCase())} in your ${escHtml(meta.centerLabel)} result.
                 </p>
             </div>
 
