@@ -100,8 +100,12 @@
       try {
         const res = await adminFetch('/api/admin/settings?resource=identity-ceiling');
         if (!res.ok) throw new Error('Failed to load assessment data');
+        // API returns { questions: [...], results: {...} } directly (no .data wrapper)
         const json = await res.json();
-        assessmentData = json.data || { questions: [], profiles: [] };
+        assessmentData = {
+          questions: json.questions || [],
+          results: json.results || {}
+        };
         renderData();
         document.getElementById('loading').style.display = 'none';
         document.getElementById('assessmentForm').style.display = 'block';
@@ -151,42 +155,63 @@
         qContainer.innerHTML += html;
       });
 
-      // Render Profiles
-      (assessmentData.profiles || []).forEach((p, pIndex) => {
-        const profileName = p.name || p.id || `Profile ${pIndex + 1}`;
+      // Render Result Profiles (results is a keyed object, not an array)
+      Object.entries(assessmentData.results || {}).forEach(([key, p]) => {
+        const steps = Array.isArray(p.steps) ? p.steps : ['', '', ''];
         let html = `
           <div class="card">
             <div class="card-title-header">
-              <h3>Profile: ${escapeHtml(profileName)}</h3>
-            </div>
-            <div class="form-group">
-              <label>Diagnosis</label>
-              <textarea rows="3" onchange="updateProfile(${pIndex}, 'diagnosis', this.value)" required>${escapeHtml(p.diagnosis)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Ceiling</label>
-              <textarea rows="3" onchange="updateProfile(${pIndex}, 'ceiling', this.value)" required>${escapeHtml(p.ceiling)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Guide Step 1</label>
-              <textarea rows="2" onchange="updateProfile(${pIndex}, 'guide_step_1', this.value)" required>${escapeHtml(p.guide_step_1)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Guide Step 2</label>
-              <textarea rows="2" onchange="updateProfile(${pIndex}, 'guide_step_2', this.value)" required>${escapeHtml(p.guide_step_2)}</textarea>
-            </div>
-            <div class="form-group">
-              <label>Guide Step 3</label>
-              <textarea rows="2" onchange="updateProfile(${pIndex}, 'guide_step_3', this.value)" required>${escapeHtml(p.guide_step_3)}</textarea>
+              <h3>${escapeHtml(p.label || key)}</h3>
+              <div class="option-badge" style="min-width:80px;">${escapeHtml(key)}</div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>CTA Text</label>
-                <input type="text" value="${escapeHtml(p.cta_text)}" onchange="updateProfile(${pIndex}, 'cta_text', this.value)" />
+                <label>Label</label>
+                <input type="text" value="${escapeHtml(p.label)}" onchange="updateProfileKey('${key}', 'label', this.value)" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Diagnosis</label>
+              <textarea rows="3" onchange="updateProfileKey('${key}', 'diagnosis', this.value)" required>${escapeHtml(p.diagnosis)}</textarea>
+            </div>
+            <div class="form-group">
+              <label>The Ceiling</label>
+              <textarea rows="3" onchange="updateProfileKey('${key}', 'ceiling', this.value)" required>${escapeHtml(p.ceiling)}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Core Pattern (shown in italics)</label>
+              <input type="text" value="${escapeHtml(p.pattern)}" onchange="updateProfileKey('${key}', 'pattern', this.value)" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>The Cost</label>
+                <textarea rows="2" onchange="updateProfileKey('${key}', 'cost', this.value)">${escapeHtml(p.cost)}</textarea>
               </div>
               <div class="form-group">
-                <label>CTA URL</label>
-                <input type="text" value="${escapeHtml(p.cta_url)}" onchange="updateProfile(${pIndex}, 'cta_url', this.value)" />
+                <label>The Shift</label>
+                <textarea rows="2" onchange="updateProfileKey('${key}', 'shift', this.value)">${escapeHtml(p.shift)}</textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Development Step 1</label>
+              <textarea rows="2" onchange="updateProfileStep('${key}', 0, this.value)">${escapeHtml(steps[0])}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Development Step 2</label>
+              <textarea rows="2" onchange="updateProfileStep('${key}', 1, this.value)">${escapeHtml(steps[1])}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Development Step 3</label>
+              <textarea rows="2" onchange="updateProfileStep('${key}', 2, this.value)">${escapeHtml(steps[2])}</textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CTA Text (optional)</label>
+                <input type="text" value="${escapeHtml(p.cta_text || '')}" placeholder="Schedule an Alignment Call" onchange="updateProfileKey('${key}', 'cta_text', this.value)" />
+              </div>
+              <div class="form-group">
+                <label>CTA URL (optional)</label>
+                <input type="text" value="${escapeHtml(p.cta_url || '')}" placeholder="https://calendly.com/..." onchange="updateProfileKey('${key}', 'cta_url', this.value)" />
               </div>
             </div>
           </div>
@@ -203,8 +228,19 @@
       assessmentData.questions[qIndex].options[oIndex].text = val;
     }
 
-    function updateProfile(pIndex, field, val) {
-      assessmentData.profiles[pIndex][field] = val;
+    // Update a scalar field on a result profile
+    function updateProfileKey(key, field, val) {
+      if (!assessmentData.results[key]) assessmentData.results[key] = {};
+      assessmentData.results[key][field] = val;
+    }
+
+    // Update an individual step inside a profile's steps array
+    function updateProfileStep(key, stepIndex, val) {
+      if (!assessmentData.results[key]) assessmentData.results[key] = {};
+      if (!Array.isArray(assessmentData.results[key].steps)) {
+        assessmentData.results[key].steps = ['', '', ''];
+      }
+      assessmentData.results[key].steps[stepIndex] = val;
     }
 
     function escapeHtml(str) {
@@ -225,7 +261,10 @@
       try {
         const res = await adminFetch('/api/admin/settings?resource=identity-ceiling', {
           method: 'PUT',
-          body: JSON.stringify(assessmentData)
+          body: JSON.stringify({
+            questions: assessmentData.questions,
+            results: assessmentData.results
+          })
         });
         if (!res.ok) {
           const err = await res.json();

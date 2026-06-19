@@ -275,7 +275,7 @@
             const email = document.getElementById('lead-email').value.trim();
             const errorEl = document.getElementById('intro-error');
             
-            const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!name || !emailRegex.test(email)) {
                 errorEl.style.display = 'block';
                 return;
@@ -406,7 +406,7 @@
 
             // Success
             clearProgress();
-            renderResult(data.result);
+            renderResult(data.center, data.result);
 
         } catch (err) {
             console.error(err);
@@ -417,42 +417,51 @@
 
     // ── Result Rendering ────────────────────────────────────────
 
-    function renderResult(resultData) {
+    // ceilingKey: e.g. 'achiever'  |  profile: the full profile object returned by the API
+    function renderResult(ceilingKey, profile) {
         stepsContainer.style.display = 'none';
         progressWrapper.style.display = 'none';
-        
-        const ceilingKey = resultData.center;
-        const profile = RESULT_PROFILES[ceilingKey];
-        
-        if (!profile) {
-            alert('Error loading result profile.');
+
+        if (!profile || !profile.diagnosis) {
+            alert('There was a problem loading your result. Please try again.');
+            loadingOverlay.classList.remove('active');
             return;
         }
 
-        document.getElementById('res-title').textContent = `The ${capitalize(ceilingKey)} Ceiling`;
+        // Title uses the rich label stored in the DB (e.g. "The Achiever's Ceiling")
+        document.getElementById('res-title').textContent = profile.label || `The ${capitalize(ceilingKey)} Ceiling`;
         document.getElementById('res-diagnosis').textContent = profile.diagnosis;
         document.getElementById('res-ceiling').textContent = profile.ceiling;
-        
+
+        // Pattern, Cost, Shift
+        const patternEl = document.getElementById('res-pattern');
+        const costEl = document.getElementById('res-cost');
+        const shiftEl = document.getElementById('res-shift');
+        if (patternEl) patternEl.textContent = profile.pattern ? `"${profile.pattern}"` : '';
+        if (costEl) costEl.textContent = profile.cost || '';
+        if (shiftEl) shiftEl.textContent = profile.shift || '';
+
+        // Development guide — API uses 'steps' array
         const guideList = document.getElementById('res-guide');
         guideList.innerHTML = '';
-        if (Array.isArray(profile.guide)) {
-            profile.guide.forEach(step => {
-                const li = document.createElement('li');
-                li.textContent = step;
-                guideList.appendChild(li);
-            });
-        }
-        
+        const steps = Array.isArray(profile.steps) ? profile.steps : [];
+        steps.forEach((step, idx) => {
+            const li = document.createElement('li');
+            li.textContent = step;
+            guideList.appendChild(li);
+        });
+
+        // CTA — fall back to a sensible default
         document.getElementById('res-cta-text').textContent = profile.cta_text || 'Schedule an Alignment Call';
-        document.getElementById('res-cta-url').href = profile.cta_url || '#';
+        document.getElementById('res-cta-url').href = profile.cta_url || 'https://journeycoach.co/contact.html';
 
         resultView.classList.add('active');
         loadingOverlay.classList.remove('active');
-        
+
         const offsetTop = container.getBoundingClientRect().top + window.scrollY - 100;
         window.scrollTo({ top: offsetTop, behavior: 'smooth' });
     }
-    
+
     function capitalize(str) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
