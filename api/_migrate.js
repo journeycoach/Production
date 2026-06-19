@@ -473,5 +473,211 @@ export async function runMigrations() {
     console.error('assessment copy correction error:', copyErr);
   }
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS identity_ceiling_config (
+      setting_key   TEXT PRIMARY KEY,
+      setting_value JSONB,
+      updated_at    TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  const identityCeilingQuestions = [
+    {
+      id: "q1",
+      title: "When a high-stakes project starts to fall behind, what is happening inside you before you say or do anything?",
+      options: [
+        { text: "My first feeling is urgency — a strong pull to roll up my sleeves and personally drive the result forward.", ceiling: "achiever" },
+        { text: "My first feeling is a need to understand — I want to diagnose what went wrong and find the right answer before we move.", ceiling: "expert" },
+        { text: "My first feeling is relational tension — I'm scanning the team for stress and wondering how everyone is holding up before I address the problem.", ceiling: "harmony" }
+      ]
+    },
+    {
+      id: "q2",
+      title: "When your team is stuck and the energy in the room is flat, what internal pull motivates you to step in?",
+      options: [
+        { text: "A strong sense of responsibility — I feel the need to tighten things up, ensure quality, and prevent the situation from getting worse.", ceiling: "control" },
+        { text: "Genuine excitement — I see an opportunity to reframe the problem and inject fresh energy and possibility into the conversation.", ceiling: "visionary" },
+        { text: "A pull toward whoever is struggling the most — I feel compelled to step alongside them and relieve some of the pressure.", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q3",
+      title: "When you imagine moving into a larger leadership role with a broader scope, what is the quiet discomfort that surfaces?",
+      options: [
+        { text: "The fear that my individual contribution will become invisible — I'll be measured by what others produce, not by what I personally drive.", ceiling: "achiever" },
+        { text: "The fear that I'll be responsible for outcomes I can't personally oversee, and something critical will fall through the cracks.", ceiling: "control" },
+        { text: "The fear that I'll be locked into execution and routine, leaving me unable to innovate, explore possibilities, or lead new initiatives.", ceiling: "visionary" }
+      ]
+    },
+    {
+      id: "q4",
+      title: "When you hand a challenging assignment to a team member, what is the most uncomfortable part of that moment?",
+      options: [
+        { text: "Trusting them to navigate the complexity without my guidance — I worry they won't reach the right conclusion on their own.", ceiling: "expert" },
+        { text: "Knowing that if they struggle, I'll eventually need to have a hard, direct conversation about their performance or accountability.", ceiling: "harmony" },
+        { text: "Watching them sit with the difficulty and pressure, knowing I could step in and ease their burden right now.", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q5",
+      title: "If a trusted colleague who both respects and challenges you were to name the one pattern quietly limiting your leadership, which would they most likely choose?",
+      options: [
+        { text: "\"You are the engine of this team — but your personal pace and drive has become the team's ceiling. They can't grow beyond your output.\"", ceiling: "achiever" },
+        { text: "\"You consistently have the best answers — but people have stopped developing their own judgment because they just wait for yours.\"", ceiling: "expert" },
+        { text: "\"Your standards are exceptional — but people execute your instructions without truly owning the outcome.\"", ceiling: "control" }
+      ]
+    },
+    {
+      id: "q6",
+      title: "During a difficult organizational transition, what would an outside observer most likely notice about your default behavior?",
+      options: [
+        { text: "\"They consistently prioritize emotional safety. Hard truths get softened and decisions get delayed to protect the harmony in the room.\"", ceiling: "harmony" },
+        { text: "\"They get energized by the disruption. They start generating new ideas and directions before the current ones are stabilized.\"", ceiling: "visionary" },
+        { text: "\"They become the team's emotional shock absorber. They are constantly available and quietly take on everyone else's stress.\"", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q7",
+      title: "A team member who truly understands your leadership style would say that when you are under real pressure, you tend to:",
+      options: [
+        { text: "Increase your own output and urgency — setting a pace that can be hard for the team to match or sustain.", ceiling: "achiever" },
+        { text: "Keep the surface of the team calm — even when important tensions need to be named and worked through.", ceiling: "harmony" },
+        { text: "Step in before people have the chance to solve it themselves — which feels like support but removes the growth moment.", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q8",
+      title: "In a high-level leadership conversation, what role would the people around the table say you most naturally play?",
+      options: [
+        { text: "The analyst — you bring rigor, depth, and the most well-researched perspective, and you can tell when the reasoning doesn't hold up.", ceiling: "expert" },
+        { text: "The standard-bearer — you identify what could go wrong, push for quality and follow-through, and hold people to their commitments.", ceiling: "control" },
+        { text: "The catalyst — you see possibilities others miss, generate energy around new directions, and challenge the group to think bigger.", ceiling: "visionary" }
+      ]
+    },
+    {
+      id: "q9",
+      title: "When you feel most confident and secure in your leadership, what is usually true?",
+      options: [
+        { text: "I have been visibly productive — I can point to concrete things I personally moved forward.", ceiling: "achiever" },
+        { text: "I am the most prepared and knowledgeable person at the table — I've done the work to fully understand the problem.", ceiling: "expert" },
+        { text: "The room feels settled — people are connected, aligned, and there is no unresolved tension or conflict beneath the surface.", ceiling: "harmony" }
+      ]
+    },
+    {
+      id: "q10",
+      title: "Which of these candid observations would be the most personally challenging for you to hear — and also most likely to be true?",
+      options: [
+        { text: "\"You define not just what needs to be done, but exactly how it needs to be done. The team performs, but they don't grow.\"", ceiling: "control" },
+        { text: "\"Your new ideas energize the team, but they are quietly exhausted from never fully finishing what they started.\"", ceiling: "visionary" },
+        { text: "\"You are generous and available, but your team hasn't built the resilience to solve hard problems without you.\"", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "tie-breaker",
+      title: "If you had to identify your deepest subconscious fear as a leader — the one that quietly drives more of your behavior than you would like to admit — which resonates most?",
+      options: [
+        { text: "Slowing down, losing momentum, and becoming someone who doesn't visibly produce results.", ceiling: "achiever" },
+        { text: "Not having the answer, appearing unprepared, or being seen as less competent than others expect.", ceiling: "expert" },
+        { text: "Being the source of conflict, making someone feel hurt, or damaging a relationship that matters to you.", ceiling: "harmony" },
+        { text: "Losing oversight of something important and having it fail under your watch.", ceiling: "control" },
+        { text: "Being constrained by routine, forced into execution mode, and losing the freedom to explore what is possible.", ceiling: "visionary" },
+        { text: "Becoming unnecessary — the team no longer needing you — and losing your sense of purpose and contribution.", ceiling: "rescuer" }
+      ]
+    }
+  ];
+
+  const identityCeilingResults = {
+    achiever: {
+      label: "The Achiever's Ceiling",
+      diagnosis: "You built your leadership identity around results, delivery, execution, and being the person who gets things done. People trust you because you are dependable, productive, and willing to push through to ensure the finish line is crossed.",
+      ceiling: "The ceiling appears when the next level of leadership requires less personal output and more alignment, vision, and shared ownership. You keep increasing your own effort, but the work has changed. The organization no longer needs you to simply \"do more.\" It needs you to grow by harnessing the horsepower of others so that you can help the entire organization scale.",
+      pattern: "I prove my value by producing.",
+      cost: "Your team may admire your drive, but they stay dependent on your pace.",
+      shift: "Move from personal output to collective alignment.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious need to prove your value by constantly pushing for forward momentum.",
+        "Pause the instinct: Instead of diving in and taking over the work, take a breath.",
+        "Take a new action: Ask yourself: \"How can I align the team to solve this instead of just solving it for them?\""
+      ]
+    },
+    expert: {
+      label: "The Expert's Ceiling",
+      diagnosis: "You became credible because you knew your craft. You saw patterns, solved problems, gave strong answers, and earned trust through your deep competence. People came to you because you understood things at a level others didn't.",
+      ceiling: "The ceiling appears when senior leadership requires influence across domains where you are no longer the expert. If you keep needing to be the smartest or most prepared person in the room, you unintentionally narrow the conversation. The organization no longer needs you to have all the answers. It needs you to grow by elevating the thinking of others so that you can help the organization solve increasingly complex problems.",
+      pattern: "I prove my value by knowing.",
+      cost: "Others may defer to your judgment instead of developing their own.",
+      shift: "Move from giving the best answer to asking the best question.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious need to feel secure by demonstrating superior knowledge.",
+        "Pause the instinct: Instead of immediately providing the perfect solution, take a breath.",
+        "Take a new action: Ask yourself: \"What question can I ask right now that will help the team uncover the answer for themselves?\""
+      ]
+    },
+    harmony: {
+      label: "The Harmony Ceiling",
+      diagnosis: "You built trust by being steady, relationally aware, and able to keep people connected. You notice the tone, tension, morale, and the emotional weather in the room. People often experience you as thoughtful, safe, and deeply considerate.",
+      ceiling: "The ceiling appears when preserving comfort starts replacing telling the truth. Hard decisions get softened, delayed, or over-explained. Conflict avoidance compounds quietly, and the team pays for clarity you have not yet named. The organization no longer needs you to just keep the peace. It needs you to grow by leaning into productive friction so that you can build authentic trust and clarity.",
+      pattern: "I protect value by keeping the peace.",
+      cost: "People may feel cared for, but high performers will eventually grow frustrated by the lack of accountability.",
+      shift: "Choose clarity over comfort.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious need to prevent relational tension at the expense of the truth.",
+        "Pause the instinct: Instead of softening the message or over-explaining the decision, take a breath.",
+        "Take a new action: Ask yourself: \"What is the kindest, clearest truth I need to name in this room right now?\""
+      ]
+    },
+    control: {
+      label: "The Control Ceiling",
+      diagnosis: "You built your reputation by owning important outcomes and making sure things were done well. Your standards are exceptionally high. You see what can go wrong, and you know how much quality, timing, and follow-through actually matter.",
+      ceiling: "The ceiling appears when your span of responsibility exceeds what one person can personally oversee. Delegation feels risky, so you stay too close. You may call it excellence, responsibility, or quality control, but the result is the same: the team cannot grow beyond your grip. The organization no longer needs you to oversee every detail. It needs you to grow by empowering others to lead the process so that you can help scale beyond your personal capacity.",
+      pattern: "I protect value by staying involved.",
+      cost: "Others may comply with your instructions without truly owning the outcome.",
+      shift: "Move from dictating the process to defining the outcome.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious need to ensure flawless execution by managing the details.",
+        "Pause the instinct: Instead of jumping in to dictate exactly *how* the work should be done, take a breath.",
+        "Take a new action: Ask yourself: \"Have I clearly defined what success looks like here, and can I step back to let them figure out how to achieve it?\""
+      ]
+    },
+    visionary: {
+      label: "The Visionary's Ceiling",
+      diagnosis: "You built trust by seeing the future, casting a compelling vision, and spotting opportunities others missed. People are drawn to your energy, your ability to innovate, and your unique talent for getting things started. You are a natural catalyst who thrives on possibility.",
+      ceiling: "The ceiling appears when the organization needs operational depth, focus, and follow-through more than it needs another pivot. If your default response to feeling constrained or bored is to introduce a new initiative, you unintentionally create chaos. The organization no longer needs another immediate pivot. It needs you to grow by protecting the team's focus so that you can turn your big ideas into actualized results.",
+      pattern: "I prove my value by inventing what is next.",
+      cost: "Your team may feel constantly inspired, but quietly exhausted by initiative fatigue.",
+      shift: "Move from launching the next idea to protecting the focus on the current one.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious urge to introduce a new idea because the current work feels too routine.",
+        "Pause the instinct: Instead of immediately sharing the new possibility with the team, take a breath.",
+        "Take a new action: Ask yourself: \"What is the most important thing we are executing right now, and how can my energy help the team stay fiercely focused on it?\""
+      ]
+    },
+    rescuer: {
+      label: "The Rescuer's Ceiling",
+      diagnosis: "You built trust by being helpful, available, protective, and willing to carry pressure for others. People experience you as deeply supportive and dependable. You often see what someone needs before they even ask, and stepping in feels like care, responsibility, or leadership to you.",
+      ceiling: "The ceiling appears when your help prevents others from developing ownership, resilience, or capacity. You absorb tension that actually belongs elsewhere. You solve problems too quickly and relieve pressure that might have actually grown someone. The organization no longer needs you to carry the weight for everyone. It needs you to grow by allowing others to navigate their own challenges so that you can build a self-sufficient team.",
+      pattern: "I prove my value by being needed.",
+      cost: "Others feel cared for, but lack the muscle to solve their own problems.",
+      shift: "Stop carrying what others need to strengthen.",
+      steps: [
+        "Notice the trigger: Catch yourself the next time you feel the subconscious need to feel valued by making yourself indispensable to a struggling team member.",
+        "Pause the instinct: Instead of jumping in to fix the problem or carry the pressure, take a breath.",
+        "Take a new action: Ask yourself: \"Is my 'help' right now actually preventing this person from building the resilience and ownership they need?\""
+      ]
+    }
+  };
+
+  await sql`
+    INSERT INTO identity_ceiling_config (setting_key, setting_value, updated_at)
+    VALUES ('questions', ${JSON.stringify(identityCeilingQuestions)}::jsonb, NOW())
+    ON CONFLICT (setting_key) DO NOTHING
+  `;
+
+  await sql`
+    INSERT INTO identity_ceiling_config (setting_key, setting_value, updated_at)
+    VALUES ('results', ${JSON.stringify(identityCeilingResults)}::jsonb, NOW())
+    ON CONFLICT (setting_key) DO NOTHING
+  `;
+
   migrated = true;
 }

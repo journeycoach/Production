@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
+    <script src="js/gtm.js" defer></script>
+    <title>The Identity Hidden Ceiling | Your Journey Coach</title>
+    <meta name="description"
+        content="Discover the unconscious patterns limiting your leadership impact. Take the Identity Hidden Ceiling assessment.">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Identity Hidden Ceiling | Your Journey Coach">
+    <meta property="og:description"
+        content="Discover the unconscious patterns limiting your leadership impact. Take this short assessment to discover yours.">
+    <meta property="og:image" content="https://journeycoach.co/assets/images/about_john.jpg">
+    <meta property="og:url" content="https://journeycoach.co/Identity-Ceiling.html">
+    <link rel="canonical" href="https://journeycoach.co/Identity-Ceiling.html">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Third-Party Preconnects -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css?v=11">
+    <link rel="stylesheet" href="css/style.css?v=11">
+    <link rel="stylesheet" href="css/responsive.css?v=11">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/favicon.png">
+
+    <style>
+        /* ── Page Header ──────────────────────────────────────────── */
+        .hc-header {
+            padding-top: 110px;
+            padding-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hc-header h1 {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            margin-bottom: 1.25rem;
+            line-height: 1.15;
+        }
+
+        .hc-header p {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+            max-width: 620px;
+            margin: 0 auto 2rem auto;
+            line-height: 1.75;
+        }
+
+        .hc-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .hc-divider::before,
+        .hc-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(201, 169, 110, 0.4), transparent);
+        }
+
+        .hc-divider span {
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent-gold);
+            transform: rotate(45deg);
+            display: block;
+            flex-shrink: 0;
+        }
+
+        /* ── Form section + left-column layout ───────────────────── */
+        .hc-form-section {
+            padding: 2rem 0 5rem;
+            background: var(--color-bg-primary);
+        }
+
+        .hc-layout {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        /* ── Left column: heading + cards + trust ─────────────────── */
+        .hc-left-col {
+            position: sticky;
+            top: 90px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .hc-left-heading {
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .hc-left-heading .eyebrow {
+            display: block;
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--color-accent-gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .hc-left-heading h1 {
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            line-height: 1.15;
+            margin-bottom: 0.9rem;
+        }
+
+        .hc-left-heading p {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ── "What You'll Uncover" cards in left col ──────────────── */
+        .hc-uncover-label {
+            font-size: 0.68rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--color-accent-gold);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .hc-cards-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .hc-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .hc-card:hover {
+            border-color: rgba(201, 169, 110, 0.25);
+        }
+
+        .hc-card-icon {
+            width: 28px;
+            height: 28px;
+            fill: var(--color-accent-gold);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .hc-card-body h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            color: var(--color-text-primary);
+            font-family: var(--font-body);
+            font-weight: 600;
+        }
+
+        .hc-card-body p {
+            font-size: 0.82rem;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* ── Assessment Container ────────────────────────────────── */
+        .assessment-container {
+            background: var(--color-bg-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            min-height: 480px;
+        }
+
+        /* Progress Bar */
+        .progress-wrapper {
+            margin-bottom: 2rem;
+            display: none; /* hidden on intro step */
+        }
+        .progress-bar-bg {
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            position: absolute;
+            top: 0; left: 0; height: 100%;
+            background: var(--color-accent-gold);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        .progress-text {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            text-align: right;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+            animation: fadeInStep 0.4s ease forwards;
+        }
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeInStep {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        .step-eyebrow {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--color-accent-gold);
+            margin-bottom: 1rem;
+        }
+        .step-title {
+            font-family: var(--font-heading);
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            line-height: 1.25;
+            margin-bottom: 1.5rem;
+            color: var(--color-text-primary);
+        }
+        .step-copy {
+            font-size: 1.05rem;
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Lead Capture Form */
+        .lead-capture-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-width: 480px;
+        }
+        .form-group {
+            position: relative;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: var(--color-text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--color-accent-gold);
+        }
+        .form-group input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* Options */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-label:hover {
+            border-color: rgba(201,169,110,0.4);
+            background: rgba(201,169,110,0.03);
+        }
+        .option-label input[type="radio"] {
+            margin-right: 1.25rem;
+            accent-color: var(--color-accent-gold);
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .option-text {
+            font-size: 1.05rem;
+            color: var(--color-text-primary);
+            line-height: 1.5;
+        }
+
+        /* Selected State */
+        .option-label.selected {
+            border-color: var(--color-accent-gold);
+            background: rgba(201,169,110,0.05);
+        }
+
+        /* Navigation Buttons */
+        .step-navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 2rem;
+        }
+
+        .btn-prev {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--color-text-secondary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .btn-prev:hover:not(:disabled) {
+            border-color: rgba(255,255,255,0.3);
+            color: var(--color-text-primary);
+        }
+        .btn-prev:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-next,
+        .btn-submit {
+            background: var(--color-accent-gold);
+            color: #000;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .btn-next:hover,
+        .btn-submit:hover {
+            background: #d4b57e;
+        }
+        .btn-next:disabled,
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result View */
+        #result-view {
+            text-align: left;
+            padding-top: 1rem;
+        }
+        .result-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .result-header .eyebrow {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--color-accent-gold);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .result-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+        }
+
+        .result-card {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        .result-card h3 {
+            color: var(--color-accent-gold);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .result-card p {
+            font-size: 1.05rem;
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        .result-card p:last-child {
+            margin-bottom: 0;
+        }
+        .result-guide {
+            margin-top: 2rem;
+        }
+        .result-guide ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .result-guide li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 1rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        .result-guide li::before {
+            content: '•';
+            color: var(--color-accent-gold);
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+            line-height: 1.2;
+        }
+        .result-cta {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Error States */
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Loading Spinner Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border-radius: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(201,169,110,0.2);
+            border-top-color: var(--color-accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 900px) {
+            .hc-layout {
+                grid-template-columns: 1fr;
+            }
+            .hc-left-col {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .assessment-container {
+                padding: 2rem 1.5rem;
+            }
+            .step-navigation {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+            .btn-next, .btn-submit, .btn-prev {
+                width: 100%;
+            }
+            .result-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Your Journey Coach Logo">
+            </a>
+            <button class="mobile-menu-toggle" aria-label="Toggle Menu">
+                <span></span><span></span><span></span>
+            </button>
+            <nav class="main-nav">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="insights.html">Insights</a>
+                <a href="speaking.html">Speaking</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Title Banner -->
+        <section class="hc-header">
+            <div class="hc-divider" style="margin-bottom: 2rem;">
+                <span></span>
+            </div>
+            <h1>The Identity Hidden Ceiling</h1>
+            <p>Every leader has an unconscious pattern that limits their impact under pressure. Take this short assessment to discover yours.</p>
+        </section>
+
+        <!-- Layout Section -->
+        <section class="hc-form-section">
+            <div class="hc-layout">
+                
+                <!-- Left Column: Context -->
+                <div class="hc-left-col">
+                    <div class="hc-left-heading">
+                        <span class="eyebrow">The Assessment</span>
+                        <h1>Uncover the Pattern You Can’t See</h1>
+                        <p>Most leadership tools measure your personality or your skills. The Identity Hidden Ceiling reveals how you unconsciously protect yourself when the stakes are high—and how that protection becomes your greatest limitation.</p>
+                    </div>
+
+                    <div>
+                        <span class="hc-uncover-label">What You'll Uncover</span>
+                        <div class="hc-cards-stack">
+                            <div class="hc-card">
+                                <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <div class="hc-card-body">
+                                    <h3>Your Core Driver</h3>
+                                    <p>Understand the unconscious motivation running your leadership engine.</p>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M2 12h4l3-9 5 18 3-9h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <div class="hc-card-body">
+                                    <h3>Your Hidden Ceiling</h3>
+                                    <p>See exactly how that same driver becomes a liability when pressure hits.</p>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <svg class="hc-card-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <div class="hc-card-body">
+                                    <h3>Your Next Breakthrough</h3>
+                                    <p>Get an immediate, practical framework to begin raising your ceiling.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Assessment Form -->
+                <div class="assessment-container" id="assessment-container">
+                    
+                    <div class="progress-wrapper" id="progress-wrapper">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">Question 1 of 10</div>
+                    </div>
+
+                    <!-- Steps will be injected here via JS -->
+                    <div id="steps-container"></div>
+
+                    <!-- Result View (Hidden initially) -->
+                    <div id="result-view" class="step">
+                        <div class="result-header">
+                            <span class="eyebrow">Your Result</span>
+                            <h2 id="res-title">...</h2>
+                        </div>
+
+                        <div class="result-card">
+                            <h3>The Diagnosis</h3>
+                            <p id="res-diagnosis">...</p>
+                        </div>
+
+                        <div class="result-card">
+                            <h3>The Ceiling</h3>
+                            <p id="res-ceiling">...</p>
+                        </div>
+                        
+                        <div class="result-card result-guide">
+                            <h3>Development Guide</h3>
+                            <ul id="res-guide">
+                                <!-- Steps injected via JS -->
+                            </ul>
+                        </div>
+
+                        <div class="result-cta">
+                            <h3 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 1rem;">Ready to break through?</h3>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">Discover how this ceiling is showing up in your organization and get a customized roadmap for alignment.</p>
+                            <a id="res-cta-url" href="#" target="_blank" class="btn-primary" style="display:inline-flex; align-items:center; justify-content:center;">
+                                <span id="res-cta-text">Schedule an Alignment Call</span>
+                                <svg style="width:18px;height:18px;margin-left:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Loading Overlay -->
+                    <div class="loading-overlay" id="loading-overlay">
+                        <div class="spinner"></div>
+                        <p style="color: #fff; font-size: 0.95rem;">Analyzing responses...</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="assets/images/logo.png" alt="Your Journey Coach Logo" class="footer-logo">
+                <p>Equipping leaders to build aligned, high-trust organizations.</p>
+            </div>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="insights.html">Insights</a>
+                <a href="contact.html">Contact</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> Your Journey Coach. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Turnstile CAPTCHA API -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="js/main.js"></script>
+    <script src="js/identity-ceiling.js"></script>
+</body>
+</html>
