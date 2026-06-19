@@ -331,7 +331,6 @@
         // but keep a public fallback so the results CTA always works.
         try {
             let calendlyUrl = sessionStorage.getItem('hc_calendly_url') || FALLBACK_CALENDLY_URL;
-            if (/journeycoach\.co\/contact\.html?$/i.test(calendlyUrl)) calendlyUrl = FALLBACK_CALENDLY_URL;
             if (calendlyUrl) {
                 const email = sessionStorage.getItem('hc_result_email') || '';
                 

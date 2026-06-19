@@ -480,10 +480,8 @@
 
         document.getElementById('res-cta-text').textContent =
             profile.cta_text || 'Schedule an Alignment Call';
-        const ctaUrl = profile.cta_url && !/journeycoach\.co\/contact\.html?$/i.test(profile.cta_url)
-            ? profile.cta_url
-            : FALLBACK_CALENDLY_URL;
-        document.getElementById('res-cta-url').href = ctaUrl;
+        document.getElementById('res-cta-url').href =
+            profile.cta_url || FALLBACK_CALENDLY_URL;
 
         resultView.classList.add('active');
         loadingOverlay.classList.remove('active');
