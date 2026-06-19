@@ -3,6 +3,7 @@
     let RESULT_PROFILES = {};
     let configLoaded = false;
     const IDENTITY_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
+    const FALLBACK_CALENDLY_URL = 'https://calendly.com/johnpaine/alignment-call';
 
     // Default fallback (in case API fails — only intro, shows error)
     const DEFAULT_STEPS = [
@@ -479,8 +480,10 @@
 
         document.getElementById('res-cta-text').textContent =
             profile.cta_text || 'Schedule an Alignment Call';
-        document.getElementById('res-cta-url').href =
-            profile.cta_url || 'https://journeycoach.co/contact.html';
+        const ctaUrl = profile.cta_url && !/journeycoach\.co\/contact\.html?$/i.test(profile.cta_url)
+            ? profile.cta_url
+            : FALLBACK_CALENDLY_URL;
+        document.getElementById('res-cta-url').href = ctaUrl;
 
         resultView.classList.add('active');
         loadingOverlay.classList.remove('active');

@@ -2,6 +2,8 @@ import { sql } from './_db.js';
 import { runMigrations } from './_migrate.js';
 import { Resend } from 'resend';
 
+const FALLBACK_CALENDLY_URL = 'https://calendly.com/johnpaine/alignment-call';
+
 // Helper: verify Cloudflare Turnstile CAPTCHA
 async function verifyCaptcha(token) {
   if (!token) return false;
@@ -83,7 +85,7 @@ function buildResultEmail(name, profile, winningCeiling) {
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p>If you would like to explore what your results mean for your specific situation, I would be glad to have a conversation.</p>
   <p style="margin-top:1.5rem;">
-    <a href="${process.env.CALENDLY_URL || 'https://journeycoach.co/contact.html'}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Schedule an Alignment Call →</a>
+    <a href="${process.env.CALENDLY_URL || FALLBACK_CALENDLY_URL}" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Schedule an Alignment Call →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>

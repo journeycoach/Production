@@ -2374,8 +2374,7 @@
           const identityScore = identityScores ? (Number(identityScores[r.result_center]) || 0) : 0;
           const identityPercent = identityTotal > 0 ? Math.round((identityScore / identityTotal) * 100) : null;
           const resultDetail = isIdentityCeiling
-            ? `<span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Identity Ceiling Assessment</span>
-               <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.1rem;line-height:1.35;">${identityPercent == null ? 'Score not recorded' : `${identityPercent}% match · ${identityScore}/${identityTotal}`}</span>`
+            ? `<span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.35rem;line-height:1.35;">${identityPercent == null ? 'Score not recorded' : `${identityPercent}% match · ${identityScore}/${identityTotal}`}</span>`
             : `<span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>`;
           resultCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
             <span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>
