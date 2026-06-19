@@ -21,7 +21,7 @@
                 'Use the guide to spot the situations where connection quietly turns into self-protection.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Connection-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Connection-Oriented Leader'
         },
         head: {
             centerLabel: 'Head Center',
@@ -35,7 +35,7 @@
                 'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Thinking-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Thinking-Oriented Leader'
         },
         action: {
             centerLabel: 'Action Center',
@@ -49,7 +49,7 @@
                 'Use the guide to spot where force and clarity are getting conflated inside your leadership.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Action-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Action-Oriented Leader'
         },
         head_heart: {
             centerLabel: 'Head + Heart Blend',
@@ -63,7 +63,7 @@
                 'Use the guide to see where thinking and connection can work together without slowing your leadership.'
             ],
             guideUrl: BLENDED_HEAD_HEART_GUIDE_URL,
-            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Heart Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Head-Heart Leader'
         },
         head_action: {
             centerLabel: 'Head + Action Blend',
@@ -77,7 +77,7 @@
                 'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.'
             ],
             guideUrl: BLENDED_HEAD_ACTION_GUIDE_URL,
-            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Action Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Head-Action Leader'
         },
         heart_action: {
             centerLabel: 'Heart + Action Blend',
@@ -91,7 +91,7 @@
                 'Use the guide to see where connection and action can reinforce each other instead of pulling your leadership in two directions.'
             ],
             guideUrl: BLENDED_HEART_ACTION_GUIDE_URL,
-            guideLabel: 'Hidden Ceiling Guide for the Blended Heart-Action Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Heart-Action Leader'
         }
     };
 
@@ -201,16 +201,25 @@
             ? `${resultScore} of ${total} responses matched the centers in your blended result.`
             : `${resultScore} of ${total} responses matched your primary result center.`;
 
-        // Confidence badge: computed from score spread
-        const isBlended = center.includes('_');
-        function confidenceBadge() {
-            if (isBlended) return '';
+        function getConfidence() {
             const sorted = [sh, sd, sa].sort((a, b) => b - a);
             const gap = sorted[0] - sorted[1];
-            if (sorted[0] >= 6)  return `<span class="confidence-badge strong">● Strong match</span>`;
-            if (gap >= 2)        return `<span class="confidence-badge clear">◆ Clear match</span>`;
-            return `<span class="confidence-badge moderate">◉ Moderate match — a coaching call can add clarity</span>`;
+            if (resultKeys.length > 1) {
+                const selectedScores = resultKeys.map(key => scoreValues[key] || 0);
+                const outsideScores = Object.entries(scoreValues)
+                    .filter(([key]) => !resultKeys.includes(key))
+                    .map(([, value]) => value);
+                const outsideMax = outsideScores.length ? Math.max(...outsideScores) : 0;
+                const blendGap = Math.min(...selectedScores) - outsideMax;
+                if (resultPercent >= 70 && blendGap >= 2) return { label: 'High confidence', className: 'strong' };
+                if (resultPercent >= 60 && blendGap >= 0) return { label: 'Clear confidence', className: 'clear' };
+                return { label: 'Moderate confidence', className: 'moderate' };
+            }
+            if (resultPercent >= 60 && gap >= 3) return { label: 'High confidence', className: 'strong' };
+            if (resultPercent >= 50 && gap >= 2) return { label: 'Clear confidence', className: 'clear' };
+            return { label: 'Moderate confidence', className: 'moderate' };
         }
+        const confidence = getConfidence();
 
         // Strip the email-sent flag from shared URLs — it's only meaningful
         // for the original submitter and would show a confusing message to anyone
@@ -218,7 +227,7 @@
         const shareUrlObj = new URL(window.location.href);
         shareUrlObj.searchParams.delete('em');
         const pageUrl = encodeURIComponent(shareUrlObj.toString());
-        const shareText = encodeURIComponent(`I just took the Hidden Ceiling assessment by @journeycoach — ${meta.title}`);
+        const shareText = encodeURIComponent(`I just took the Leadership Center assessment by @journeycoach — ${meta.title}`);
 
         document.getElementById('results-content').innerHTML = `
             <p class="results-eyebrow">${escHtml(meta.centerLabel)} · ${escHtml(name)}'s Result</p>
@@ -231,15 +240,17 @@
                 Your guide${resultEmail ? ` is on its way to <strong>${escHtml(resultEmail)}</strong>` : ' has been sent'} — check your inbox.
             </p>` : ''}
 
-            ${confidenceBadge()}
             <div class="result-score-metric">
                 <div>
                     <div class="results-card-label">${resultScoreLabel}</div>
-                    <div class="result-score-value">${resultScore}<span>/${total || 0}</span></div>
+                    <div class="result-score-value-row">
+                        <div class="result-score-value">${resultPercent}<span>%</span></div>
+                        <span class="confidence-badge ${confidence.className}">${escHtml(confidence.label)}</span>
+                    </div>
                 </div>
                 <p class="result-score-detail">
-                    ${escHtml(resultScoreDetail)}
-                    <strong>${resultPercent}% alignment</strong> with ${escHtml(meta.centerLabel)}.
+                    <strong>${resultScore}/${total || 0}</strong> responses contributed to this result.
+                    ${escHtml(resultScoreDetail)} This indicates ${escHtml(confidence.label.toLowerCase())} in your ${escHtml(meta.centerLabel)} result.
                 </p>
             </div>
 

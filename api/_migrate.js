@@ -128,6 +128,7 @@ export async function runMigrations() {
       ADD COLUMN IF NOT EXISTS utm_term                  TEXT,
       ADD COLUMN IF NOT EXISTS utm_content               TEXT,
       ADD COLUMN IF NOT EXISTS attribution               JSONB DEFAULT '{}'::jsonb,
+      ADD COLUMN IF NOT EXISTS assessment_scores         JSONB DEFAULT '{}'::jsonb,
       ADD COLUMN IF NOT EXISTS email_status              TEXT,
       ADD COLUMN IF NOT EXISTS email_status_at           TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS lead_status               TEXT,

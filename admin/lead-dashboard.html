@@ -463,7 +463,7 @@
         <!-- Right column -->
         <div class="panel-stack">
           <div class="card">
-            <div class="card-title">Hidden Ceiling Results</div>
+            <div class="card-title">Leadership Center Results</div>
             <div id="resultBars"></div>
           </div>
 
@@ -938,7 +938,7 @@
 
       const stages = [
         { cls: 'fs-1', label: 'Subscribers',         sub: 'Opted in to your list',            count: subscribers.length,   denom: subscribers.length },
-        { cls: 'fs-2', label: 'Assessment Completed', sub: 'Took the Hidden Ceiling quiz',     count: assessed.length,      denom: subscribers.length },
+        { cls: 'fs-2', label: 'Assessment Completed', sub: 'Took the Leadership Center quiz',     count: assessed.length,      denom: subscribers.length },
         { cls: 'fs-3', label: 'Drip Sequence Active', sub: 'Engaged in email nurture',          count: engaged.length,       denom: assessed.length },
         { cls: 'fs-4', label: 'Deep Nurture',         sub: 'Reached drip step 5+',              count: deepNurture.length,   denom: engaged.length },
         { cls: 'fs-5', label: 'High-Intent Leads',    sub: 'Subscriber + contact form both',    count: crossChannel.length,  denom: subscribers.length },
@@ -998,7 +998,7 @@
         <div class="fi-card fi-info">
           <div class="fi-title">Assessment Conversion</div>
           <div class="fi-value">${assessConv}%</div>
-          <div class="fi-desc">${assessed.length} of ${subscribers.length} subscribers completed the Hidden Ceiling quiz.</div>
+          <div class="fi-desc">${assessed.length} of ${subscribers.length} subscribers completed the Leadership Center quiz.</div>
         </div>
         <div class="fi-card ${coldSubs > 0 ? 'fi-warn' : 'fi-good'}">
           <div class="fi-title">Cold Subscribers</div>

@@ -17,7 +17,7 @@
             { label: 'Blog',                     url: '/blog.html',           visible: true },
             { label: 'Tools & Resources',        url: '/tools.html',          visible: true },
             { label: 'The Enneagram',            url: '/enneagram.html',      visible: true },
-            { label: 'Hidden Ceiling Assessment',url: '/Hidden-Ceiling.html', visible: true }
+            { label: 'Leadership Center Assessment',url: '/Hidden-Ceiling.html', visible: true }
         ]
     };
 

@@ -177,12 +177,13 @@ export default async function handler(req, res) {
 
       // Persist lead in subscribers table
       await sql`
-        INSERT INTO subscribers (email, name, source, result_center)
-        VALUES (${normalizedEmail}, ${name.trim()}, 'identity-ceiling', ${winningCeiling})
+        INSERT INTO subscribers (email, name, source, result_center, assessment_scores)
+        VALUES (${normalizedEmail}, ${name.trim()}, 'identity-ceiling', ${winningCeiling}, ${JSON.stringify(scores)}::jsonb)
         ON CONFLICT (email) DO UPDATE SET
           name         = COALESCE(EXCLUDED.name, subscribers.name),
           source       = EXCLUDED.source,
-          result_center = EXCLUDED.result_center
+          result_center = EXCLUDED.result_center,
+          assessment_scores = EXCLUDED.assessment_scores
       `;
 
       // Fetch the full result profile from DB

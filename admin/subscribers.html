@@ -295,7 +295,7 @@
         <div class="dc-panel is-active" data-dc-panel="overview">
           <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-              <h2 style="font-size:1.1rem;margin:0;color:var(--admin-accent);">Hidden Ceiling Assessment</h2>
+              <h2 style="font-size:1.1rem;margin:0;color:var(--admin-accent);">Leadership Center Assessment</h2>
               <button class="btn btn-ghost btn-sm" onclick="openTestSendModal()">&#9993; Send Test</button>
             </div>
             <p style="font-size:0.9rem;color:var(--admin-text-muted);margin-bottom:2rem;">
@@ -326,7 +326,7 @@
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
               <label for="deCampaignSelect" style="font-weight:600;font-size:0.875rem;white-space:nowrap;">Campaign:</label>
               <select id="deCampaignSelect" class="form-control" style="max-width:280px;" onchange="deLoadSteps()">
-                <option value="hidden-ceiling">Hidden Ceiling</option>
+                <option value="hidden-ceiling">Leadership Center</option>
               </select>
               <button class="btn btn-primary btn-sm" onclick="deOpenAddStep()" style="margin-left:auto;">+ Add New Step</button>
             </div>
@@ -396,7 +396,7 @@
       <!-- ── Assessment Emails tab ───────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="assessment-emails">
         <div class="card">
-          <div class="card-title">Hidden Ceiling Result Emails</div>
+          <div class="card-title">Leadership Center Result Emails</div>
           <div class="guide-box" style="margin-bottom:20px;">
             <strong>About these emails</strong>
             Each email is sent immediately after a subscriber completes the assessment, personalised to their result center.
@@ -572,7 +572,7 @@
       <!-- ── Result Pages tab ──────────────────────────────────────── -->
       <div class="page-tab-panel" data-panel="results">
         <div class="card">
-          <div class="card-title">Hidden Ceiling Result Pages</div>
+          <div class="card-title">Leadership Center Result Pages</div>
           <div class="guide-box" style="margin-bottom:20px;">
             <strong>About these fields</strong>
             These control what the visitor sees on the page immediately after completing the assessment —
@@ -2259,14 +2259,6 @@
       visionary: "The Visionary's Ceiling",
       rescuer: "The Rescuer's Ceiling"
     };
-    const IDENTITY_CEILING_PATTERNS = {
-      achiever: 'I prove my value by producing.',
-      expert: 'I prove my value by knowing.',
-      harmony: 'I protect value by keeping the peace.',
-      control: 'I protect value by staying involved.',
-      visionary: 'I prove my value by inventing what is next.',
-      rescuer: 'I prove my value by being needed.'
-    };
     const IDENTITY_CEILING_COLORS = { achiever: '#c7a96b', expert: '#7b9eb8', harmony: '#b88775', control: '#8faa82', visionary: '#8b7bb8', rescuer: '#6d8fb5' };
     const FUNNEL_LABELS = { 'hidden-ceiling': 'Assessment', 'identity-ceiling': 'Identity Assessment', 'homepage': 'Free Guide', 'website': 'Free Guide', 'free-guide': 'Free Guide', 'contact': 'Contact Form' };
     const FUNNEL_COLORS = { 'hidden-ceiling': '#c7a96b', 'identity-ceiling': '#8b7bb8', 'homepage': '#7b9eb8', 'website': '#7b9eb8', 'free-guide': '#7b9eb8', 'contact': '#8faa82' };
@@ -2320,9 +2312,15 @@
           const color = isIdentityCeiling
             ? (IDENTITY_CEILING_COLORS[r.result_center] || '#8b7bb8')
             : (CENTER_COLORS[r.result_center] || '#c7a96b');
+          const identityScores = r.assessment_scores && typeof r.assessment_scores === 'object' ? r.assessment_scores : null;
+          const identityTotal = identityScores
+            ? Object.values(identityScores).reduce((sum, value) => sum + (Number(value) || 0), 0)
+            : 0;
+          const identityScore = identityScores ? (Number(identityScores[r.result_center]) || 0) : 0;
+          const identityPercent = identityTotal > 0 ? Math.round((identityScore / identityTotal) * 100) : null;
           const resultDetail = isIdentityCeiling
             ? `<span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">Identity Ceiling Assessment</span>
-               <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.1rem;max-width:220px;line-height:1.35;">${escHtml(IDENTITY_CEILING_PATTERNS[r.result_center] || 'Identity result')}</span>`
+               <span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.1rem;line-height:1.35;">${identityPercent == null ? 'Score not recorded' : `${identityPercent}% match · ${identityScore}/${identityTotal}`}</span>`
             : `<span style="font-size:0.75rem;color:var(--admin-text-muted);margin-top:0.2rem;">H:${r.score_heart ?? '—'} &nbsp;Hd:${r.score_head ?? '—'} &nbsp;G:${r.score_action ?? '—'}</span>`;
           resultCell = `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;">
             <span style="display:inline-block;background:${color}22;color:${color};font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:0.2rem 0.55rem;border-radius:999px;">${escHtml(label)}</span>

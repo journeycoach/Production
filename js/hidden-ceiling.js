@@ -5,7 +5,7 @@
             type: 'intro',
             eyebrow: 'Start Here',
             title: 'Tell me where to send your guide',
-            copy: 'You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide so you can revisit it later.',
+            copy: 'You will see your result immediately on the page, and I will also email the matching Leadership Center guide so you can revisit it later.',
         },
         {
             id: 'q1',
@@ -103,7 +103,7 @@
                 'Use the guide to spot the situations where connection quietly turns into self-protection.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_connection_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Connection-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Connection-Oriented Leader'
         },
         head: {
             centerLabel: 'Head Center',
@@ -117,7 +117,7 @@
                 'Use the guide to identify where objectivity is protecting you from discomfort rather than serving the decision.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_thinking_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Thinking-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Thinking-Oriented Leader'
         },
         action: {
             centerLabel: 'Action Center',
@@ -131,7 +131,7 @@
                 'Use the guide to spot where force and clarity are getting conflated inside your leadership.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_action_oriented_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Action-Oriented Leader'
+            guideLabel: 'Leadership Center Guide for the Action-Oriented Leader'
         },
         head_heart: {
             centerLabel: 'Head + Heart Blend',
@@ -145,7 +145,7 @@
                 'Use the guide to see where thinking and connection can work together without slowing your leadership.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Heart Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Head-Heart Leader'
         },
         head_action: {
             centerLabel: 'Head + Action Blend',
@@ -159,7 +159,7 @@
                 'Use the guide to see where clear thinking and decisive movement can serve the system without overrunning it.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Blended Head-Action Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Head-Action Leader'
         },
         heart_action: {
             centerLabel: 'Heart + Action Blend',
@@ -173,7 +173,7 @@
                 'Use the guide to see where connection and action can reinforce each other instead of pulling your leadership in two directions.'
             ],
             guideUrl: '/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf',
-            guideLabel: 'Hidden Ceiling Guide for the Blended Heart-Action Leader'
+            guideLabel: 'Leadership Center Guide for the Blended Heart-Action Leader'
         }
     };
 
