@@ -18,11 +18,10 @@
     .center-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
     .center-subtab-panel { display: none; }
     .center-subtab-panel.is-active { display: block; }
-    .res-subtab { background: var(--admin-card-bg); color: var(--admin-muted); border: 1px solid var(--admin-border); border-radius: 999px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s, background-color 0.2s; }
-    .res-subtab:hover { border-color: var(--admin-accent); color: var(--admin-text); }
-    .res-subtab.is-active { background: rgba(199,169,107,0.14); color: var(--admin-text); border-color: var(--admin-accent); }
-    .res-subtab-panel { display: none; }
-    .res-subtab-panel.is-active { display: block; }
+    .result-accordion .step-summary { padding: 16px 18px; }
+    .result-accordion .step-body { background: var(--admin-card-bg); }
+    .result-accordion .step-num { min-width: 130px; }
+    .result-accordion-label { font-size: 0.78rem; color: var(--admin-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .save-bar { position: sticky; bottom: 0; background: var(--admin-card-bg); border-top: 1px solid var(--admin-border); padding: 16px 24px; display: flex; align-items: center; gap: 16px; margin: 32px -24px -24px; }
     .field-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
     .field-row label { margin: 0; }
@@ -580,17 +579,16 @@
             Leave any field blank to use the built-in default. Changes take effect on the next assessment submission.
           </div>
 
-          <div class="page-tabs" style="margin-bottom:20px;" role="tablist">
-            <button type="button" class="res-subtab is-active" data-res-center="heart"  role="tab" aria-selected="true">Heart Center</button>
-            <button type="button" class="res-subtab"           data-res-center="head"   role="tab" aria-selected="false">Head Center</button>
-            <button type="button" class="res-subtab"           data-res-center="action" role="tab" aria-selected="false">Action Center</button>
-            <button type="button" class="res-subtab"           data-res-center="head_heart" role="tab" aria-selected="false">Head + Heart</button>
-            <button type="button" class="res-subtab"           data-res-center="head_action" role="tab" aria-selected="false">Head + Action</button>
-            <button type="button" class="res-subtab"           data-res-center="heart_action" role="tab" aria-selected="false">Heart + Action</button>
-          </div>
-
           <!-- Heart -->
-          <div class="res-subtab-panel is-active" data-res-center-panel="heart">
+          <div class="step-accordion result-accordion" data-result-accordion="heart">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Heart Center</span>
+                <span class="result-accordion-label" data-result-label="heart">Connection-Oriented Leader</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Heart Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_heart_label">Center Label <span style="color:var(--admin-muted);font-weight:400;">(pill text)</span></label><input type="text" id="hc_result_heart_label" class="form-control" placeholder="Heart Center"></div>
@@ -618,10 +616,19 @@
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
+            </div>
           </div>
 
           <!-- Head -->
-          <div class="res-subtab-panel" data-res-center-panel="head">
+          <div class="step-accordion result-accordion" data-result-accordion="head">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Head Center</span>
+                <span class="result-accordion-label" data-result-label="head">Thinking-Oriented Leader</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_head_label">Center Label</label><input type="text" id="hc_result_head_label" class="form-control" placeholder="Head Center"></div>
@@ -649,10 +656,19 @@
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
+            </div>
           </div>
 
           <!-- Action / Gut -->
-          <div class="res-subtab-panel" data-res-center-panel="action">
+          <div class="step-accordion result-accordion" data-result-accordion="action">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Action Center</span>
+                <span class="result-accordion-label" data-result-label="action">Action-Oriented Leader</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Action Center</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_action_label">Center Label</label><input type="text" id="hc_result_action_label" class="form-control" placeholder="Action Center"></div>
@@ -680,10 +696,19 @@
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
+            </div>
           </div>
 
           <!-- Head + Heart -->
-          <div class="res-subtab-panel" data-res-center-panel="head_heart">
+          <div class="step-accordion result-accordion" data-result-accordion="head_heart">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Head + Heart</span>
+                <span class="result-accordion-label" data-result-label="head_heart">Thinking-Connection Blend</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head + Heart Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head_heart')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_head_heart_label">Center Label</label><input type="text" id="hc_result_head_heart_label" class="form-control" placeholder="Head + Heart Blend"></div>
@@ -711,10 +736,19 @@
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
+            </div>
           </div>
 
           <!-- Head + Action -->
-          <div class="res-subtab-panel" data-res-center-panel="head_action">
+          <div class="step-accordion result-accordion" data-result-accordion="head_action">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Head + Action</span>
+                <span class="result-accordion-label" data-result-label="head_action">Thinking-Action Blend</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Head + Action Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('head_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_head_action_label">Center Label</label><input type="text" id="hc_result_head_action_label" class="form-control" placeholder="Head + Action Blend"></div>
@@ -742,10 +776,19 @@
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
             </div>
+            </div>
           </div>
 
           <!-- Heart + Action -->
-          <div class="res-subtab-panel" data-res-center-panel="heart_action">
+          <div class="step-accordion result-accordion" data-result-accordion="heart_action">
+            <button type="button" class="step-summary" onclick="toggleResultAccordion(this)" aria-expanded="false">
+              <span class="step-summary-left">
+                <span class="step-num">Heart + Action</span>
+                <span class="result-accordion-label" data-result-label="heart_action">Connection-Action Blend</span>
+              </span>
+              <span class="step-summary-right"><span class="step-status-badge">Edit</span><span class="step-chevron">⌄</span></span>
+            </button>
+            <div class="step-body">
             <div class="field-row" style="margin-bottom:16px;"><span style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--admin-accent);">Heart + Action Blend</span><button type="button" class="btn btn-ghost btn-sm" onclick="loadResultDefault('heart_action')" style="font-size:0.78rem;padding:4px 10px;">Load Default</button></div>
             <div class="result-grid-2">
               <div class="form-group"><label for="hc_result_heart_action_label">Center Label</label><input type="text" id="hc_result_heart_action_label" class="form-control" placeholder="Heart + Action Blend"></div>
@@ -772,6 +815,7 @@
                 <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:0.72rem;color:var(--admin-muted);">Sample scores used</span>
               </div>
               <iframe sandbox="allow-same-origin" style="height:700px;"></iframe>
+            </div>
             </div>
           </div>
         </div>
@@ -1335,19 +1379,13 @@
     document.querySelectorAll('.page-tab').forEach(btn =>
       btn.addEventListener('click', () => setPageTab(btn.dataset.tab)));
 
-    // ── Result Pages tab switching ────────────────────────────────────────
-    function setResultSubtab(center) {
-      document.querySelectorAll('.res-subtab').forEach(btn => {
-        const active = btn.dataset.resCenter === center;
-        btn.classList.toggle('is-active', active);
-        btn.setAttribute('aria-selected', active ? 'true' : 'false');
-      });
-      document.querySelectorAll('.res-subtab-panel').forEach(panel => {
-        panel.classList.toggle('is-active', panel.dataset.resCenterPanel === center);
-      });
+    // ── Result Pages accordions ───────────────────────────────────────────
+    function toggleResultAccordion(summaryBtn) {
+      const accordion = summaryBtn.closest('.result-accordion');
+      if (!accordion) return;
+      const isOpen = accordion.classList.toggle('open');
+      summaryBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
-    document.querySelectorAll('.res-subtab').forEach(btn =>
-      btn.addEventListener('click', () => setResultSubtab(btn.dataset.resCenter)));
     document.querySelectorAll('.center-subtab').forEach(btn =>
       btn.addEventListener('click', () => setCenterSubtab(btn.dataset.center)));
 
@@ -2203,6 +2241,17 @@
     const RESULT_CENTERS = ['heart', 'head', 'action', 'head_heart', 'head_action', 'heart_action'];
     const RESULT_FIELDS = ['label', 'title', 'summary', 'description', 'blindspot', 'step1', 'step2', 'step3'];
 
+    function updateResultAccordionLabel(center) {
+      const labelEl = document.querySelector(`[data-result-label="${center}"]`);
+      const input = document.getElementById(`hc_result_${center}_label`);
+      const fallback = DEFAULT_RESULT_META[center]?.label || center;
+      if (labelEl) labelEl.textContent = input?.value?.trim() || fallback;
+    }
+
+    function updateResultAccordionLabels() {
+      RESULT_CENTERS.forEach(updateResultAccordionLabel);
+    }
+
     function loadResultDefault(center) {
       const d = DEFAULT_RESULT_META[center];
       if (!d) return;
@@ -2210,6 +2259,7 @@
         const el = document.getElementById(`hc_result_${center}_${f}`);
         if (el) el.value = d[f] || '';
       });
+      updateResultAccordionLabel(center);
     }
 
     async function loadResultSettings() {
@@ -2223,6 +2273,7 @@
           if (el) el.value = s[`hc_result_${center}_${f}`] || d[f] || '';
         });
       });
+      updateResultAccordionLabels();
       resultsLoaded = true;
     }
 
@@ -2246,6 +2297,10 @@
         status.textContent = '';
       }
     }
+    RESULT_CENTERS.forEach(center => {
+      const labelInput = document.getElementById(`hc_result_${center}_label`);
+      if (labelInput) labelInput.addEventListener('input', () => updateResultAccordionLabel(center));
+    });
 
     // ── Subscribers list ─────────────────────────────────────────────────────
     // ── Constants ────────────────────────────────────────────────────────────

@@ -209,14 +209,16 @@
                     <div id="q-error-${index}" class="error-message" style="display:none;">
                         Please select an option before continuing.
                     </div>
-                    <div class="step-navigation">
+                    <div class="step-navigation ${isLastStep ? 'final-step-navigation' : ''}">
                         <button type="button" class="btn-prev" data-action="prev" data-step="${index}">Back</button>
                         ${isLastStep
-                            ? `<div class="captcha-submit-group">
-                               <div id="cf-turnstile-container" class="identity-turnstile"></div>
-                               <div id="captcha-error" class="error-message" style="display:none;"></div>
-                               <button type="button" id="btn-submit" class="btn-submit"
-                                       data-action="submit">Reveal My Ceiling</button>
+                            ? `<div class="final-submit-wrap">
+                                   <button type="button" id="btn-submit" class="btn-submit"
+                                           data-action="submit">Reveal My Ceiling</button>
+                               </div>
+                               <div class="captcha-submit-group">
+                                   <div id="cf-turnstile-container" class="identity-turnstile"></div>
+                                   <div id="captcha-error" class="error-message" style="display:none;"></div>
                                </div>`
                             : `<button type="button" class="btn-next" data-action="next"
                                        data-step="${index}">Next Question</button>`}

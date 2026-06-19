@@ -25,6 +25,16 @@
     .loading-state { text-align: center; padding: 60px; color: var(--admin-muted); font-size: 0.95rem; }
     .question-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--admin-muted); margin-bottom: 4px; }
     .section-divider { border: none; border-top: 1px solid var(--admin-border); margin: 24px 0; }
+    .profile-accordion { padding: 0; overflow: hidden; }
+    .profile-summary { width: 100%; background: var(--admin-card-bg); border: none; color: var(--admin-text); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px; cursor: pointer; text-align: left; transition: background 0.15s; }
+    .profile-summary:hover { background: var(--admin-card-bg-soft); }
+    .profile-summary-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .profile-summary-title { font-size: 1rem; font-weight: 700; color: var(--admin-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-summary-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .profile-chevron { color: var(--admin-muted); font-size: 0.78rem; transition: transform 0.2s; }
+    .profile-body { display: none; padding: 22px; border-top: 1px solid var(--admin-border); }
+    .profile-accordion.open .profile-body { display: block; }
+    .profile-accordion.open .profile-chevron { transform: rotate(180deg); }
   </style>
 </head>
 <body>
@@ -222,15 +232,22 @@
         const steps = Array.isArray(p.steps) ? p.steps : ['', '', ''];
 
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card profile-accordion';
         card.style.marginBottom = '2rem';
 
         card.innerHTML = `
-          <div class="card-title-header">
-            <h3>${esc(p.label || key)}</h3>
-            <span class="ceiling-badge">${esc(key)}</span>
-          </div>
+          <button type="button" class="profile-summary" aria-expanded="false">
+            <span class="profile-summary-left">
+              <span class="profile-summary-title" data-profile-title="${esc(key)}">${esc(p.label || formatCeilingLabel(key))}</span>
+              <span class="ceiling-badge">${esc(key)}</span>
+            </span>
+            <span class="profile-summary-right">
+              <span class="ceiling-badge" style="background:none;border-color:var(--admin-border);color:var(--admin-muted);">Edit</span>
+              <span class="profile-chevron">⌄</span>
+            </span>
+          </button>
 
+          <div class="profile-body">
           <div class="form-group">
             <div class="question-label">Label (displayed as the result title)</div>
             <input type="text" data-key="${key}" data-field="label" value="${esc(p.label || '')}" />
@@ -294,9 +311,18 @@
                      value="${esc(p.cta_url || '')}"
                      placeholder="https://calendly.com/..." />
             </div>
+          </div>
           </div>`;
 
         container.appendChild(card);
+      });
+
+      container.querySelectorAll('.profile-summary').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('.profile-accordion');
+          const isOpen = card.classList.toggle('open');
+          btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
       });
 
       // Attach listeners to all profile fields
@@ -315,6 +341,10 @@
             assessmentData.results[key].steps[idx] = el.value;
           } else {
             assessmentData.results[key][field] = el.value;
+            if (field === 'label') {
+              const titleEl = container.querySelector(`[data-profile-title="${key}"]`);
+              if (titleEl) titleEl.textContent = el.value.trim() || formatCeilingLabel(key);
+            }
           }
           markDirty();
         });
