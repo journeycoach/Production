@@ -6,6 +6,7 @@
     const BLENDED_HEAD_HEART_GUIDE_URL = '/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf';
     const BLENDED_HEAD_ACTION_GUIDE_URL = '/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf';
     const BLENDED_HEART_ACTION_GUIDE_URL = '/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf';
+    const FALLBACK_CALENDLY_URL = 'https://calendly.com/johnpaine/alignment-call';
 
     const RESULT_META = {
         heart: {
@@ -262,7 +263,7 @@
             <div class="cta-block">
                 <h3>Ready to break through your ceiling?</h3>
                 <p>A 20-minute alignment call gives us a clear picture of where you are, what is limiting your impact, and whether coaching is the right next step for you.</p>
-                <a href="#" id="results-calendly-btn" class="btn-primary" style="display:none;" target="_blank" rel="noopener noreferrer">Book a 20-Minute Alignment Call</a>
+                <a href="${FALLBACK_CALENDLY_URL}" id="results-calendly-btn" class="btn-primary" style="display:inline-flex;" target="_blank" rel="noopener noreferrer">Schedule an Alignment Call</a>
             </div>
 
             <div class="share-row">
@@ -296,10 +297,10 @@
             }).catch(() => {});
         });
 
-        // Calendly URL is gated — only available via sessionStorage set after
-        // a real captcha-verified assessment submission, never from a public endpoint.
+        // Prefer the server-provided Calendly URL from a verified assessment,
+        // but keep a public fallback so the results CTA always works.
         try {
-            let calendlyUrl = sessionStorage.getItem('hc_calendly_url') || '';
+            let calendlyUrl = sessionStorage.getItem('hc_calendly_url') || FALLBACK_CALENDLY_URL;
             if (calendlyUrl) {
                 const email = sessionStorage.getItem('hc_result_email') || '';
                 

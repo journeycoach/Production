@@ -15,8 +15,9 @@
     .tab-content.active { display: block; }
     .card-title-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .card-title-header h3 { margin: 0; font-size: 1.05rem; color: var(--admin-text); }
-    .option-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .option-row { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(150px, 0.24fr); align-items: end; gap: 10px; margin-bottom: 10px; }
     .option-row input { width: 100%; }
+    .option-row select { width: 100%; }
     .ceiling-badge { font-size: 0.72rem; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--admin-accent) 15%, transparent); color: var(--admin-accent); border: 1px solid color-mix(in srgb, var(--admin-accent) 40%, transparent); font-weight: 700; white-space: nowrap; text-align: center; letter-spacing: 0.04em; }
     .save-bar { position: sticky; bottom: 0; background: var(--admin-bg); padding: 14px 0; border-top: 1px solid var(--admin-border); margin-top: 24px; display: flex; justify-content: flex-end; align-items: center; gap: 16px; z-index: 100; }
     .unsaved-notice { font-size: 0.85rem; color: var(--admin-muted); display: none; }
@@ -88,6 +89,7 @@
   <script>
     requireAdminAuth();
 
+    const CEILING_KEYS = ['achiever', 'expert', 'harmony', 'control', 'visionary', 'rescuer'];
     let assessmentData = { questions: [], results: {} };
     let isDirty = false;
 
@@ -160,12 +162,24 @@
           <div class="options-edit" data-qindex="${qIndex}">
             ${(q.options || []).map((opt, oIndex) => `
               <div class="option-row">
-                <input type="text"
-                       data-qindex="${qIndex}"
-                       data-oindex="${oIndex}"
-                       data-field="option-text"
-                       value="${esc(opt.text)}" />
-                <span class="ceiling-badge">${esc(opt.ceiling || '—')}</span>
+                <div>
+                  <div class="question-label">Answer ${oIndex + 1}</div>
+                  <input type="text"
+                         data-qindex="${qIndex}"
+                         data-oindex="${oIndex}"
+                         data-field="option-text"
+                         value="${esc(opt.text)}" />
+                </div>
+                <div>
+                  <div class="question-label">Scores Toward</div>
+                  <select data-qindex="${qIndex}"
+                          data-oindex="${oIndex}"
+                          data-field="option-ceiling">
+                    ${CEILING_KEYS.map(key => `
+                      <option value="${esc(key)}" ${opt.ceiling === key ? 'selected' : ''}>${esc(formatCeilingLabel(key))}</option>
+                    `).join('')}
+                  </select>
+                </div>
               </div>`).join('')}
           </div>`;
 
@@ -186,6 +200,15 @@
           const qi = parseInt(el.dataset.qindex, 10);
           const oi = parseInt(el.dataset.oindex, 10);
           assessmentData.questions[qi].options[oi].text = el.value;
+          markDirty();
+        });
+      });
+
+      container.querySelectorAll('[data-field="option-ceiling"]').forEach(el => {
+        el.addEventListener('change', () => {
+          const qi = parseInt(el.dataset.qindex, 10);
+          const oi = parseInt(el.dataset.oindex, 10);
+          assessmentData.questions[qi].options[oi].ceiling = el.value;
           markDirty();
         });
       });
@@ -336,6 +359,12 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function formatCeilingLabel(key) {
+      return String(key || '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
     }
 
     // Warn before leaving with unsaved changes
