@@ -35,9 +35,13 @@ function isTieBreakerQuestion(question) {
   return question?.id === 'tie-breaker' || question?.id === 'tie_breaker';
 }
 
+function getScoreEntries(scores) {
+  return Object.entries(scores).sort((a, b) => b[1] - a[1]);
+}
+
 // Determine winning ceiling, using tie-breaker ceiling key if provided
 function determineResult(scores, tieBreakerCeiling) {
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const sorted = getScoreEntries(scores);
   const [first, second] = sorted;
 
   if (second && first[1] === second[1]) {
@@ -54,8 +58,58 @@ function determineResult(scores, tieBreakerCeiling) {
   return first[0];
 }
 
+function getTiedWinningCeilings(scores) {
+  const sorted = getScoreEntries(scores);
+  const topScore = sorted[0]?.[1] || 0;
+  return sorted
+    .filter(([, score]) => score === topScore)
+    .map(([ceiling]) => ceiling);
+}
+
+function getConfidence(scores, winningCeiling, mainQuestionCount) {
+  const sorted = getScoreEntries(scores);
+  const winnerScore = scores[winningCeiling] || 0;
+  const runnerUpScore = sorted.find(([ceiling]) => ceiling !== winningCeiling)?.[1] || 0;
+  const gap = winnerScore - runnerUpScore;
+  const percent = mainQuestionCount > 0 ? winnerScore / mainQuestionCount : 0;
+
+  if (gap >= 3 && percent >= 0.42) {
+    return {
+      level: 'strong',
+      label: 'Strong signal',
+      description: 'Your responses showed a clear lead for this pattern.',
+      gap,
+      winnerScore,
+      runnerUpScore,
+      mainQuestionCount,
+    };
+  }
+
+  if (gap >= 2 || percent >= 0.34) {
+    return {
+      level: 'moderate',
+      label: 'Moderate signal',
+      description: 'This pattern led your responses, with some secondary themes also present.',
+      gap,
+      winnerScore,
+      runnerUpScore,
+      mainQuestionCount,
+    };
+  }
+
+  return {
+    level: 'blended',
+    label: 'Blended signal',
+    description: 'Your responses were close across multiple patterns, so treat this result as a starting hypothesis.',
+    gap,
+    winnerScore,
+    runnerUpScore,
+    mainQuestionCount,
+  };
+}
+
 // Build a rich HTML email using the actual profile content
-function buildResultEmail(name, profile, winningCeiling) {
+function buildResultEmail(name, profile, winningCeiling, confidence) {
   const esc = escapeHtml;
   const firstName = esc((name || '').split(' ')[0] || 'there');
   const stepsHtml = Array.isArray(profile.steps)
@@ -72,7 +126,8 @@ function buildResultEmail(name, profile, winningCeiling) {
   <p style="display:inline-block;background:#f5ead8;color:#c7a96b;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3em 0.8em;border-radius:100px;font-family:Inter,sans-serif;margin-bottom:1rem;">${esc(profile.label || winningCeiling)}</p>
   <h1 style="font-family:Georgia,serif;font-size:1.6rem;color:#1a1d1e;margin-bottom:0.25em;line-height:1.3;">Your Identity Hidden Ceiling</h1>
   <p>Hi ${firstName},</p>
-  <p>Thank you for completing the Identity Hidden Ceiling assessment. Here is what your responses reveal about the pattern that may be quietly limiting your next level of leadership.</p>
+  <p>Thank you for completing the Identity Hidden Ceiling assessment. Here is the strongest pattern your responses suggest may be quietly limiting your next level of leadership.</p>
+  ${confidence?.label ? `<p style="margin-top:0.75rem;color:#555;"><strong>${esc(confidence.label)}:</strong> ${esc(confidence.description || '')}</p>` : ''}
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <h2 style="font-size:1rem;color:#c7a96b;margin-bottom:0.25em;">The Diagnosis</h2>
   <p style="margin-top:0;">${esc(profile.diagnosis)}</p>
@@ -159,14 +214,32 @@ export default async function handler(req, res) {
 
       // Score all configured main questions. The tie-breaker only resolves tied scores.
       const mainQuestions = questions.filter(q => !isTieBreakerQuestion(q));
+      const mainQuestionCount = mainQuestions.length;
+      const missingAnswers = mainQuestions.filter(q => {
+        const answer = answers[q.id];
+        if (answer && typeof answer === 'object') {
+          return answer.most === undefined || answer.most === null ||
+            answer.least === undefined || answer.least === null ||
+            answer.most === answer.least;
+        }
+        return answer === undefined || answer === null;
+      });
+      if (missingAnswers.length) {
+        return res.status(400).json({ error: 'Please choose both a most-like and least-like statement for every question.' });
+      }
+
       for (const q of mainQuestions) {
         const qId = q.id;
-        const answerIdx = answers[qId];
-        if (answerIdx !== undefined && answerIdx !== null) {
-          if (q && q.options[answerIdx]) {
-            const ceiling = q.options[answerIdx].ceiling;
-            if (ceiling && scores[ceiling] !== undefined) scores[ceiling]++;
-          }
+        const answer = answers[qId];
+        if (answer && typeof answer === 'object') {
+          const mostCeiling = q.options[answer.most]?.ceiling;
+          const leastCeiling = q.options[answer.least]?.ceiling;
+          if (mostCeiling && scores[mostCeiling] !== undefined) scores[mostCeiling] += 1;
+          if (leastCeiling && scores[leastCeiling] !== undefined) scores[leastCeiling] -= 1;
+        } else if (q && q.options[answer]) {
+          // Legacy single-choice fallback.
+          const ceiling = q.options[answer].ceiling;
+          if (ceiling && scores[ceiling] !== undefined) scores[ceiling]++;
         }
       }
 
@@ -183,7 +256,13 @@ export default async function handler(req, res) {
         }
       }
 
+      const tiedWinningCeilings = getTiedWinningCeilings(scores);
+      if (tiedWinningCeilings.length > 1 && !tiedWinningCeilings.includes(tieBreakerCeiling)) {
+        return res.status(400).json({ error: 'Please answer the tie-breaker question before submitting.' });
+      }
+
       const winningCeiling = determineResult(scores, tieBreakerCeiling);
+      const confidence = getConfidence(scores, winningCeiling, mainQuestionCount);
 
       // Persist lead in subscribers table
       await sql`
@@ -211,7 +290,7 @@ export default async function handler(req, res) {
             from: 'John Paine | Your Journey Coach <hello@journeycoach.co>',
             to: normalizedEmail,
             subject: `Your Identity Hidden Ceiling: ${resultData.label || winningCeiling}`,
-            html: buildResultEmail(name.trim(), resultData, winningCeiling),
+            html: buildResultEmail(name.trim(), resultData, winningCeiling, confidence),
           });
           emailSent = true;
         } catch (e) {
@@ -225,6 +304,7 @@ export default async function handler(req, res) {
         center: winningCeiling,
         result: resultData,
         scores,
+        confidence,
         emailSent,
       });
     }

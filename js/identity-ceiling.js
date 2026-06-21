@@ -6,6 +6,13 @@
     let tieBreakerQuestion = null;
     const IDENTITY_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
     const FALLBACK_CALENDLY_URL = 'https://calendly.com/johnpaine/alignment-call';
+    const SUBMIT_STEP = {
+        id: 'submit',
+        type: 'submit',
+        eyebrow: 'Final Step',
+        title: 'Reveal Your Identity Hidden Ceiling',
+        copy: 'Complete the security check below and your result will appear immediately.',
+    };
 
     // Default fallback (in case API fails — only intro, shows error)
     const DEFAULT_STEPS = [
@@ -120,6 +127,26 @@
         return mainQuestionCount + (isTieBreakerActive ? 1 : 0);
     }
 
+    function isSubmitStep(step) {
+        return step?.type === 'submit';
+    }
+
+    function getForcedAnswer(qid) {
+        const answer = answers[qid];
+        return answer && typeof answer === 'object'
+            ? answer
+            : { most: null, least: null };
+    }
+
+    function hasCompleteForcedAnswer(step) {
+        const answer = getForcedAnswer(step.id);
+        return answer.most !== null &&
+            answer.most !== undefined &&
+            answer.least !== null &&
+            answer.least !== undefined &&
+            answer.most !== answer.least;
+    }
+
     // ── Data Fetching ─────────────────────────────────────────────
     async function loadConfig() {
         try {
@@ -138,6 +165,7 @@
                     id: q.id || `q${idx + 1}`
                 }));
                 ASSESSMENT_STEPS.push(...mainQs);
+                ASSESSMENT_STEPS.push(SUBMIT_STEP);
                 mainQuestionCount = mainQs.length;
 
                 tieBreakerQuestion = data.questions.find(isTieBreakerQuestion) || null;
@@ -196,18 +224,25 @@
                             </button>
                         </div>
                     </div>`;
-            } else {
-                const qNum = index;
-                const totalQs = getTotalQuestionCount();
-                const isLastStep = (index === ASSESSMENT_STEPS.length - 1);
-
-                if (isLastStep) {
-                    turnstileToken = null;
-                    turnstileWidgetId = null;
-                }
-
+            } else if (isSubmitStep(step)) {
                 stepEl.innerHTML = `
-                    <span class="step-eyebrow">Question ${qNum} of ${totalQs}</span>
+                    <span class="step-eyebrow">${step.eyebrow}</span>
+                    <h2 class="step-title">${step.title}</h2>
+                    <p class="submit-step-copy">${step.copy}</p>
+                    <div class="step-navigation final-step-navigation">
+                        <button type="button" class="btn-prev" data-action="prev" data-step="${index}">Back</button>
+                        <div class="final-submit-wrap">
+                            <button type="button" id="btn-submit" class="btn-submit"
+                                    data-action="submit">Reveal My Ceiling</button>
+                        </div>
+                        <div class="captcha-submit-group">
+                            <div id="cf-turnstile-container" class="identity-turnstile"></div>
+                            <div id="captcha-error" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>`;
+            } else if (isTieBreakerQuestion(step)) {
+                stepEl.innerHTML = `
+                    <span class="step-eyebrow">Tie-Breaker</span>
                     <h2 class="step-title">${step.title}</h2>
                     <div class="options-list">
                         ${(step.options || []).map((opt, optIdx) => `
@@ -221,19 +256,46 @@
                     <div id="q-error-${index}" class="error-message" style="display:none;">
                         Please select an option before continuing.
                     </div>
-                    <div class="step-navigation ${isLastStep ? 'final-step-navigation' : ''}">
+                    <div class="step-navigation">
                         <button type="button" class="btn-prev" data-action="prev" data-step="${index}">Back</button>
-                        ${isLastStep
-                            ? `<div class="final-submit-wrap">
-                                   <button type="button" id="btn-submit" class="btn-submit"
-                                           data-action="submit">Reveal My Ceiling</button>
-                               </div>
-                               <div class="captcha-submit-group">
-                                   <div id="cf-turnstile-container" class="identity-turnstile"></div>
-                                   <div id="captcha-error" class="error-message" style="display:none;"></div>
-                               </div>`
-                            : `<button type="button" class="btn-next" data-action="next"
-                                       data-step="${index}">Next Question</button>`}
+                        <button type="button" class="btn-next" data-action="next"
+                                data-step="${index}">Continue</button>
+                    </div>`;
+            } else {
+                const qNum = index;
+                const totalQs = getTotalQuestionCount();
+                const selected = getForcedAnswer(step.id);
+
+                stepEl.innerHTML = `
+                    <span class="step-eyebrow">Question ${qNum} of ${totalQs}</span>
+                    <h2 class="step-title">${step.title}</h2>
+                    <p class="forced-choice-instruction">Choose the statement that is most like you and the statement that is least like you. You cannot choose the same statement for both.</p>
+                    <div class="forced-choice-grid" role="group" aria-label="${step.title}">
+                        <div></div>
+                        <div class="forced-choice-heading">Most</div>
+                        <div class="forced-choice-heading">Least</div>
+                        ${(step.options || []).map((opt, optIdx) => `
+                            <div class="forced-option-row" data-qid="${step.id}" data-optidx="${optIdx}">
+                                <div class="forced-option-text">${opt.text}</div>
+                                <label class="forced-choice-cell ${selected.most === optIdx ? 'selected-most' : ''}">
+                                    <input class="forced-choice-input" type="radio"
+                                           name="${step.id}-most" value="${optIdx}" data-qid="${step.id}" data-kind="most"
+                                           ${selected.most === optIdx ? 'checked' : ''}>
+                                </label>
+                                <label class="forced-choice-cell ${selected.least === optIdx ? 'selected-least' : ''}">
+                                    <input class="forced-choice-input" type="radio"
+                                           name="${step.id}-least" value="${optIdx}" data-qid="${step.id}" data-kind="least"
+                                           ${selected.least === optIdx ? 'checked' : ''}>
+                                </label>
+                            </div>`).join('')}
+                    </div>
+                    <div id="q-error-${index}" class="error-message" style="display:none;">
+                        Please choose one most-like and one least-like statement.
+                    </div>
+                    <div class="step-navigation">
+                        <button type="button" class="btn-prev" data-action="prev" data-step="${index}">Back</button>
+                        <button type="button" class="btn-next" data-action="next"
+                                data-step="${index}">${index >= mainQuestionCount ? 'Continue' : 'Next Question'}</button>
                     </div>`;
             }
 
@@ -260,6 +322,24 @@
 
                 const errEl = this.closest('.step').querySelector('.error-message');
                 if (errEl) errEl.style.display = 'none';
+            });
+        });
+
+        stepsContainer.querySelectorAll('.forced-choice-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const qid = this.dataset.qid;
+                const kind = this.dataset.kind;
+                const optIdx = parseInt(this.value, 10);
+                const answer = getForcedAnswer(qid);
+
+                answer[kind] = optIdx;
+                if (kind === 'most' && answer.least === optIdx) answer.least = null;
+                if (kind === 'least' && answer.most === optIdx) answer.most = null;
+                answers[qid] = answer;
+                saveProgress();
+
+                renderSteps();
+                showStep(currentStepIndex);
             });
         });
     }
@@ -293,8 +373,13 @@
         }
 
         // Progress bar
+        const step = ASSESSMENT_STEPS[index];
         if (index === 0) {
             progressWrapper.style.display = 'none';
+        } else if (isSubmitStep(step)) {
+            progressWrapper.style.display = 'block';
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Ready to reveal';
         } else {
             progressWrapper.style.display = 'block';
             const totalQs = getTotalQuestionCount();
@@ -303,8 +388,9 @@
             progressText.textContent = `Question ${index} of ${totalQs}`;
         }
 
-        const step = ASSESSMENT_STEPS[index];
-        if (step && step.type !== 'intro' && index === ASSESSMENT_STEPS.length - 1) {
+        if (isSubmitStep(step)) {
+            turnstileToken = null;
+            turnstileWidgetId = null;
             renderIdentityTurnstile();
         }
     }
@@ -336,7 +422,10 @@
             answers.company = (document.getElementById('lead-company') || {}).value || '';
             if (errEl) errEl.style.display = 'none';
         } else {
-            if (answers[step.id] === undefined) {
+            const incomplete = isTieBreakerQuestion(step)
+                ? answers[step.id] === undefined
+                : !hasCompleteForcedAnswer(step);
+            if (incomplete) {
                 const errEl = document.getElementById(`q-error-${currentIndex}`);
                 if (errEl) errEl.style.display = 'block';
                 return;
@@ -361,9 +450,19 @@
                 .filter(option => tiedCeilings.includes(option.ceiling)),
         };
         isTieBreakerActive = true;
-        ASSESSMENT_STEPS.push(filteredTieBreaker);
+        const submitStepIndex = ASSESSMENT_STEPS.findIndex(isSubmitStep);
+        const insertIndex = submitStepIndex === -1 ? ASSESSMENT_STEPS.length : submitStepIndex;
+        ASSESSMENT_STEPS.splice(insertIndex, 0, filteredTieBreaker);
         renderSteps();
         showStep(mainQuestionCount + 1);
+        return true;
+    }
+
+    function hasAnsweredMainQuestions() {
+        for (let i = 1; i <= mainQuestionCount; i++) {
+            const step = ASSESSMENT_STEPS[i];
+            if (!step || !hasCompleteForcedAnswer(step)) return false;
+        }
         return true;
     }
 
@@ -372,10 +471,11 @@
         for (let i = 1; i <= mainQuestionCount; i++) {
             const step = ASSESSMENT_STEPS[i];
             if (!step) continue;
-            const selectedIdx = answers[step.id];
-            if (selectedIdx === undefined) continue;
-            const ceilingKey = (step.options[selectedIdx] || {}).ceiling;
-            if (ceilingKey) tallies[ceilingKey] = (tallies[ceilingKey] || 0) + 1;
+            const answer = getForcedAnswer(step.id);
+            const mostCeiling = step.options[answer.most]?.ceiling;
+            const leastCeiling = step.options[answer.least]?.ceiling;
+            if (mostCeiling) tallies[mostCeiling] = (tallies[mostCeiling] || 0) + 1;
+            if (leastCeiling) tallies[leastCeiling] = (tallies[leastCeiling] || 0) - 1;
         }
 
         const counts = Object.values(tallies);
@@ -403,13 +503,22 @@
         const lastStepIdx = ASSESSMENT_STEPS.length - 1;
         const lastStep = ASSESSMENT_STEPS[lastStepIdx];
 
-        if (!lastStep || answers[lastStep.id] === undefined) {
-            const errEl = document.getElementById(`q-error-${lastStepIdx}`);
-            if (errEl) errEl.style.display = 'block';
+        if (!isSubmitStep(lastStep) || currentStepIndex !== lastStepIdx) {
             return;
         }
 
-        if (lastStepIdx === mainQuestionCount && showTieBreakerIfNeeded()) return;
+        if (!hasAnsweredMainQuestions()) {
+            alert('Please answer every assessment question before revealing your result.');
+            showStep(1);
+            return;
+        }
+
+        if (showTieBreakerIfNeeded()) return;
+
+        if (isTieBreakerActive && answers.tie_breaker === undefined) {
+            showStep(mainQuestionCount + 1);
+            return;
+        }
 
         if (!turnstileToken) {
             renderIdentityTurnstile();
@@ -426,7 +535,8 @@
                 if (key.startsWith('q') || key === 'tie_breaker') qAnswers[key] = answers[key];
             }
             if (answers.tie_breaker !== undefined) {
-                const selectedTieBreaker = ASSESSMENT_STEPS[lastStepIdx]?.options?.[answers.tie_breaker];
+                const selectedTieBreaker = ASSESSMENT_STEPS.find(step => step.id === 'tie_breaker')
+                    ?.options?.[answers.tie_breaker];
                 if (selectedTieBreaker?.ceiling) qAnswers.tie_breaker_ceiling = selectedTieBreaker.ceiling;
             }
 
@@ -459,7 +569,7 @@
             }
 
             clearProgress();
-            renderResult(data.center, data.result);
+            renderResult(data.center, data.result, data.confidence);
         } catch (err) {
             console.error('Submit error:', err);
             alert('A network error occurred. Please try again.');
@@ -469,7 +579,7 @@
     }
 
     // ── Result Rendering ──────────────────────────────────────────
-    function renderResult(ceilingKey, profile) {
+    function renderResult(ceilingKey, profile, confidence) {
         stepsContainer.style.display = 'none';
         progressWrapper.style.display = 'none';
 
@@ -481,6 +591,19 @@
 
         document.getElementById('res-title').textContent =
             profile.label || `The ${capitalize(ceilingKey)} Ceiling`;
+        const confidenceEl = document.getElementById('res-confidence');
+        if (confidenceEl && confidence?.label) {
+            confidenceEl.textContent = confidence.label;
+            confidenceEl.className = `confidence-badge ${confidence.level || ''}`.trim();
+            confidenceEl.style.display = 'inline-flex';
+            confidenceEl.title = confidence.description || '';
+        }
+        const confidenceCard = document.getElementById('res-confidence-card');
+        const confidenceDescription = document.getElementById('res-confidence-description');
+        if (confidenceCard && confidenceDescription && confidence?.description) {
+            confidenceDescription.textContent = confidence.description;
+            confidenceCard.style.display = 'block';
+        }
         document.getElementById('res-diagnosis').textContent = profile.diagnosis;
         document.getElementById('res-ceiling').textContent   = profile.ceiling;
 

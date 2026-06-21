@@ -338,6 +338,69 @@
             color: var(--color-text-primary);
             line-height: 1.5;
         }
+        .forced-choice-instruction {
+            color: var(--color-text-secondary);
+            font-size: 0.94rem;
+            line-height: 1.6;
+            margin: -0.5rem 0 1.35rem;
+        }
+        .forced-choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 92px 92px;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+        .forced-choice-heading {
+            color: var(--color-text-muted);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .forced-option-row {
+            display: contents;
+        }
+        .forced-option-text,
+        .forced-choice-cell {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.25s ease;
+        }
+        .forced-option-text {
+            border-radius: 8px 0 0 8px;
+            color: var(--color-text-primary);
+            font-size: 1.02rem;
+            line-height: 1.5;
+            padding: 1rem 1.15rem;
+        }
+        .forced-choice-cell {
+            align-items: center;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            min-height: 100%;
+        }
+        .forced-choice-cell:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        .forced-choice-cell input {
+            accent-color: var(--color-accent-gold);
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+        .forced-option-row:has(.forced-choice-input:checked) .forced-option-text {
+            border-color: rgba(201,169,110,0.55);
+            background: rgba(201,169,110,0.08);
+        }
+        .forced-choice-cell.selected-most {
+            border-color: var(--color-accent-gold);
+            background: rgba(201,169,110,0.16);
+        }
+        .forced-choice-cell.selected-least {
+            border-color: rgba(123, 158, 184, 0.65);
+            background: rgba(123, 158, 184, 0.12);
+        }
 
         /* When any option in the group is selected, fade unselected ones back */
         .options-list:has(.option-label.selected) .option-label:not(.selected) {
@@ -356,6 +419,19 @@
             background: rgba(201,169,110,0.12);
             box-shadow: 0 0 0 1px var(--color-accent-gold), inset 0 0 20px rgba(201,169,110,0.04);
             opacity: 1 !important;
+        }
+        @media (max-width: 640px) {
+            .forced-choice-grid {
+                grid-template-columns: 1fr 72px 72px;
+                gap: 0.55rem;
+            }
+            .forced-choice-heading {
+                font-size: 0.62rem;
+            }
+            .forced-option-text {
+                font-size: 0.94rem;
+                padding: 0.9rem;
+            }
         }
 
         /* Navigation Buttons */
@@ -436,6 +512,13 @@
             max-width: 300px;
             text-align: right;
         }
+        .submit-step-copy {
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin: 0 auto 1.5rem;
+            max-width: 520px;
+            text-align: center;
+        }
 
         /* Result View */
         #result-view {
@@ -445,6 +528,28 @@
         .result-header {
             text-align: center;
             margin-bottom: 3rem;
+        }
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(199, 169, 107, 0.45);
+            border-radius: 999px;
+            color: var(--color-accent-gold);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-top: 1rem;
+            padding: 0.45rem 0.85rem;
+            text-transform: uppercase;
+        }
+        .confidence-badge.moderate {
+            border-color: rgba(123, 158, 184, 0.5);
+            color: #9bb8cb;
+        }
+        .confidence-badge.blended {
+            border-color: rgba(143, 170, 130, 0.5);
+            color: #aac29c;
         }
         .result-header .eyebrow {
             font-size: 0.75rem;
@@ -760,6 +865,12 @@
                         <div class="result-header">
                             <span class="eyebrow">Your Result</span>
                             <h2 id="res-title">...</h2>
+                            <span id="res-confidence" class="confidence-badge" style="display:none;"></span>
+                        </div>
+
+                        <div class="result-card" id="res-confidence-card" style="display:none;">
+                            <h3>Result Confidence</h3>
+                            <p id="res-confidence-description">...</p>
                         </div>
 
                         <div class="result-card">

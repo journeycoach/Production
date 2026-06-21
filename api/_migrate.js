@@ -482,7 +482,7 @@ export async function runMigrations() {
     )
   `;
 
-  const IDENTITY_CEILING_CONFIG_VERSION = '2';
+  const IDENTITY_CEILING_CONFIG_VERSION = '4';
 
   const identityCeilingQuestions = [
     {
@@ -491,106 +491,78 @@ export async function runMigrations() {
       options: [
         { text: "I feel responsible for creating visible momentum, and I want to help the team regain traction quickly.", ceiling: "achiever" },
         { text: "I feel responsible for understanding what is really happening, and I want the team to move from a sound read of the facts.", ceiling: "expert" },
-        { text: "I feel responsible for noticing the relational temperature, and I want the team to stay connected while we address the issue.", ceiling: "harmony" }
+        { text: "I feel responsible for noticing the relational temperature, and I want the team to stay connected while we address the issue.", ceiling: "harmony" },
+        { text: "I feel responsible for tightening ownership and making sure nothing important slips.", ceiling: "control" }
       ]
     },
     {
       id: "q2",
       title: "When the team is stuck and the room feels flat, what responsibility do you most naturally take on?",
       options: [
-        { text: "I take responsibility for tightening the work, clarifying standards, and making sure important details do not slip.", ceiling: "control" },
         { text: "I take responsibility for opening possibility, reframing the problem, and helping people see a path with more energy.", ceiling: "visionary" },
-        { text: "I take responsibility for supporting the people carrying the most pressure, especially when someone seems overwhelmed.", ceiling: "rescuer" }
+        { text: "I take responsibility for supporting the people carrying the most pressure, especially when someone seems overwhelmed.", ceiling: "rescuer" },
+        { text: "I take responsibility for creating visible progress so the team can feel momentum again.", ceiling: "achiever" },
+        { text: "I take responsibility for diagnosing the real issue before people move too quickly.", ceiling: "expert" }
       ]
     },
     {
       id: "q3",
-      title: "When pressure rises and ambiguity increases, which move feels most stabilizing to you?",
-      options: [
-        { text: "I create momentum through concrete progress, so people can feel that something is moving forward.", ceiling: "achiever" },
-        { text: "I create steadiness through clear ownership, quality bars, and closer attention to execution.", ceiling: "control" },
-        { text: "I create energy through a new frame, direction, or possibility that helps people get unstuck.", ceiling: "visionary" }
-      ]
-    },
-    {
-      id: "q4",
       title: "When you delegate a difficult assignment, which part takes the most discipline for you?",
       options: [
         { text: "Letting them reason through complexity before I offer the framework or answer I can already see.", ceiling: "expert" },
         { text: "Letting the accountability conversation stay clear if they struggle, even when I care about preserving trust.", ceiling: "harmony" },
+        { text: "Defining the outcome without staying close to every detail of how they get there.", ceiling: "control" },
         { text: "Letting them carry the productive pressure of the work before I step in to make it easier.", ceiling: "rescuer" }
       ]
     },
     {
-      id: "q5",
-      title: "As your scope expands, which shift feels like the biggest stretch?",
-      options: [
-        { text: "Being valued less for what I personally push across the line and more for the outcomes others own.", ceiling: "achiever" },
-        { text: "Being valued less for having the strongest answer and more for developing stronger judgment around me.", ceiling: "expert" },
-        { text: "Being valued less for close oversight and more for making success clear enough that others can lead the process.", ceiling: "control" }
-      ]
-    },
-    {
-      id: "q6",
+      id: "q4",
       title: "When a transition creates uncertainty, what do you most want to protect for the team?",
       options: [
         { text: "I want to protect trust and emotional safety, so people can stay honest and engaged through the change.", ceiling: "harmony" },
         { text: "I want to protect possibility and forward imagination, so the change does not shrink what people believe is possible.", ceiling: "visionary" },
-        { text: "I want to protect people from unnecessary strain, so they do not feel alone with more than they can carry.", ceiling: "rescuer" }
+        { text: "I want to protect clarity, standards, and ownership so the change does not become messy.", ceiling: "control" },
+        { text: "I want to protect momentum, so the team does not lose confidence or slow down too much.", ceiling: "achiever" }
+      ]
+    },
+    {
+      id: "q5",
+      title: "A strategic conversation is moving too quickly toward a decision. What do you most naturally contribute?",
+      options: [
+        { text: "I slow the room down enough to test the assumptions and improve the quality of the thinking.", ceiling: "expert" },
+        { text: "I clarify what must be true operationally so the decision can actually be executed well.", ceiling: "control" },
+        { text: "I widen the frame so we do not miss a better possibility or a more ambitious direction.", ceiling: "visionary" },
+        { text: "I pay attention to whether the conversation is creating unnecessary tension or leaving people behind.", ceiling: "harmony" }
+      ]
+    },
+    {
+      id: "q6",
+      title: "The team has three competing priorities and limited capacity. What do you instinctively emphasize?",
+      options: [
+        { text: "Define the standards, owners, and execution path so the most important work is done well.", ceiling: "control" },
+        { text: "Reframe the priorities around the bigger opportunity so the team has energy and direction.", ceiling: "visionary" },
+        { text: "Notice who is overloaded and make sure people have enough support to keep going.", ceiling: "rescuer" },
+        { text: "Create immediate progress on the most visible priority so the team regains traction.", ceiling: "achiever" }
       ]
     },
     {
       id: "q7",
-      title: "Which feedback would be hardest to receive because it touches something you care about?",
+      title: "A direct report misses an important commitment. What do you most naturally do first?",
       options: [
-        { text: "Your drive helps the team deliver, but people may rely on your pace instead of building their own.", ceiling: "achiever" },
-        { text: "Your care for the room builds trust, but people may wait too long for the direct truth.", ceiling: "harmony" },
-        { text: "Your support helps people feel safe, but they may not build the strength that comes from carrying the work themselves.", ceiling: "rescuer" }
+        { text: "I move quickly to recover momentum and make sure the work gets back on track.", ceiling: "achiever" },
+        { text: "I consider what needs to be said clearly while trying to preserve trust in the relationship.", ceiling: "harmony" },
+        { text: "I check what support they need and whether I can relieve pressure enough for them to recover.", ceiling: "rescuer" },
+        { text: "I want to understand what broke down so the real cause is addressed, not just the missed deadline.", ceiling: "expert" }
       ]
     },
     {
       id: "q8",
-      title: "Which feedback would be hardest to receive because it names a strength that may be overused?",
+      title: "When execution is under strain, which pattern are you most likely to rationalize as good leadership?",
       options: [
-        { text: "Your insight raises the quality of thinking, but people may defer to your analysis before testing their own.", ceiling: "expert" },
-        { text: "Your standards protect important outcomes, but people may wait for your instructions before fully owning the result.", ceiling: "control" },
-        { text: "Your ideas create momentum and possibility, but people may struggle to finish before the next direction appears.", ceiling: "visionary" }
-      ]
-    },
-    {
-      id: "q9",
-      title: "When you feel secure as a leader, which signal tends to reassure you most?",
-      options: [
-        { text: "There is visible progress I can point to, and my contribution has clearly helped move things forward.", ceiling: "achiever" },
-        { text: "The thinking is rigorous, I understand the issue deeply, and the logic behind the decision holds up.", ceiling: "expert" },
-        { text: "The room feels connected and honest enough that people can stay aligned without unnecessary relational damage.", ceiling: "harmony" }
-      ]
-    },
-    {
-      id: "q10",
-      title: "When your leadership is helping the team, which contribution do you most want to be known for?",
-      options: [
-        { text: "I bring clarity, standards, and reliable follow-through so important work is done well.", ceiling: "control" },
-        { text: "I bring vision, fresh perspective, and energy so the team can see what is possible next.", ceiling: "visionary" },
-        { text: "I bring support, steadiness, and protection so people can keep going when things are hard.", ceiling: "rescuer" }
-      ]
-    },
-    {
-      id: "q11",
-      title: "When your strength becomes too central to execution, which cost are you most likely to miss at first?",
-      options: [
-        { text: "My pace can become the informal standard, even when the team needs shared ownership more than extra effort from me.", ceiling: "achiever" },
-        { text: "My involvement can become the quality checkpoint, even when the team needs room to own the process without me.", ceiling: "control" },
-        { text: "My availability can become the relief valve, even when the team needs to build capacity by carrying appropriate pressure.", ceiling: "rescuer" }
-      ]
-    },
-    {
-      id: "q12",
-      title: "When your strength becomes too central to team conversations, which cost are you most likely to miss at first?",
-      options: [
-        { text: "My insight can become the final word, even when the team needs to practice reaching sound judgment together.", ceiling: "expert" },
-        { text: "My steadiness can keep things pleasant, even when the team needs clearer truth to move forward.", ceiling: "harmony" },
-        { text: "My ideas can become the next exciting direction, even when the team needs focus long enough to finish.", ceiling: "visionary" }
+        { text: "Pushing harder myself because the situation needs urgency and visible progress.", ceiling: "achiever" },
+        { text: "Staying close to the details because the stakes are too high for preventable mistakes.", ceiling: "control" },
+        { text: "Introducing a new angle because fresh possibility can restore energy and movement.", ceiling: "visionary" },
+        { text: "Making myself more available because people should not have to carry heavy pressure alone.", ceiling: "rescuer" }
       ]
     },
     {
@@ -610,8 +582,8 @@ export async function runMigrations() {
   const identityCeilingResults = {
     achiever: {
       label: "The Achiever's Ceiling",
-      diagnosis: "You built your leadership identity around results, delivery, execution, and being the person who gets things done. People trust you because you are dependable, productive, and willing to push through to ensure the finish line is crossed.",
-      ceiling: "The ceiling appears when the next level of leadership requires less personal output and more alignment, vision, and shared ownership. You keep increasing your own effort, but the work has changed. The organization no longer needs you to simply \"do more.\" It needs you to grow by harnessing the horsepower of others so that you can help the entire organization scale.",
+      diagnosis: "Your strongest signal suggests you have built much of your leadership identity around results, delivery, execution, and being the person who gets things done. People likely trust you because you are dependable, productive, and willing to push through to ensure the finish line is crossed.",
+      ceiling: "This ceiling may appear when the next level of leadership requires less personal output and more alignment, vision, and shared ownership. If you keep increasing your own effort after the work has changed, the organization may stay dependent on your horsepower instead of scaling through others.",
       pattern: "I prove my value by producing.",
       cost: "Your team may admire your drive, but they stay dependent on your pace.",
       shift: "Move from personal output to collective alignment.",
@@ -623,8 +595,8 @@ export async function runMigrations() {
     },
     expert: {
       label: "The Expert's Ceiling",
-      diagnosis: "You became credible because you knew your craft. You saw patterns, solved problems, gave strong answers, and earned trust through your deep competence. People came to you because you understood things at a level others didn't.",
-      ceiling: "The ceiling appears when senior leadership requires influence across domains where you are no longer the expert. If you keep needing to be the smartest or most prepared person in the room, you unintentionally narrow the conversation. The organization no longer needs you to have all the answers. It needs you to grow by elevating the thinking of others so that you can help the organization solve increasingly complex problems.",
+      diagnosis: "Your strongest signal suggests you became credible because you knew your craft. You likely see patterns, solve problems, give strong answers, and earn trust through deep competence. People may come to you because you understand things at a level others do not.",
+      ceiling: "This ceiling may appear when senior leadership requires influence across domains where you are no longer the expert. If you keep needing to be the smartest or most prepared person in the room, you can unintentionally narrow the conversation when the organization needs you to elevate the thinking of others.",
       pattern: "I prove my value by knowing.",
       cost: "Others may defer to your judgment instead of developing their own.",
       shift: "Move from giving the best answer to asking the best question.",
@@ -636,8 +608,8 @@ export async function runMigrations() {
     },
     harmony: {
       label: "The Harmony Ceiling",
-      diagnosis: "You built trust by being steady, relationally aware, and able to keep people connected. You notice the tone, tension, morale, and the emotional weather in the room. People often experience you as thoughtful, safe, and deeply considerate.",
-      ceiling: "The ceiling appears when preserving comfort starts replacing telling the truth. Hard decisions get softened, delayed, or over-explained. Conflict avoidance compounds quietly, and the team pays for clarity you have not yet named. The organization no longer needs you to just keep the peace. It needs you to grow by leaning into productive friction so that you can build authentic trust and clarity.",
+      diagnosis: "Your strongest signal suggests you build trust by being steady, relationally aware, and able to keep people connected. You likely notice the tone, tension, morale, and emotional weather in the room, and people may experience you as thoughtful, safe, and considerate.",
+      ceiling: "This ceiling may appear when preserving comfort starts replacing telling the truth. Hard decisions can get softened, delayed, or over-explained, and the team may pay for clarity that has not yet been named. The growth edge is productive friction in service of authentic trust.",
       pattern: "I protect value by keeping the peace.",
       cost: "People may feel cared for, but high performers will eventually grow frustrated by the lack of accountability.",
       shift: "Choose clarity over comfort.",
@@ -649,8 +621,8 @@ export async function runMigrations() {
     },
     control: {
       label: "The Control Ceiling",
-      diagnosis: "You built your reputation by owning important outcomes and making sure things were done well. Your standards are exceptionally high. You see what can go wrong, and you know how much quality, timing, and follow-through actually matter.",
-      ceiling: "The ceiling appears when your span of responsibility exceeds what one person can personally oversee. Delegation feels risky, so you stay too close. You may call it excellence, responsibility, or quality control, but the result is the same: the team cannot grow beyond your grip. The organization no longer needs you to oversee every detail. It needs you to grow by empowering others to lead the process so that you can help scale beyond your personal capacity.",
+      diagnosis: "Your strongest signal suggests you have built your reputation by owning important outcomes and making sure things are done well. Your standards are likely high, and you probably see what can go wrong before others do.",
+      ceiling: "This ceiling may appear when your span of responsibility exceeds what one person can personally oversee. Delegation can feel risky, so you may stay too close. What begins as excellence, responsibility, or quality control can limit the team's ownership if the process remains too dependent on you.",
       pattern: "I protect value by staying involved.",
       cost: "Others may comply with your instructions without truly owning the outcome.",
       shift: "Move from dictating the process to defining the outcome.",
@@ -662,8 +634,8 @@ export async function runMigrations() {
     },
     visionary: {
       label: "The Visionary's Ceiling",
-      diagnosis: "You built trust by seeing the future, casting a compelling vision, and spotting opportunities others missed. People are drawn to your energy, your ability to innovate, and your unique talent for getting things started. You are a natural catalyst who thrives on possibility.",
-      ceiling: "The ceiling appears when the organization needs operational depth, focus, and follow-through more than it needs another pivot. If your default response to feeling constrained or bored is to introduce a new initiative, you unintentionally create chaos. The organization no longer needs another immediate pivot. It needs you to grow by protecting the team's focus so that you can turn your big ideas into actualized results.",
+      diagnosis: "Your strongest signal suggests you build trust by seeing the future, casting a compelling vision, and spotting opportunities others miss. People may be drawn to your energy, your ability to innovate, and your talent for getting things started.",
+      ceiling: "This ceiling may appear when the organization needs operational depth, focus, and follow-through more than it needs another pivot. If your default response to constraint or boredom is a new initiative, you can create churn where the team needs protected focus to turn big ideas into actual results.",
       pattern: "I prove my value by inventing what is next.",
       cost: "Your team may feel constantly inspired, but quietly exhausted by initiative fatigue.",
       shift: "Move from launching the next idea to protecting the focus on the current one.",
@@ -675,8 +647,8 @@ export async function runMigrations() {
     },
     rescuer: {
       label: "The Rescuer's Ceiling",
-      diagnosis: "You built trust by being helpful, available, protective, and willing to carry pressure for others. People experience you as deeply supportive and dependable. You often see what someone needs before they even ask, and stepping in feels like care, responsibility, or leadership to you.",
-      ceiling: "The ceiling appears when your help prevents others from developing ownership, resilience, or capacity. You absorb tension that actually belongs elsewhere. You solve problems too quickly and relieve pressure that might have actually grown someone. The organization no longer needs you to carry the weight for everyone. It needs you to grow by allowing others to navigate their own challenges so that you can build a self-sufficient team.",
+      diagnosis: "Your strongest signal suggests you build trust by being helpful, available, protective, and willing to carry pressure for others. People may experience you as supportive and dependable, and you may notice what someone needs before they ask.",
+      ceiling: "This ceiling may appear when help prevents others from developing ownership, resilience, or capacity. You may absorb tension that belongs elsewhere or relieve pressure that could have grown someone. The growth edge is allowing others to navigate appropriate challenges so the team becomes more self-sufficient.",
       pattern: "I prove my value by being needed.",
       cost: "Others feel cared for, but lack the muscle to solve their own problems.",
       shift: "Stop carrying what others need to strengthen.",
