@@ -482,107 +482,127 @@ export async function runMigrations() {
     )
   `;
 
+  const IDENTITY_CEILING_CONFIG_VERSION = '2';
+
   const identityCeilingQuestions = [
     {
       id: "q1",
-      title: "When a high-stakes project starts to fall behind, what is happening inside you before you say or do anything?",
+      title: "When a high-stakes project starts to drift, which inner pull shows up first?",
       options: [
-        { text: "My first feeling is urgency — a strong pull to roll up my sleeves and personally drive the result forward.", ceiling: "achiever" },
-        { text: "My first feeling is a need to understand — I want to diagnose what went wrong and find the right answer before we move.", ceiling: "expert" },
-        { text: "My first feeling is relational tension — I'm scanning the team for stress and wondering how everyone is holding up before I address the problem.", ceiling: "harmony" }
+        { text: "I feel responsible for creating visible momentum, and I want to help the team regain traction quickly.", ceiling: "achiever" },
+        { text: "I feel responsible for understanding what is really happening, and I want the team to move from a sound read of the facts.", ceiling: "expert" },
+        { text: "I feel responsible for noticing the relational temperature, and I want the team to stay connected while we address the issue.", ceiling: "harmony" }
       ]
     },
     {
       id: "q2",
-      title: "When your team is stuck and the energy in the room is flat, what internal pull motivates you to step in?",
+      title: "When the team is stuck and the room feels flat, what responsibility do you most naturally take on?",
       options: [
-        { text: "A strong sense of responsibility — I feel the need to tighten things up, ensure quality, and prevent the situation from getting worse.", ceiling: "control" },
-        { text: "Genuine excitement — I see an opportunity to reframe the problem and inject fresh energy and possibility into the conversation.", ceiling: "visionary" },
-        { text: "A pull toward whoever is struggling the most — I feel compelled to step alongside them and relieve some of the pressure.", ceiling: "rescuer" }
+        { text: "I take responsibility for tightening the work, clarifying standards, and making sure important details do not slip.", ceiling: "control" },
+        { text: "I take responsibility for opening possibility, reframing the problem, and helping people see a path with more energy.", ceiling: "visionary" },
+        { text: "I take responsibility for supporting the people carrying the most pressure, especially when someone seems overwhelmed.", ceiling: "rescuer" }
       ]
     },
     {
       id: "q3",
-      title: "When you imagine moving into a larger leadership role with a broader scope, what is the quiet discomfort that surfaces?",
+      title: "When pressure rises and ambiguity increases, which move feels most stabilizing to you?",
       options: [
-        { text: "The fear that my individual contribution will become invisible — I'll be measured by what others produce, not by what I personally drive.", ceiling: "achiever" },
-        { text: "The fear that I'll be responsible for outcomes I can't personally oversee, and something critical will fall through the cracks.", ceiling: "control" },
-        { text: "The fear that I'll be locked into execution and routine, leaving me unable to innovate, explore possibilities, or lead new initiatives.", ceiling: "visionary" }
+        { text: "I create momentum through concrete progress, so people can feel that something is moving forward.", ceiling: "achiever" },
+        { text: "I create steadiness through clear ownership, quality bars, and closer attention to execution.", ceiling: "control" },
+        { text: "I create energy through a new frame, direction, or possibility that helps people get unstuck.", ceiling: "visionary" }
       ]
     },
     {
       id: "q4",
-      title: "When you hand a challenging assignment to a team member, what is the most uncomfortable part of that moment?",
+      title: "When you delegate a difficult assignment, which part takes the most discipline for you?",
       options: [
-        { text: "Trusting them to navigate the complexity without my guidance — I worry they won't reach the right conclusion on their own.", ceiling: "expert" },
-        { text: "Knowing that if they struggle, I'll eventually need to have a hard, direct conversation about their performance or accountability.", ceiling: "harmony" },
-        { text: "Watching them sit with the difficulty and pressure, knowing I could step in and ease their burden right now.", ceiling: "rescuer" }
+        { text: "Letting them reason through complexity before I offer the framework or answer I can already see.", ceiling: "expert" },
+        { text: "Letting the accountability conversation stay clear if they struggle, even when I care about preserving trust.", ceiling: "harmony" },
+        { text: "Letting them carry the productive pressure of the work before I step in to make it easier.", ceiling: "rescuer" }
       ]
     },
     {
       id: "q5",
-      title: "If a trusted colleague who both respects and challenges you were to name the one pattern quietly limiting your leadership, which would they most likely choose?",
+      title: "As your scope expands, which shift feels like the biggest stretch?",
       options: [
-        { text: "\"You are the engine of this team — but your personal pace and drive has become the team's ceiling. They can't grow beyond your output.\"", ceiling: "achiever" },
-        { text: "\"You consistently have the best answers — but people have stopped developing their own judgment because they just wait for yours.\"", ceiling: "expert" },
-        { text: "\"Your standards are exceptional — but people execute your instructions without truly owning the outcome.\"", ceiling: "control" }
+        { text: "Being valued less for what I personally push across the line and more for the outcomes others own.", ceiling: "achiever" },
+        { text: "Being valued less for having the strongest answer and more for developing stronger judgment around me.", ceiling: "expert" },
+        { text: "Being valued less for close oversight and more for making success clear enough that others can lead the process.", ceiling: "control" }
       ]
     },
     {
       id: "q6",
-      title: "During a difficult organizational transition, what would an outside observer most likely notice about your default behavior?",
+      title: "When a transition creates uncertainty, what do you most want to protect for the team?",
       options: [
-        { text: "\"They consistently prioritize emotional safety. Hard truths get softened and decisions get delayed to protect the harmony in the room.\"", ceiling: "harmony" },
-        { text: "\"They get energized by the disruption. They start generating new ideas and directions before the current ones are stabilized.\"", ceiling: "visionary" },
-        { text: "\"They become the team's emotional shock absorber. They are constantly available and quietly take on everyone else's stress.\"", ceiling: "rescuer" }
+        { text: "I want to protect trust and emotional safety, so people can stay honest and engaged through the change.", ceiling: "harmony" },
+        { text: "I want to protect possibility and forward imagination, so the change does not shrink what people believe is possible.", ceiling: "visionary" },
+        { text: "I want to protect people from unnecessary strain, so they do not feel alone with more than they can carry.", ceiling: "rescuer" }
       ]
     },
     {
       id: "q7",
-      title: "A team member who truly understands your leadership style would say that when you are under real pressure, you tend to:",
+      title: "Which feedback would be hardest to receive because it touches something you care about?",
       options: [
-        { text: "Increase your own output and urgency — setting a pace that can be hard for the team to match or sustain.", ceiling: "achiever" },
-        { text: "Keep the surface of the team calm — even when important tensions need to be named and worked through.", ceiling: "harmony" },
-        { text: "Step in before people have the chance to solve it themselves — which feels like support but removes the growth moment.", ceiling: "rescuer" }
+        { text: "Your drive helps the team deliver, but people may rely on your pace instead of building their own.", ceiling: "achiever" },
+        { text: "Your care for the room builds trust, but people may wait too long for the direct truth.", ceiling: "harmony" },
+        { text: "Your support helps people feel safe, but they may not build the strength that comes from carrying the work themselves.", ceiling: "rescuer" }
       ]
     },
     {
       id: "q8",
-      title: "In a high-level leadership conversation, what role would the people around the table say you most naturally play?",
+      title: "Which feedback would be hardest to receive because it names a strength that may be overused?",
       options: [
-        { text: "The analyst — you bring rigor, depth, and the most well-researched perspective, and you can tell when the reasoning doesn't hold up.", ceiling: "expert" },
-        { text: "The standard-bearer — you identify what could go wrong, push for quality and follow-through, and hold people to their commitments.", ceiling: "control" },
-        { text: "The catalyst — you see possibilities others miss, generate energy around new directions, and challenge the group to think bigger.", ceiling: "visionary" }
+        { text: "Your insight raises the quality of thinking, but people may defer to your analysis before testing their own.", ceiling: "expert" },
+        { text: "Your standards protect important outcomes, but people may wait for your instructions before fully owning the result.", ceiling: "control" },
+        { text: "Your ideas create momentum and possibility, but people may struggle to finish before the next direction appears.", ceiling: "visionary" }
       ]
     },
     {
       id: "q9",
-      title: "When you feel most confident and secure in your leadership, what is usually true?",
+      title: "When you feel secure as a leader, which signal tends to reassure you most?",
       options: [
-        { text: "I have been visibly productive — I can point to concrete things I personally moved forward.", ceiling: "achiever" },
-        { text: "I am the most prepared and knowledgeable person at the table — I've done the work to fully understand the problem.", ceiling: "expert" },
-        { text: "The room feels settled — people are connected, aligned, and there is no unresolved tension or conflict beneath the surface.", ceiling: "harmony" }
+        { text: "There is visible progress I can point to, and my contribution has clearly helped move things forward.", ceiling: "achiever" },
+        { text: "The thinking is rigorous, I understand the issue deeply, and the logic behind the decision holds up.", ceiling: "expert" },
+        { text: "The room feels connected and honest enough that people can stay aligned without unnecessary relational damage.", ceiling: "harmony" }
       ]
     },
     {
       id: "q10",
-      title: "Which of these candid observations would be the most personally challenging for you to hear — and also most likely to be true?",
+      title: "When your leadership is helping the team, which contribution do you most want to be known for?",
       options: [
-        { text: "\"You define not just what needs to be done, but exactly how it needs to be done. The team performs, but they don't grow.\"", ceiling: "control" },
-        { text: "\"Your new ideas energize the team, but they are quietly exhausted from never fully finishing what they started.\"", ceiling: "visionary" },
-        { text: "\"You are generous and available, but your team hasn't built the resilience to solve hard problems without you.\"", ceiling: "rescuer" }
+        { text: "I bring clarity, standards, and reliable follow-through so important work is done well.", ceiling: "control" },
+        { text: "I bring vision, fresh perspective, and energy so the team can see what is possible next.", ceiling: "visionary" },
+        { text: "I bring support, steadiness, and protection so people can keep going when things are hard.", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q11",
+      title: "When your strength becomes too central to execution, which cost are you most likely to miss at first?",
+      options: [
+        { text: "My pace can become the informal standard, even when the team needs shared ownership more than extra effort from me.", ceiling: "achiever" },
+        { text: "My involvement can become the quality checkpoint, even when the team needs room to own the process without me.", ceiling: "control" },
+        { text: "My availability can become the relief valve, even when the team needs to build capacity by carrying appropriate pressure.", ceiling: "rescuer" }
+      ]
+    },
+    {
+      id: "q12",
+      title: "When your strength becomes too central to team conversations, which cost are you most likely to miss at first?",
+      options: [
+        { text: "My insight can become the final word, even when the team needs to practice reaching sound judgment together.", ceiling: "expert" },
+        { text: "My steadiness can keep things pleasant, even when the team needs clearer truth to move forward.", ceiling: "harmony" },
+        { text: "My ideas can become the next exciting direction, even when the team needs focus long enough to finish.", ceiling: "visionary" }
       ]
     },
     {
       id: "tie-breaker",
-      title: "If you had to identify your deepest subconscious fear as a leader — the one that quietly drives more of your behavior than you would like to admit — which resonates most?",
+      title: "If you had to name the fear that most quietly shapes your leadership under pressure, which one resonates most?",
       options: [
-        { text: "Slowing down, losing momentum, and becoming someone who doesn't visibly produce results.", ceiling: "achiever" },
-        { text: "Not having the answer, appearing unprepared, or being seen as less competent than others expect.", ceiling: "expert" },
-        { text: "Being the source of conflict, making someone feel hurt, or damaging a relationship that matters to you.", ceiling: "harmony" },
-        { text: "Losing oversight of something important and having it fail under your watch.", ceiling: "control" },
-        { text: "Being constrained by routine, forced into execution mode, and losing the freedom to explore what is possible.", ceiling: "visionary" },
-        { text: "Becoming unnecessary — the team no longer needing you — and losing your sense of purpose and contribution.", ceiling: "rescuer" }
+        { text: "Losing momentum and becoming less visibly useful or productive.", ceiling: "achiever" },
+        { text: "Not having the answer and being seen as less prepared or competent.", ceiling: "expert" },
+        { text: "Creating conflict or damaging a relationship that matters.", ceiling: "harmony" },
+        { text: "Losing oversight of something important and having it fail under my watch.", ceiling: "control" },
+        { text: "Getting trapped in routine and losing the freedom to explore what is possible.", ceiling: "visionary" },
+        { text: "Becoming unnecessary and losing my sense of purpose or contribution.", ceiling: "rescuer" }
       ]
     }
   ];
@@ -668,6 +688,14 @@ export async function runMigrations() {
     }
   };
 
+  const identityVersionRows = await sql`
+    SELECT setting_value
+    FROM identity_ceiling_config
+    WHERE setting_key = 'config_version'
+  `;
+  const currentIdentityVersion = identityVersionRows[0]?.setting_value;
+  const shouldUpdateIdentityConfig = currentIdentityVersion !== IDENTITY_CEILING_CONFIG_VERSION;
+
   await sql`
     INSERT INTO identity_ceiling_config (setting_key, setting_value, updated_at)
     VALUES ('questions', ${JSON.stringify(identityCeilingQuestions)}::jsonb, NOW())
@@ -679,6 +707,30 @@ export async function runMigrations() {
     VALUES ('results', ${JSON.stringify(identityCeilingResults)}::jsonb, NOW())
     ON CONFLICT (setting_key) DO NOTHING
   `;
+
+  if (shouldUpdateIdentityConfig) {
+    await sql`
+      UPDATE identity_ceiling_config
+      SET setting_value = ${JSON.stringify(identityCeilingQuestions)}::jsonb,
+          updated_at = NOW()
+      WHERE setting_key = 'questions'
+    `;
+
+    await sql`
+      UPDATE identity_ceiling_config
+      SET setting_value = ${JSON.stringify(identityCeilingResults)}::jsonb,
+          updated_at = NOW()
+      WHERE setting_key = 'results'
+    `;
+
+    await sql`
+      INSERT INTO identity_ceiling_config (setting_key, setting_value, updated_at)
+      VALUES ('config_version', ${JSON.stringify(IDENTITY_CEILING_CONFIG_VERSION)}::jsonb, NOW())
+      ON CONFLICT (setting_key) DO UPDATE
+      SET setting_value = EXCLUDED.setting_value,
+          updated_at = NOW()
+    `;
+  }
 
   migrated = true;
 }

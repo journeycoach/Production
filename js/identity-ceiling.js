@@ -2,6 +2,8 @@
     let ASSESSMENT_STEPS = [];
     let RESULT_PROFILES = {};
     let configLoaded = false;
+    let mainQuestionCount = 0;
+    let tieBreakerQuestion = null;
     const IDENTITY_TURNSTILE_SITEKEY = '0x4AAAAAACt13j1xYnpJgcv2';
     const FALLBACK_CALENDLY_URL = 'https://calendly.com/johnpaine/alignment-call';
 
@@ -12,7 +14,7 @@
             type: 'intro',
             eyebrow: 'Start Here',
             title: 'Uncover Your Leadership Pattern',
-            copy: 'Answer these 10 questions to discover the hidden ceiling limiting your impact. Be honest about how you naturally operate under pressure.',
+            copy: 'Answer these questions to discover the hidden ceiling limiting your impact. Be honest about how you naturally operate under pressure.',
         }
     ];
 
@@ -110,6 +112,14 @@
         try { localStorage.removeItem('hc_identity_progress'); } catch (e) { /* ignore */ }
     }
 
+    function isTieBreakerQuestion(question) {
+        return question && (question.id === 'tie-breaker' || question.id === 'tie_breaker');
+    }
+
+    function getTotalQuestionCount() {
+        return mainQuestionCount + (isTieBreakerActive ? 1 : 0);
+    }
+
     // ── Data Fetching ─────────────────────────────────────────────
     async function loadConfig() {
         try {
@@ -121,19 +131,20 @@
             if (data.questions && Array.isArray(data.questions)) {
                 ASSESSMENT_STEPS = [DEFAULT_STEPS[0]];
 
-                // Indices 0–9 are the 10 main questions
-                const mainQs = data.questions.slice(0, 10).map((q, idx) => ({
+                const mainQs = data.questions
+                    .filter(q => !isTieBreakerQuestion(q))
+                    .map((q, idx) => ({
                     ...q,
                     id: q.id || `q${idx + 1}`
                 }));
                 ASSESSMENT_STEPS.push(...mainQs);
+                mainQuestionCount = mainQs.length;
 
-                // Index 10 is the tie-breaker — stored but NOT pushed until needed
-                if (data.questions.length > 10) {
-                    window._tieBreakerQuestion = { ...data.questions[10], id: 'tie_breaker' };
-                }
+                tieBreakerQuestion = data.questions.find(isTieBreakerQuestion) || null;
             } else {
                 ASSESSMENT_STEPS = DEFAULT_STEPS;
+                mainQuestionCount = 0;
+                tieBreakerQuestion = null;
             }
 
             if (data.results) RESULT_PROFILES = data.results;
@@ -187,7 +198,7 @@
                     </div>`;
             } else {
                 const qNum = index;
-                const totalQs = isTieBreakerActive ? 11 : 10;
+                const totalQs = getTotalQuestionCount();
                 const isLastStep = (index === ASSESSMENT_STEPS.length - 1);
 
                 if (isLastStep) {
@@ -286,7 +297,7 @@
             progressWrapper.style.display = 'none';
         } else {
             progressWrapper.style.display = 'block';
-            const totalQs = isTieBreakerActive ? 11 : 10;
+            const totalQs = getTotalQuestionCount();
             const percent = Math.round((index / totalQs) * 100);
             progressBar.style.width = `${Math.min(percent, 100)}%`;
             progressText.textContent = `Question ${index} of ${totalQs}`;
@@ -332,29 +343,33 @@
             }
         }
 
-        // After Q10 (index 10), check for a tie before advancing
-        if (currentIndex === 10 && !isTieBreakerActive) {
-            const tiedCeilings = getTiedCeilings();
-            if (tiedCeilings.length > 1 && window._tieBreakerQuestion) {
-                window._tieBreakerQuestion = {
-                    ...window._tieBreakerQuestion,
-                    options: (window._tieBreakerQuestion.options || [])
-                        .filter(option => tiedCeilings.includes(option.ceiling)),
-                };
-                isTieBreakerActive = true;
-                ASSESSMENT_STEPS.push(window._tieBreakerQuestion);
-                renderSteps();
-                showStep(11);
-                return;
-            }
-        }
+        if (currentIndex === mainQuestionCount && showTieBreakerIfNeeded()) return;
 
         showStep(currentIndex + 1);
     }
 
+    function showTieBreakerIfNeeded() {
+        if (isTieBreakerActive || !tieBreakerQuestion) return false;
+
+        const tiedCeilings = getTiedCeilings();
+        if (tiedCeilings.length <= 1) return false;
+
+        const filteredTieBreaker = {
+            ...tieBreakerQuestion,
+            id: 'tie_breaker',
+            options: (tieBreakerQuestion.options || [])
+                .filter(option => tiedCeilings.includes(option.ceiling)),
+        };
+        isTieBreakerActive = true;
+        ASSESSMENT_STEPS.push(filteredTieBreaker);
+        renderSteps();
+        showStep(mainQuestionCount + 1);
+        return true;
+    }
+
     function getTiedCeilings() {
         const tallies = {};
-        for (let i = 1; i <= 10; i++) {
+        for (let i = 1; i <= mainQuestionCount; i++) {
             const step = ASSESSMENT_STEPS[i];
             if (!step) continue;
             const selectedIdx = answers[step.id];
@@ -394,6 +409,8 @@
             return;
         }
 
+        if (lastStepIdx === mainQuestionCount && showTieBreakerIfNeeded()) return;
+
         if (!turnstileToken) {
             renderIdentityTurnstile();
             setCaptchaMessage('Please complete the security check before revealing your result.');
@@ -407,6 +424,10 @@
             const qAnswers = {};
             for (const key of Object.keys(answers)) {
                 if (key.startsWith('q') || key === 'tie_breaker') qAnswers[key] = answers[key];
+            }
+            if (answers.tie_breaker !== undefined) {
+                const selectedTieBreaker = ASSESSMENT_STEPS[lastStepIdx]?.options?.[answers.tie_breaker];
+                if (selectedTieBreaker?.ceiling) qAnswers.tie_breaker_ceiling = selectedTieBreaker.ceiling;
             }
 
             const response = await fetch('/api/identity-ceiling', {

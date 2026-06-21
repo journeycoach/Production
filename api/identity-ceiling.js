@@ -31,6 +31,10 @@ function normalizeEmail(value) {
   return String(value || '').trim().toLowerCase();
 }
 
+function isTieBreakerQuestion(question) {
+  return question?.id === 'tie-breaker' || question?.id === 'tie_breaker';
+}
+
 // Determine winning ceiling, using tie-breaker ceiling key if provided
 function determineResult(scores, tieBreakerCeiling) {
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
@@ -45,7 +49,7 @@ function determineResult(scores, tieBreakerCeiling) {
     if (tieBreakerCeiling && tiedCeilings.includes(tieBreakerCeiling)) {
       return tieBreakerCeiling;
     }
-    // No tie-breaker provided — still return the first-sorted (alphabetically stable)
+    // No tie-breaker provided — return the first configured score bucket.
   }
   return first[0];
 }
@@ -153,12 +157,12 @@ export default async function handler(req, res) {
       const questions = configRows[0].setting_value;
       const scores = { achiever: 0, expert: 0, harmony: 0, control: 0, visionary: 0, rescuer: 0 };
 
-      // Score main 10 questions (q1–q10)
-      for (let i = 1; i <= 10; i++) {
-        const qId = `q${i}`;
+      // Score all configured main questions. The tie-breaker only resolves tied scores.
+      const mainQuestions = questions.filter(q => !isTieBreakerQuestion(q));
+      for (const q of mainQuestions) {
+        const qId = q.id;
         const answerIdx = answers[qId];
         if (answerIdx !== undefined && answerIdx !== null) {
-          const q = questions.find(q => q.id === qId);
           if (q && q.options[answerIdx]) {
             const ceiling = q.options[answerIdx].ceiling;
             if (ceiling && scores[ceiling] !== undefined) scores[ceiling]++;
@@ -166,12 +170,14 @@ export default async function handler(req, res) {
         }
       }
 
-      // Resolve tie-breaker: look up the ceiling from the tie-breaker question in DB
-      // (the seeded ID uses a hyphen, frontend stores answer under 'tie_breaker' key)
-      let tieBreakerCeiling = null;
+      // Resolve tie-breaker from the submitted ceiling key. Fall back to the legacy
+      // index lookup for older clients that only sent tie_breaker.
+      let tieBreakerCeiling = scores[answers.tie_breaker_ceiling] !== undefined
+        ? answers.tie_breaker_ceiling
+        : null;
       const tbAnswerIdx = answers['tie_breaker'];
-      if (tbAnswerIdx !== undefined && tbAnswerIdx !== null) {
-        const tbQ = questions.find(q => q.id === 'tie-breaker' || q.id === 'tie_breaker');
+      if (!tieBreakerCeiling && tbAnswerIdx !== undefined && tbAnswerIdx !== null) {
+        const tbQ = questions.find(isTieBreakerQuestion);
         if (tbQ && tbQ.options[tbAnswerIdx]) {
           tieBreakerCeiling = tbQ.options[tbAnswerIdx].ceiling;
         }
