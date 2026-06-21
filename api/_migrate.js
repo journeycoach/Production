@@ -482,7 +482,7 @@ export async function runMigrations() {
     )
   `;
 
-  const IDENTITY_CEILING_CONFIG_VERSION = '5';
+  const IDENTITY_CEILING_CONFIG_VERSION = '6';
 
   const identityCeilingQuestions = [
     {
@@ -490,9 +490,9 @@ export async function runMigrations() {
       title: "When a high-stakes project starts to drift, which inner pull shows up first?",
       options: [
         { text: "I feel pulled to create visible momentum so the team can regain traction quickly.", ceiling: "achiever" },
-        { text: "I feel pulled to understand what is really happening before the team moves on a shaky read of the facts.", ceiling: "expert" },
-        { text: "I feel pulled to notice the relational temperature so the team stays connected while we fix the problem.", ceiling: "harmony" },
-        { text: "I feel pulled to tighten ownership so nothing important slips through the cracks.", ceiling: "control" }
+        { text: "I feel pulled to understand what is really happening so the team moves with enough clarity.", ceiling: "expert" },
+        { text: "I feel pulled to notice the relational temperature so the team stays connected while we address the problem.", ceiling: "harmony" },
+        { text: "I feel pulled to clarify ownership so the team can execute with confidence.", ceiling: "control" }
       ]
     },
     {
@@ -500,19 +500,19 @@ export async function runMigrations() {
       title: "When the team is stuck and the room feels flat, what responsibility do you most naturally take on?",
       options: [
         { text: "I open up possibility and reframe the problem so people can see a path with more energy.", ceiling: "visionary" },
-        { text: "I support the people carrying the most pressure, especially anyone who seems overwhelmed.", ceiling: "rescuer" },
+        { text: "I make sure people have the support they need so they can stay effective under pressure.", ceiling: "rescuer" },
         { text: "I create visible progress so the team can feel momentum again.", ceiling: "achiever" },
-        { text: "I diagnose the real issue before people move too quickly.", ceiling: "expert" }
+        { text: "I diagnose the real issue so the team can move from a stronger understanding.", ceiling: "expert" }
       ]
     },
     {
       id: "q3",
-      title: "When a high-stakes assignment you've delegated starts to wobble, which part takes the most discipline for you?",
+      title: "When a high-stakes assignment you've delegated starts to wobble, what takes the most discipline for you?",
       options: [
-        { text: "I hold back from handing them the framework or answer, even though I can already see it.", ceiling: "expert" },
-        { text: "I keep the accountability conversation clear, even when I'm worried about the trust between us.", ceiling: "harmony" },
-        { text: "I define the outcome and resist staying close to every detail of how they get there.", ceiling: "control" },
-        { text: "I let them sit with the pressure of the work before I step in to make it easier.", ceiling: "rescuer" }
+        { text: "I hold back from providing the framework so they can strengthen their own judgment.", ceiling: "expert" },
+        { text: "I keep the conversation clear so trust and accountability can both stay intact.", ceiling: "harmony" },
+        { text: "I define the outcome clearly so they can own the path to getting there.", ceiling: "control" },
+        { text: "I give them room to carry the work so they can build capacity through the challenge.", ceiling: "rescuer" }
       ]
     },
     {
@@ -521,8 +521,8 @@ export async function runMigrations() {
       options: [
         { text: "I protect trust and emotional safety so people can stay honest and engaged through the change.", ceiling: "harmony" },
         { text: "I protect possibility and forward imagination so the change doesn't shrink what people believe is possible.", ceiling: "visionary" },
-        { text: "I protect clarity, standards, and ownership so the change doesn't become messy.", ceiling: "control" },
-        { text: "I protect momentum so the team doesn't lose confidence or slow down too much.", ceiling: "achiever" }
+        { text: "I protect clarity, standards, and ownership so the change remains coordinated.", ceiling: "control" },
+        { text: "I protect momentum so the team can keep confidence and forward movement.", ceiling: "achiever" }
       ]
     },
     {
@@ -532,7 +532,7 @@ export async function runMigrations() {
         { text: "I slow the room down to test the assumptions and improve the quality of the thinking.", ceiling: "expert" },
         { text: "I clarify what must be true operationally so the decision can actually be executed well.", ceiling: "control" },
         { text: "I widen the frame so we don't miss a better possibility or a more ambitious direction.", ceiling: "visionary" },
-        { text: "I watch for unnecessary tension or anyone getting left behind in the conversation.", ceiling: "harmony" }
+        { text: "I watch the room carefully so the conversation stays candid, connected, and inclusive.", ceiling: "harmony" }
       ]
     },
     {
@@ -541,40 +541,40 @@ export async function runMigrations() {
       options: [
         { text: "I define the standards, owners, and execution path so the most important work gets done well.", ceiling: "control" },
         { text: "I reframe the priorities around the bigger opportunity so the team has energy and direction.", ceiling: "visionary" },
-        { text: "I notice who is overloaded and make sure people have enough support to keep going.", ceiling: "rescuer" },
+        { text: "I make sure capacity and support are realistic so people can sustain the work.", ceiling: "rescuer" },
         { text: "I create immediate progress on the most visible priority so the team regains traction.", ceiling: "achiever" }
       ]
     },
     {
       id: "q7",
-      title: "A direct report misses an important commitment under pressure. What do you most naturally do first?",
+      title: "A direct report is struggling to deliver under pressure. What do you most naturally do first?",
       options: [
         { text: "I move quickly to recover momentum and get the work back on track.", ceiling: "achiever" },
-        { text: "I think carefully about what needs to be said while protecting the trust in the relationship.", ceiling: "harmony" },
-        { text: "I check what support they need and whether I can relieve enough pressure for them to recover.", ceiling: "rescuer" },
-        { text: "I want to understand what broke down so the real cause gets addressed, not just the missed deadline.", ceiling: "expert" }
+        { text: "I name what needs attention so the relationship and the accountability both stay clear.", ceiling: "harmony" },
+        { text: "I check what support they need so they can recover and stay effective.", ceiling: "rescuer" },
+        { text: "I seek to understand what broke down so the real cause can be addressed.", ceiling: "expert" }
       ]
     },
     {
       id: "q8",
       title: "When execution is under strain, which pattern are you most likely to rationalize as good leadership?",
       options: [
-        { text: "I push harder myself because the situation needs urgency and visible progress.", ceiling: "achiever" },
-        { text: "I stay close to the details because the stakes are too high for preventable mistakes.", ceiling: "control" },
-        { text: "I introduce a new angle because fresh possibility can restore energy and movement.", ceiling: "visionary" },
-        { text: "I make myself more available because people shouldn't have to carry heavy pressure alone.", ceiling: "rescuer" }
+        { text: "I increase pace and focus so the team can regain traction.", ceiling: "achiever" },
+        { text: "I stay close to execution so the team can protect quality.", ceiling: "control" },
+        { text: "I introduce a new angle so the team can recover energy and movement.", ceiling: "visionary" },
+        { text: "I increase support so people can stay steady under pressure.", ceiling: "rescuer" }
       ]
     },
     {
       id: "tie-breaker",
-      title: "If you had to name the fear that most quietly shapes your leadership under pressure, which one resonates most?",
+      title: "If you had to name what most unsettles you as a leader under pressure, which one resonates most?",
       options: [
-        { text: "I fear losing momentum and becoming less visibly useful or productive.", ceiling: "achiever" },
-        { text: "I fear not having the answer and being seen as less prepared or competent.", ceiling: "expert" },
-        { text: "I fear creating conflict or damaging a relationship that matters.", ceiling: "harmony" },
-        { text: "I fear losing oversight of something important and having it fail under my watch.", ceiling: "control" },
-        { text: "I fear getting trapped in routine and losing the freedom to explore what's possible.", ceiling: "visionary" },
-        { text: "I fear becoming unnecessary and losing my sense of purpose or contribution.", ceiling: "rescuer" }
+        { text: "I am most unsettled by losing momentum and becoming less visibly useful or productive.", ceiling: "achiever" },
+        { text: "I am most unsettled by not having the answer and being seen as less prepared or competent.", ceiling: "expert" },
+        { text: "I am most unsettled by creating conflict or damaging a relationship that matters.", ceiling: "harmony" },
+        { text: "I am most unsettled by losing oversight of something important and having it fail under my watch.", ceiling: "control" },
+        { text: "I am most unsettled by getting trapped in routine and losing the freedom to explore what's possible.", ceiling: "visionary" },
+        { text: "I am most unsettled by becoming unnecessary and losing my sense of purpose or contribution.", ceiling: "rescuer" }
       ]
     }
   ];
