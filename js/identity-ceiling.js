@@ -147,6 +147,19 @@
             answer.most !== answer.least;
     }
 
+    function getForcedChoicePhase(answer) {
+        if (answer.most === null || answer.most === undefined) return 'most';
+        if (answer.least === null || answer.least === undefined) return 'least';
+        return 'complete';
+    }
+
+    function getForcedChoiceInstruction(answer) {
+        const phase = getForcedChoicePhase(answer);
+        if (phase === 'most') return 'Tap the statement that is most like you.';
+        if (phase === 'least') return 'Now tap the statement that is least like you.';
+        return 'You selected one most-like and one least-like statement. Tap a selected card to change it.';
+    }
+
     // ── Data Fetching ─────────────────────────────────────────────
     async function loadConfig() {
         try {
@@ -269,25 +282,27 @@
                 stepEl.innerHTML = `
                     <span class="step-eyebrow">Question ${qNum} of ${totalQs}</span>
                     <h2 class="step-title">${step.title}</h2>
-                    <p class="forced-choice-instruction">Choose the statement that is most like you and the statement that is least like you. You cannot choose the same statement for both.</p>
-                    <div class="forced-choice-grid" role="group" aria-label="${step.title}">
-                        <div></div>
-                        <div class="forced-choice-heading">Most</div>
-                        <div class="forced-choice-heading">Least</div>
+                    <p class="forced-choice-instruction">${getForcedChoiceInstruction(selected)}</p>
+                    <div class="forced-choice-cards" role="group" aria-label="${step.title}">
                         ${(step.options || []).map((opt, optIdx) => `
-                            <div class="forced-option-row" data-qid="${step.id}" data-optidx="${optIdx}">
-                                <div class="forced-option-text">${opt.text}</div>
-                                <label class="forced-choice-cell ${selected.most === optIdx ? 'selected-most' : ''}">
-                                    <input class="forced-choice-input" type="radio"
-                                           name="${step.id}-most" value="${optIdx}" data-qid="${step.id}" data-kind="most"
-                                           ${selected.most === optIdx ? 'checked' : ''}>
-                                </label>
-                                <label class="forced-choice-cell ${selected.least === optIdx ? 'selected-least' : ''}">
-                                    <input class="forced-choice-input" type="radio"
-                                           name="${step.id}-least" value="${optIdx}" data-qid="${step.id}" data-kind="least"
-                                           ${selected.least === optIdx ? 'checked' : ''}>
-                                </label>
-                            </div>`).join('')}
+                            <button type="button"
+                                    class="forced-choice-card ${selected.most === optIdx ? 'selected-most' : ''} ${selected.least === optIdx ? 'selected-least' : ''}"
+                                    data-qid="${step.id}"
+                                    data-optidx="${optIdx}"
+                                    ${getForcedChoicePhase(selected) === 'least' && selected.most === optIdx ? 'disabled' : ''}>
+                                <span class="forced-card-text">${opt.text}</span>
+                                <span class="forced-card-badge">${
+                                    selected.most === optIdx
+                                        ? 'Most'
+                                        : selected.least === optIdx
+                                            ? 'Least'
+                                            : getForcedChoicePhase(selected) === 'most'
+                                                ? 'Tap for most'
+                                                : getForcedChoicePhase(selected) === 'least'
+                                                    ? 'Tap for least'
+                                                    : 'Change'
+                                }</span>
+                            </button>`).join('')}
                     </div>
                     <div id="q-error-${index}" class="error-message" style="display:none;">
                         Please choose one most-like and one least-like statement.
@@ -325,16 +340,26 @@
             });
         });
 
-        stepsContainer.querySelectorAll('.forced-choice-input').forEach(input => {
-            input.addEventListener('change', function () {
+        stepsContainer.querySelectorAll('.forced-choice-card').forEach(card => {
+            card.addEventListener('click', function () {
                 const qid = this.dataset.qid;
-                const kind = this.dataset.kind;
-                const optIdx = parseInt(this.value, 10);
+                const optIdx = parseInt(this.dataset.optidx, 10);
                 const answer = getForcedAnswer(qid);
+                const phase = getForcedChoicePhase(answer);
 
-                answer[kind] = optIdx;
-                if (kind === 'most' && answer.least === optIdx) answer.least = null;
-                if (kind === 'least' && answer.most === optIdx) answer.most = null;
+                if (phase === 'most') {
+                    answer.most = optIdx;
+                    if (answer.least === optIdx) answer.least = null;
+                } else if (phase === 'least') {
+                    if (answer.most === optIdx) return;
+                    answer.least = optIdx;
+                } else if (answer.most === optIdx) {
+                    answer.most = null;
+                } else if (answer.least === optIdx) {
+                    answer.least = null;
+                } else {
+                    answer.least = optIdx;
+                }
                 answers[qid] = answer;
                 saveProgress();
 
