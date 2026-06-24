@@ -170,48 +170,65 @@
         const label = isTB ? 'Tie-Breaker Question' : `Question ${qIndex + 1}`;
 
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card profile-accordion question-accordion';
         card.style.marginBottom = '1.5rem';
 
         // Header
         card.innerHTML = `
-          <div class="card-title-header">
-            <h3>${label}</h3>
-            <span class="ceiling-badge" style="background:none;border-color:var(--admin-border);color:var(--admin-muted);">id: ${esc(q.id)}</span>
-          </div>
+          <button type="button" class="profile-summary question-summary" aria-expanded="false">
+            <span class="profile-summary-left">
+              <span class="ceiling-badge">${esc(label)}</span>
+              <span class="profile-summary-title" data-question-title="${qIndex}">${esc(q.title || label)}</span>
+            </span>
+            <span class="profile-summary-right">
+              <span class="ceiling-badge" style="background:none;border-color:var(--admin-border);color:var(--admin-muted);">id: ${esc(q.id)}</span>
+              <span class="ceiling-badge" style="background:none;border-color:var(--admin-border);color:var(--admin-muted);">Edit</span>
+              <span class="profile-chevron">⌄</span>
+            </span>
+          </button>
 
-          <div class="form-group">
-            <div class="question-label">Question Text</div>
-            <textarea rows="2" data-qindex="${qIndex}" data-field="title"
-                      style="resize:vertical;">${esc(q.title)}</textarea>
-          </div>
+          <div class="profile-body">
+            <div class="form-group">
+              <div class="question-label">Question Text</div>
+              <textarea rows="2" data-qindex="${qIndex}" data-field="title"
+                        style="resize:vertical;">${esc(q.title)}</textarea>
+            </div>
 
-          <div class="question-label" style="margin-top:12px;">Answer Options</div>
-          <div class="options-edit" data-qindex="${qIndex}">
-            ${(q.options || []).map((opt, oIndex) => `
-              <div class="option-row">
-                <div>
-                  <div class="question-label">Answer ${oIndex + 1}</div>
-                  <input type="text"
-                         data-qindex="${qIndex}"
-                         data-oindex="${oIndex}"
-                         data-field="option-text"
-                         value="${esc(opt.text)}" />
-                </div>
-                <div>
-                  <div class="question-label">Scores Toward</div>
-                  <select data-qindex="${qIndex}"
-                          data-oindex="${oIndex}"
-                          data-field="option-ceiling">
-                    ${CEILING_KEYS.map(key => `
-                      <option value="${esc(key)}" ${opt.ceiling === key ? 'selected' : ''}>${esc(formatCeilingLabel(key))}</option>
-                    `).join('')}
-                  </select>
-                </div>
-              </div>`).join('')}
+            <div class="question-label" style="margin-top:12px;">Answer Options</div>
+            <div class="options-edit" data-qindex="${qIndex}">
+              ${(q.options || []).map((opt, oIndex) => `
+                <div class="option-row">
+                  <div>
+                    <div class="question-label">Answer ${oIndex + 1}</div>
+                    <input type="text"
+                           data-qindex="${qIndex}"
+                           data-oindex="${oIndex}"
+                           data-field="option-text"
+                           value="${esc(opt.text)}" />
+                  </div>
+                  <div>
+                    <div class="question-label">Scores Toward</div>
+                    <select data-qindex="${qIndex}"
+                            data-oindex="${oIndex}"
+                            data-field="option-ceiling">
+                      ${CEILING_KEYS.map(key => `
+                        <option value="${esc(key)}" ${opt.ceiling === key ? 'selected' : ''}>${esc(formatCeilingLabel(key))}</option>
+                      `).join('')}
+                    </select>
+                  </div>
+                </div>`).join('')}
+            </div>
           </div>`;
 
         container.appendChild(card);
+      });
+
+      container.querySelectorAll('.question-summary').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('.question-accordion');
+          const isOpen = card.classList.toggle('open');
+          btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
       });
 
       // Attach listeners
@@ -219,6 +236,8 @@
         el.addEventListener('input', () => {
           const qi = parseInt(el.dataset.qindex, 10);
           assessmentData.questions[qi].title = el.value;
+          const titleEl = container.querySelector(`[data-question-title="${qi}"]`);
+          if (titleEl) titleEl.textContent = el.value || `Question ${qi + 1}`;
           markDirty();
         });
       });
