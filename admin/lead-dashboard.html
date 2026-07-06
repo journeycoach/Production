@@ -340,12 +340,16 @@
     /* ── Analytics tab ─────────────────────────────────────────────────────── */
     #tab-analytics .an-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
     #tab-analytics .an-controls label { font-size: 0.875rem; color: var(--admin-muted); font-family: var(--admin-body-font); }
-    #tab-analytics .an-controls select { background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; font-family: var(--admin-body-font); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    #tab-analytics .an-controls select,
+    #tab-analytics .an-sub-controls select { background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; font-family: var(--admin-body-font); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
     #tab-analytics .an-metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
     #tab-analytics .an-metric-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
     #tab-analytics .an-metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-muted); }
     #tab-analytics .an-metric-value { font-size: 2rem; font-weight: 700; font-family: var(--admin-heading-font); color: #ffffff; line-height: 1.1; }
     #tab-analytics .an-metric-value.accent { color: #f0d08a; }
+    #tab-analytics .an-section-title { color: var(--admin-text); font-family: var(--admin-heading-font); font-size: 1.1rem; margin: 0 0 14px; }
+    #tab-analytics .an-sub-controls { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; flex-wrap: wrap; }
+    #tab-analytics .an-sub-controls label { color: var(--admin-muted); font-size: 0.82rem; }
     #tab-analytics .an-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     #tab-analytics .an-chart-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; }
     #tab-analytics .an-chart-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; font-family: var(--admin-body-font); }
@@ -394,6 +398,7 @@
         <button class="main-tab is-active" id="mainTab-overview" onclick="switchTab('overview')">Overview</button>
         <button class="main-tab" id="mainTab-funnel" onclick="switchTab('funnel')">Sales Funnel</button>
         <button class="main-tab" id="mainTab-analytics" onclick="switchTab('analytics')">Analytics</button>
+        <button class="main-tab" id="mainTab-page-visits" onclick="switchTab('page-visits')">Page Visits</button>
       </div>
 
       <!-- Date range toggle -->
@@ -525,6 +530,13 @@
           <div class="an-loading">Loading analytics…</div>
         </div>
       </div><!-- /tab-analytics -->
+
+      <!-- ── Page Visits tab ────────────────────────────────────────────────── -->
+      <div id="tab-page-visits" style="display:none;">
+        <div id="pageVisitsTabContent">
+          <div class="an-loading">Loading page visits…</div>
+        </div>
+      </div><!-- /tab-page-visits -->
 
     </main>
   </div>
@@ -812,17 +824,22 @@
     // ── Tab switching ─────────────────────────────────────────────────────────
 
     let analyticsLoaded = false;
+    let currentReportingTab = 'overview';
     function switchTab(name) {
-      ['overview', 'funnel', 'analytics'].forEach(t => {
+      currentReportingTab = name;
+      ['overview', 'funnel', 'analytics', 'page-visits'].forEach(t => {
         document.getElementById('tab-' + t).style.display = t === name ? '' : 'none';
         document.getElementById('mainTab-' + t).classList.toggle('is-active', t === name);
       });
-      // Hide period range bar on analytics tab (has its own weeks selector)
-      document.querySelector('.range-bar').style.display = name === 'analytics' ? 'none' : '';
-      // Lazy-load on first visit
-      if (name === 'analytics' && !analyticsLoaded) {
-        analyticsLoaded = true;
+      // Hide period range bar on reporting tabs that use their own controls.
+      document.querySelector('.range-bar').style.display = (name === 'analytics' || name === 'page-visits') ? 'none' : '';
+      // Lazy-load shared reporting analytics on first visit.
+      if ((name === 'analytics' || name === 'page-visits') && !analyticsLoaded) {
         loadAnalyticsCharts(12);
+      } else if (name === 'analytics' && anLatestData) {
+        renderAnalyticsDashboard(anLatestData);
+      } else if (name === 'page-visits' && anLatestData) {
+        renderPageVisitsDashboard(anLatestData);
       }
     }
 
@@ -833,6 +850,8 @@
     const AN_GOLD  = '#c7a96b', AN_BLUE = '#5b8fd4', AN_GREEN = '#4caf7d', AN_TEAL = '#3eafc0';
     const AN_FILL  = 'rgba(199,169,107,0.07)';
     const anCharts = {};
+    let anLatestData = null;
+    let anVisitGrain = 'daily';
 
     function anDestroyChart(id) {
       if (anCharts[id]) { anCharts[id].destroy(); delete anCharts[id]; }
@@ -840,6 +859,12 @@
 
     function anWeekLabel(iso) {
       const d = new Date(iso + 'T00:00:00Z');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+
+    function anPeriodLabel(iso, grain) {
+      const d = new Date(iso + 'T00:00:00Z');
+      if (grain === 'monthly') return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
     }
 
@@ -873,7 +898,80 @@
       });
     }
 
+    function anGroupedBarChart(id, labels, homeData, assessmentData) {
+      anDestroyChart(id);
+      anCharts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Home Page', data: homeData, backgroundColor: 'rgba(199,169,107,0.65)', borderColor: AN_GOLD, borderWidth: 1, borderRadius: 4 },
+            { label: 'Assessment', data: assessmentData, backgroundColor: 'rgba(62,175,192,0.65)', borderColor: AN_TEAL, borderWidth: 1, borderRadius: 4 },
+          ],
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#f0ece4', usePointStyle: true } }, tooltip: anTooltip }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { maxRotation: 45, font: { size: 11 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0, font: { size: 11 } } } } },
+      });
+    }
+
+    function getVisitRows(d, grain) {
+      if (grain === 'weekly') return d.visitWeekly || [];
+      if (grain === 'monthly') return d.visitMonthly || [];
+      return d.visitDaily || [];
+    }
+
+    function visitTotal(d, pageKey) {
+      return (d.visitTotals || []).find(r => r.page_key === pageKey)?.count || 0;
+    }
+
+    function renderVisitChart(grain = anVisitGrain) {
+      if (!anLatestData || !document.getElementById('anChartVisits')) return;
+      anVisitGrain = grain;
+      const rows = getVisitRows(anLatestData, grain);
+      const periods = [...new Set(rows.map(r => r.period))];
+      const byPeriodPage = Object.fromEntries(rows.map(r => [`${r.period}:${r.page_key}`, r.count]));
+      anGroupedBarChart(
+        'anChartVisits',
+        periods.map(p => anPeriodLabel(p, grain)),
+        periods.map(p => byPeriodPage[`${p}:home`] || 0),
+        periods.map(p => byPeriodPage[`${p}:assessment`] || 0)
+      );
+    }
+
+    function setVisitGrain(grain) {
+      anVisitGrain = grain;
+      renderVisitChart(grain);
+    }
+
+    function renderPageVisitsDashboard(d) {
+      anLatestData = d;
+      const totalHomeVisits = visitTotal(d, 'home');
+      const totalAssessmentVisits = visitTotal(d, 'assessment');
+      const assessmentVisitRate = totalHomeVisits > 0 ? ((totalAssessmentVisits / totalHomeVisits) * 100).toFixed(1) + '%' : '—';
+
+      document.getElementById('pageVisitsTabContent').innerHTML = `
+        <div class="an-metric-cards">
+          <div class="an-metric-card"><div class="an-metric-label">Home Visits</div><div class="an-metric-value">${totalHomeVisits.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Assessment Visits</div><div class="an-metric-value">${totalAssessmentVisits.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Assessment Visit Rate</div><div class="an-metric-value accent">${assessmentVisitRate}</div></div>
+        </div>
+        <div class="an-chart-card" style="margin-bottom:20px;">
+          <div class="an-section-title">Page Visits</div>
+          <div class="an-sub-controls">
+            <label for="anVisitGrainSelect">Group by</label>
+            <select id="anVisitGrainSelect" onchange="setVisitGrain(this.value)">
+              <option value="daily"${anVisitGrain === 'daily' ? ' selected' : ''}>Day</option>
+              <option value="weekly"${anVisitGrain === 'weekly' ? ' selected' : ''}>Week</option>
+              <option value="monthly"${anVisitGrain === 'monthly' ? ' selected' : ''}>Month</option>
+            </select>
+          </div>
+          <div class="an-chart-wrap"><canvas id="anChartVisits"></canvas></div>
+        </div>`;
+
+      renderVisitChart(anVisitGrain);
+    }
+
     function renderAnalyticsDashboard(d) {
+      anLatestData = d;
       const labels        = d.subscribersOverTime.map(r => anWeekLabel(r.week));
       const totalSubs     = d.subscribersOverTime.reduce((s, r) => s + r.count, 0);
       const totalAssess   = d.assessmentsOverTime.reduce((s, r) => s + r.count, 0);
@@ -907,13 +1005,23 @@
     }
 
     async function loadAnalyticsCharts(weeks) {
-      document.getElementById('analyticsTabContent').innerHTML = '<div class="an-loading">Loading analytics…</div>';
+      analyticsLoaded = true;
+      if (currentReportingTab === 'page-visits') {
+        document.getElementById('pageVisitsTabContent').innerHTML = '<div class="an-loading">Loading page visits…</div>';
+      } else {
+        document.getElementById('analyticsTabContent').innerHTML = '<div class="an-loading">Loading analytics…</div>';
+      }
       try {
         const res  = await adminFetch(`/api/admin/contacts?type=analytics&weeks=${weeks}`);
         if (!res.ok) { const b = await res.json().catch(() => ({})); throw new Error(b.error || `HTTP ${res.status}`); }
-        renderAnalyticsDashboard(await res.json());
+        const data = await res.json();
+        anLatestData = data;
+        if (currentReportingTab === 'page-visits') renderPageVisitsDashboard(data);
+        else renderAnalyticsDashboard(data);
       } catch (err) {
-        document.getElementById('analyticsTabContent').innerHTML = `<div class="an-error">Failed to load analytics: ${escHtml(err.message)}</div>`;
+        const errorHtml = `<div class="an-error">Failed to load analytics: ${escHtml(err.message)}</div>`;
+        if (currentReportingTab === 'page-visits') document.getElementById('pageVisitsTabContent').innerHTML = errorHtml;
+        else document.getElementById('analyticsTabContent').innerHTML = errorHtml;
       }
     }
 
@@ -1151,7 +1259,7 @@
 
     // Auto-switch to a tab requested via ?tab= URL param (e.g. from analytics.html redirect)
     const _urlTab = new URLSearchParams(window.location.search).get('tab');
-    if (_urlTab && ['overview', 'funnel', 'analytics'].includes(_urlTab)) {
+    if (_urlTab && ['overview', 'funnel', 'analytics', 'page-visits'].includes(_urlTab)) {
       switchTab(_urlTab);
     }
 

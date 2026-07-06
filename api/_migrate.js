@@ -334,6 +334,17 @@ export async function runMigrations() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_visits (
+      id         SERIAL PRIMARY KEY,
+      page_key   TEXT NOT NULL,
+      path       TEXT,
+      visited_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_page_key_visited_at ON page_visits (page_key, visited_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_visited_at ON page_visits (visited_at DESC)`;
+
   // Ensure site_settings table exists (may have been created outside migrations)
   await sql`
     CREATE TABLE IF NOT EXISTS site_settings (

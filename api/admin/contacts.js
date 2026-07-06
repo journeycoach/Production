@@ -12,6 +12,56 @@ async function handleAnalytics(req, res) {
   const rawWeeks = parseInt(req.query.weeks, 10);
   const weeks = ALLOWED_WEEKS.has(rawWeeks) ? rawWeeks : 12;
   try {
+    const visitDaily = await sql`
+      SELECT pages.page_key AS page_key,
+        TO_CHAR(gs.day_start, 'YYYY-MM-DD') AS period,
+        COUNT(pv.id)::int AS count
+      FROM generate_series(
+        DATE_TRUNC('day', NOW()) - '29 days'::interval,
+        DATE_TRUNC('day', NOW()),
+        '1 day'::interval
+      ) AS gs(day_start)
+      CROSS JOIN (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN page_visits pv
+        ON pv.page_key = pages.page_key
+       AND DATE_TRUNC('day', pv.visited_at AT TIME ZONE 'UTC') = gs.day_start
+      GROUP BY pages.page_key, gs.day_start
+      ORDER BY gs.day_start, pages.page_key`;
+    const visitWeekly = await sql`
+      SELECT pages.page_key AS page_key,
+        TO_CHAR(gs.week_start, 'YYYY-MM-DD') AS period,
+        COUNT(pv.id)::int AS count
+      FROM generate_series(
+        DATE_TRUNC('week', NOW()) - '11 weeks'::interval,
+        DATE_TRUNC('week', NOW()),
+        '1 week'::interval
+      ) AS gs(week_start)
+      CROSS JOIN (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN page_visits pv
+        ON pv.page_key = pages.page_key
+       AND DATE_TRUNC('week', pv.visited_at AT TIME ZONE 'UTC') = gs.week_start
+      GROUP BY pages.page_key, gs.week_start
+      ORDER BY gs.week_start, pages.page_key`;
+    const visitMonthly = await sql`
+      SELECT pages.page_key AS page_key,
+        TO_CHAR(gs.month_start, 'YYYY-MM-DD') AS period,
+        COUNT(pv.id)::int AS count
+      FROM generate_series(
+        DATE_TRUNC('month', NOW()) - '11 months'::interval,
+        DATE_TRUNC('month', NOW()),
+        '1 month'::interval
+      ) AS gs(month_start)
+      CROSS JOIN (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN page_visits pv
+        ON pv.page_key = pages.page_key
+       AND DATE_TRUNC('month', pv.visited_at AT TIME ZONE 'UTC') = gs.month_start
+      GROUP BY pages.page_key, gs.month_start
+      ORDER BY gs.month_start, pages.page_key`;
+    const visitTotals = await sql`
+      SELECT page_key, COUNT(*)::int AS count
+      FROM page_visits
+      WHERE page_key IN ('home', 'assessment')
+      GROUP BY page_key`;
     const subscribersOverTime = await sql`
       SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
       FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
@@ -39,7 +89,7 @@ async function handleAnalytics(req, res) {
       if (key in resultCenterCounts) resultCenterCounts[key] = row.count;
     }
     const dripStepDistribution = await sql`SELECT drip_step AS step, COUNT(*)::int AS count FROM subscribers WHERE drip_step IS NOT NULL GROUP BY drip_step ORDER BY drip_step`;
-    return res.status(200).json({ subscribersOverTime, assessmentsOverTime, contactsOverTime, bookingsOverTime, resultCenterCounts, dripStepDistribution });
+    return res.status(200).json({ subscribersOverTime, assessmentsOverTime, contactsOverTime, bookingsOverTime, resultCenterCounts, dripStepDistribution, visitDaily, visitWeekly, visitMonthly, visitTotals });
   } catch (err) {
     console.error('analytics GET error:', err);
     return res.status(500).json({ error: 'Database error' });
