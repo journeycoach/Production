@@ -60,16 +60,53 @@ const PUBLIC_SETTINGS_KEYS = [
   'testimonial_speed',
 ];
 
+const TRACKED_PAGE_KEYS = new Set(['home', 'assessment']);
+
+function getBody(req) {
+  if (!req.body || typeof req.body !== 'string') return req.body || {};
+  try {
+    return JSON.parse(req.body);
+  } catch (_) {
+    return {};
+  }
+}
+
+function normalizeTrackedPageKey(value) {
+  const key = String(value || '').trim().toLowerCase();
+  return TRACKED_PAGE_KEYS.has(key) ? key : null;
+}
+
+function normalizeTrackedPath(value) {
+  const path = String(value || '').trim();
+  if (!path || path.length > 300) return null;
+  return path.startsWith('/') ? path : null;
+}
+
+async function handlePageVisit(req, res) {
+  const body = getBody(req);
+  const pageKey = normalizeTrackedPageKey(body.pageKey);
+  if (!pageKey) return res.status(400).json({ error: 'Unknown page key' });
+
+  await sql`
+    INSERT INTO page_visits (page_key, path)
+    VALUES (${pageKey}, ${normalizeTrackedPath(body.path)})
+  `;
+  return res.status(204).end();
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
   const type = req.query?.type ?? new URL(req.url, 'http://localhost').searchParams.get('type');
 
   try {
     await runMigrations();
+    if (req.method === 'POST' && type === 'page-visit') {
+      return handlePageVisit(req, res);
+    }
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     switch (type) {
       case 'testimonials': {
         const rows = await sql`

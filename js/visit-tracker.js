@@ -9,10 +9,10 @@
 
   if (navigator.sendBeacon) {
     const blob = new Blob([payload], { type: 'application/json' });
-    if (navigator.sendBeacon('/api/analytics', blob)) return;
+    if (navigator.sendBeacon('/api/content?type=page-visit', blob)) return;
   }
 
-  fetch('/api/analytics', {
+  fetch('/api/content?type=page-visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: payload,
