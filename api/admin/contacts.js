@@ -65,6 +65,50 @@ async function handleAnalytics(req, res) {
       FROM page_visits
       WHERE page_key IN ('home', 'assessment')
       GROUP BY page_key`;
+    const visitUserTypes = await sql`
+      WITH per_visitor_page AS (
+        SELECT page_key, visitor_key, COUNT(*)::int AS visit_count
+        FROM page_visits
+        WHERE page_key IN ('home', 'assessment') AND visitor_key IS NOT NULL
+        GROUP BY page_key, visitor_key
+      )
+      SELECT pages.page_key AS page_key,
+        COUNT(pvp.visitor_key) FILTER (WHERE pvp.visit_count = 1)::int AS first_time_count,
+        COUNT(pvp.visitor_key) FILTER (WHERE pvp.visit_count > 1)::int AS returning_count
+      FROM (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN per_visitor_page pvp ON pvp.page_key = pages.page_key
+      GROUP BY pages.page_key
+      ORDER BY pages.page_key`;
+    const visitDayOfWeek = await sql`
+      WITH days(dow, label, sort_order) AS (
+        VALUES
+          (0, 'Sun', 0), (1, 'Mon', 1), (2, 'Tue', 2), (3, 'Wed', 3),
+          (4, 'Thu', 4), (5, 'Fri', 5), (6, 'Sat', 6)
+      )
+      SELECT pages.page_key AS page_key,
+        days.label AS label,
+        days.sort_order AS sort_order,
+        COUNT(pv.id)::int AS count,
+        COUNT(DISTINCT pv.visitor_key)::int AS unique_count
+      FROM days
+      CROSS JOIN (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN page_visits pv
+        ON pv.page_key = pages.page_key
+       AND EXTRACT(DOW FROM pv.visited_at AT TIME ZONE 'America/Chicago')::int = days.dow
+      GROUP BY pages.page_key, days.label, days.sort_order
+      ORDER BY days.sort_order, pages.page_key`;
+    const visitHourOfDay = await sql`
+      SELECT pages.page_key AS page_key,
+        hours.hour AS hour,
+        COUNT(pv.id)::int AS count,
+        COUNT(DISTINCT pv.visitor_key)::int AS unique_count
+      FROM generate_series(0, 23) AS hours(hour)
+      CROSS JOIN (VALUES ('home'), ('assessment')) AS pages(page_key)
+      LEFT JOIN page_visits pv
+        ON pv.page_key = pages.page_key
+       AND EXTRACT(HOUR FROM pv.visited_at AT TIME ZONE 'America/Chicago')::int = hours.hour
+      GROUP BY pages.page_key, hours.hour
+      ORDER BY hours.hour, pages.page_key`;
     const subscribersOverTime = await sql`
       SELECT TO_CHAR(DATE_TRUNC('week', gs.week_start), 'YYYY-MM-DD') AS week, COUNT(s.id)::int AS count
       FROM generate_series(DATE_TRUNC('week', NOW()) - (${weeks - 1} || ' weeks')::interval, DATE_TRUNC('week', NOW()), '1 week'::interval) AS gs(week_start)
@@ -92,7 +136,7 @@ async function handleAnalytics(req, res) {
       if (key in resultCenterCounts) resultCenterCounts[key] = row.count;
     }
     const dripStepDistribution = await sql`SELECT drip_step AS step, COUNT(*)::int AS count FROM subscribers WHERE drip_step IS NOT NULL GROUP BY drip_step ORDER BY drip_step`;
-    return res.status(200).json({ subscribersOverTime, assessmentsOverTime, contactsOverTime, bookingsOverTime, resultCenterCounts, dripStepDistribution, visitDaily, visitWeekly, visitMonthly, visitTotals });
+    return res.status(200).json({ subscribersOverTime, assessmentsOverTime, contactsOverTime, bookingsOverTime, resultCenterCounts, dripStepDistribution, visitDaily, visitWeekly, visitMonthly, visitTotals, visitUserTypes, visitDayOfWeek, visitHourOfDay });
   } catch (err) {
     console.error('analytics GET error:', err);
     return res.status(500).json({ error: 'Database error' });

@@ -940,6 +940,22 @@
       });
     }
 
+    function anMultiBarChart(id, labels, datasets, stacked = false) {
+      anDestroyChart(id);
+      anCharts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { color: '#fff', usePointStyle: true } }, tooltip: anTooltip },
+          scales: {
+            x: { stacked, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fff', maxRotation: 45, font: { size: 11 } } },
+            y: { stacked, beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fff', precision: 0, font: { size: 11 } } },
+          },
+        },
+      });
+    }
+
     function getVisitRows(d, grain) {
       if (grain === 'weekly') return d.visitWeekly || [];
       if (grain === 'monthly') return d.visitMonthly || [];
@@ -966,6 +982,92 @@
         periods.map(p => byPeriodPage[`${p}:home`] || 0),
         periods.map(p => byPeriodPage[`${p}:assessment`] || 0)
       );
+    }
+
+    function pageRow(rows, pageKey) {
+      return (rows || []).find(r => r.page_key === pageKey) || {};
+    }
+
+    function rowsByPageAndKey(rows, keyField, pageKey) {
+      return Object.fromEntries((rows || [])
+        .filter(r => r.page_key === pageKey)
+        .map(r => [r[keyField], r]));
+    }
+
+    function hourLabel(hour) {
+      const h = Number(hour);
+      if (h === 0) return '12 AM';
+      if (h < 12) return h + ' AM';
+      if (h === 12) return '12 PM';
+      return (h - 12) + ' PM';
+    }
+
+    function renderVisitDetailCharts(d) {
+      if (!document.getElementById('anChartUserTypes')) return;
+      const homeTypes = pageRow(d.visitUserTypes, 'home');
+      const assessmentTypes = pageRow(d.visitUserTypes, 'assessment');
+      anMultiBarChart('anChartUserTypes', ['Home Page', 'Assessment'], [
+        {
+          label: 'First-time visitors',
+          data: [homeTypes.first_time_count || 0, assessmentTypes.first_time_count || 0],
+          backgroundColor: 'rgba(199,169,107,0.72)',
+          borderColor: AN_GOLD,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'Returning visitors',
+          data: [homeTypes.returning_count || 0, assessmentTypes.returning_count || 0],
+          backgroundColor: 'rgba(62,175,192,0.72)',
+          borderColor: AN_TEAL,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ]);
+
+      const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const homeByDay = rowsByPageAndKey(d.visitDayOfWeek, 'label', 'home');
+      const assessmentByDay = rowsByPageAndKey(d.visitDayOfWeek, 'label', 'assessment');
+      anMultiBarChart('anChartDayOfWeek', dayLabels, [
+        {
+          label: 'Home Page',
+          data: dayLabels.map(label => homeByDay[label]?.count || 0),
+          backgroundColor: 'rgba(199,169,107,0.65)',
+          borderColor: AN_GOLD,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'Assessment',
+          data: dayLabels.map(label => assessmentByDay[label]?.count || 0),
+          backgroundColor: 'rgba(62,175,192,0.65)',
+          borderColor: AN_TEAL,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ]);
+
+      const hours = Array.from({ length: 24 }, (_, i) => i);
+      const homeByHour = rowsByPageAndKey(d.visitHourOfDay, 'hour', 'home');
+      const assessmentByHour = rowsByPageAndKey(d.visitHourOfDay, 'hour', 'assessment');
+      anMultiBarChart('anChartHourOfDay', hours.map(hourLabel), [
+        {
+          label: 'Home Page',
+          data: hours.map(hour => homeByHour[hour]?.count || 0),
+          backgroundColor: 'rgba(199,169,107,0.65)',
+          borderColor: AN_GOLD,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'Assessment',
+          data: hours.map(hour => assessmentByHour[hour]?.count || 0),
+          backgroundColor: 'rgba(62,175,192,0.65)',
+          borderColor: AN_TEAL,
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ]);
     }
 
     function setVisitGrain(grain) {
@@ -1002,9 +1104,18 @@
             </select>
           </div>
           <div class="an-chart-wrap"><canvas id="anChartVisits"></canvas></div>
+        </div>
+        <div class="an-charts-row" style="margin-bottom:20px;">
+          <div class="an-chart-card"><h2>First-Time vs Returning Visitors</h2><div class="an-chart-wrap"><canvas id="anChartUserTypes"></canvas></div></div>
+          <div class="an-chart-card"><h2>Visits by Day of Week</h2><div class="an-chart-wrap"><canvas id="anChartDayOfWeek"></canvas></div></div>
+        </div>
+        <div class="an-chart-card">
+          <h2>Visits by Time of Day</h2>
+          <div class="an-chart-wrap"><canvas id="anChartHourOfDay"></canvas></div>
         </div>`;
 
       renderVisitChart(anVisitGrain);
+      renderVisitDetailCharts(d);
     }
 
     function renderAnalyticsDashboard(d) {
