@@ -61,6 +61,7 @@ const PUBLIC_SETTINGS_KEYS = [
 ];
 
 const TRACKED_PAGE_KEYS = new Set(['home', 'assessment']);
+let pageVisitsReady = false;
 
 function getBody(req) {
   if (!req.body || typeof req.body !== 'string') return req.body || {};
@@ -87,6 +88,7 @@ async function handlePageVisit(req, res) {
   const pageKey = normalizeTrackedPageKey(body.pageKey);
   if (!pageKey) return res.status(400).json({ error: 'Unknown page key' });
 
+  await ensurePageVisitsTable();
   await sql`
     INSERT INTO page_visits (page_key, path)
     VALUES (${pageKey}, ${normalizeTrackedPath(body.path)})
@@ -94,15 +96,30 @@ async function handlePageVisit(req, res) {
   return res.status(204).end();
 }
 
+async function ensurePageVisitsTable() {
+  if (pageVisitsReady) return;
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_visits (
+      id         SERIAL PRIMARY KEY,
+      page_key   TEXT NOT NULL,
+      path       TEXT,
+      visited_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_page_key_visited_at ON page_visits (page_key, visited_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_visited_at ON page_visits (visited_at DESC)`;
+  pageVisitsReady = true;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   const type = req.query?.type ?? new URL(req.url, 'http://localhost').searchParams.get('type');
 
   try {
-    await runMigrations();
     if (req.method === 'POST' && type === 'page-visit') {
       return handlePageVisit(req, res);
     }
+    await runMigrations();
     if (req.method !== 'GET') {
       return res.status(405).json({ error: 'Method not allowed' });
     }

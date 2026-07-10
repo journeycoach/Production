@@ -338,25 +338,46 @@
     }
 
     /* ── Analytics tab ─────────────────────────────────────────────────────── */
-    #tab-analytics .an-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
-    #tab-analytics .an-controls label { font-size: 0.875rem; color: var(--admin-muted); font-family: var(--admin-body-font); }
+    #tab-analytics .an-controls,
+    #tab-page-visits .an-controls { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+    #tab-analytics .an-controls label,
+    #tab-page-visits .an-controls label { font-size: 0.875rem; color: var(--admin-muted); font-family: var(--admin-body-font); }
     #tab-analytics .an-controls select,
-    #tab-analytics .an-sub-controls select { background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; font-family: var(--admin-body-font); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-    #tab-analytics .an-metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
-    #tab-analytics .an-metric-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
-    #tab-analytics .an-metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-muted); }
-    #tab-analytics .an-metric-value { font-size: 2rem; font-weight: 700; font-family: var(--admin-heading-font); color: #ffffff; line-height: 1.1; }
-    #tab-analytics .an-metric-value.accent { color: #f0d08a; }
-    #tab-analytics .an-section-title { color: var(--admin-text); font-family: var(--admin-heading-font); font-size: 1.1rem; margin: 0 0 14px; }
-    #tab-analytics .an-sub-controls { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; flex-wrap: wrap; }
-    #tab-analytics .an-sub-controls label { color: var(--admin-muted); font-size: 0.82rem; }
-    #tab-analytics .an-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    #tab-analytics .an-chart-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; }
-    #tab-analytics .an-chart-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; font-family: var(--admin-body-font); }
-    #tab-analytics .an-chart-wrap.doughnut { max-width: 280px; margin: 0 auto; }
-    #tab-analytics .an-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--admin-muted); font-size: 0.9rem; }
-    #tab-analytics .an-error { display: flex; align-items: center; justify-content: center; min-height: 200px; color: #e05c5c; font-size: 0.9rem; }
-    @media (max-width: 800px) { #tab-analytics .an-charts-row { grid-template-columns: 1fr; } }
+    #tab-page-visits .an-controls select,
+    #tab-analytics .an-sub-controls select,
+    #tab-page-visits .an-sub-controls select { background: var(--admin-card-bg); color: var(--admin-text); border: 1px solid var(--admin-border); border-radius: 6px; padding: 6px 12px; font-size: 0.875rem; font-family: var(--admin-body-font); cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    #tab-analytics .an-metric-cards,
+    #tab-page-visits .an-metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    #tab-analytics .an-metric-card,
+    #tab-page-visits .an-metric-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
+    #tab-analytics .an-metric-label,
+    #tab-page-visits .an-metric-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--admin-muted); }
+    #tab-analytics .an-metric-value,
+    #tab-page-visits .an-metric-value { font-size: 2rem; font-weight: 700; font-family: var(--admin-heading-font); color: #ffffff; line-height: 1.1; }
+    #tab-analytics .an-metric-value.accent,
+    #tab-page-visits .an-metric-value.accent { color: #f0d08a; }
+    #tab-analytics .an-section-title,
+    #tab-page-visits .an-section-title { color: var(--admin-text); font-family: var(--admin-heading-font); font-size: 1.1rem; margin: 0 0 14px; }
+    #tab-analytics .an-sub-controls,
+    #tab-page-visits .an-sub-controls { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; flex-wrap: wrap; }
+    #tab-analytics .an-sub-controls label,
+    #tab-page-visits .an-sub-controls label { color: var(--admin-muted); font-size: 0.82rem; }
+    #tab-analytics .an-charts-row,
+    #tab-page-visits .an-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    #tab-analytics .an-chart-card,
+    #tab-page-visits .an-chart-card { background: var(--admin-card-bg); border: 1px solid var(--admin-border); border-radius: 10px; padding: 20px 24px; }
+    #tab-analytics .an-chart-card h2,
+    #tab-page-visits .an-chart-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; font-family: var(--admin-body-font); }
+    #tab-analytics .an-chart-wrap.doughnut,
+    #tab-page-visits .an-chart-wrap.doughnut { max-width: 280px; margin: 0 auto; }
+    #tab-analytics .an-loading,
+    #tab-page-visits .an-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--admin-muted); font-size: 0.9rem; }
+    #tab-analytics .an-error,
+    #tab-page-visits .an-error { display: flex; align-items: center; justify-content: center; min-height: 200px; color: #e05c5c; font-size: 0.9rem; }
+    @media (max-width: 800px) {
+      #tab-analytics .an-charts-row,
+      #tab-page-visits .an-charts-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
