@@ -15,7 +15,8 @@ async function handleAnalytics(req, res) {
     const visitDaily = await sql`
       SELECT pages.page_key AS page_key,
         TO_CHAR(gs.day_start, 'YYYY-MM-DD') AS period,
-        COUNT(pv.id)::int AS count
+        COUNT(pv.id)::int AS count,
+        COUNT(DISTINCT pv.visitor_key)::int AS unique_count
       FROM generate_series(
         DATE_TRUNC('day', NOW()) - '29 days'::interval,
         DATE_TRUNC('day', NOW()),
@@ -30,7 +31,8 @@ async function handleAnalytics(req, res) {
     const visitWeekly = await sql`
       SELECT pages.page_key AS page_key,
         TO_CHAR(gs.week_start, 'YYYY-MM-DD') AS period,
-        COUNT(pv.id)::int AS count
+        COUNT(pv.id)::int AS count,
+        COUNT(DISTINCT pv.visitor_key)::int AS unique_count
       FROM generate_series(
         DATE_TRUNC('week', NOW()) - '11 weeks'::interval,
         DATE_TRUNC('week', NOW()),
@@ -45,7 +47,8 @@ async function handleAnalytics(req, res) {
     const visitMonthly = await sql`
       SELECT pages.page_key AS page_key,
         TO_CHAR(gs.month_start, 'YYYY-MM-DD') AS period,
-        COUNT(pv.id)::int AS count
+        COUNT(pv.id)::int AS count,
+        COUNT(DISTINCT pv.visitor_key)::int AS unique_count
       FROM generate_series(
         DATE_TRUNC('month', NOW()) - '11 months'::interval,
         DATE_TRUNC('month', NOW()),
@@ -58,7 +61,7 @@ async function handleAnalytics(req, res) {
       GROUP BY pages.page_key, gs.month_start
       ORDER BY gs.month_start, pages.page_key`;
     const visitTotals = await sql`
-      SELECT page_key, COUNT(*)::int AS count
+      SELECT page_key, COUNT(*)::int AS count, COUNT(DISTINCT visitor_key)::int AS unique_count
       FROM page_visits
       WHERE page_key IN ('home', 'assessment')
       GROUP BY page_key`;

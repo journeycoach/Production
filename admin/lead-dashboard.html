@@ -374,6 +374,12 @@
     #tab-page-visits .an-loading { display: flex; align-items: center; justify-content: center; min-height: 200px; color: var(--admin-muted); font-size: 0.9rem; }
     #tab-analytics .an-error,
     #tab-page-visits .an-error { display: flex; align-items: center; justify-content: center; min-height: 200px; color: #e05c5c; font-size: 0.9rem; }
+    #tab-page-visits,
+    #tab-page-visits .an-metric-label,
+    #tab-page-visits .an-section-title,
+    #tab-page-visits .an-sub-controls label,
+    #tab-page-visits .an-chart-card h2,
+    #tab-page-visits .an-loading { color: #fff; }
     @media (max-width: 800px) {
       #tab-analytics .an-charts-row,
       #tab-page-visits .an-charts-row { grid-template-columns: 1fr; }
@@ -930,7 +936,7 @@
             { label: 'Assessment', data: assessmentData, backgroundColor: 'rgba(62,175,192,0.65)', borderColor: AN_TEAL, borderWidth: 1, borderRadius: 4 },
           ],
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#f0ece4', usePointStyle: true } }, tooltip: anTooltip }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { maxRotation: 45, font: { size: 11 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { precision: 0, font: { size: 11 } } } } },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#fff', usePointStyle: true } }, tooltip: anTooltip }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fff', maxRotation: 45, font: { size: 11 } } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fff', precision: 0, font: { size: 11 } } } } },
       });
     }
 
@@ -942,6 +948,10 @@
 
     function visitTotal(d, pageKey) {
       return (d.visitTotals || []).find(r => r.page_key === pageKey)?.count || 0;
+    }
+
+    function uniqueVisitTotal(d, pageKey) {
+      return (d.visitTotals || []).find(r => r.page_key === pageKey)?.unique_count || 0;
     }
 
     function renderVisitChart(grain = anVisitGrain) {
@@ -967,13 +977,19 @@
       anLatestData = d;
       const totalHomeVisits = visitTotal(d, 'home');
       const totalAssessmentVisits = visitTotal(d, 'assessment');
+      const uniqueHomeVisits = uniqueVisitTotal(d, 'home');
+      const uniqueAssessmentVisits = uniqueVisitTotal(d, 'assessment');
       const assessmentVisitRate = totalHomeVisits > 0 ? ((totalAssessmentVisits / totalHomeVisits) * 100).toFixed(1) + '%' : '—';
+      const assessmentUniqueRate = uniqueHomeVisits > 0 ? ((uniqueAssessmentVisits / uniqueHomeVisits) * 100).toFixed(1) + '%' : '—';
 
       document.getElementById('pageVisitsTabContent').innerHTML = `
         <div class="an-metric-cards">
           <div class="an-metric-card"><div class="an-metric-label">Home Visits</div><div class="an-metric-value">${totalHomeVisits.toLocaleString()}</div></div>
           <div class="an-metric-card"><div class="an-metric-label">Assessment Visits</div><div class="an-metric-value">${totalAssessmentVisits.toLocaleString()}</div></div>
           <div class="an-metric-card"><div class="an-metric-label">Assessment Visit Rate</div><div class="an-metric-value accent">${assessmentVisitRate}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Unique Home Visitors</div><div class="an-metric-value">${uniqueHomeVisits.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Unique Assessment Visitors</div><div class="an-metric-value">${uniqueAssessmentVisits.toLocaleString()}</div></div>
+          <div class="an-metric-card"><div class="an-metric-label">Unique Assessment Rate</div><div class="an-metric-value accent">${assessmentUniqueRate}</div></div>
         </div>
         <div class="an-chart-card" style="margin-bottom:20px;">
           <div class="an-section-title">Page Visits</div>

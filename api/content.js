@@ -83,6 +83,12 @@ function normalizeTrackedPath(value) {
   return path.startsWith('/') ? path : null;
 }
 
+function normalizeVisitorKey(value) {
+  const key = String(value || '').trim();
+  if (!key || key.length > 80) return null;
+  return /^[A-Za-z0-9._:-]+$/.test(key) ? key : null;
+}
+
 async function handlePageVisit(req, res) {
   const body = getBody(req);
   const pageKey = normalizeTrackedPageKey(body.pageKey);
@@ -90,8 +96,8 @@ async function handlePageVisit(req, res) {
 
   await ensurePageVisitsTable();
   await sql`
-    INSERT INTO page_visits (page_key, path)
-    VALUES (${pageKey}, ${normalizeTrackedPath(body.path)})
+    INSERT INTO page_visits (page_key, path, visitor_key)
+    VALUES (${pageKey}, ${normalizeTrackedPath(body.path)}, ${normalizeVisitorKey(body.visitorKey)})
   `;
   return res.status(204).end();
 }
@@ -103,11 +109,14 @@ async function ensurePageVisitsTable() {
       id         SERIAL PRIMARY KEY,
       page_key   TEXT NOT NULL,
       path       TEXT,
+      visitor_key TEXT,
       visited_at TIMESTAMPTZ DEFAULT NOW()
     )
   `;
+  await sql`ALTER TABLE page_visits ADD COLUMN IF NOT EXISTS visitor_key TEXT`;
   await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_page_key_visited_at ON page_visits (page_key, visited_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_visited_at ON page_visits (visited_at DESC)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_visits_visitor_key ON page_visits (visitor_key)`;
   pageVisitsReady = true;
 }
 
