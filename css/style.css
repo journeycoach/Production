@@ -158,48 +158,12 @@ ul {
     font-weight: 300;
 }
 
-/* Recognition */
-.recognition-strip {
-    background: var(--color-bg-secondary);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 1.1rem 0;
-}
-
-.recognition-strip-inner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    text-align: center;
-}
-
-.recognition-kicker {
-    color: var(--color-accent-gold-dim);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-.recognition-strip p {
-    color: var(--color-text-secondary);
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-.recognition-strip strong {
-    color: var(--color-text-primary);
-    font-weight: 600;
-}
-
-.recognition-strip a,
 .recognition-callout a {
     color: var(--color-accent-gold-dim);
     font-weight: 600;
     white-space: nowrap;
 }
 
-.recognition-strip a:hover,
 .recognition-callout a:hover {
     color: var(--color-text-primary);
 }

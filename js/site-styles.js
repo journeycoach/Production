@@ -68,7 +68,6 @@
     const year = data.recognition_year || '2026';
     const fullText = buildRecognitionText(data);
     const recognitionUrl = data.recognition_url || '';
-    const strip = document.getElementById('recognition-strip');
     const about = document.getElementById('recognition-about');
     const footer = document.getElementById('recognition-footer');
 
@@ -83,15 +82,8 @@
       el.appendChild(link);
     }
 
-    if (strip && data.recognition_show_homepage === 'false') strip.style.display = 'none';
     if (about && data.recognition_show_about === 'false') about.style.display = 'none';
     if (footer && data.recognition_show_footer === 'false') footer.style.display = 'none';
-
-    const stripText = document.getElementById('recognition-strip-text');
-    if (stripText) {
-      stripText.textContent = fullText;
-      appendRecognitionLink(stripText);
-    }
 
     const aboutOrg = document.getElementById('recognition-about-org');
     const aboutText = document.getElementById('recognition-about-text');
