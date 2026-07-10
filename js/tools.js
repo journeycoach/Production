@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const toolsContainer = document.getElementById('tools-container');
     if (!toolsContainer) return;
 
+    const HIDDEN_CEILING_IMAGE_URL = '/assets/images/hidden-ceiling-guide.webp';
+
     function safeUrl(value) {
         if (!value) return '';
         try {
@@ -12,6 +14,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             return url.href;
         } catch {
             return '';
+        }
+    }
+
+    function isHiddenCeilingTool(tool) {
+        const values = [
+            tool.title,
+            tool.category,
+            tool.description,
+            tool.fileUrl,
+            tool.file_url,
+            tool.externalUrl,
+            tool.external_url,
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        return values.includes('hidden ceiling')
+            || values.includes('hidden-ceiling')
+            || values.includes('leadership center assessment');
+    }
+
+    function getToolImageUrl(tool) {
+        if (isHiddenCeilingTool(tool)) return HIDDEN_CEILING_IMAGE_URL;
+        return tool.imageUrl || tool.image_url || null;
+    }
+
+    function configureToolImage(image, tool) {
+        image.className = 'tool-card-image';
+        image.src = safeUrl(getToolImageUrl(tool));
+        image.alt = tool.title || '';
+        image.decoding = 'async';
+
+        if (isHiddenCeilingTool(tool)) {
+            image.loading = 'eager';
+            image.fetchPriority = 'high';
+        } else {
+            image.loading = 'lazy';
         }
     }
 
@@ -29,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ...tool,
             fileUrl: tool.fileUrl || tool.file_url || null,
             externalUrl: tool.externalUrl || tool.external_url || null,
-            imageUrl: tool.imageUrl || tool.image_url || null,
+            imageUrl: getToolImageUrl(tool),
             isHidden: Boolean(tool.isHidden ?? tool.is_hidden),
         };
     }
@@ -122,10 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (renderImageOnly) {
                     const image = document.createElement('img');
-                    image.className = 'tool-card-image';
-                    image.src = imageUrl;
-                    image.alt = tool.title || '';
-                    image.loading = 'lazy';
+                    configureToolImage(image, tool);
                     card.appendChild(image);
                 } else {
                     const body = document.createElement('div');
@@ -144,10 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     let image = null;
                     if (imageUrl) {
                         image = document.createElement('img');
-                        image.className = 'tool-card-image';
-                        image.src = imageUrl;
-                        image.alt = tool.title || '';
-                        image.loading = 'lazy';
+                        configureToolImage(image, tool);
                     }
 
                     if (renderTextAboveImage) {
