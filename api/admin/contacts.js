@@ -176,7 +176,7 @@ async function handleSegmentSend(req, res) {
   let sent = 0;
   for (const sub of toSend) {
     const token = makeUnsubToken(sub.id);
-    const unsubUrl = `https://journeycoach.co/api/contact?action=unsubscribe&id=${sub.id}&token=${token}`;
+    const unsubUrl = `https://www.journeycoach.co/api/contact?action=unsubscribe&id=${sub.id}&token=${token}`;
     const firstName = (sub.name || '').trim().split(/\s+/)[0] || 'there';
     const footer = `<div style="margin-top:40px;padding-top:20px;border-top:1px solid #eee;font-size:0.78rem;color:#999;text-align:center;"><p style="margin:0 0 6px;">You received this email because you subscribed at journeycoach.co.</p><p style="margin:0;"><a href="${unsubUrl}" style="color:#999;">Unsubscribe</a></p></div>`;
     try {

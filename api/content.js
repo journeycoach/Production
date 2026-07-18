@@ -249,8 +249,8 @@ export default async function handler(req, res) {
 function renderPostHtml(post, showAssessmentCta = true) {
   const { title, summary, body, author, post_date, image_url, slug } = post;
   const esc = escHtml;
-  const postUrl = `https://journeycoach.co/blog/${slug}`;
-  const ogImage = image_url || 'https://journeycoach.co/assets/images/about_john.jpg';
+  const postUrl = `https://www.journeycoach.co/blog/${slug}`;
+  const ogImage = image_url || 'https://www.journeycoach.co/assets/images/about_john.jpg';
   const formattedDate = post_date
     ? new Date(post_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     : '';
@@ -261,8 +261,8 @@ function renderPostHtml(post, showAssessmentCta = true) {
     description: summary || '',
     image: ogImage,
     datePublished: post_date ? new Date(post_date).toISOString() : '',
-    author: { '@type': 'Person', name: author || 'John Paine', url: 'https://journeycoach.co' },
-    publisher: { '@type': 'Organization', name: 'Your Journey Coach', url: 'https://journeycoach.co' },
+    author: { '@type': 'Person', name: author || 'John Paine', url: 'https://www.journeycoach.co' },
+    publisher: { '@type': 'Organization', name: 'Your Journey Coach', url: 'https://www.journeycoach.co' },
     mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
     url: postUrl,
   });
@@ -480,7 +480,7 @@ function buildSitemapXml(posts) {
   const today = new Date().toISOString().split('T')[0];
   const postEntries = posts.map(p => `
   <url>
-    <loc>https://journeycoach.co/blog/${p.slug}</loc>
+    <loc>https://www.journeycoach.co/blog/${p.slug}</loc>
     <lastmod>${p.post_date ? new Date(p.post_date).toISOString().split('T')[0] : today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -489,37 +489,37 @@ function buildSitemapXml(posts) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://journeycoach.co/</loc>
+    <loc>https://www.journeycoach.co/</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://journeycoach.co/blog.html</loc>
+    <loc>https://www.journeycoach.co/blog.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://journeycoach.co/tools.html</loc>
+    <loc>https://www.journeycoach.co/tools.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://journeycoach.co/enneagram.html</loc>
+    <loc>https://www.journeycoach.co/enneagram.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://journeycoach.co/Hidden-Ceiling.html</loc>
+    <loc>https://www.journeycoach.co/Hidden-Ceiling.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://journeycoach.co/privacy.html</loc>
+    <loc>https://www.journeycoach.co/privacy.html</loc>
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

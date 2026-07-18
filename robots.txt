@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://journeycoach.co/sitemap.xml
+Sitemap: https://www.journeycoach.co/sitemap.xml

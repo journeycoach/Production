@@ -6,9 +6,9 @@ import { runMigrations } from './_migrate.js';
 
 const RATE_LIMIT_SALT = process.env.RATE_LIMIT_SALT || process.env.ADMIN_JWT_SECRET;
 const UNSUBSCRIBE_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
-const BLENDED_HEAD_HEART_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf';
-const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf';
-const BLENDED_HEART_ACTION_GUIDE_URL = 'https://journeycoach.co/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf';
+const BLENDED_HEAD_HEART_GUIDE_URL = 'https://www.journeycoach.co/assets/downloads/hidden_ceiling_blended_head_heart_leader.pdf';
+const BLENDED_HEAD_ACTION_GUIDE_URL = 'https://www.journeycoach.co/assets/downloads/hidden_ceiling_blended_head_action_leader.pdf';
+const BLENDED_HEART_ACTION_GUIDE_URL = 'https://www.journeycoach.co/assets/downloads/hidden_ceiling_blended_heart_action_leader.pdf';
 const RESULT_CENTER_KEYS = ['head', 'heart', 'action', 'head_heart', 'head_action', 'heart_action', 'inconclusive'];
 
 function setNoStoreHeaders(res) {
@@ -276,7 +276,7 @@ function determineAssessmentCenter(scores) {
 // Helper: append unsubscribe footer to drip email HTML
 function withUnsubscribeFooter(html, subscriberId) {
   const token = unsubscribeToken(subscriberId);
-  const url = `https://journeycoach.co/api/contact?action=unsubscribe&id=${subscriberId}&token=${token}`;
+  const url = `https://www.journeycoach.co/api/contact?action=unsubscribe&id=${subscriberId}&token=${token}`;
   const footer = `
 <div style="text-align:center;padding:24px 0 0;margin-top:24px;border-top:1px solid #eee;">
   <p style="color:#bbb;font-size:0.75rem;margin:0;line-height:1.8;">
@@ -779,7 +779,7 @@ function renderUnsubscribePage(type, message = '') {
   <div class="card">
     <h1>${title}</h1>
     <p>${body}</p>
-    <a href="https://journeycoach.co">← Back to journeycoach.co</a>
+    <a href="https://www.journeycoach.co">← Back to journeycoach.co</a>
   </div>
 </body>
 </html>`;
@@ -1169,7 +1169,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   const stepsHtml = m.nextSteps.map(s => `<li style="margin-bottom:0.5em;">${esc(s)}</li>`).join('');
 
   // Make guideUrl absolute for email
-  const guideUrl = m.guideUrl.startsWith('/') ? `https://journeycoach.co${m.guideUrl}` : m.guideUrl;
+  const guideUrl = m.guideUrl.startsWith('/') ? `https://www.journeycoach.co${m.guideUrl}` : m.guideUrl;
 
   return `
 <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;color:#1a1d1e;background:#fff;padding:40px 32px;border-radius:8px;line-height:1.7;">
@@ -1197,7 +1197,7 @@ function buildHiddenCeilingEmail(firstName, center, scores) {
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
   <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
-  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://www.journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Hidden Ceiling Assessment at journeycoach.co.</p>
 </div>`;
@@ -1228,12 +1228,12 @@ function buildGuideEmail(firstName) {
   <p>Your assessment results point toward one of these patterns. Awareness is the first real step — you cannot shift a pattern you cannot see.</p>
   <p>These patterns show up differently depending on how you're wired. The Hidden Ceiling Assessment takes about 2 minutes and will identify which one is most active for you — with a personalized guide and specific next steps.</p>
   <p style="margin-top:2rem;">
-    <a href="https://journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a>
+    <a href="https://www.journeycoach.co/Hidden-Ceiling.html" style="display:inline-block;background:#c7a96b;color:#fff;text-decoration:none;padding:12px 28px;border-radius:4px;font-family:Inter,sans-serif;font-size:0.9rem;letter-spacing:0.04em;">Take the Free Assessment →</a>
   </p>
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
   <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
-  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://www.journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you requested the Hidden Ceiling guide at journeycoach.co.</p>
 </div>`;

@@ -184,7 +184,7 @@
         const ogDescMeta = document.querySelector('meta[property="og:description"]');
         if (ogDescMeta) ogDescMeta.setAttribute('content', meta.summary);
         const ogImageMeta = document.querySelector('meta[property="og:image"]');
-        if (ogImageMeta) ogImageMeta.setAttribute('content', `https://journeycoach.co/assets/images/og-${center}.png`);
+        if (ogImageMeta) ogImageMeta.setAttribute('content', `https://www.journeycoach.co/assets/images/og-${center}.png`);
 
         const total = sh + sd + sa;
         const scoreValues = { heart: sh, head: sd, action: sa };

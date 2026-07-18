@@ -83,7 +83,7 @@ function buildPrepEmail(firstName, resultCenter) {
         <p style="color:#4a5568;line-height:1.7;margin:0;">See you soon,<br><strong style="color:#1a2332;">John Paine</strong><br><span style="font-size:0.85rem;color:#718096;">Your Journey Coach</span></p>
       </td></tr>
       <tr><td style="padding:24px 40px;background:#f5f1eb;text-align:center;border-top:1px solid #e8e0d4;">
-        <p style="margin:0;font-size:0.78rem;color:#718096;">Your Journey Coach · <a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+        <p style="margin:0;font-size:0.78rem;color:#718096;">Your Journey Coach · <a href="https://www.journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
       </td></tr>
     </table>
   </td></tr>

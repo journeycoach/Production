@@ -149,7 +149,7 @@ function buildResultEmail(name, profile, winningCeiling, confidence) {
   <p style="margin-top:2.5rem;color:#555;">With respect,</p>
   <p style="margin:0;color:#1a1d1e;font-weight:bold;">John Paine</p>
   <p style="margin:0;color:#888;font-size:0.85rem;">ICF PCC &nbsp;·&nbsp; iEQ9 Accredited &nbsp;·&nbsp; iPEC Certified</p>
-  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
+  <p style="margin:0.25em 0 0;color:#888;font-size:0.85rem;"><a href="https://www.journeycoach.co" style="color:#c7a96b;text-decoration:none;">journeycoach.co</a></p>
   <hr style="border:none;border-top:1px solid #eee;margin:2rem 0;">
   <p style="color:#bbb;font-size:0.75rem;margin:0;">You received this because you completed the Identity Hidden Ceiling Assessment at journeycoach.co.</p>
 </div>`;
