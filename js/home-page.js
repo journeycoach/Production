@@ -1,5 +1,33 @@
 // home-page.js — Handles homepage specific interactive logic (Turnstile captcha, contact form, subscribe form, float button)
 
+// Load the CAPTCHA only when a visitor approaches or interacts with a protected form.
+let turnstileLoadPromise = null;
+window.loadYjcTurnstile = function () {
+    if (window.turnstile) {
+        window.renderContactTurnstile?.();
+        return Promise.resolve();
+    }
+    if (turnstileLoadPromise) return turnstileLoadPromise;
+
+    turnstileLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            window.renderContactTurnstile?.();
+            resolve();
+        };
+        script.onerror = () => {
+            turnstileLoadPromise = null;
+            reject(new Error('Unable to load the security check.'));
+        };
+        document.head.appendChild(script);
+    });
+
+    return turnstileLoadPromise;
+};
+
 // 1. Float Button Scroll Behavior
 (function () {
     const btn = document.getElementById('hc-float-btn');
@@ -101,12 +129,34 @@ window.addEventListener('hashchange', () => {
         }
     };
 
+    const protectedForms = [form, document.getElementById('home-subscribe-form')].filter(Boolean);
+    const beginLoadingTurnstile = () => window.loadYjcTurnstile().catch(() => {});
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            if (!entries.some(entry => entry.isIntersecting)) return;
+            observer.disconnect();
+            beginLoadingTurnstile();
+        }, { rootMargin: '600px 0px' });
+        protectedForms.forEach(target => observer.observe(target));
+    }
+
+    protectedForms.forEach(target => {
+        target.addEventListener('focusin', beginLoadingTurnstile, { once: true });
+        target.addEventListener('pointerenter', beginLoadingTurnstile, { once: true });
+        target.addEventListener('touchstart', beginLoadingTurnstile, { once: true, passive: true });
+    });
+
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         // Reset feedback
         if (successEl) successEl.style.display = 'none';
         if (errorEl) errorEl.style.display = 'none';
+
+        if (!window.turnstile) {
+            await window.loadYjcTurnstile().catch(() => {});
+        }
 
         const turnstileToken = turnstileTokenInput ? turnstileTokenInput.value.trim() : '';
         if (!turnstileToken) {
@@ -182,6 +232,9 @@ window.addEventListener('hashchange', () => {
 
     subForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!window.turnstile) {
+            await window.loadYjcTurnstile().catch(() => {});
+        }
         const btn = e.target.querySelector('button[type="submit"]');
         const msg = document.getElementById('home-subscribe-msg');
         if (btn) {

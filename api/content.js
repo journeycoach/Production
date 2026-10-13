@@ -290,9 +290,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <meta name="twitter:description" content="${esc(summary || '')}">
   <meta name="twitter:image" content="${esc(ogImage)}">
   <link rel="canonical" href="${esc(postUrl)}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/fonts.css?v=1">
   <link rel="stylesheet" href="/css/variables.css?v=11">
   <link rel="stylesheet" href="/css/style.css?v=17">
   <link rel="stylesheet" href="/css/responsive.css?v=14">
@@ -341,7 +339,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <nav class="navbar">
     <div class="container">
       <a href="/" class="logo" id="nav-logo">
-        <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+        <img src="/assets/images/logo-160.webp" alt="Your Journey Coach" class="logo-img" width="160" height="160">
         <span class="logo-brand">Your Journey Coach</span>
       </a>
       <ul class="nav-links" id="nav-links-list">
@@ -404,7 +402,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
   </main>
   <footer style="padding:3rem 0;background:var(--color-bg-primary);border-top:1px solid rgba(255,255,255,.05);margin-top:4rem;">
     <div class="container" style="display:flex;flex-direction:column;align-items:center;gap:2rem;">
-      <a href="/"><img src="/assets/images/logo.webp" alt="Your Journey Coach" class="footer-logo"></a>
+      <a href="/"><img src="/assets/images/logo-160.webp" alt="Your Journey Coach" class="footer-logo" width="160" height="160" loading="lazy"></a>
       <nav id="footer-nav-links" style="display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;"></nav>
       <p style="color:var(--color-text-muted);font-size:.9rem;">&copy; <span id="footer-year"></span> Your Journey Coach. All Rights Reserved.</p>
       <div style="display:flex;gap:1.5rem;">
@@ -446,15 +444,14 @@ function render404Html() {
   <link rel="stylesheet" href="/css/variables.css?v=11">
   <link rel="stylesheet" href="/css/style.css?v=17">
   <link rel="stylesheet" href="/css/responsive.css?v=14">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/fonts.css?v=1">
 </head>
 <body>
   <div class="loader-wrapper"><div class="breathing-circle"></div></div>
   <nav class="navbar">
     <div class="container">
       <a href="/" class="logo" id="nav-logo">
-        <img src="/assets/images/logo.webp" alt="Your Journey Coach" class="logo-img">
+        <img src="/assets/images/logo-160.webp" alt="Your Journey Coach" class="logo-img" width="160" height="160">
         <span class="logo-brand">Your Journey Coach</span>
       </a>
       <ul class="nav-links" id="nav-links-list">
