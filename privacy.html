@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
-    <script src="js/gtm.js" defer></script>
+    <script src="js/gtm.js?v=2" defer></script>
     <title>Privacy Policy | Your Journey Coach</title>
     <meta name="description" content="Privacy policy for Your Journey Coach — how we collect, use, and protect your information.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,8 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/variables.css?v=11">
-    <link rel="stylesheet" href="css/style.css?v=15">
-    <link rel="stylesheet" href="css/responsive.css?v=12">
+    <link rel="stylesheet" href="css/style.css?v=17">
+    <link rel="stylesheet" href="css/responsive.css?v=14">
 
     <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
@@ -99,22 +98,22 @@
                 <li><a href="tools.html">Resources</a></li>
                 <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
             </ul>
-            <div class="hamburger" id="hamburger" aria-label="Open menu" role="button" tabindex="0">
+            <button class="hamburger" id="hamburger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-links-list">
                 <span></span><span></span><span></span>
-            </div>
+            </button>
         </div>
     </nav>
 
     <section class="privacy-hero">
         <div class="container">
             <h1>Privacy Policy</h1>
-            <p>Effective date: April 28, 2026</p>
+            <p>Effective date: October 13, 2026</p>
         </div>
     </section>
 
     <div class="privacy-body">
 
-        <p>Your Journey Coach ("we," "us," or "our") operates <strong>journeycoach.co</strong>. This policy explains what information we collect when you use this site, how we use it, and your rights regarding that information.</p>
+        <p>Your Journey Coach ("we," "us," or "our") operates <strong>journeycoach.co</strong>. This policy explains what information we collect when you use this site, how we use it, the service providers involved, and the choices available to you.</p>
 
         <h2>Information We Collect</h2>
         <p>We collect information you provide directly through forms and assessments on this site:</p>
@@ -126,24 +125,48 @@
             <li>Your message</li>
             <li>Hidden Ceiling Assessment responses and result, if you complete the assessment</li>
         </ul>
-        <p>We may also collect lightweight referral and campaign information, such as UTM parameters, the page where you first landed, and the referring site when your browser provides it. This helps us understand whether a lead came from LinkedIn, search, a newsletter, or another website.</p>
+        <p>If you accept optional analytics, we collect page visits, a randomly generated browser identifier, referral information, and campaign parameters such as UTM source, medium, and campaign. This helps us understand which resources and channels are useful. We do not use this identifier to learn your real-world identity.</p>
         <p>No account creation is required to use this site.</p>
 
+        <h2>Analytics and Your Consent</h2>
+        <p>Google Analytics and our first-party visit counter remain disabled unless you choose “Accept analytics.” If you decline, the site continues to work and no analytics identifier is created by our visit counter.</p>
+        <p>You can change your analytics choice at any time. Changing your preference affects future collection on this browser.</p>
+        <p><button type="button" id="privacy-consent-settings" class="privacy-settings-button">Review analytics choices</button></p>
+
+        <h2>Local and Session Storage</h2>
+        <p>The site uses browser storage for the following purposes:</p>
+        <ul>
+            <li>Remembering your analytics choice</li>
+            <li>Saving assessment progress so you can continue after refreshing the page</li>
+            <li>Temporarily carrying your assessment result and scheduling link between result pages</li>
+            <li>Remembering referral and visit information only when analytics is accepted</li>
+        </ul>
+
         <h2>How We Use Your Information</h2>
-        <p>Information submitted through the contact form is used solely to:</p>
+        <p>Information submitted through forms and assessments is used to:</p>
         <ul>
             <li>Respond to your inquiry</li>
             <li>Follow up regarding coaching services you expressed interest in</li>
+            <li>Deliver requested assessment results, guides, and email follow-ups</li>
+            <li>Maintain the security and reliability of the site</li>
             <li>Understand which channels and resources are helping people find the site</li>
         </ul>
         <p>We do not sell, rent, or share your information with third parties for marketing purposes.</p>
 
-        <h2>How Your Information Is Stored</h2>
-        <p>Contact form submissions are stored securely in a private database hosted by <strong>Neon</strong> (neon.tech), a PostgreSQL cloud provider. This database is accessible only to site administrators and is not publicly exposed.</p>
-        <p>Email notifications of new submissions are delivered via <strong>Forward Email</strong> (forwardemail.net), a privacy-focused email service. The site itself is hosted on <strong>Vercel</strong> (vercel.com).</p>
+        <h2>Service Providers</h2>
+        <p>We use service providers to operate this site:</p>
+        <ul>
+            <li><strong>Vercel</strong> hosts the website and server functions.</li>
+            <li><strong>Neon</strong> provides the private PostgreSQL database used for contacts, subscribers, assessment results, and site content.</li>
+            <li><strong>Resend</strong> sends contact notifications, requested resources, assessment follow-ups, and campaign emails.</li>
+            <li><strong>Cloudflare Turnstile</strong> helps protect forms from spam and automated abuse.</li>
+            <li><strong>Google Analytics</strong> provides optional usage analytics after consent.</li>
+            <li><strong>Calendly</strong> processes scheduling information when you choose to book a conversation.</li>
+        </ul>
+        <p>These providers process information according to their own privacy terms and only for the services they provide to us.</p>
 
         <h2>Data Retention</h2>
-        <p>Contact submissions are retained for as long as necessary to fulfill the purpose they were collected for. You may request deletion of your data at any time by contacting us.</p>
+        <p>Contact, subscriber, and assessment records are retained for as long as reasonably necessary to respond to requests, provide follow-up services, maintain business records, and meet legal obligations. You may request deletion of your information at any time, subject to records we are required to retain.</p>
 
         <h2>Your Rights</h2>
         <p>Depending on your location, you may have the right to:</p>
@@ -189,7 +212,7 @@
     </footer>
 
     <script src="js/nav.js" defer></script>
-    <script src="js/main.js" defer></script>
+    <script src="js/main.js?v=7" defer></script>
 </body>
 
 </html>

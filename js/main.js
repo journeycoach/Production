@@ -123,8 +123,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4b. Hamburger Menu Toggle
     const hamburger = document.getElementById('hamburger');
     if (hamburger && navbar) {
+        const setMenuOpen = (open, returnFocus = false) => {
+            navbar.classList.toggle('nav-open', open);
+            hamburger.setAttribute('aria-expanded', String(open));
+            hamburger.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+            if (!open && returnFocus) hamburger.focus();
+        };
+
+        hamburger.setAttribute('aria-expanded', 'false');
+        hamburger.setAttribute('aria-controls', 'nav-links-list');
+
         hamburger.addEventListener('click', () => {
-            navbar.classList.toggle('nav-open');
+            setMenuOpen(!navbar.classList.contains('nav-open'));
         });
 
         // Close menu when a nav link is clicked
@@ -133,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navLinksList) {
             navLinksList.addEventListener('click', (e) => {
                 if (e.target.closest('a')) {
-                    navbar.classList.remove('nav-open');
+                    setMenuOpen(false);
                 }
             });
         }
@@ -141,7 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close menu when clicking outside the navbar
         document.addEventListener('click', (e) => {
             if (!navbar.contains(e.target)) {
-                navbar.classList.remove('nav-open');
+                setMenuOpen(false);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && navbar.classList.contains('nav-open')) {
+                setMenuOpen(false, true);
             }
         });
     }

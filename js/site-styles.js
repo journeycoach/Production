@@ -5,6 +5,7 @@
   const SESSION_COUNTED_KEY = 'yjc_visit_session_counted';
 
   function registerVisit() {
+    if (!window.yjcAnalyticsAllowed?.()) return 1;
     try {
       if (sessionStorage.getItem(SESSION_COUNTED_KEY) === '1') {
         return parseInt(localStorage.getItem(VISIT_COUNT_KEY) || '1', 10) || 1;

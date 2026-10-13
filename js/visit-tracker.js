@@ -1,6 +1,7 @@
 (function () {
   const pageKey = document.documentElement.getAttribute('data-track-page');
   if (!pageKey || !window.fetch) return;
+  let tracked = false;
 
   function getVisitorKey() {
     const storageKey = 'yjc_visitor_key';
@@ -17,21 +18,29 @@
     }
   }
 
-  const payload = JSON.stringify({
-    pageKey,
-    path: window.location.pathname,
-    visitorKey: getVisitorKey(),
-  });
+  function trackVisit() {
+    if (tracked || !window.yjcAnalyticsAllowed?.()) return;
+    tracked = true;
 
-  if (navigator.sendBeacon) {
-    const blob = new Blob([payload], { type: 'application/json' });
-    if (navigator.sendBeacon('/api/content?type=page-visit', blob)) return;
+    const payload = JSON.stringify({
+      pageKey,
+      path: window.location.pathname,
+      visitorKey: getVisitorKey(),
+    });
+
+    if (navigator.sendBeacon) {
+      const blob = new Blob([payload], { type: 'application/json' });
+      if (navigator.sendBeacon('/api/content?type=page-visit', blob)) return;
+    }
+
+    fetch('/api/content?type=page-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true,
+    }).catch(() => {});
   }
 
-  fetch('/api/content?type=page-visit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: payload,
-    keepalive: true,
-  }).catch(() => {});
+  trackVisit();
+  window.addEventListener('yjc-consent-change', trackVisit);
 })();

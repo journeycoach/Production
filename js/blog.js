@@ -22,9 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         posts.forEach((post, index) => {
-            const card = document.createElement('div');
+            const card = document.createElement('a');
             card.className = 'blog-card fade-in-up';
             card.style.animationDelay = (index * 0.1) + 's';
+            card.href = '/blog/' + encodeURIComponent(post.slug || '');
+            card.setAttribute('aria-label', `Read ${post.title || 'article'}`);
 
             if (post.image_url) {
                 const safeImageUrl = safeUrl(post.image_url);
@@ -57,12 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             card.appendChild(title);
             card.appendChild(summary);
             card.appendChild(readMore);
-
-            card.addEventListener('click', () => {
-                if (post.slug) {
-                    window.location.href = '/blog/' + post.slug;
-                }
-            });
 
             blogGrid.appendChild(card);
         });

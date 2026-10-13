@@ -275,8 +275,7 @@ function renderPostHtml(post, showAssessmentCta = true) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZM9X6CN8YK"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-ZM9X6CN8YK');</script>
+  <script src="/js/gtm.js?v=2" defer></script>
   <title>${esc(title)} | Your Journey Coach</title>
   <meta name="description" content="${esc(summary || 'Insights on leadership from Your Journey Coach.')}">
   <meta property="og:type" content="article">
@@ -286,13 +285,17 @@ function renderPostHtml(post, showAssessmentCta = true) {
   <meta property="og:url" content="${esc(postUrl)}">
   <meta property="article:published_time" content="${esc(post_date ? new Date(post_date).toISOString() : '')}">
   <meta property="article:author" content="${esc(author || 'John Paine')}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(title)} | Your Journey Coach">
+  <meta name="twitter:description" content="${esc(summary || '')}">
+  <meta name="twitter:image" content="${esc(ogImage)}">
   <link rel="canonical" href="${esc(postUrl)}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/variables.css?v=11">
-  <link rel="stylesheet" href="/css/style.css?v=11">
-  <link rel="stylesheet" href="/css/responsive.css?v=11">
+  <link rel="stylesheet" href="/css/style.css?v=17">
+  <link rel="stylesheet" href="/css/responsive.css?v=14">
   <link rel="icon" type="image/x-icon" href="/assets/icons/favicon.ico">
   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
   <link rel="apple-touch-icon" href="/assets/images/favicon.png">
@@ -348,9 +351,9 @@ function renderPostHtml(post, showAssessmentCta = true) {
         <li><a href="/tools.html">Resources</a></li>
         <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
       </ul>
-      <div class="hamburger" id="hamburger" aria-label="Open navigation menu" role="button">
+      <button class="hamburger" id="hamburger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-links-list">
         <span></span><span></span><span></span>
-      </div>
+      </button>
     </div>
   </nav>
   <main>
@@ -411,8 +414,8 @@ function renderPostHtml(post, showAssessmentCta = true) {
     </div>
   </footer>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js?v=6" defer></script>
-  <script src="/js/site-styles.js?v=2" defer></script>
+  <script src="/js/main.js?v=7" defer></script>
+  <script src="/js/site-styles.js?v=3" defer></script>
   <script>
     document.getElementById('footer-year').textContent = new Date().getFullYear();
     document.getElementById('share-copy').addEventListener('click', function() {
@@ -441,8 +444,8 @@ function render404Html() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post Not Found | Your Journey Coach</title>
   <link rel="stylesheet" href="/css/variables.css?v=11">
-  <link rel="stylesheet" href="/css/style.css?v=11">
-  <link rel="stylesheet" href="/css/responsive.css?v=11">
+  <link rel="stylesheet" href="/css/style.css?v=17">
+  <link rel="stylesheet" href="/css/responsive.css?v=14">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -461,7 +464,7 @@ function render404Html() {
         <li><a href="/tools.html">Resources</a></li>
         <li><a href="/#contact" class="btn-primary" data-site-cta="smart">Let's Talk</a></li>
       </ul>
-      <div class="hamburger" id="hamburger" role="button"><span></span><span></span><span></span></div>
+      <button class="hamburger" id="hamburger" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-links-list"><span></span><span></span><span></span></button>
     </div>
   </nav>
   <main style="max-width:600px;margin:0 auto;padding:10rem 1.5rem;text-align:center;">
@@ -471,58 +474,52 @@ function render404Html() {
     <a href="/blog.html" style="color:var(--color-accent-gold);text-decoration:none;font-size:.9rem;text-transform:uppercase;letter-spacing:.08em;">&larr; Back to all posts</a>
   </main>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js?v=6" defer></script>
+  <script src="/js/main.js?v=7" defer></script>
 </body>
 </html>`;
 }
 
 function buildSitemapXml(posts) {
-  const today = new Date().toISOString().split('T')[0];
+  const staticLastmod = '2026-10-13';
   const postEntries = posts.map(p => `
   <url>
     <loc>https://www.journeycoach.co/blog/${p.slug}</loc>
-    <lastmod>${p.post_date ? new Date(p.post_date).toISOString().split('T')[0] : today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>${p.post_date ? new Date(p.post_date).toISOString().split('T')[0] : staticLastmod}</lastmod>
   </url>`).join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.journeycoach.co/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>${staticLastmod}</lastmod>
   </url>
   <url>
     <loc>https://www.journeycoach.co/blog.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>${staticLastmod}</lastmod>
   </url>
   <url>
     <loc>https://www.journeycoach.co/tools.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>${staticLastmod}</lastmod>
   </url>
   <url>
     <loc>https://www.journeycoach.co/enneagram.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>${staticLastmod}</lastmod>
   </url>
   <url>
     <loc>https://www.journeycoach.co/Hidden-Ceiling.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>${staticLastmod}</lastmod>
+  </url>
+  <url>
+    <loc>https://www.journeycoach.co/Identity-Ceiling.html</loc>
+    <lastmod>${staticLastmod}</lastmod>
+  </url>
+  <url>
+    <loc>https://www.journeycoach.co/testimonials.html</loc>
+    <lastmod>${staticLastmod}</lastmod>
   </url>
   <url>
     <loc>https://www.journeycoach.co/privacy.html</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <lastmod>${staticLastmod}</lastmod>
   </url>${postEntries}
 </urlset>`;
 }

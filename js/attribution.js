@@ -68,11 +68,20 @@
     }
 
     const current = currentAttribution();
-    const firstTouch = readStored(STORAGE_KEY) || current;
-    writeStored(STORAGE_KEY, firstTouch);
-    writeStored(SESSION_KEY, current);
+    let firstTouch = current;
+
+    function captureAttribution() {
+        if (!window.yjcAnalyticsAllowed?.()) return;
+        firstTouch = readStored(STORAGE_KEY) || current;
+        writeStored(STORAGE_KEY, firstTouch);
+        writeStored(SESSION_KEY, current);
+    }
+
+    captureAttribution();
+    window.addEventListener('yjc-consent-change', captureAttribution);
 
     window.getYjcAttribution = function () {
+        if (!window.yjcAnalyticsAllowed?.()) return null;
         const first = readStored(STORAGE_KEY) || firstTouch;
         const session = readStored(SESSION_KEY) || current;
         return {
