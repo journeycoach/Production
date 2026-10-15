@@ -20,3 +20,5 @@
 
 .header-actions{display:flex;align-items:center;gap:10px}.float-status{font-size:.8rem;color:#596575;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#save-floating{padding:8px 16px}@media(max-width:600px){.float-status{display:none}}
 #save-floating[hidden],.float-status[hidden]{display:none!important}
+
+.answer-row{align-items:flex-end}.answer-row .answer-text{flex:1 1 auto;min-width:0}.answer-row .answer-text textarea{min-height:0;resize:vertical;line-height:1.45}.answer-row .answer-lens{flex:0 0 120px}.answer-row button{margin-bottom:16px}@media(max-width:600px){.answer-row{flex-wrap:wrap}.answer-row .answer-text{flex-basis:100%}}
