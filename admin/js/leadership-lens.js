@@ -137,3 +137,18 @@ $('assessment-details').addEventListener('click', e => {
 $('assessment-details').addEventListener('change', e => {
   if (e.target.matches('[data-color-input]')) applyColor(e.target.dataset.field, e.target.value);
 });
+
+// Floating Save in the sticky header: appears once the main Save button scrolls out of view.
+(function floatingSave() {
+  const main = $('save'), float = $('save-floating'), status = $('float-status');
+  if (!main || !float || typeof IntersectionObserver === 'undefined') return;
+  float.addEventListener('click', () => main.click());
+  const sync = () => { float.disabled = main.disabled; if (status) status.textContent = $('status').textContent; };
+  new MutationObserver(sync).observe(main, { attributes: true, attributeFilter: ['disabled'] });
+  new MutationObserver(sync).observe($('status'), { childList: true, characterData: true, subtree: true });
+  new IntersectionObserver(([entry]) => {
+    const show = !entry.isIntersecting;
+    float.hidden = !show; if (status) status.hidden = !show;
+  }, { rootMargin: '-56px 0px 0px 0px' }).observe(main);
+  sync();
+})();
