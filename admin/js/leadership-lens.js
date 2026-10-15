@@ -1,4 +1,4 @@
-import {validateConfig,formatText} from '../../js/leadership-lens-core.js?v=2';
+import {validateConfig,formatText,alignStyle,ALIGNMENTS} from '../../js/leadership-lens-core.js?v=3';
 const KEY = 'leadership_lens_draft_v1';
 const $ = id => document.getElementById(id);
 const id = () => crypto.randomUUID();
@@ -10,7 +10,31 @@ if (window.LEADERSHIP_LENS_SEED) draft = structuredClone(window.LEADERSHIP_LENS_
 let dirty = false;
 let revision = 0;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function updateTextPreviews() { for (const key of ['title','intro','instructions']) $(key+'-preview').innerHTML = formatText(draft[key]); }
+const DETAIL_FIELDS = ['title','intro','instructions'];
+const COLORS = [['Charcoal','#1c2321'],['Forest green','#4a6741'],['Gold','#c5a065'],['Slate','#596575'],['Deep red','#9a3026']];
+function updateTextPreviews() {
+  for (const key of DETAIL_FIELDS) {
+    const el = $(key+'-preview'); el.innerHTML = formatText(draft[key]);
+    el.style.textAlign = ALIGNMENTS.includes(draft.align?.[key]) ? draft.align[key] : '';
+    document.querySelectorAll(`[data-align][data-field="${key}"]`).forEach(b => b.setAttribute('aria-pressed', String((draft.align?.[key] || 'left') === b.dataset.align)));
+  }
+}
+// Color and alignment controls are added to the section 01 toolbars only.
+function addDetailControls() {
+  for (const key of DETAIL_FIELDS) {
+    const bar = document.querySelector(`#assessment-details .format-toolbar [data-field="${key}"]`)?.parentElement;
+    if (!bar || bar.querySelector('.color-group')) continue;
+    bar.insertAdjacentHTML('beforeend', `<span class="color-group" role="group" aria-label="Text color">${COLORS.map(([n,c]) => `<button type="button" class="swatch" data-color="${c}" data-field="${key}" title="${n}" aria-label="Color selected text ${n}" style="--swatch:${c}"></button>`).join('')}<label class="custom-color" title="Custom color">Custom<input type="color" data-color-input data-field="${key}" value="#4a6741" aria-label="Choose a custom text color"></label></span><span class="align-group" role="group" aria-label="Text alignment">${ALIGNMENTS.map(a => `<button type="button" data-align="${a}" data-field="${key}" aria-pressed="false">${a[0].toUpperCase()+a.slice(1)}</button>`).join('')}</span>`);
+  }
+}
+function applyColor(key, color) {
+  const field = $(key), start = field.selectionStart, end = field.selectionEnd;
+  const text = field.value.slice(start,end) || 'your text';
+  const open = `{color:${color}}`;
+  field.setRangeText(open + text.replace(/\{color:#[0-9a-fA-F]{6}\}|\{\/color\}/g,'') + '{/color}', start, end, 'select');
+  field.setSelectionRange(start + open.length, start + open.length + text.length);
+  draft[key] = field.value; changed(); field.focus();
+}
 function changed() { updateTextPreviews(); dirty = true; revision++; $('status').textContent = 'Unsaved changes'; }
 function field(label, path, value, placeholder = '') {
   return `<label>${label}<input data-path="${path}" value="${esc(value)}" placeholder="${esc(placeholder)}" maxlength="2000"></label>`;
@@ -22,7 +46,7 @@ function render() {
   draft.tiebreaker ||= structuredClone(window.LEADERSHIP_LENS_SEED.tiebreaker);
   $('tiebreaker').innerHTML = field('Final question', 'tiebreaker.text', draft.tiebreaker.text) + draft.tiebreaker.answers.map((a,i)=>field(a.center.toUpperCase()+' answer (shown only when tied)', `tiebreaker.answers.${i}.text`, a.text)).join('');
   for (const key of ['title','intro','instructions','scoringNotes']) $(key).value = draft[key];
-  updateTextPreviews();
+  addDetailControls(); updateTextPreviews();
   $('sections').innerHTML = draft.sections.map((s, si) => `<div class="section-item"><h3>Section ${si + 1}</h3>${field('Section name',`sections.${si}.title`,s.title,'Add a section name')}<label>Scenario context<textarea data-path="sections.${si}.description">${esc(s.description || '')}</textarea></label>${actions('section',si,draft.sections.length)}${s.questions.map((q,qi) => `<div class="question-item"><h4>Question ${qi+1}</h4>${field('Question text',`sections.${si}.questions.${qi}.text`,q.text,'Write your question later')}${actions('question',qi,s.questions.length,`data-section="${si}"`)}${q.answers.map((a,ai) => `<div class="answer-row">${field(`Answer ${ai+1}${a.center ? ' · ' + a.center.toUpperCase() + ' (editor only)' : ''}`,`sections.${si}.questions.${qi}.answers.${ai}.text`,a.text,'Add an answer choice')}<label>Lens mapping<select data-path="sections.${si}.questions.${qi}.answers.${ai}.center"><option value="">Choose lens</option>${['head','heart','gut'].map(c=>`<option value="${c}" ${a.center===c?'selected':''}>${c}</option>`).join('')}</select></label><button data-action="answer-remove" data-section="${si}" data-question="${qi}" data-index="${ai}" aria-label="Remove answer ${ai+1}">Remove</button></div>`).join('')}<button class="btn btn-ghost" data-action="answer-add" data-section="${si}" data-question="${qi}">+ Add answer</button></div>`).join('')}<button class="btn btn-ghost" data-action="question-add" data-section="${si}">+ Add question</button></div>`).join('') || '<p>No sections yet. Add a section to begin.</p>';
   $('lenses').innerHTML = draft.lenses.map((l,li) => `<div class="section-item">${field('Lens name',`lenses.${li}.name`,l.name,'Name this lens later')}<label>Result headline<textarea data-path="lenses.${li}.description" placeholder="Describe this leadership lens">${esc(l.description)}</textarea></label>${['attention','high','low','opportunity','reflection'].map(key => `<label>${({attention:'Where your attention goes',high:'The high side',low:'The low side',opportunity:'Your leadership opportunity',reflection:'Reflection question'})[key]}<textarea data-path="lenses.${li}.${key}">${esc(l[key] || '')}</textarea></label>`).join('')}<a class="btn btn-ghost" href="/leadership-lens-results.html?lens=${encodeURIComponent(l.id)}" target="_blank" rel="noopener">View saved result draft</a>${actions('lens',li,draft.lenses.length)}</div>`).join('') || '<p>No lens types defined yet.</p>';
 }
@@ -63,7 +87,7 @@ $('export').onclick = () => {
   const a = document.createElement('a'); a.href = url; a.download = 'leadership-lens-draft.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
 };
 $('preview').onclick = () => {
-  $('preview-body').innerHTML = `<h1>${formatText(draft.title || 'Untitled assessment')}</h1><p>${formatText(draft.intro)}</p><p>${formatText(draft.instructions)}</p>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend>${esc(q.text || `Question ${qi+1} — text to be added`)}</legend>${q.answers.map((a,ai) => `<label><input type="radio" name="preview-${si}-${qi}" value="${ai}">${esc(a.text || `Answer ${ai+1} — text to be added`)}</label>`).join('')}</fieldset>`).join('')).join('');
+  $('preview-body').innerHTML = `<h1${alignStyle(draft,'title')}>${formatText(draft.title || 'Untitled assessment')}</h1><p${alignStyle(draft,'intro')}>${formatText(draft.intro)}</p><p${alignStyle(draft,'instructions')}>${formatText(draft.instructions)}</p>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend>${esc(q.text || `Question ${qi+1} — text to be added`)}</legend>${q.answers.map((a,ai) => `<label><input type="radio" name="preview-${si}-${qi}" value="${ai}">${esc(a.text || `Answer ${ai+1} — text to be added`)}</label>`).join('')}</fieldset>`).join('')).join('');
   $('preview-dialog').showModal();
 };
 $('close-preview').onclick = () => $('preview-dialog').close();
@@ -93,16 +117,23 @@ $('publish').onclick = async () => {
 };
 
 $('assessment-details').addEventListener('click', e => {
+  const swatch=e.target.closest('[data-color]'); if(swatch) { applyColor(swatch.dataset.field, swatch.dataset.color); return; }
+  const align=e.target.closest('[data-align]');
+  if(align) { draft.align = {...(draft.align||{}), [align.dataset.field]: align.dataset.align}; changed(); return; }
   const button=e.target.closest('[data-format]'); if(!button) return;
   const field=$(button.dataset.field), start=field.selectionStart, end=field.selectionEnd;
   const selected=field.value.slice(start,end), marker=button.dataset.format;
   if(marker==='clear') {
     const from=start===end?0:start, to=start===end?field.value.length:end;
-    field.setRangeText(field.value.slice(from,to).replace(/\*\*|__|\*/g,''),from,to,'select');
+    field.setRangeText(field.value.slice(from,to).replace(/\*\*|__|\*|\{color:#[0-9a-fA-F]{6}\}|\{\/color\}/g,''),from,to,'select');
   } else {
     const text=selected || 'your text';
     field.setRangeText(marker+text+marker,start,end,'select');
     field.setSelectionRange(start+marker.length,start+marker.length+text.length);
   }
   draft[button.dataset.field]=field.value;changed();field.focus();
+});
+
+$('assessment-details').addEventListener('change', e => {
+  if (e.target.matches('[data-color-input]')) applyColor(e.target.dataset.field, e.target.value);
 });

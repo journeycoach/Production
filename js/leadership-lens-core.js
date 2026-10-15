@@ -39,6 +39,14 @@ export async function loadConfig() {
 export const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // Escape first: formatting never permits authored HTML or executable markup.
+// Color uses {color:#RRGGBB}text{/color}; only six-digit hex values are honored.
 export function formatText(value) {
-  return escapeHtml(value).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/__([^_]+)__/g,'<u>$1</u>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\r?\n/g,'<br>');
+  return escapeHtml(value).replace(/\{color:(#[0-9a-fA-F]{6})\}([\s\S]*?)\{\/color\}/g,'<span style="color:$1">$2</span>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/__([^_]+)__/g,'<u>$1</u>').replace(/\*([^*]+)\*/g,'<em>$1</em>').replace(/\r?\n/g,'<br>');
+}
+
+// Section 01 paragraph alignment. Unknown values fall back to the page default.
+export const ALIGNMENTS = ['left','center','right','justify'];
+export function alignStyle(d, key) {
+  const a = d?.align?.[key];
+  return ALIGNMENTS.includes(a) ? ` style="text-align:${a}"` : '';
 }

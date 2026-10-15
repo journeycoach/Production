@@ -4,9 +4,9 @@ const assert = require('node:assert/strict');
 let source = fs.readFileSync(require('node:path').join(__dirname, '../admin/js/leadership-lens.js'),'utf8');
 source=source.replace(/^import .*;\n/, '');
 async function setup(body={data:{}}, ok=true) {
- const nodes = new Map(); const get = id => { if(!nodes.has(id)) nodes.set(id,{disabled:true,value:'',textContent:'',innerHTML:'',listeners:{},addEventListener(k,f){this.listeners[k]=f},showModal(){this.open=true},close(){this.open=false}}); return nodes.get(id); };
+ const nodes = new Map(); const get = id => { if(!nodes.has(id)) nodes.set(id,{disabled:true,style:{},value:'',textContent:'',innerHTML:'',listeners:{},addEventListener(k,f){this.listeners[k]=f},showModal(){this.open=true},close(){this.open=false}}); return nodes.get(id); };
  const calls=[];
- const context=vm.createContext({structuredClone,formatText:v=>String(v??'').replaceAll('<','&lt;').replaceAll('>','&gt;'),validateConfig:()=>true,document:{getElementById:get},window:{LEADERSHIP_LENS_SEED:{tiebreaker:{text:'Tie',answers:[]}},addEventListener(){}},crypto:require('node:crypto').webcrypto,requireAdminAuth:()=>true,adminFetch:async(url,options)=>{calls.push({url,options});return {ok,json:async()=>body}},confirm:()=>true,setTimeout});
+ const context=vm.createContext({structuredClone,formatText:v=>String(v??'').replaceAll('<','&lt;').replaceAll('>','&gt;'),validateConfig:()=>true,alignStyle:()=>'',ALIGNMENTS:['left','center','right','justify'],document:{getElementById:get,querySelector:()=>null,querySelectorAll:()=>[]},window:{LEADERSHIP_LENS_SEED:{tiebreaker:{text:'Tie',answers:[]}},addEventListener(){}},crypto:require('node:crypto').webcrypto,requireAdminAuth:()=>true,adminFetch:async(url,options)=>{calls.push({url,options});return {ok,json:async()=>body}},confirm:()=>true,setTimeout});
  vm.runInContext(source.replace('if (window.LEADERSHIP_LENS_SEED) draft = structuredClone(window.LEADERSHIP_LENS_SEED);',''),context); await new Promise(r=>setImmediate(r)); return {get,calls,context};
 }
 (async()=>{
