@@ -4,7 +4,7 @@ const STORAGE='leadership-lens-session-v1';
 let d,answers={},order={},tie=null,step='intro';
 function save(){try{sessionStorage.setItem(STORAGE,JSON.stringify({config:d,answers,order,tie,step}));}catch{}}
 function navigate(next,replace=false){step=next;save();history[replace?'replaceState':'pushState']({},'',`?step=${next}`);render();root.querySelector('h1')?.focus();window.scrollTo(0,0);}
-function questions(qs){return qs.map(q=>{order[q.id] ||= shuffle(q.answers.map(a=>a.id));return `<fieldset class="lens-question" id="${esc(q.id)}" tabindex="-1"><legend>${esc(q.text)}</legend>${order[q.id].map(aid=>q.answers.find(a=>a.id===aid)).filter(Boolean).map(a=>`<label class="lens-option"><input type="radio" name="${esc(q.id)}" value="${esc(a.id)}" ${answers[q.id]===a.id?'checked':''}><span>${esc(a.text)}</span></label>`).join('')}</fieldset>`;}).join('');}
+function questions(qs){return qs.map(q=>{order[q.id] ||= shuffle(q.answers.map(a=>a.id));return `<fieldset class="lens-question" id="${esc(q.id)}" tabindex="-1"><legend${alignStyle({align:{q:q.align}},'q')}>${formatText(q.text)}</legend>${order[q.id].map(aid=>q.answers.find(a=>a.id===aid)).filter(Boolean).map(a=>`<label class="lens-option"><input type="radio" name="${esc(q.id)}" value="${esc(a.id)}" ${answers[q.id]===a.id?'checked':''}><span>${esc(a.text)}</span></label>`).join('')}</fieldset>`;}).join('');}
 function finish(){save();try{sessionStorage.setItem('leadership-lens-result-v1',JSON.stringify({config:d,answers,tie}));}catch{root.querySelector('.lens-error').textContent='Your browser is blocking session storage. Enable it to view your results.';return;}location.href='/leadership-lens-results.html';}
 function render(){
  root.setAttribute('aria-busy','false');

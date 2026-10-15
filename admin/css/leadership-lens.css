@@ -22,3 +22,6 @@
 #save-floating[hidden],.float-status[hidden]{display:none!important}
 
 .answer-row{align-items:flex-end}.answer-row .answer-text{flex:1 1 auto;min-width:0}.answer-row .answer-text textarea{min-height:0;resize:vertical;line-height:1.45}.answer-row .answer-lens{flex:0 0 120px}.answer-row button{margin-bottom:16px}@media(max-width:600px){.answer-row{flex-wrap:wrap}.answer-row .answer-text{flex-basis:100%}}
+
+.heading-actions{display:flex;gap:10px;flex-wrap:wrap}#publish-floating{padding:8px 16px}#publish-floating[hidden]{display:none!important}
+.question-editor{margin:12px 0 16px}.question-editor textarea{min-height:0;line-height:1.45}.question-editor .formatted-preview{font-size:1.05rem}
