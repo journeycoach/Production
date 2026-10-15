@@ -203,6 +203,14 @@
                 font-size: 0.75rem;
             }
         }
+        /* Featured cards: two columns on desktop, stacked on small screens. */
+        .featured-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .featured-tool { padding: 2rem; border: 1px solid var(--color-accent-gold); border-radius: 10px; gap: 0.75rem; }
+        .featured-tool h2, .featured-tool p { margin: 0; }
+        .featured-tool .featured-eyebrow { color: var(--color-accent-gold); font-size: 0.85rem; letter-spacing: 0.05em; }
+        .featured-tool .btn-primary { align-self: flex-start; margin-top: 0.75rem; white-space: nowrap; }
+        @media (max-width: 768px) { .featured-tools { grid-template-columns: 1fr; } }
+        @media (max-width: 480px) { .featured-tool { padding: 1.5rem 1.25rem; } .featured-tool .btn-primary { padding: 0.9rem 1rem; font-size: 0.75rem; letter-spacing: 0.5px; } }
     </style>
 </head>
 
@@ -248,7 +256,7 @@
 
         <!-- Tools Grid Area -->
         <section class="container" style="min-height: 400px; padding-bottom: 6rem;">
-            <article class="tool-card" style="margin-bottom:2rem;padding:2rem;border:1px solid var(--color-accent-gold);border-radius:10px"><p style="color:var(--color-accent-gold)">FREE LEADERSHIP REFLECTION</p><h2>Leadership-Lens</h2><p>Explore how you naturally see, the strengths that brings, and what you may overlook. Two scenarios, six questions, and immediate results. No email required.</p><a class="btn-primary" href="/Leadership-Lens.html">Discover your Leadership Lens →</a></article>
+            <div class="featured-tools"><article class="tool-card featured-tool"><p class="featured-eyebrow">FREE LEADERSHIP REFLECTION</p><h2>Leadership-Lens</h2><p>Explore how you naturally see, the strengths that brings, and what you may overlook. Two scenarios, six questions, and immediate results. No email required.</p><a class="btn-primary" href="/Leadership-Lens.html">Discover your Leadership Lens →</a></article><!-- Second featured card goes here --></div>
             <div id="tools-container">
                 <p style="text-align: center; margin-top: 4rem; color: var(--color-text-muted);">
                     Loading resources...
