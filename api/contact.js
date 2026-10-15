@@ -61,92 +61,93 @@ async function getEmailSettings(keys) {
   }
 }
 
+// Built-in fallback. Keep in sync with ASSESSMENT_STEPS in js/hidden-ceiling.js.
 const DEFAULT_ASSESSMENT_FORM = {
   intro: {
-    eyebrow: 'Start Here',
-    title: 'Tell me where to send your guide',
-    copy: 'You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide so you can revisit it later.',
+    eyebrow: "Start Here",
+    title: "Tell me where to send your guide",
+    copy: "You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide, so you can revisit it later.",
   },
   questions: [
     {
       id: 'q1',
-      title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
+      title: "When a high-stakes initiative suddenly goes off track, what is your first internal move?",
       options: [
-        { text: 'You pull back to analyze the data and find where the logic failed.', center: 'head' },
-        { text: 'You move quickly to take charge and get things back on track.', center: 'action' },
-        { text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.', center: 'heart' },
+        { text: "I step back to understand what changed, what we know, and what risk we may be missing.", center: 'head' },
+        { text: "I focus on what needs to be stabilized first, make the next clear move, and create momentum.", center: 'action' },
+        { text: "My focus goes immediately to the team. I want to understand how they are being affected and what they need from me.", center: 'heart' },
       ],
     },
     {
       id: 'q2',
-      title: 'Under pressure, what do others most often tell you that you need to do differently?',
+      title: "When a situation is ambiguous with no perfect answer, what do you naturally do?",
       options: [
-        { text: 'You need to move forward with less over-analysis and trust your judgment sooner.', center: 'head' },
-        { text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.', center: 'heart' },
-        { text: 'You need to slow down long enough to consider how decisions are affecting people.', center: 'action' },
+        { text: "I sense how people are interpreting the ambiguity and work to create trust and alignment.", center: 'heart' },
+        { text: "I clarify the unknowns, organize the variables, and look for the pattern beneath the complexity.", center: 'head' },
+        { text: "I identify the next responsible move, create traction, and adjust as reality becomes clearer.", center: 'action' },
       ],
     },
     {
       id: 'q3',
-      title: 'In high-level leadership conversations, where do you naturally contribute most?',
+      title: "In high-level leadership conversations, where do you most naturally contribute?",
       options: [
-        { text: 'You track how people will experience the decision and what it will mean relationally.', center: 'heart' },
-        { text: 'You name the system-level risks, the long-term implications, and what others may be missing.', center: 'head' },
-        { text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.', center: 'action' },
+        { text: "How the decision will affect trust, buy-in, commitment, and the people who need to carry it forward.", center: 'heart' },
+        { text: "What needs to happen next, who owns it, and how to turn the conversation into movement.", center: 'action' },
+        { text: "Patterns, assumptions, logic, and the implications that need more thought.", center: 'head' },
       ],
     },
     {
       id: 'q4',
-      title: 'When an important issue is being avoided, what is your natural leadership response?',
+      title: "When an important issue is being avoided, what is your natural leadership response?",
       options: [
-        { text: 'I address it directly, name what needs to be faced, and clarify what has to happen next.', center: 'action' },
-        { text: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.', center: 'head' },
-        { text: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.', center: 'heart' },
+        { text: "I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.", center: 'heart' },
+        { text: "I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.", center: 'head' },
+        { text: "I address it directly, name what needs to be faced, and clarify what has to happen next.", center: 'action' },
       ],
     },
     {
       id: 'q5',
-      title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
+      title: "In leadership meetings, what kind of contribution do you instinctively value most?",
       options: [
-        { text: 'You value awareness of people, tone, and how decisions affect the room.', center: 'heart' },
-        { text: 'You value directness, conviction, and the ability to move things forward.', center: 'action' },
-        { text: 'You value clear thinking, objectivity, and well-reasoned ideas.', center: 'head' },
+        { text: "Clarity, ownership, decisive movement, and the willingness to address what needs to be done.", center: 'action' },
+        { text: "Emotional intelligence, trust-building, and awareness of how the conversation is landing with people.", center: 'heart' },
+        { text: "Thoughtful analysis, sound reasoning, and seeing the issue from multiple angles.", center: 'head' },
       ],
     },
     {
       id: 'q6',
-      title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
+      title: "When you receive a complex update, what do you naturally listen for first?",
       options: [
-        { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.', center: 'action' },
-        { text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.', center: 'head' },
-        { text: 'You can do it, but you would rather focus on the people and context behind the numbers.', center: 'heart' },
+        { text: "The decision, priority, ownership, and next move behind what is being presented.", center: 'action' },
+        { text: "The people impact, morale, trust, and meaning behind what is being presented.", center: 'heart' },
+        { text: "The pattern, logic, gaps, and implications behind what is being presented.", center: 'head' },
       ],
     },
     {
       id: 'q7',
-      title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+      title: "A trusted colleague gives you critical feedback about your leadership style. What is your most natural first reaction?",
       options: [
-        { text: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.', center: 'heart' },
-        { text: 'I focus on what needs to change, improve, or be addressed moving forward.', center: 'action' },
-        { text: 'I analyze the feedback and compare it against other data points before fully accepting it.', center: 'head' },
+        { text: "I first consider how the feedback may affect the relationship and how others may be experiencing me.", center: 'heart' },
+        { text: "I focus on what needs to change, improve, or be addressed moving forward.", center: 'action' },
+        { text: "I analyze the feedback and compare it against other data points before fully accepting it.", center: 'head' },
       ],
     },
     {
       id: 'q8',
-      title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
+      title: "You need to make a decision that you know will disappoint someone you respect. Before you act, where does your attention go first?",
       options: [
-        { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.', center: 'action' },
-        { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.', center: 'heart' },
-        { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.', center: 'head' },
+        { text: "To what needs to happen next and how to move forward clearly.", center: 'action' },
+        { text: "To how the person will feel and how to maintain trust.", center: 'heart' },
+        { text: "To whether the reasoning is solid and the decision can be justified.", center: 'head' },
       ],
     },
     {
       id: 'q9',
-      title: 'When the pressure is high, what most naturally guides your leadership decisions?',
+      title: "When the pressure is high, what do you most trust to guide you?",
       options: [
-        { text: 'You return to truth — understanding what is accurate, objective, and really happening.', center: 'head' },
-        { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.', center: 'heart' },
-        { text: 'You return to action — moving with conviction, gut instinct, and decisive execution.', center: 'action' },
+        { text: "Relational alignment: sensing what people need, what matters, and where trust is at stake.", center: 'heart' },
+        { text: "Clear understanding: sorting out what is true, what is uncertain, and what needs more thought.", center: 'head' },
+        { text: "Grounded instinct: reading the reality of the moment, making the call, and moving with conviction.", center: 'action' },
       ],
     },
   ],
@@ -510,6 +511,22 @@ async function handleHiddenCeiling(req, res) {
   }
 
   const assessmentForm = await getAssessmentFormConfig();
+  // Guard against scoring answers given to a different version of the
+  // questions (stale built-in fallback, or questions edited mid-session).
+  // Option indexes only mean something against the exact options shown.
+  const submittedSig = typeof req.body?.config_sig === 'string' ? req.body.config_sig : null;
+  if (submittedSig !== null) {
+    const serverSig = assessmentForm.questions
+      .map(q => q.id + ':' + q.options.map(o => o.text).join('|'))
+      .join(';');
+    if (submittedSig !== serverSig) {
+      return res.status(409).json({
+        error: 'The assessment questions were just updated. Please refresh the page and take it again so your result is accurate.',
+        code: 'config_mismatch',
+      });
+    }
+  }
+
   const scoreMap = Object.fromEntries(
     assessmentForm.questions.map(question => [
       question.id,

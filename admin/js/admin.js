@@ -23,6 +23,7 @@ const ADMIN_THEME_SETTING_KEYS = [
 ];
 
 const ADMIN_PAGE_LABELS = {
+  'leadership-lens.html': 'Leadership Lens',
   'dashboard.html': 'Dashboard',
   'site.html': 'Site Console',
   'posts.html': 'Blog Posts',
@@ -363,6 +364,13 @@ function initAdminNavSortable() {
   const nav = document.querySelector('.admin-nav');
   if (!nav) return;
   
+  if (!nav.querySelector('a[href="leadership-lens.html"]')) {
+    const link = document.createElement('a');
+    link.href = 'leadership-lens.html';
+    link.textContent = 'Leadership Lens';
+    nav.appendChild(link);
+  }
+
   // Assign data-nav attributes based on href
   const links = nav.querySelectorAll('a');
   links.forEach(link => {

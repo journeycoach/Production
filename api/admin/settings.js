@@ -1,3 +1,4 @@
+import { validateConfig } from '../../js/leadership-lens-core.js';
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
 import { Resend } from 'resend';
@@ -155,6 +156,10 @@ export default async function handler(req, res) {
       }
     }
 
+    if (req.body?.leadership_lens_published_v1 !== undefined) {
+      try { validateConfig(JSON.parse(req.body.leadership_lens_published_v1)); }
+      catch (error) { return res.status(400).json({ error: error.message }); }
+    }
     const entries = Object.entries(req.body || {}).filter(([k]) => k && k.length <= 100);
     if (entries.length === 0) return res.status(400).json({ error: 'No settings provided' });
     try {

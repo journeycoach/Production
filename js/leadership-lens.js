@@ -1,0 +1,26 @@
+import {formatText,loadConfig,score,shuffle,escapeHtml as esc} from './leadership-lens-core.js?v=2';
+const root=document.getElementById('assessment');
+const STORAGE='leadership-lens-session-v1';
+let d,answers={},order={},tie=null,step='intro';
+function save(){try{sessionStorage.setItem(STORAGE,JSON.stringify({config:d,answers,order,tie,step}));}catch{}}
+function navigate(next,replace=false){step=next;save();history[replace?'replaceState':'pushState']({},'',`?step=${next}`);render();root.querySelector('h1')?.focus();window.scrollTo(0,0);}
+function questions(qs){return qs.map(q=>{order[q.id] ||= shuffle(q.answers.map(a=>a.id));return `<fieldset class="lens-question" id="${esc(q.id)}" tabindex="-1"><legend>${esc(q.text)}</legend>${order[q.id].map(aid=>q.answers.find(a=>a.id===aid)).filter(Boolean).map(a=>`<label class="lens-option"><input type="radio" name="${esc(q.id)}" value="${esc(a.id)}" ${answers[q.id]===a.id?'checked':''}><span>${esc(a.text)}</span></label>`).join('')}</fieldset>`;}).join('');}
+function finish(){save();try{sessionStorage.setItem('leadership-lens-result-v1',JSON.stringify({config:d,answers,tie}));}catch{root.querySelector('.lens-error').textContent='Your browser is blocking session storage. Enable it to view your results.';return;}location.href='/leadership-lens-results.html';}
+function render(){
+ root.setAttribute('aria-busy','false');
+ if(step==='intro'){root.innerHTML=`<p class="eyebrow">Free leadership reflection · 6 questions</p><h1 tabindex="-1">${formatText(d.title)}</h1><img class="lens-intro-image" src="/assets/leadership-lens-hero-v3.png" alt="Three overlapping glass lenses refract light differently, suggesting complementary leadership perspectives." width="1536" height="512" fetchpriority="high"><p class="headline">${formatText(d.intro)}</p><p>${formatText(d.instructions)}</p><div class="panel"><h2>A perspective, not a label</h2><p>Explore what gets your attention, how it serves you, and what it may cause you to overlook. This is an Enneagram-informed reflection tool, not a typing assessment or a validated psychological instrument.</p><p>Two scenarios, three questions each. A short follow-up appears only if your scores tie. No email required.</p></div><div class="lens-controls"><button class="lens-button" id="start">${Object.keys(answers).length?'Continue':'Begin assessment'}</button></div>`;document.getElementById('start').onclick=()=>navigate('scenario-1');return;}
+ const idx=step==='scenario-1'?0:1;
+ let qs,heading,context,progress;
+ if(step==='tiebreaker'){
+   const r=score(d,answers,tie);if(r.tied.length===1){finish();return;}
+   order[d.tiebreaker.id] ||= shuffle(d.tiebreaker.answers.map(a=>a.id));
+   qs=[{...d.tiebreaker,answers:d.tiebreaker.answers.filter(a=>r.tied.includes(a.center))}];heading='One final reflection';context='Your responses draw equally on more than one lens. Choose the experience that feels most familiar. This will not change your original scores.';progress=6;
+   answers[d.tiebreaker.id]=tie;
+ }else{const s=d.sections[idx];qs=s.questions;heading=s.title;context=s.description;progress=idx*3;}
+ root.innerHTML=`<p class="eyebrow">${step==='tiebreaker'?'Tiebreaker':`Scenario ${idx+1} of 2`}</p><progress class="lens-progress" max="6" value="${progress}" aria-label="Main questions completed"></progress><h1 tabindex="-1">${esc(heading)}</h1><p class="scenario-context">${esc(context)}</p><p>${formatText(d.instructions)}</p><form id="scenario-form">${questions(qs)}<p class="lens-error" role="alert"></p><div class="lens-controls"><button type="button" class="lens-button secondary" id="back">Back</button><button type="submit" class="lens-button">${step==='scenario-1'?'Next scenario':step==='tiebreaker'?'See my results':'Continue to results'}</button></div></form>`;
+ document.getElementById('back').onclick=()=>navigate(step==='tiebreaker'?'scenario-2':idx===1?'scenario-1':'intro');
+ document.getElementById('scenario-form').onchange=e=>{answers[e.target.name]=e.target.value;if(step==='tiebreaker')tie=e.target.value;else{tie=null;delete answers[d.tiebreaker.id];}save();};
+ document.getElementById('scenario-form').onsubmit=e=>{e.preventDefault();const missing=qs.find(q=>!q.answers.some(a=>a.id===answers[q.id]));if(missing){root.querySelector('.lens-error').textContent='Please choose an answer for every question on this page.';document.getElementById(missing.id).focus();return;}if(step==='scenario-1'){navigate('scenario-2');return;}const r=score(d,answers,tie);if(!r.primary)navigate('tiebreaker');else finish();};save();
+}
+window.addEventListener('popstate',()=>{let requested=new URLSearchParams(location.search).get('step');if(!['intro','scenario-1','scenario-2','tiebreaker'].includes(requested))requested='intro';if(requested==='tiebreaker'){try{score(d,answers,tie);}catch{requested='scenario-1';}}step=requested;render();});
+try{d=await loadConfig();try{const s=JSON.parse(sessionStorage.getItem(STORAGE));if(s && JSON.stringify(s.config)===JSON.stringify(d)){answers=s.answers||{};order=s.order||{};tie=s.tie||null;}}catch{}navigate('intro',true);}catch{root.innerHTML='<h1>Assessment temporarily unavailable</h1><p>Please refresh and try again.</p>';}

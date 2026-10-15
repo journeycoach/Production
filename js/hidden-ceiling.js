@@ -1,91 +1,92 @@
 (function () {
+    // Built-in fallback. Keep in sync with DEFAULT_ASSESSMENT_FORM in api/contact.js.
     let ASSESSMENT_STEPS = [
         {
             id: 'intro',
             type: 'intro',
-            eyebrow: 'Start Here',
-            title: 'Tell me where to send your guide',
-            copy: 'You will see your result immediately on the page, and I will also email the matching Leadership Center guide so you can revisit it later.',
+            eyebrow: "Start Here",
+            title: "Tell me where to send your guide",
+            copy: "You will see your result immediately on the page, and I will also email the matching Hidden Ceiling guide, so you can revisit it later.",
         },
         {
             id: 'q1',
-            title: 'When a high-stakes initiative suddenly goes off track, what is your first internal reaction?',
+            title: "When a high-stakes initiative suddenly goes off track, what is your first internal move?",
             options: [
-                { text: 'You pull back to analyze the data and find where the logic failed.' },
-                { text: 'You move quickly to take charge and get things back on track.' },
-                { text: 'Your focus goes immediately to the team — you want to understand how they are being affected and what they need from you.' },
+                { text: "I step back to understand what changed, what we know, and what risk we may be missing." },
+                { text: "I focus on what needs to be stabilized first, make the next clear move, and create momentum." },
+                { text: "My focus goes immediately to the team. I want to understand how they are being affected and what they need from me." },
             ],
         },
         {
             id: 'q2',
-            title: 'Under pressure, what do others most often tell you that you need to do differently?',
+            title: "When a situation is ambiguous with no perfect answer, what do you naturally do?",
             options: [
-                { text: 'You need to move forward with less over-analysis and trust your judgment sooner.' },
-                { text: 'You need to be more direct about priorities instead of managing everyone\'s feelings first.' },
-                { text: 'You need to slow down long enough to consider how decisions are affecting people.' },
+                { text: "I sense how people are interpreting the ambiguity and work to create trust and alignment." },
+                { text: "I clarify the unknowns, organize the variables, and look for the pattern beneath the complexity." },
+                { text: "I identify the next responsible move, create traction, and adjust as reality becomes clearer." },
             ],
         },
         {
             id: 'q3',
-            title: 'In high-level leadership conversations, where do you naturally contribute most?',
+            title: "In high-level leadership conversations, where do you most naturally contribute?",
             options: [
-                { text: 'You track how people will experience the decision and what it will mean relationally.' },
-                { text: 'You name the system-level risks, the long-term implications, and what others may be missing.' },
-                { text: 'You focus on what needs to happen next, who owns it, and how to keep things moving.' },
+                { text: "How the decision will affect trust, buy-in, commitment, and the people who need to carry it forward." },
+                { text: "What needs to happen next, who owns it, and how to turn the conversation into movement." },
+                { text: "Patterns, assumptions, logic, and the implications that need more thought." },
             ],
         },
         {
             id: 'q4',
-            title: 'When an important issue is being avoided, what is your natural leadership response?',
+            title: "When an important issue is being avoided, what is your natural leadership response?",
             options: [
-                { text: 'I address it directly, name what needs to be faced, and clarify what has to happen next.' },
-                { text: 'I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved.' },
-                { text: 'I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond.' },
+                { text: "I pay attention to the relational context and what people may be protecting, feeling, or needing before I respond." },
+                { text: "I look for the assumptions, missing information, or competing interpretations that may be keeping it unresolved." },
+                { text: "I address it directly, name what needs to be faced, and clarify what has to happen next." },
             ],
         },
         {
             id: 'q5',
-            title: 'In leadership meetings, what kind of contribution do you instinctively value most?',
+            title: "In leadership meetings, what kind of contribution do you instinctively value most?",
             options: [
-                { text: 'You value awareness of people, tone, and how decisions affect the room.' },
-                { text: 'You value directness, conviction, and the ability to move things forward.' },
-                { text: 'You value clear thinking, objectivity, and well-reasoned ideas.' },
+                { text: "Clarity, ownership, decisive movement, and the willingness to address what needs to be done." },
+                { text: "Emotional intelligence, trust-building, and awareness of how the conversation is landing with people." },
+                { text: "Thoughtful analysis, sound reasoning, and seeing the issue from multiple angles." },
             ],
         },
         {
             id: 'q6',
-            title: 'When faced with a dense set of details, metrics, or analysis, what is your natural response?',
+            title: "When you receive a complex update, what do you naturally listen for first?",
             options: [
-                { text: 'You lose patience when it slows decisions down or gets in the way of moving forward.' },
-                { text: 'You enjoy it when it helps you understand patterns, structure, and what is really going on.' },
-                { text: 'You can do it, but you would rather focus on the people and context behind the numbers.' },
+                { text: "The decision, priority, ownership, and next move behind what is being presented." },
+                { text: "The people impact, morale, trust, and meaning behind what is being presented." },
+                { text: "The pattern, logic, gaps, and implications behind what is being presented." },
             ],
         },
         {
             id: 'q7',
-            title: 'A trusted colleague gives you critical feedback about your leadership style. What is your most natural first response?',
+            title: "A trusted colleague gives you critical feedback about your leadership style. What is your most natural first reaction?",
             options: [
-                { text: 'I first consider how the feedback may affect the relationship and how others may be experiencing me.' },
-                { text: 'I focus on what needs to change, improve, or be addressed moving forward.' },
-                { text: 'I analyze the feedback and compare it against other data points before fully accepting it.' },
+                { text: "I first consider how the feedback may affect the relationship and how others may be experiencing me." },
+                { text: "I focus on what needs to change, improve, or be addressed moving forward." },
+                { text: "I analyze the feedback and compare it against other data points before fully accepting it." },
             ],
         },
         {
             id: 'q8',
-            title: 'You need to make a decision that you know will disappoint someone you respect. What do you do?',
+            title: "You need to make a decision that you know will disappoint someone you respect. Before you act, where does your attention go first?",
             options: [
-                { text: 'You make the call, communicate it directly, and focus on moving forward — you believe clarity is more respectful than delay.' },
-                { text: 'You invest real time preparing how to deliver the news, prioritizing the relationship even after the decision is made.' },
-                { text: 'You review your reasoning one more time before acting, wanting to be fully confident you can justify the choice.' },
+                { text: "To what needs to happen next and how to move forward clearly." },
+                { text: "To how the person will feel and how to maintain trust." },
+                { text: "To whether the reasoning is solid and the decision can be justified." },
             ],
         },
         {
             id: 'q9',
-            title: 'When the pressure is high, what most naturally guides your leadership decisions?',
+            title: "When the pressure is high, what do you most trust to guide you?",
             options: [
-                { text: 'You return to truth — understanding what is accurate, objective, and really happening.' },
-                { text: 'You return to connection — staying aligned with people, meaning, and shared purpose.' },
-                { text: 'You return to action — moving with conviction, clarity, and grounded instinct.' },
+                { text: "Relational alignment: sensing what people need, what matters, and where trust is at stake." },
+                { text: "Clear understanding: sorting out what is true, what is uncertain, and what needs more thought." },
+                { text: "Grounded instinct: reading the reality of the moment, making the call, and moving with conviction." },
             ],
         }
     ];
@@ -316,6 +317,8 @@
         const turnstileEl = document.getElementById('hc-assessment-turnstile');
         if (turnstileEl) {
             if (isLast) {
+                // Re-renders on this step (e.g. changing the Q9 answer) must not
+                // reset an already-solved check; only a missing token triggers one.
                 if (typeof window.renderAssessmentTurnstile === 'function') {
                     window.renderAssessmentTurnstile();
                 }
@@ -464,12 +467,14 @@
                     source: new URLSearchParams(window.location.search).get('source') || 'hidden-ceiling',
                     attribution: window.getYjcAttribution ? window.getYjcAttribution() : null,
                     answers: state.answers,
+                    config_sig: getConfigSignature(ASSESSMENT_STEPS),
                     'cf-turnstile-response': turnstileToken
                 })
             });
 
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {
+                if (data.code === 'config_mismatch') clearProgress();
                 throw new Error(data.error || 'Unable to process your assessment right now.');
             }
 
@@ -499,9 +504,13 @@
             window.location.href = `/results.html?${params.toString()}`;
 
         } catch (error) {
-            errorEl.textContent = error.message || 'Something went wrong while submitting your assessment.';
             nextBtn.disabled = false;
             render();
+            // render() clears the error line, so set the message after it.
+            errorEl.textContent = error.message || 'Something went wrong while submitting your assessment.';
+            if (typeof window.resetAssessmentTurnstile === 'function') {
+                window.resetAssessmentTurnstile();
+            }
         }
     }
 
@@ -751,13 +760,23 @@
                 'expired-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
                 'error-callback'() { _assessToken = ''; window._hcAssessmentTurnstileToken = ''; },
             });
-        } else {
+        } else if (!_assessToken) {
+            // No valid token (expired, errored, or already spent): get a fresh one.
             window.turnstile.reset(_assessWidgetId);
-            _assessToken = '';
-            window._hcAssessmentTurnstileToken = '';
         }
     }
     window.renderAssessmentTurnstile = renderAssessmentTurnstile;
+
+    // Turnstile tokens are single-use. After any submit attempt reaches the
+    // server, discard the token and fetch a new one before the next attempt.
+    function resetAssessmentTurnstile() {
+        _assessToken = '';
+        window._hcAssessmentTurnstileToken = '';
+        if (window.turnstile && _assessWidgetId !== undefined) {
+            window.turnstile.reset(_assessWidgetId);
+        }
+    }
+    window.resetAssessmentTurnstile = resetAssessmentTurnstile;
 
     function initWidget() {
         if (!window.turnstile) return;

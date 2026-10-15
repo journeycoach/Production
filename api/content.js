@@ -134,6 +134,11 @@ export default async function handler(req, res) {
     }
 
     switch (type) {
+      case 'leadership-lens': {
+        res.setHeader('Cache-Control', 'no-store');
+        const rows = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'leadership_lens_published_v1'`;
+        return res.status(200).json({ data: rows.length ? JSON.parse(rows[0].setting_value) : null });
+      }
       case 'testimonials': {
         const rows = await sql`
           SELECT t.id,
