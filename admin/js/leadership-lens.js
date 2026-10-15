@@ -1,4 +1,4 @@
-import {validateConfig,formatText,alignStyle,ALIGNMENTS} from '../../js/leadership-lens-core.js?v=3';
+import {validateConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=4';
 const KEY = 'leadership_lens_draft_v1';
 const $ = id => document.getElementById(id);
 const id = () => crypto.randomUUID();
@@ -10,7 +10,15 @@ if (window.LEADERSHIP_LENS_SEED) draft = structuredClone(window.LEADERSHIP_LENS_
 let dirty = false;
 let revision = 0;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const DETAIL_FIELDS = ['title','intro','instructions'];
+const PANEL_FIELDS = [['panelTitle','Intro box heading'],['panelBody','Intro box text'],['panelNote','Intro box closing line']];
+const DETAIL_FIELDS = ['title','intro','instructions',...PANEL_FIELDS.map(f=>f[0])];
+// Editors for the intro box lines, built with the same markup as the section 01 editors.
+function addPanelEditors() {
+  if ($('panelTitle')) return;
+  const anchor = $('instructions-preview').closest?.('.text-editor'); if (!anchor) return;
+  const html = PANEL_FIELDS.map(([key,label]) => `<div class="text-editor"><label for="${key}">${label}</label><div class="format-toolbar" role="group" aria-label="${label} formatting">${[['**','Bold'],['*','Italic'],['__','Underline'],['clear','Clear formatting']].map(([m,l])=>`<button type="button" data-format="${m}" data-field="${key}">${l}</button>`).join('')}</div><textarea id="${key}" aria-describedby="format-help panel-help" rows="2"></textarea><div class="formatted-preview" id="${key}-preview" aria-label="${label} formatted preview"></div></div>`).join('');
+  anchor.insertAdjacentHTML('afterend', `<p id="panel-help" class="panel-help">The intro box shows these lines with your Instructions between the text and the closing line. Leave a field empty to hide that line.</p>` + html);
+}
 const COLORS = [['Charcoal','#1c2321'],['Forest green','#4a6741'],['Gold','#c5a065'],['Slate','#596575'],['Deep red','#9a3026']];
 function updateTextPreviews() {
   for (const key of DETAIL_FIELDS) {
@@ -72,12 +80,13 @@ function render() {
   draft.tiebreaker ||= structuredClone(window.LEADERSHIP_LENS_SEED.tiebreaker);
   $('tiebreaker').innerHTML = field('Final question', 'tiebreaker.text', draft.tiebreaker.text) + draft.tiebreaker.answers.map((a,i)=>field(a.center.toUpperCase()+' answer (shown only when tied)', `tiebreaker.answers.${i}.text`, a.text)).join('');
   for (const key of ['title','intro','instructions','scoringNotes']) $(key).value = draft[key];
+  addPanelEditors(); for (const [k] of PANEL_FIELDS) { if (typeof draft[k] !== 'string') draft[k] = PANEL_DEFAULTS[k]; $(k).value = draft[k]; }
   addDetailControls(); updateTextPreviews();
   $('sections').innerHTML = draft.sections.map((s, si) => `<div class="section-item"><h3>Section ${si + 1}</h3>${field('Section name',`sections.${si}.title`,s.title,'Add a section name')}<label>Scenario context<textarea data-path="sections.${si}.description">${esc(s.description || '')}</textarea></label>${actions('section',si,draft.sections.length)}${s.questions.map((q,qi) => `<div class="question-item"><h4>Question ${qi+1}</h4>${questionEditor(si,qi,q)}${actions('question',qi,s.questions.length,`data-section="${si}"`)}${q.answers.map((a,ai) => `<div class="answer-row"><label class="answer-text">Answer ${ai+1}${a.center ? ' · ' + a.center.toUpperCase() + ' (editor only)' : ''}<textarea data-path="sections.${si}.questions.${qi}.answers.${ai}.text" placeholder="Add an answer choice" maxlength="2000" rows="2">${esc(a.text)}</textarea></label><label class="answer-lens">Lens<select data-path="sections.${si}.questions.${qi}.answers.${ai}.center"><option value="">Choose lens</option>${['head','heart','gut'].map(c=>`<option value="${c}" ${a.center===c?'selected':''}>${c}</option>`).join('')}</select></label><button data-action="answer-remove" data-section="${si}" data-question="${qi}" data-index="${ai}" aria-label="Remove answer ${ai+1}">Remove</button></div>`).join('')}<button class="btn btn-ghost" data-action="answer-add" data-section="${si}" data-question="${qi}">+ Add answer</button></div>`).join('')}<button class="btn btn-ghost" data-action="question-add" data-section="${si}">+ Add question</button></div>`).join('') || '<p>No sections yet. Add a section to begin.</p>';
   $('lenses').innerHTML = draft.lenses.map((l,li) => `<div class="section-item">${field('Lens name',`lenses.${li}.name`,l.name,'Name this lens later')}<label>Result headline<textarea data-path="lenses.${li}.description" placeholder="Describe this leadership lens">${esc(l.description)}</textarea></label>${['attention','high','low','opportunity','reflection'].map(key => `<label>${({attention:'Where your attention goes',high:'The high side',low:'The low side',opportunity:'Your leadership opportunity',reflection:'Reflection question'})[key]}<textarea data-path="lenses.${li}.${key}">${esc(l[key] || '')}</textarea></label>`).join('')}<a class="btn btn-ghost" href="/leadership-lens-results.html?lens=${encodeURIComponent(l.id)}" target="_blank" rel="noopener">View saved result draft</a>${actions('lens',li,draft.lenses.length)}</div>`).join('') || '<p>No lens types defined yet.</p>';
 }
 $('editor').addEventListener('input', e => {
-  const path = e.target.dataset.path || (['title','intro','instructions','scoringNotes'].includes(e.target.id) ? e.target.id : null);
+  const path = e.target.dataset.path || (['title','intro','instructions','scoringNotes',...PANEL_FIELDS.map(f=>f[0])].includes(e.target.id) ? e.target.id : null);
   if (!path) return;
   const parts = path.split('.'); let target = draft;
   for (const part of parts.slice(0,-1)) target = target[part];
@@ -114,7 +123,7 @@ $('export').onclick = () => {
   const a = document.createElement('a'); a.href = url; a.download = 'leadership-lens-draft.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
 };
 $('preview').onclick = () => {
-  $('preview-body').innerHTML = `<h1${alignStyle(draft,'title')}>${formatText(draft.title || 'Untitled assessment')}</h1><p${alignStyle(draft,'intro')}>${formatText(draft.intro)}</p><p${alignStyle(draft,'instructions')}>${formatText(draft.instructions)}</p>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend${alignStyle({align:{q:q.align}},'q')}>${q.text ? formatText(q.text) : `Question ${qi+1} — text to be added`}</legend>${q.answers.map((a,ai) => `<label><input type="radio" name="preview-${si}-${qi}" value="${ai}">${esc(a.text || `Answer ${ai+1} — text to be added`)}</label>`).join('')}</fieldset>`).join('')).join('');
+  $('preview-body').innerHTML = `<h1${alignStyle(draft,'title')}>${formatText(draft.title || 'Untitled assessment')}</h1><p${alignStyle(draft,'intro')}>${formatText(draft.intro)}</p><div class="preview-panel">${['panelTitle','panelBody','instructions','panelNote'].map(k => { const t = k === 'instructions' ? draft.instructions : panelText(draft,k); return t && t.trim() ? `<${k==='panelTitle'?'h3':'p'}${alignStyle(draft,k)}>${formatText(t)}</${k==='panelTitle'?'h3':'p'}>` : ''; }).join('')}</div>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend${alignStyle({align:{q:q.align}},'q')}>${q.text ? formatText(q.text) : `Question ${qi+1} — text to be added`}</legend>${q.answers.map((a,ai) => `<label><input type="radio" name="preview-${si}-${qi}" value="${ai}">${esc(a.text || `Answer ${ai+1} — text to be added`)}</label>`).join('')}</fieldset>`).join('')).join('');
   $('preview-dialog').showModal();
 };
 $('close-preview').onclick = () => $('preview-dialog').close();

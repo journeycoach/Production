@@ -50,3 +50,11 @@ export function alignStyle(d, key) {
   const a = d?.align?.[key];
   return ALIGNMENTS.includes(a) ? ` style="text-align:${a}"` : '';
 }
+
+// Intro box text. Undefined uses the default; an empty string hides that line.
+export const PANEL_DEFAULTS = {
+  panelTitle: 'A perspective, not a label',
+  panelBody: 'Explore what gets your attention, how it serves you, and what it may cause you to overlook. This is an Enneagram-informed reflection tool, not a typing assessment or a validated psychological instrument.',
+  panelNote: 'Two scenarios, three questions each. A short follow-up appears only if your scores tie. No email required.',
+};
+export const panelText = (d, key) => (typeof d?.[key] === 'string' ? d[key] : PANEL_DEFAULTS[key]);

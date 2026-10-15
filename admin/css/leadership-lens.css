@@ -25,3 +25,5 @@
 
 .heading-actions{display:flex;gap:10px;flex-wrap:wrap}#publish-floating{padding:8px 16px}#publish-floating[hidden]{display:none!important}
 .question-editor{margin:12px 0 16px}.question-editor textarea{min-height:0;line-height:1.45}.question-editor .formatted-preview{font-size:1.05rem}
+
+.panel-help{margin:32px 0 0;padding-top:20px;border-top:1px solid #c8cfd5}.preview-panel{border:1px solid #c8cfd5;border-radius:10px;padding:18px;margin:16px 0}
