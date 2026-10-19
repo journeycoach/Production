@@ -8,3 +8,8 @@ backups/
 .env
 .env.*
 *.sql
+
+# Internal working files: kept in the repo, never published
+docs/
+tests/
+exports/
