@@ -157,7 +157,7 @@ export default async function handler(req, res) {
     }
 
     if (req.body?.leadership_lens_published_v1 !== undefined) {
-      try { validateConfig(JSON.parse(req.body.leadership_lens_published_v1)); }
+      try { const config=validateConfig(JSON.parse(req.body.leadership_lens_published_v1)); if(config.sections.length!==3) throw new Error('Publish three scenarios with three questions each.'); }
       catch (error) { return res.status(400).json({ error: error.message }); }
     }
     const entries = Object.entries(req.body || {}).filter(([k]) => k && k.length <= 100);

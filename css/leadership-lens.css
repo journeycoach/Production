@@ -7,3 +7,19 @@
 .lens-intro-panel{margin:0 0 28px}.lens-intro-panel h2{margin:0 0 12px}.lens-intro-panel p{margin:0 0 12px;line-height:1.6}.lens-intro-panel p:last-child{margin-bottom:0}
 .lens-intro-panel .lens-instructions{font-weight:600;color:#344a2d}
 .lens-intro-image + .lens-intro{margin-top:0}
+
+/* Most / least ranking */
+.rank-hint{margin:-4px 0 6px;color:#5b5446;font-size:.95rem}
+.rank-option{display:block;cursor:default;padding:16px 18px}
+.rank-option .rank-text{margin:0 0 12px;line-height:1.5}
+.rank-choices{display:flex;gap:10px;flex-wrap:wrap}
+.rank-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #cfc6b7;border-radius:999px;background:#fff;cursor:pointer;font-size:.92rem;line-height:1.2}
+.rank-pill input{margin:0;accent-color:#4a6741}
+.rank-pill.least input{accent-color:#80622e}
+.rank-pill:has(input:checked).most{border-color:#4a6741;background:#e8efe5;color:#2f4529;font-weight:600}
+.rank-pill:has(input:checked).least{border-color:#80622e;background:#f3ead8;color:#5e4720;font-weight:600}
+.lens-option.rank-option:has(input:checked){border-color:#cfc6b7;background:#fffdf8;box-shadow:none}
+.lens-option.rank-option.is-most,.lens-option.rank-option.is-most:has(input:checked){border-color:#4a6741;box-shadow:0 0 0 1px #4a6741;background:#f4f8f2}
+.lens-option.rank-option.is-least,.lens-option.rank-option.is-least:has(input:checked){border-color:#cfc6b7;background:#f7f4ee;box-shadow:none}
+.lens-option.rank-option.is-least .rank-text{color:#6b6458}
+@media(max-width:600px){.rank-pill{flex:1 1 auto;justify-content:center;min-height:44px}}

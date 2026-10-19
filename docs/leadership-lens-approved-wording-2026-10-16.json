@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "title": "Leadership Lens",
+  "intro": "Discover where your attention tends to go first, how that perspective supports your leadership, and what it may cause you to overlook. Inspired by the Enneagram's Head, Heart, and Gut centers, this reflection offers a leadership lens to explore—not an Enneagram type or a fixed identity.",
+  "instructions": "Think about what usually happens inside you, before you choose how to respond. Select the answer closest to your experience, even if more than one fits. Focus on the concern underneath your reaction, rather than the response you think a leader should give. There are no better or worse answers.",
+  "sections": [
+    {
+      "id": "c73b2c85-e426-4c6a-84ec-5d883951d1f4",
+      "title": "Your boss is late",
+      "questions": [
+        {
+          "id": "7d55a8a0-6b22-4960-898b-a5732e89033e",
+          "text": "Before you decide what to do, what gets your attention first?",
+          "answers": [
+            {
+              "id": "00cb1f2f-f2a5-4c80-a3b8-02ee70afe018",
+              "text": "I wonder what this says about how much my boss values my contribution.",
+              "center": "heart"
+            },
+            {
+              "id": "8f1d0080-b37c-4e42-97a3-a81a42f7521b",
+              "text": "I feel that my time and commitments are being taken out of my hands.",
+              "center": "gut"
+            },
+            {
+              "id": "d0447187-709b-435a-9c64-fcb78bc0bec9",
+              "text": "I don't know what has happened or what to expect next.",
+              "center": "head"
+            }
+          ]
+        },
+        {
+          "id": "late-q2",
+          "text": "What would most help you feel settled internally?",
+          "answers": [
+            {
+              "id": "late-q2-head",
+              "center": "head",
+              "text": "Enough clarity to understand what is happening and anticipate what comes next."
+            },
+            {
+              "id": "late-q2-heart",
+              "center": "heart",
+              "text": "Reassurance that my contribution matters and that I am valued."
+            },
+            {
+              "id": "late-q2-gut",
+              "center": "gut",
+              "text": "A sense that I can choose my own limit and honor my other commitments."
+            }
+          ]
+        },
+        {
+          "id": "late-q3",
+          "text": "When this happens repeatedly, which inner pattern do you recognize most?",
+          "answers": [
+            {
+              "id": "late-q3-head",
+              "center": "head",
+              "text": "I keep searching for explanations or possible outcomes because the uncertainty is hard to leave alone."
+            },
+            {
+              "id": "late-q3-heart",
+              "center": "heart",
+              "text": "I keep returning to what this means about my value or how my boss sees me."
+            },
+            {
+              "id": "late-q3-gut",
+              "center": "gut",
+              "text": "I hold onto a sense that this is not okay, even when my resistance stays quiet."
+            }
+          ]
+        }
+      ],
+      "description": "You are ready for a scheduled meeting with your boss. They are late, and you have received no update. Think about your usual reaction in similar situations."
+    },
+    {
+      "id": "challenge",
+      "title": "Your approach is questioned",
+      "description": "An initiative you lead has missed a milestone. During a team meeting, a colleague questions your approach. You will need to continue working together.",
+      "questions": [
+        {
+          "id": "q4",
+          "text": "As your colleague speaks, what gets your attention first?",
+          "answers": [
+            {
+              "id": "q4-head",
+              "center": "head",
+              "text": "What I may have missed and what information or other explanation could change my understanding."
+            },
+            {
+              "id": "q4-heart",
+              "center": "heart",
+              "text": "How the team is seeing me and what this means for their respect or confidence in me."
+            },
+            {
+              "id": "q4-gut",
+              "center": "gut",
+              "text": "Whether the challenge feels fair or asks me to accept something that does not sit right."
+            }
+          ]
+        },
+        {
+          "id": "q5",
+          "text": "What would most help you feel settled afterward?",
+          "answers": [
+            {
+              "id": "q5-head",
+              "center": "head",
+              "text": "A clearer understanding of what happened and the options available."
+            },
+            {
+              "id": "q5-heart",
+              "center": "heart",
+              "text": "Knowing that I am still valued and respected, even where people disagree with me."
+            },
+            {
+              "id": "q5-gut",
+              "center": "gut",
+              "text": "Knowing that I can stay true to my judgment without being pushed into agreement."
+            }
+          ]
+        },
+        {
+          "id": "q6",
+          "text": "If the discomfort continues, which inner pattern do you recognize most?",
+          "answers": [
+            {
+              "id": "q6-head",
+              "center": "head",
+              "text": "I keep revisiting explanations or alternatives, trying to think my way out of the discomfort."
+            },
+            {
+              "id": "q6-heart",
+              "center": "heart",
+              "text": "I become preoccupied with how others see me and lose touch with my own perspective."
+            },
+            {
+              "id": "q6-gut",
+              "center": "gut",
+              "text": "I become more fixed in what feels right to me, whether I push back openly or resist quietly."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "lenses": [
+    {
+      "id": "head",
+      "name": "The Analytical Lens",
+      "description": "You naturally see what needs to be understood.",
+      "attention": "You instinctively notice uncertainty, risks, unanswered questions, and possibilities. Your mind naturally explores what could happen and what you may not yet understand.",
+      "high": "Your curiosity can help a team question assumptions, anticipate risks, and see alternatives. You bring value when you turn information and possibilities into a clearer shared understanding.",
+      "low": "Your desire to understand can become a need for certainty. You may overthink, second-guess yourself, withdraw into analysis, or keep exploring possibilities rather than committing. When this happens, others may experience uncertainty, frustration, or a lack of connection.",
+      "opportunity": "Recognize when thinking contributes value and when it becomes a way to manage discomfort.",
+      "reflection": "What might become possible if I were more comfortable not knowing?"
+    },
+    {
+      "id": "heart",
+      "name": "The Relational Lens",
+      "description": "You naturally see the human side of leadership.",
+      "attention": "You instinctively notice people, relationships, expectations, and how others respond.",
+      "high": "Your awareness of people and meaning can help you notice expectations, recognize contributions, and build connection. You bring value when you stay attentive to others while expressing your own authentic perspective.",
+      "low": "Your awareness of others can become excessive concern about approval and perception. You may avoid disappointing people, take things personally, or adjust your position to maintain acceptance. When this happens, others may not know where you genuinely stand.",
+      "opportunity": "Remain connected to others without losing connection to yourself.",
+      "reflection": "What might change if I could disappoint someone without questioning my own worth?"
+    },
+    {
+      "id": "gut",
+      "name": "The Instinctive Lens",
+      "description": "You naturally sense what is right and worth protecting.",
+      "attention": "You instinctively notice what feels right or wrong, where boundaries exist, and when something important is being compromised.",
+      "high": "Your internal compass can help you recognize what feels out of alignment and what deserves care or protection. You bring steadiness through attention to principles, boundaries, and commitments. This may show up in a clear stand, quiet consistency, or a thoughtful refusal to compromise what matters.",
+      "low": "Your instinctive sense of rightness can become rigid. You may resist others' perspectives, become controlling, dig in, or quietly disengage. When this happens, others may feel shut out or hesitant to challenge you.",
+      "opportunity": "Trust your instincts without assuming they tell you the whole story.",
+      "reflection": "What might I discover if I became more curious about the things I instinctively resist?"
+    }
+  ],
+  "scoringNotes": "Each of six answers adds one point to its mapped lens. A lead of 3+ points is Strong, 2 is Clear, 1 is Moderate. A top tie or one-point lead displays a final motivation reflection restricted to the eligible leading lenses (all three for 2/2/2). The reflection selects a profile to explore first without changing the six-point scores. Reflection results remain Moderate. Strength describes consistency across these answers, not confidence that an Enneagram triad has been identified.",
+  "tiebreaker": {
+    "id": "tie",
+    "text": "Across situations like these, which concern is hardest for you to let go of—even when you know you can handle the situation?",
+    "answers": [
+      {
+        "id": "tie-head",
+        "center": "head",
+        "text": "Not having enough clarity or options to feel prepared for what might happen."
+      },
+      {
+        "id": "tie-heart",
+        "center": "heart",
+        "text": "Feeling that my value or standing with people who matter to me is in question."
+      },
+      {
+        "id": "tie-gut",
+        "center": "gut",
+        "text": "Feeling pushed to accept something that conflicts with my own sense of what is right."
+      }
+    ]
+  },
+  "align": {
+    "instructions": "left"
+  },
+  "panelTitle": "A perspective, not a label",
+  "panelBody": "Explore what gets your attention, how it serves you, and what it may cause you to overlook. Use this reflection as a starting point for greater awareness and choice.",
+  "panelNote": "Two scenarios, three questions each. A short follow-up helps clarify which perspective to explore when your leading scores are close or tied."
+}

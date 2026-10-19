@@ -1,3 +1,4 @@
+import { upgradeConfig, validateConfig } from '../js/leadership-lens-core.js';
 import { sql } from './_db.js';
 import { runMigrations } from './_migrate.js';
 
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
       case 'leadership-lens': {
         res.setHeader('Cache-Control', 'no-store');
         const rows = await sql`SELECT setting_value FROM site_settings WHERE setting_key = 'leadership_lens_published_v1'`;
-        return res.status(200).json({ data: rows.length ? JSON.parse(rows[0].setting_value) : null });
+        return res.status(200).json({ data: rows.length ? validateConfig(upgradeConfig(JSON.parse(rows[0].setting_value))) : null });
       }
       case 'testimonials': {
         const rows = await sql`

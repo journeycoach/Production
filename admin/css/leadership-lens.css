@@ -27,3 +27,15 @@
 .question-editor{margin:12px 0 16px}.question-editor textarea{min-height:0;line-height:1.45}.question-editor .formatted-preview{font-size:1.05rem}
 
 .panel-help{margin:32px 0 0;padding-top:20px;border-top:1px solid #c8cfd5}.preview-panel{border:1px solid #c8cfd5;border-radius:10px;padding:18px;margin:16px 0}
+
+/* Compact scenario and profile editors with native keyboard-accessible disclosure. */
+.scenario-fold,.profile-fold{border:1px solid #c8cfd5;border-radius:9px;padding:0;overflow:hidden;margin-top:16px}
+.scenario-fold>summary,.profile-fold>summary{display:list-item;list-style-position:inside;cursor:pointer;padding:18px 20px;background:#f4f6f3;color:#243040;font-weight:600;line-height:1.5}
+.scenario-fold>summary:hover,.profile-fold>summary:hover{background:#eaf0e8}
+.scenario-fold>summary:focus-visible,.profile-fold>summary:focus-visible{outline:3px solid #4a6741;outline-offset:-3px}
+.fold-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#465363;margin-right:12px}
+.fold-title{overflow-wrap:anywhere}.fold-count{display:block;margin:4px 0 0 18px;font-size:.8rem;font-weight:400;color:#596575}
+.fold-body{padding:4px 20px 20px}.scenario-fold[open]>summary,.profile-fold[open]>summary{border-bottom:1px solid #c8cfd5}
+@media(max-width:600px){.fold-body{padding:4px 12px 16px}.scenario-fold>summary,.profile-fold>summary{padding:14px 12px}.fold-label{display:block;margin:0 0 4px}}
+
+.overview-fold{padding:0;margin:24px 0}.overview-fold>summary h2{display:inline;margin:0;font-size:1.15rem}.overview-hint{display:block;margin:5px 0 0 18px;font-size:.85rem;font-weight:400;color:#596575}.overview-fold>.fold-body{padding-top:16px}
