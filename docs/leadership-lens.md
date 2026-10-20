@@ -52,8 +52,8 @@ Keep these when editing wording in the Studio:
 
 ## Deploying code changes
 
-- The Vercel login is not yet linked to GitHub, so pushes to `main` do not deploy on their own.
-- Deploy from this folder: `vercel --prod`.
+- Pushes to `main` on GitHub should deploy automatically (Vercel login relinked to GitHub on October 20, 2026).
+- If a push does not deploy, deploy from this folder: `vercel --prod`.
 - Static files under `/js/` and `/css/` are cached for a year. Bump the `?v=` query on the importing file whenever a script or stylesheet changes.
 
 ## Tests
