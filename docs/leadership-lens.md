@@ -15,7 +15,7 @@ Current as of October 19, 2026. This file is internal: `docs/` is listed in `.ve
 
 - Three scenarios, three questions each (nine questions). Every question has one Head, one Heart and one Gut answer; answer order is shuffled per participant.
 - Final reflection: one extra single-choice question, shown only when the top scores are tied or close. It is limited to the leading lenses and suggests which profile to show first. It never changes the scores.
-- The intro does not name Head, Heart and Gut. The Results page introduces the three centers.
+- The Results page introduces the three centers (Head, Heart, Gut). As of October 23 the intro box also names them up front (it came in with John's intro edits and is not yet confirmed as intended); the October 19 bias review recommended naming them only on the Results page.
 
 ## Scoring (most / least ranking)
 
@@ -46,6 +46,7 @@ Keep these when editing wording in the Studio:
 ## Editing and publishing
 
 - Studio fields (intro, intro box, instructions, scenarios, questions, answers, final reflection, result profiles) are stored in `site_settings`: `leadership_lens_draft_v1` for drafts and `leadership_lens_published_v1` for live content.
+- **Reload the editor before editing.** It publishes whatever is on screen, so a tab opened before another change will overwrite that change.
 - **Save draft** keeps edits private. **Publish wording** validates the structure (three scenarios, three questions, one answer per lens, complete profiles) and makes the wording live immediately. No deploy is needed for wording changes.
 - Text fields support Bold, Italic, Underline, colors (`{color:#RRGGBB}text{/color}`) and alignment.
 - `data/leadership-lens-draft.js` is the built-in fallback used if the content API is unavailable. Keep it in step with the published wording.
