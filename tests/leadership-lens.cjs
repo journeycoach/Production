@@ -13,8 +13,8 @@ async function setup(body={data:{}}, ok=true) {
  const t=await setup(); assert.equal(t.get('editor').disabled,false); assert.match(t.get('sections').innerHTML,/Write your question later/);
  t.get('add-section').onclick(); t.get('add-lens').onclick();
  t.get('editor').listeners.input({target:{dataset:{path:'sections.0.questions.0.text'},value:'<script>alert(1)</script>'}});
- t.get('preview').onclick(); assert.match(t.get('preview-body').innerHTML,/&lt;script&gt;/); assert.equal(t.get('preview-dialog').open,true);
- await t.get('save').onclick(); const payload=JSON.parse(t.calls.at(-1).options.body); const draft=JSON.parse(payload.leadership_lens_draft_v1); assert.equal(draft.sections.length,2);assert.equal(draft.lenses.length,1);assert.equal(draft.sections[0].questions[0].answers[0].text,'');
+ t.get('preview').onclick(); assert.match(t.get('preview-body').innerHTML,/&lt;script&gt;/); assert.equal(t.get('preview-dialog').open,true); assert.match(t.get('preview-body').innerHTML,/Most like me/); assert.match(t.get('preview-body').innerHTML,/Least like me/); assert.match(t.get('preview-body').innerHTML,/aria-label=/);
+ await t.get('save').onclick(); const payload=JSON.parse(t.calls.at(-1).options.body); assert.deepEqual(payload._lensExpected,{leadership_lens_draft_v1:null,leadership_lens_published_v1:null}); const draft=JSON.parse(payload.leadership_lens_draft_v1); assert.equal(draft.sections.length,2);assert.equal(draft.lenses.length,1);assert.equal(draft.sections[0].questions[0].answers[0].text,'');
  const reload=await setup({data:payload});assert.equal(reload.get('status').textContent,'Saved draft loaded.');assert.match(reload.get('sections').innerHTML,/&lt;script&gt;/);
  const bad=await setup({data:{leadership_lens_draft_v1:'{}'}});assert.equal(bad.get('editor').disabled,true);
  const failed=await setup({},false);assert.equal(failed.get('save').disabled,true);

@@ -1,3 +1,4 @@
+import { guardedAssessmentWrite } from '../_leadership-settings.js';
 import { validateConfig } from '../../js/leadership-lens-core.js';
 import { sql } from '../_db.js';
 import { requireAuth } from '../_auth.js';
@@ -156,9 +157,25 @@ export default async function handler(req, res) {
       }
     }
 
-    if (req.body?.leadership_lens_published_v1 !== undefined) {
-      try { const config=validateConfig(JSON.parse(req.body.leadership_lens_published_v1)); if(config.sections.length!==3) throw new Error('Publish three scenarios with three questions each.'); }
-      catch (error) { return res.status(400).json({ error: error.message }); }
+    // Compare both loaded snapshots under row locks before changing either setting.
+    // Old clients without a baseline must reload rather than overwrite newer work.
+    const lensKeys = ['leadership_lens_draft_v1', 'leadership_lens_published_v1'];
+    const lensWrites = lensKeys.filter(k => Object.hasOwn(req.body || {}, k));
+    if (lensWrites.length) {
+      const expected = req.body._lensExpected;
+      if (lensWrites.length !== 1 || Object.keys(req.body).some(k => !lensKeys.includes(k) && k !== '_lensExpected')) return res.status(400).json({error:'Save or publish one assessment version at a time.'});
+      if (!expected || !lensKeys.every(k => Object.hasOwn(expected,k) && (expected[k] === null || typeof expected[k] === 'string'))) return res.status(409).json({error:'This editor needs to reload before saving. Export your edits first, then reload and merge them with the latest version.'});
+      const key=lensWrites[0], value=req.body[key];
+      try {
+        if(typeof value !== 'string') throw new Error('Assessment content must be JSON text.');
+        const config=JSON.parse(value);
+        if(key===lensKeys[1]) { validateConfig(config); if(config.sections.length!==3) throw new Error('Publish three scenarios with three questions each.'); }
+      } catch(error) { return res.status(400).json({error:error.message}); }
+      try {
+        const updated=await guardedAssessmentWrite(sql,key,value,expected);
+        if(!updated.length) return res.status(409).json({error:'Someone saved or published a newer assessment. Your edits are still here. Export them, reload, and merge with the latest version before saving or publishing.'});
+        return res.status(200).json({ok:true,updated:1});
+      } catch(error) { console.error('assessment save error:',error); return res.status(500).json({error:'Could not save the assessment. Your edits remain on this page.'}); }
     }
     const entries = Object.entries(req.body || {}).filter(([k]) => k && k.length <= 100);
     if (entries.length === 0) return res.status(400).json({ error: 'No settings provided' });

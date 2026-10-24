@@ -4,6 +4,16 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-24 · Codex, five approved cleanup items
+
+Started from clean, current main at 242d7d4. Implemented all five John approved: guarded Admin saves/publishes compare both loaded draft/live snapshots under PostgreSQL row locks (old clients without baselines receive 409); preserves unsaved edits and instructs export/reload/merge on conflict. Admin preview now uses Most/Least selections and clears the opposite choice on the same answer. Participant and preview rank controls include answer text in accessible labels. Results explain 2/1/0, 18 maximum per lens, 27 total and contact percentage denominator. Cache versions bumped.
+
+Five targeted Gut answers refined around autonomy, holding ground, and quiet resistance. Saved ONLY to the latest production Admin draft with an exact prior-value guard; published wording was NOT changed. Snapshot: docs/leadership-lens-cleanup-draft-2026-10-24.json. Fallback and legacy third-scenario upgrade wording also updated, preserving all other wording and mappings. Do not republish an older editor tab.
+
+Code is committed/pushed but NOT deployed. John should close existing editors, then run `vercel --prod` from Production. After deployment reload the Admin editor, review the saved draft, and Publish wording when ready. Until deployment, production still uses the older editor without conflict protection.
+
+All four normal suites pass, plus tests/leadership-lens-settings-route.mjs. Integration test `node --env-file=.env.local tests/leadership-lens-settings.mjs` passes guarded write/conflict cases in an automatically dropped TEMP table; no production rows touched by that test. No manual browser walkthrough of these latest changes yet. Full rewrite or scoring changes were not made.
+
 ## 2026-10-24 · Codex
 
 Read-only assessment review requested by John. Pulled origin/main (already current at 55c6652); working tree was clean. Downloaded live assessment sources separately into /tmp/leadership-review-live-20261024 and public wording into /tmp/leadership-live-review-20261024.json. Eight assessment/editor source files matched the local checkout. Production deployment: dpl_6ie39HnW1gFLTWJmLAtztNanxihC. All four documented test suites pass (including 40,000 ranked cases). No application code, database wording, or deployment changed.

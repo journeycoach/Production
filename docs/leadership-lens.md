@@ -75,3 +75,9 @@ node tests/leadership-lens.cjs
 ## History
 
 Dated snapshots in this folder (`*-2026-10-16.*`) record Codex's October 16 language review and earlier wording, kept for reference.
+
+## Pending October 24 cleanup
+
+Admin save/publish now sends `_lensExpected`, containing the exact draft and published strings loaded by the editor. The API checks both under row locks before applying a single update; stale or older clients receive HTTP 409. It preserves browser edits and offers export/reload/merge guidance. Save and publish operations are serialized within each tab. Tests: `node tests/leadership-lens-settings-route.mjs` and `node --env-file=.env.local tests/leadership-lens-settings.mjs` (isolated temporary PostgreSQL table).
+
+Five Gut wording refinements are saved as an unpublished Admin draft. See the newest HANDOFF entry before deployment or publishing.

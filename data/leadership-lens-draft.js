@@ -46,7 +46,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "late-q2-gut",
               "center": "gut",
-              "text": "Keeping my own calm, so the delay does not throw off the rest of my day."
+              "text": "Knowing I can protect my own time and space without being drawn into someone else’s urgency."
             }
           ]
         },
@@ -117,7 +117,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "q5-gut",
               "center": "gut",
-              "text": "Talking with my colleague directly so nothing is left unsaid between us."
+              "text": "Knowing I can speak for myself and hold my ground without being pushed into agreement."
             }
           ]
         },
@@ -138,7 +138,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "q6-gut",
               "center": "gut",
-              "text": "I smooth things over to keep the peace, even when part of me disagrees."
+              "text": "I set aside my own position to keep things undisturbed, and quietly resist what I agreed to."
             }
           ]
         }
@@ -166,7 +166,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "opportunity-q7-gut",
               "center": "gut",
-              "text": "The chance to lead, set direction, and make something strong happen."
+              "text": "The freedom to shape the direction without compromising my own judgment or what matters to me."
             }
           ]
         },
@@ -208,7 +208,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "opportunity-q9-gut",
               "center": "gut",
-              "text": "I go along with the group's direction to avoid friction, and my own voice fades."
+              "text": "I go along outwardly rather than disturb things, but become quietly resistant when my own priorities disappear."
             }
           ]
         }

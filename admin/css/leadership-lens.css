@@ -39,3 +39,5 @@
 @media(max-width:600px){.fold-body{padding:4px 12px 16px}.scenario-fold>summary,.profile-fold>summary{padding:14px 12px}.fold-label{display:block;margin:0 0 4px}}
 
 .overview-fold{padding:0;margin:24px 0}.overview-fold>summary h2{display:inline;margin:0;font-size:1.15rem}.overview-hint{display:block;margin:5px 0 0 18px;font-size:.85rem;font-weight:400;color:#596575}.overview-fold>.fold-body{padding-top:16px}
+
+.preview-ranked-answer{padding:12px 0;border-bottom:1px solid #d7dce2}.preview-ranked-answer p{margin:0 0 8px}.preview-ranked-answer label{display:inline-flex;align-items:center;gap:6px;margin-right:18px}

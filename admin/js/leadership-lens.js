@@ -1,5 +1,14 @@
-import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=7';
+import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=8';
 const KEY = 'leadership_lens_draft_v1';
+const LIVE_KEY = 'leadership_lens_published_v1';
+let baseline = {[KEY]:null,[LIVE_KEY]:null};
+let saving = false;
+async function writeAssessment(key) {
+  const value=JSON.stringify(draft);
+  const response=await adminFetch('/api/admin/settings',{method:'PUT',body:JSON.stringify({[key]:value,_lensExpected:baseline})});
+  if(!response.ok) { const body=await response.json().catch(()=>({})); throw new Error(body.error || 'Could not save. Your edits are still on this page.'); }
+  baseline={...baseline,[key]:value};
+}
 const $ = id => document.getElementById(id);
 const id = () => crypto.randomUUID();
 const answer = () => ({ id: id(), text: '' });
@@ -122,23 +131,29 @@ $('editor').addEventListener('click', e => {
 $('add-section').onclick = () => { const added=section();openScenarios.add(added.id);draft.sections.push(added); changed(); render(); };
 $('add-lens').onclick = () => { const added={id:id(),name:'',description:''};openProfiles.add(added.id);draft.lenses.push(added); changed(); render(); };
 $('save').onclick = async () => {
+  if(saving)return; saving=true;
   const savedRevision = revision; $('save').disabled = true; $('status').textContent = 'Saving…';
   try {
-    const response = await adminFetch('/api/admin/settings', {method:'PUT',body:JSON.stringify({[KEY]:JSON.stringify(draft)})});
-    if (!response.ok) throw new Error('Could not save. Your edits are still on this page. Try again.');
+    await writeAssessment(KEY);
     dirty = revision !== savedRevision;
     $('status').textContent = dirty ? 'Earlier changes saved. You have newer unsaved changes.' : 'Draft saved. It is not published.';
   } catch(error) { $('status').textContent = error.message; }
-  finally { $('save').disabled = false; }
+  finally { saving=false; $('save').disabled = false; }
 };
 $('export').onclick = () => {
   const url = URL.createObjectURL(new Blob([JSON.stringify(draft,null,2)],{type:'application/json'}));
   const a = document.createElement('a'); a.href = url; a.download = 'leadership-lens-draft.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
 };
 $('preview').onclick = () => {
-  $('preview-body').innerHTML = `<h1${alignStyle(draft,'title')}>${formatText(draft.title || 'Untitled assessment')}</h1><p${alignStyle(draft,'intro')}>${formatText(draft.intro)}</p><div class="preview-panel">${['panelTitle','panelBody','instructions','panelNote'].map(k => { const t = k === 'instructions' ? draft.instructions : panelText(draft,k); return t && t.trim() ? `<${k==='panelTitle'?'h3':'p'}${alignStyle(draft,k)}>${formatText(t)}</${k==='panelTitle'?'h3':'p'}>` : ''; }).join('')}</div>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend${alignStyle({align:{q:q.align}},'q')}>${q.text ? formatText(q.text) : `Question ${qi+1} — text to be added`}</legend>${q.answers.map((a,ai) => `<label><input type="radio" name="preview-${si}-${qi}" value="${ai}">${esc(a.text || `Answer ${ai+1} — text to be added`)}</label>`).join('')}</fieldset>`).join('')).join('');
+  $('preview-body').innerHTML = `<h1${alignStyle(draft,'title')}>${formatText(draft.title || 'Untitled assessment')}</h1><p${alignStyle(draft,'intro')}>${formatText(draft.intro)}</p><div class="preview-panel">${['panelTitle','panelBody','instructions','panelNote'].map(k => { const t = k === 'instructions' ? draft.instructions : panelText(draft,k); return t && t.trim() ? `<${k==='panelTitle'?'h3':'p'}${alignStyle(draft,k)}>${formatText(t)}</${k==='panelTitle'?'h3':'p'}>` : ''; }).join('')}</div>` + draft.sections.map((s,si) => `<h3>${esc(s.title || `Section ${si+1}`)}</h3><p>${esc(s.description || '')}</p>` + s.questions.map((q,qi) => `<fieldset class="preview-question"><legend${alignStyle({align:{q:q.align}},'q')}>${q.text ? formatText(q.text) : `Question ${qi+1} — text to be added`}</legend>${q.answers.map((a,ai) => `<div class="preview-ranked-answer"><p>${esc(a.text || `Answer ${ai+1}: text to be added`)}</p>${['most','least'].map(rank=>`<label><input type="radio" name="preview-${si}-${qi}-${rank}" value="${ai}" data-preview-question="${si}-${qi}" data-preview-rank="${rank}" aria-label="${rank==='most'?'Most':'Least'} like me: ${esc(a.text || `Answer ${ai+1}`)}">${rank==='most'?'Most':'Least'} like me</label>`).join('')}</div>`).join('')}</fieldset>`).join('')).join('');
   $('preview-dialog').showModal();
 };
+$('preview-body').addEventListener('change', e=>{
+  const input=e.target;if(!input.dataset.previewRank)return;
+  const other=input.dataset.previewRank==='most'?'least':'most';
+  const opposite=$('preview-body').querySelector(`input[name="preview-${input.dataset.previewQuestion}-${other}"][value="${input.value}"]`);
+  if(opposite)opposite.checked=false;
+});
 $('close-preview').onclick = () => $('preview-dialog').close();
 window.addEventListener('beforeunload', e => { if(dirty) { e.preventDefault(); e.returnValue = ''; } });
 function valid(d) {
@@ -151,6 +166,7 @@ async function init() {
     const response = await adminFetch('/api/admin/settings');
     if (!response.ok) throw new Error('Could not load your draft. Reload to try again.');
     const body = await response.json(); const stored = body.data?.[KEY];
+    baseline={[KEY]:stored ?? null,[LIVE_KEY]:body.data?.[LIVE_KEY] ?? null};
     if (stored) { const parsed = JSON.parse(stored); if(!valid(parsed)) throw new Error('Saved draft format is not supported. No changes have been made.'); draft = upgradeConfig(parsed); }
     render(); $('editor').disabled = false; $('save').disabled = false; $('publish').disabled = false;
     $('status').textContent = stored ? 'Saved draft loaded.' : 'New draft — add your structure, then save.';
@@ -159,10 +175,11 @@ async function init() {
 init();
 
 $('publish').onclick = async () => {
+  if(saving)return;
   try { validateConfig(draft); if(draft.sections.length!==3)throw new Error('Publish three scenarios with three questions each.'); } catch(e) { $('status').textContent=e.message;return; }
   if(!confirm('Publish this wording to the participant assessment? Saved draft edits are separate until you publish.'))return;
-  $('publish').disabled=true;
-  try {const r=await adminFetch('/api/admin/settings',{method:'PUT',body:JSON.stringify({leadership_lens_published_v1:JSON.stringify(draft)})});if(!r.ok)throw new Error('Publishing failed. Your draft is unchanged.');$('status').textContent='Assessment wording published.'; } catch(e){$('status').textContent=e.message;}finally{$('publish').disabled=false;}
+  saving=true; $('publish').disabled=true;
+  try {await writeAssessment(LIVE_KEY);$('status').textContent='Assessment wording published.';} catch(e){$('status').textContent=e.message;}finally{saving=false;$('publish').disabled=false;}
 };
 
 $('assessment-details').addEventListener('click', e => {
