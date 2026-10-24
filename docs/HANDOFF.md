@@ -4,6 +4,12 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-24 · Codex
+
+Read-only assessment review requested by John. Pulled origin/main (already current at 55c6652); working tree was clean. Downloaded live assessment sources separately into /tmp/leadership-review-live-20261024 and public wording into /tmp/leadership-live-review-20261024.json. Eight assessment/editor source files matched the local checkout. Production deployment: dpl_6ie39HnW1gFLTWJmLAtztNanxihC. All four documented test suites pass (including 40,000 ranked cases). No application code, database wording, or deployment changed.
+
+Review findings: stale editor publishing remains last-write-wins with no revision check; ranked radios have repeated Most/Least labels without the associated answer text in their accessible names; Admin Preview still renders single-choice inputs despite ranked instructions. Editorial concern: Q7 Gut wording (lead/set direction/make something strong happen) conflicts with the original boundary/autonomy focus, and several calm/peace/direct-conversation answers identify behavior more than motivation. Intro naming Head/Heart/Gut remains an optional priming concern already flagged by Claude. Recommend conflict protection first, then accessibility/preview fixes, then user-reviewed wording refinement. No deployment needed for this internal note.
+
 ## 2026-10-23 · Claude
 
 **State at end of session: everything live, GitHub and the Mac folder in sync, nothing waiting to deploy.**
