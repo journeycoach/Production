@@ -4,6 +4,10 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-25 · Codex, cleanup release
+
+John explicitly requested all updates published. Pulled main (already current, clean). Deployed an isolated git archive of c7df3ac, so shared editor files were not overwritten. Production READY: dpl_E65pN4aTdjNvUrfLBj4aywEyQKab, https://www.journeycoach.co. Confirmed saved draft exactly matched approved October 24 snapshot; published it with guardedAssessmentWrite using both original draft/live baselines. Public API now exactly matches the approved snapshot, and fetched assessment/editor/results assets match the release. All five cleanup items are live; nothing remains pending from this release. Reload existing Admin tabs before editing (older clients now receive 409 rather than overwrite newer content). This handoff-only commit needs no deployment.
+
 ## 2026-10-24 · Codex, five approved cleanup items
 
 Started from clean, current main at 242d7d4. Implemented all five John approved: guarded Admin saves/publishes compare both loaded draft/live snapshots under PostgreSQL row locks (old clients without baselines receive 409); preserves unsaved edits and instructs export/reload/merge on conflict. Admin preview now uses Most/Least selections and clears the opposite choice on the same answer. Participant and preview rank controls include answer text in accessible labels. Results explain 2/1/0, 18 maximum per lens, 27 total and contact percentage denominator. Cache versions bumped.
