@@ -47,7 +47,7 @@ Keep these when editing wording in the Studio:
 ## What You Likely Miss (added October 27, 2026)
 
 - The results page shows a "What You Likely Miss" panel after The High Side / The Low Side, based on the lowest-scoring lens.
-- Shown only when the lowest score is at least 2 points (ranked) or 1 answer (legacy) below the next lens. Two lenses tied for lowest are both shown; a three-way tie shows nothing.
+- Shown on every result. If the lowest score is within 1 point (ranked) of the next lens, the panel adds a lighter-signal note. Two lenses tied for lowest are both shown; a three-way tie shows all three with an even-scores note.
 - Text comes from each profile's `missed` field (Admin editor: "What you likely miss"). Blank falls back to `DEFAULT_MISSED` in `js/leadership-lens-pattern.js`. Logic: `describeLowest()` in the same file, tested in `tests/leadership-lens-pattern.mjs`.
 
 ## Editing and publishing

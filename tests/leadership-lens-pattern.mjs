@@ -27,14 +27,14 @@ console.log('PASS close scores across all leading lens pairs, lower-score reflec
  assert.equal(one.lenses.length,1);assert.equal(one.lenses[0].id,'heart');assert.equal(one.lenses[0].score,6);assert.equal(one.lenses[0].text,DEFAULT_MISSED.heart);assert.equal(one.max,18);
  const two=describeLowest(config,pts({head:15,heart:6,gut:6}));
  assert.deepEqual(two.lenses.map(l=>l.id).sort(),['gut','heart']);
- assert.equal(describeLowest(config,pts({head:10,heart:9,gut:8})),null);
- assert.equal(describeLowest(config,pts({head:9,heart:9,gut:9})),null);
+ const near=describeLowest(config,pts({head:10,heart:9,gut:8}));assert.equal(near.lenses[0].id,'gut');assert.equal(near.close,true);assert.equal(one.close,false);
+ const even=describeLowest(config,pts({head:9,heart:9,gut:9}));assert.equal(even.even,true);assert.equal(even.lenses.length,3);assert.equal(even.close,false);
  assert.equal(describeLowest(config,pts({head:12,heart:12,gut:3})).lenses[0].id,'gut');
  const custom={lenses:config.lenses.map(l=>l.id==='gut'?{...l,missed:'Custom gut text.'}:l)};
- assert.equal(describeLowest(custom,pts({head:12,heart:8,gut:7})),null);
+ assert.equal(describeLowest(custom,pts({head:12,heart:8,gut:7})).close,true);
  assert.equal(describeLowest(custom,pts({head:12,heart:9,gut:6})).lenses[0].text,'Custom gut text.');
  const blank={lenses:config.lenses.map(l=>l.id==='gut'?{...l,missed:'   '}:l)};
  assert.equal(describeLowest(blank,pts({head:12,heart:9,gut:6})).lenses[0].text,DEFAULT_MISSED.gut);
  assert.equal(describeLowest(config,{scores:{head:4,heart:3,gut:2},total:9,unit:'answers'}).lenses[0].id,'gut');
- console.log('PASS lowest-lens panel: single and tied lowest, near-even and three-way ties hidden, custom and blank wording, legacy answers.');
+ console.log('PASS lowest-lens panel: single and tied lowest, near-even flagged as close, three-way tie shows all three, custom and blank wording, legacy answers.');
 }

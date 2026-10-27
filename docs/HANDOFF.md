@@ -4,6 +4,10 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, lowest-lens panel on every result
+
+- **Code (needs deploy):** "What You Likely Miss" now appears on every result. A lowest score within 1 point of the next lens adds "Your scores are close, so treat this as a lighter signal." A three-way tie shows all three texts with an even-scores note. "Where Your Attention Goes" card gets a sand tint (#f4f1ea, border #8a7a5c). pattern v6, results v15, CSS v7. Tests updated; all five suites pass.
+
 ## 2026-10-27 · Claude, result card colors
 
 - **Code (needs deploy):** High Side (gold #f7efdd / #a27e3e), Low Side (clay #f6ebe4 / #a5654a) and What You Likely Miss (slate #edf0f2 / #5f7480) cards get tinted backgrounds with a 4px left border, matching the existing sage Opportunity card. Classes `high-side` and `low-side` added in js/leadership-lens-results.js (v14); CSS v=6.

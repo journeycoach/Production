@@ -37,7 +37,7 @@ export function describePattern(config, outcome) {
 }
 
 // What a leader likely misses: the lens they reached for least.
-// Shown only when the lowest score is clearly below the next one, so near-even results are not labeled as blind spots.
+// Shown on every result. `close` marks a lowest score within one step of the next lens; `even` marks a three-way tie.
 export const DEFAULT_MISSED = {
   head: 'You may move to connection or action before a situation is fully understood. The untested assumption, the second-order risk, and the option no one has explored can slip past you. Try asking: What do we not know yet, and what would change our minds?',
   heart: 'You may decide or analyze without fully registering how it lands. How people are experiencing a change, who has gone quiet, and what your decision means to the people who carry it can slip past you. Try asking: How will this land, and who needs to hear from me?',
@@ -47,9 +47,9 @@ export function describeLowest(config, outcome) {
   const asc = config.lenses.slice().sort((a,b)=>outcome.scores[a.id]-outcome.scores[b.id]);
   const low = outcome.scores[asc[0].id];
   const lows = asc.filter(l=>outcome.scores[l.id]===low);
-  if (lows.length===asc.length) return null;
-  const next = Math.min(...asc.filter(l=>outcome.scores[l.id]>low).map(l=>outcome.scores[l.id]));
-  if (next-low < (outcome.unit==='points' ? 2 : 1)) return null;
+  const even = lows.length===asc.length;
+  const next = even ? low : Math.min(...asc.filter(l=>outcome.scores[l.id]>low).map(l=>outcome.scores[l.id]));
+  const close = !even && next-low < (outcome.unit==='points' ? 2 : 1);
   const lenses = lows.map(l=>({id:l.id,name:l.name,score:low,text:(typeof l.missed==='string' && l.missed.trim()) || DEFAULT_MISSED[l.id] || ''})).filter(l=>l.text);
-  return lenses.length ? {lenses, max: outcome.max || outcome.total, unit: outcome.unit} : null;
+  return lenses.length ? {lenses, max: outcome.max || outcome.total, unit: outcome.unit, close, even} : null;
 }

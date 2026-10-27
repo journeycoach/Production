@@ -18,3 +18,4 @@ body{margin:0;background:var(--color-bg-primary);color:var(--color-text-primary)
 .high-side{background:#f7efdd;border-left:4px solid #a27e3e}
 .low-side{background:#f6ebe4;border-left:4px solid #a5654a}
 .missed{background:#edf0f2;border-left:4px solid #5f7480}
+.attention{background:#f4f1ea;border-left:4px solid #8a7a5c}
