@@ -4,6 +4,10 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, result card colors
+
+- **Code (needs deploy):** High Side (gold #f7efdd / #a27e3e), Low Side (clay #f6ebe4 / #a5654a) and What You Likely Miss (slate #edf0f2 / #5f7480) cards get tinted backgrounds with a 4px left border, matching the existing sage Opportunity card. Classes `high-side` and `low-side` added in js/leadership-lens-results.js (v14); CSS v=6.
+
 ## 2026-10-27 · Claude, spacing fix
 
 - **Code (needs deploy):** 26px gap below the "What You Likely Miss" panel so it no longer touches "Your Leadership Opportunity" (css/leadership-lens-results.css, now v=5). Open: John is choosing background colors for the High Side, Low Side and What You Likely Miss cards.

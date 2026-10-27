@@ -13,3 +13,8 @@ body{margin:0;background:var(--color-bg-primary);color:var(--color-text-primary)
 
 /* What You Likely Miss: keep the same gap before Your Leadership Opportunity as the cards above. */
 .missed{margin:0 0 26px}
+
+/* Card colors read warm to cool: gift (gold), cost (clay), unseen (slate), growth (sage, .opportunity above). */
+.high-side{background:#f7efdd;border-left:4px solid #a27e3e}
+.low-side{background:#f6ebe4;border-left:4px solid #a5654a}
+.missed{background:#edf0f2;border-left:4px solid #5f7480}
