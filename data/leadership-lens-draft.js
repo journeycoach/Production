@@ -37,7 +37,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "reorg-q2-head",
               "center": "head",
-              "text": "Getting real information: who decided this, what the plan is, and what happens next."
+              "text": "Getting enough information to quiet the questions: who decided this, what the plan is, what comes next."
             },
             {
               "id": "reorg-q2-heart",
@@ -58,12 +58,12 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "reorg-q3-head",
               "center": "head",
-              "text": "A running list of scenarios I keep replaying, trying to get ahead of what is next."
+              "text": "A running list of what could happen next, and a mind that will not settle until I know."
             },
             {
               "id": "reorg-q3-heart",
               "center": "heart",
-              "text": "Concern that I let my people down and looked smaller doing it, and a push to win back their confidence."
+              "text": "Concern that I let my people down and lost standing, and a push to win back their confidence."
             },
             {
               "id": "reorg-q3-gut",
@@ -86,12 +86,12 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "challenge-q1-head",
               "center": "head",
-              "text": "Rechecking the numbers in my head: did I miss something, and what is the real answer?"
+              "text": "Rechecking the numbers in my head, uneasy that I missed something I should have caught."
             },
             {
               "id": "challenge-q1-heart",
               "center": "heart",
-              "text": "How that looked to the room, and what the CEO now thinks of me."
+              "text": "How that landed with the room, and whether the CEO still has confidence in me."
             },
             {
               "id": "challenge-q1-gut",
@@ -128,7 +128,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "challenge-q3-head",
               "center": "head",
-              "text": "A mental list of the holes in my case, and a plan to close every one before we meet again."
+              "text": "A mental list of the holes in my case that I keep running through, even when I try to stop."
             },
             {
               "id": "challenge-q3-heart",
@@ -203,7 +203,7 @@ window.LEADERSHIP_LENS_SEED = {
             {
               "id": "pattern-q3-heart",
               "center": "heart",
-              "text": "That I care too much about how things look or how people feel about me."
+              "text": "That I am too focused on how things look and how people see me."
             },
             {
               "id": "pattern-q3-gut",
@@ -255,7 +255,7 @@ window.LEADERSHIP_LENS_SEED = {
       {
         "id": "tie-head",
         "center": "head",
-        "text": "Fear of getting it wrong or being caught unprepared."
+        "text": "Concern about getting it wrong or being caught unprepared."
       },
       {
         "id": "tie-heart",

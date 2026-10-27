@@ -4,6 +4,13 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, answer balance pass
+
+- **Published (live, no deploy):** eight wording changes so every answer is equally easy to mark Most or Least. Head answers in the scenarios now carry their own cost (reorg-q2-head, reorg-q3-head, challenge-q1-head, challenge-q3-head); challenge-q1-heart reframed from image to confidence; reorg-q3-heart shortened and "looked" removed; pattern-q3-heart no longer reads as a humblebrag; tie-head "Fear of..." softened to "Concern about...". Removed repeated signal words ("scenarios", "replaying", third Heart "looked").
+- Stored published setting SHA-256 cbc8f9e6...; fallback data/leadership-lens-draft.js matches it exactly; fallback cache version v=balance-20261027.
+- Confirmed John's deploy of the tie-only rule is live (core v9 served; the content API now returns the tie-only scoringNotes via upgradeConfig).
+- All five test suites pass.
+
 ## 2026-10-27 · Claude, final reflection on ties only
 
 - **Published (live, no deploy):** final reflection Gut answer is now "Frustration when something is not right or not in my control." (was "Anger at..."), because few leaders will choose "anger" and it was steering close Gut results away from Gut. Intro box note now reads "A short follow-up may appear to help clarify which perspective to explore." Public API SHA-256 b19a3e62...; fallback matches exactly.
