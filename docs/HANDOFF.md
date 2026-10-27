@@ -4,6 +4,13 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, final reflection on ties only
+
+- **Published (live, no deploy):** final reflection Gut answer is now "Frustration when something is not right or not in my control." (was "Anger at..."), because few leaders will choose "anger" and it was steering close Gut results away from Gut. Intro box note now reads "A short follow-up may appear to help clarify which perspective to explore." Public API SHA-256 b19a3e62...; fallback matches exactly.
+- **Code (needs deploy):** ranked results now show the final reflection only on an exact tie for the top score (`closeGap` 0). Leads of 1 or 2 keep the higher-scoring profile and still show the "Two perspectives are close" panel via a new `close` flag (`nearGap` 2); the panel no longer says the reflection overrode a higher score. Legacy single-choice rules unchanged. Default panel note and scoring notes updated. Cache bumps: core v9, pattern v4, leadership-lens.js v20 (admin v21), results v12, fallback v=ties-20261027.
+- Tests updated for the tie-only rule and the close panel; all five suites pass. Simulation: reflection now appears in about 13% of random results (was 57%).
+- Prompted by John's result: Instinctive 11, Analytical 10, reflection picked Analytical.
+
 ## 2026-10-27 · Claude, new scenarios published
 
 John asked to replace the live questions with the version developed in his Claude Doc "Leadership Lens Assessment Answer Key" (scenario version) and to verify the results logic.

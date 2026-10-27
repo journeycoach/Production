@@ -33,7 +33,7 @@ const incomplete=structuredClone(legacy);incomplete.sections[0].questions[0].tex
   const r=score(d,answers);n++;
   assert.equal(r.mode,'ranked');assert.equal(r.total,27);assert.equal(r.max,18);
   assert.equal(Object.values(r.scores).reduce((a,b)=>a+b),27);for(const v of Object.values(r.scores)){assert.ok(v>=0&&v<=18);}
-  assert.equal(r.needsReflection,r.gap<=2);
+  assert.equal(r.needsReflection,r.gap===0);assert.equal(r.close,r.gap<=2);if(r.gap>0)assert.equal(r.primary,Object.keys(r.scores).find(c=>r.scores[c]===Math.max(...Object.values(r.scores))));
   assert.equal(r.strength,r.gap<=2?'Moderate preference':r.gap>=6?'Strong preference':'Clear preference');
   if(r.tied.length>1)assert.equal(r.primary,null);else assert.equal(r.scores[r.primary],Math.max(...Object.values(r.scores)));
   if(r.needsReflection){for(const c of r.candidates){const x=score(d,answers,d.tiebreaker.answers.find(a=>a.center===c).id);assert.equal(x.primary,c);assert.deepEqual(x.scores,r.scores);}}
@@ -46,5 +46,5 @@ const incomplete=structuredClone(legacy);incomplete.sections[0].questions[0].tex
  const missingLeast=structuredClone(full);missingLeast[qs[0].id]={most:qs[0].answers[0].id};assert.throws(()=>score(d,missingLeast));
  const same=structuredClone(full);same[qs[0].id]={most:qs[0].answers[0].id,least:qs[0].answers[0].id};assert.throws(()=>score(d,same));
  const mixed=structuredClone(full);mixed[qs[0].id]=qs[0].answers[0].id;assert.throws(()=>score(d,mixed));
- console.log(`PASS ${n} ranked answer sets: 27-point totals, 18-point lens maximum, Strong/Clear/Moderate thresholds, close-score reflection, incomplete and invalid rankings.`);
+ console.log(`PASS ${n} ranked answer sets: 27-point totals, 18-point lens maximum, Strong/Clear/Moderate thresholds, tie-only reflection, close-score flag, incomplete and invalid rankings.`);
 }

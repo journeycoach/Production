@@ -18,5 +18,6 @@ assert.match(old.explanation,/6 answers/);assert.doesNotMatch(old.reflection,/Yo
 const pts=describePattern(config,{scores:{head:12,heart:10,gut:5},total:27,max:18,unit:'points',needsReflection:true,primary:'heart',reflectionResolved:true});
 assert.match(pts.explanation,/earned 12 points and The Relational Lens earned 10/);assert.match(pts.reflection,/higher original score/);
 assert.equal(describePattern(config,{scores:{head:13,heart:10,gut:4},total:27,max:18,unit:'points',needsReflection:false}),null);
-console.log('PASS ranked points wording and close-score threshold.');
+const nearOnly=describePattern(config,{scores:{head:12,heart:11,gut:4},total:27,max:18,unit:'points',needsReflection:false,close:true,primary:'head',reflectionResolved:false});assert.match(nearOnly.title,/close/);assert.doesNotMatch(nearOnly.reflection,/higher original score/);assert.equal(describePattern(config,{scores:{head:13,heart:10,gut:4},total:27,max:18,unit:'points',needsReflection:false,close:false}),null);
+console.log('PASS ranked points wording, close-score panel without reflection, and close-score threshold.');
 console.log('PASS close scores across all leading lens pairs, lower-score reflection choice, two-way and three-way ties, clear winners, unchanged scores, and legacy results.');

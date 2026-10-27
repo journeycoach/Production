@@ -1,6 +1,6 @@
-import {describePattern} from './leadership-lens-pattern.js?v=3';
+import {describePattern} from './leadership-lens-pattern.js?v=4';
 import {buildContactSummary,CONTACT_SUMMARY_KEY} from './leadership-lens-contact.js?v=4';
-import {loadConfig,score,validateConfig,upgradeConfig} from './leadership-lens-core.js?v=8';
+import {loadConfig,score,validateConfig,upgradeConfig} from './leadership-lens-core.js?v=9';
 (async function () {
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const status = document.getElementById('load-status');

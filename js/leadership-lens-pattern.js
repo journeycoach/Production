@@ -4,7 +4,7 @@ export function describePattern(config, outcome) {
   const top = outcome.scores[ranked[0].id];
   const tied = ranked.filter(l=>outcome.scores[l.id]===top);
   const gap = top-outcome.scores[ranked[1].id];
-  const close = typeof outcome.needsReflection==='boolean' ? outcome.needsReflection : gap<=1;
+  const close = typeof outcome.close==='boolean' ? outcome.close : typeof outcome.needsReflection==='boolean' ? outcome.needsReflection : gap<=1;
   if (!close) return null;
   const points = outcome.unit==='points';
   const candidates = tied.length>1 ? tied : ranked.slice(0,2);

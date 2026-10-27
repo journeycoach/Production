@@ -40,19 +40,23 @@ export function score(d, answers, tieAnswer) {
   const n=questions.length;
   const total=ranked ? n*3 : n;          // all points awarded across the three lenses
   const max=ranked ? n*2 : n;            // most points one lens can earn
-  const closeGap=ranked ? 2 : 1;         // leads this small get the final reflection
+  // Ranked results show the final reflection only on an exact tie for the lead (October 27, 2026).
+  // Leads of 1 or 2 points keep the higher score and are described as close on the results page.
+  const closeGap=ranked ? 0 : 1;         // leads this small get the final reflection
+  const nearGap=ranked ? 2 : 1;          // leads this small are described as close
   const clearGap=ranked ? 3 : 2;         // leads from here up to strongGap-1 are Clear
   const strongGap=ranked ? 6 : 3;
   const sorted=CENTERS.slice().sort((a,b)=>scores[b]-scores[a]);
   const tied=sorted.filter(c=>scores[c]===scores[sorted[0]]);
   const gap=scores[sorted[0]]-scores[sorted[1]];
   const needsReflection=gap<=closeGap;
+  const close=gap<=nearGap;
   const candidates=tied.length>1 ? tied : needsReflection ? sorted.slice(0,2) : [sorted[0]];
   const tie=d.tiebreaker.answers.find(a=>a.id===tieAnswer);
   const reflectionResolved=needsReflection && candidates.includes(tie?.center);
   const primary=reflectionResolved ? tie.center : tied.length===1 ? sorted[0] : null;
   const strength=needsReflection ? 'Moderate preference' : gap>=strongGap ? 'Strong preference' : gap>=clearGap ? 'Clear preference' : 'Moderate preference';
-  return {mode:ranked?'ranked':'single',unit:ranked?'points':'answers',questions:n,total,max,scores,tied,primary,strength,usedTiebreaker:tied.length>1,usedClarification:gap>0&&reflectionResolved,needsReflection,reflectionResolved,candidates,gap};
+  return {mode:ranked?'ranked':'single',unit:ranked?'points':'answers',questions:n,total,max,scores,tied,primary,strength,usedTiebreaker:tied.length>1,usedClarification:gap>0&&reflectionResolved,needsReflection,close,reflectionResolved,candidates,gap};
 }
 export function shuffle(items, random=Math.random) {
   const a=items.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;
@@ -81,7 +85,7 @@ export function alignStyle(d, key) {
 export const PANEL_DEFAULTS = {
   panelTitle: 'A perspective, not a label',
   panelBody: 'Explore what gets your attention, how it serves you, and what it may cause you to overlook. This is an Enneagram-informed reflection tool, not a typing assessment or a validated psychological instrument.',
-  panelNote: 'Three scenarios, three questions each. A short follow-up helps clarify your motivation when your leading scores are close or tied. No email required.',
+  panelNote: 'Three scenarios, three questions each. A short follow-up may appear to help clarify which perspective to explore. No email required.',
 };
 export const panelText = (d, key) => { const text=typeof d?.[key] === 'string' ? d[key] : PANEL_DEFAULTS[key]; return key==='panelNote' ? text.replace('A short follow-up appears only if your scores tie.','A short follow-up helps clarify your motivation when your leading scores are close or tied.') : text; };
 
@@ -92,6 +96,6 @@ export function upgradeConfig(config) {
   if(d.sections.length===2)d.sections.push(structuredClone(OPPORTUNITY_SCENARIO));
   d.version=2;
   for(const key of ['panelBody','panelNote'])if(typeof d[key]==='string')d[key]=d[key].replace(/Two scenarios, three questions each\./g,'Three scenarios, three questions each.').replace(/Two scenarios, six questions/g,'Three scenarios, nine questions');
-  d.scoringNotes='For each of the nine questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to 18 of the 27 points. A lead of 6+ points is Strong, 3 to 5 is Clear, and 0 to 2 is Moderate. A top tie or a lead of 2 or fewer points shows the final reflection, limited to the leading lenses; it suggests a primary profile without changing the scores. Preference describes answer consistency, not diagnostic confidence.';
+  d.scoringNotes='For each of the nine questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to 18 of the 27 points. A lead of 6+ points is Strong, 3 to 5 is Clear, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.';
   return d;
 }

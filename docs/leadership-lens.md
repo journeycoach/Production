@@ -24,7 +24,8 @@ Current as of October 27, 2026. This file is internal: `docs/` is listed in `.ve
 - Preference strength comes from the lead over the second lens:
   - 6 or more points: Strong preference
   - 3 to 5 points: Clear preference
-  - 0 to 2 points: Moderate preference, and the final reflection is shown
+  - 0 to 2 points: Moderate preference. A lead of 1 or 2 shows the "Two perspectives are close" panel but keeps the higher-scoring profile.
+  - Exact tie for the top (0 points): the final reflection is shown, limited to the tied lenses, and picks which profile to show. Before October 27, 2026 any lead of 2 or less triggered it.
 - Results show each lens as `score / 18 pts`. The contact handoff reports each lens as a share of the 27 points.
 - Older single-choice results (one point per answer, nine or six answers) are still scored with the original rules: 3+ Strong, 2 Clear, 1 or less Moderate with reflection.
 

@@ -1,4 +1,4 @@
-import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=8';
+import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=9';
 const KEY = 'leadership_lens_draft_v1';
 const LIVE_KEY = 'leadership_lens_published_v1';
 let baseline = {[KEY]:null,[LIVE_KEY]:null};

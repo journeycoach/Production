@@ -265,7 +265,7 @@ window.LEADERSHIP_LENS_SEED = {
       {
         "id": "tie-gut",
         "center": "gut",
-        "text": "Anger at what is not right or not in my control."
+        "text": "Frustration when something is not right or not in my control."
       }
     ]
   },
@@ -274,5 +274,5 @@ window.LEADERSHIP_LENS_SEED = {
   },
   "panelTitle": "A perspective, not a label",
   "panelBody": "Inspired by the Enneagram's Centers (Head, Heart, and Gut), this assessments offers a leadership lens to explore.",
-  "panelNote": "Two scenarios and a look back at your working life, three questions each. A short follow-up helps clarify which perspective to explore when your leading scores are close or tied."
+  "panelNote": "Two scenarios and a look back at your working life, three questions each. A short follow-up may appear to help clarify which perspective to explore."
 };
