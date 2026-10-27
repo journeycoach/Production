@@ -4,6 +4,16 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, new scenarios published
+
+John asked to replace the live questions with the version developed in his Claude Doc "Leadership Lens Assessment Answer Key" (scenario version) and to verify the results logic.
+
+- **Published (live now, no deploy needed):** three sections. 1) "A reorganization is announced" (reorg-q1 to q3), 2) "Your numbers are challenged" (challenge-q1 to q3), 3) "Looking back" (pattern-q1 to q3: reaction to manage, best contribution, most common criticism). New final reflection: fear / how I am seen / anger at what is not right. Panel note updated to "Two scenarios and a look back at your working life, three questions each." Intro, instructions, intro box title/body and all three result profiles unchanged. Contractions removed per site style.
+- Published through the guarded Admin API: saved draft first, confirmed draft matched and published was unchanged, then published. Public API now matches the tested config exactly (SHA-256 90a876e0...).
+- **Verified:** all five test suites pass; 300,000 random ranked answer sets all resolve to a primary lens (with the final reflection when needed); consistent answer patterns score 18/18 Strong for the intended lens; random answering splits evenly across lenses. Walked the live page twice: consistent Gut answers gave The Instinctive Lens 18/18 Strong; Head 14 / Heart 13 triggered the final reflection with only those two options, and choosing Heart showed The Relational Lens with the close-score explanation.
+- **Code (needs deploy):** data/leadership-lens-draft.js now equals the published wording exactly; cache version bumped to v=scenarios-20261027 in Leadership-Lens.html, leadership-lens-results.html, admin/leadership-lens.html. tests/leadership-lens-scoring.mjs: the invalid-mapping check now duplicates another answer's center instead of assuming the first answer is not Head.
+- **Open for John:** the eyebrow still reads "Scenario 3 of 3" on the Looking back section; the Gut result profile's High Side still uses "clarity" and "momentum," which lean away from the instinct/boundaries focus of the new questions; the intro box body has a typo ("this assessments offers"). Older editor tabs will now get a 409 and must reload.
+
 ## 2026-10-25 · Codex, cleanup release
 
 John explicitly requested all updates published. Pulled main (already current, clean). Deployed an isolated git archive of c7df3ac, so shared editor files were not overwritten. Production READY: dpl_E65pN4aTdjNvUrfLBj4aywEyQKab, https://www.journeycoach.co. Confirmed saved draft exactly matched approved October 24 snapshot; published it with guardedAssessmentWrite using both original draft/live baselines. Public API now exactly matches the approved snapshot, and fetched assessment/editor/results assets match the release. All five cleanup items are live; nothing remains pending from this release. Reload existing Admin tabs before editing (older clients now receive 409 rather than overwrite newer content). This handoff-only commit needs no deployment.

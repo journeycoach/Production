@@ -16,7 +16,7 @@ for(let n=0;n<19683;n++){
  cases++;
 }
 assert.deepEqual([...ties].sort(),['1,4,4','3,3,3']);
-assert.throws(()=>score(d,{}));const invalid=structuredClone(d);invalid.sections[0].questions[0].answers[0].center='head';assert.throws(()=>validateConfig(invalid));
+assert.throws(()=>score(d,{}));const invalid=structuredClone(d);invalid.sections[0].questions[0].answers[0].center=invalid.sections[0].questions[0].answers[1].center;assert.throws(()=>validateConfig(invalid));
 const q=d.sections[0].questions[0],before=q.answers.map(a=>a.id);assert.deepEqual(shuffle(q.answers,()=>0).map(a=>a.id).sort(),before.slice().sort());assert.deepEqual(q.answers.map(a=>a.id),before);
 console.log(`PASS ${cases} answer distributions, all tied-center resolutions, strength thresholds, missing answers, invalid mappings, and shuffle identity.`);
 

@@ -1,6 +1,6 @@
 # Leadership Lens
 
-Current as of October 19, 2026. This file is internal: `docs/` is listed in `.vercelignore` and is not published.
+Current as of October 27, 2026. This file is internal: `docs/` is listed in `.vercelignore` and is not published.
 
 ## Pages
 
@@ -13,7 +13,7 @@ Current as of October 19, 2026. This file is internal: `docs/` is listed in `.ve
 
 ## Structure
 
-- Three scenarios, three questions each (nine questions). Every question has one Head, one Heart and one Gut answer; answer order is shuffled per participant.
+- Three sections, three questions each (nine questions). As of October 27: "A reorganization is announced", "Your numbers are challenged", and "Looking back" (career patterns). The engine still labels each section "Scenario N of 3". Every question has one Head, one Heart and one Gut answer; answer order is shuffled per participant.
 - Final reflection: one extra single-choice question, shown only when the top scores are tied or close. It is limited to the leading lenses and suggests which profile to show first. It never changes the scores.
 - The Results page introduces the three centers (Head, Heart, Gut). As of October 23 the intro box also names them up front (it came in with John's intro edits and is not yet confirmed as intended); the October 19 bias review recommended naming them only on the Results page.
 
