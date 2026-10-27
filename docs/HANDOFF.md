@@ -4,6 +4,10 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, spacing fix
+
+- **Code (needs deploy):** 26px gap below the "What You Likely Miss" panel so it no longer touches "Your Leadership Opportunity" (css/leadership-lens-results.css, now v=5). Open: John is choosing background colors for the High Side, Low Side and What You Likely Miss cards.
+
 ## 2026-10-27 · Claude, "What You Likely Miss" panel
 
 - **Code (needs deploy):** results page adds a "What You Likely Miss" panel for the lowest-scoring lens (`describeLowest` and `DEFAULT_MISSED` in js/leadership-lens-pattern.js). Hidden when the lowest is within 1 point of the next lens or all three tie; shows both when two tie for lowest. Admin editor gains a "What you likely miss" field per result profile. Cache bumps: pattern v5, results v13, admin leadership-lens.js v22, fallback v=missed-20261027. New tests in tests/leadership-lens-pattern.mjs; all five suites pass.

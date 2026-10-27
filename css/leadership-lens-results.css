@@ -10,3 +10,6 @@ body{margin:0;background:var(--color-bg-primary);color:var(--color-text-primary)
 @media(prefers-reduced-motion:reduce){.closing,.closing a{transition:none}.closing:hover,.closing:focus-within{transform:none}}
 
 .mixed-pattern{margin:24px 0;background:#f4f1ea;border-left:4px solid #a27e3e}.pattern-prompts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px}.pattern-prompts>div{background:#fffdf8;border:1px solid #ddd4c4;border-radius:8px;padding:18px}.pattern-prompts h4{margin:0 0 8px;font-size:1rem}.pattern-prompts p{margin:0}.pattern-question{font-weight:600}
+
+/* What You Likely Miss: keep the same gap before Your Leadership Opportunity as the cards above. */
+.missed{margin:0 0 26px}
