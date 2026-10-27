@@ -35,3 +35,21 @@ export function describePattern(config, outcome) {
   };
   return {title,explanation,reflection,candidates:candidates.map(l=>({id:l.id,name:l.name,prompt:prompts[l.id]})),question:'Recall a recent leadership situation. What mattered most underneath your first reaction? Does that same concern show up in other situations?',note:'These scores describe your choices in this assessment. A lower score does not mean you lack that capacity, and a mixed pattern does not by itself demonstrate greater balance or flexibility.'};
 }
+
+// What a leader likely misses: the lens they reached for least.
+// Shown only when the lowest score is clearly below the next one, so near-even results are not labeled as blind spots.
+export const DEFAULT_MISSED = {
+  head: 'You may move to connection or action before a situation is fully understood. The untested assumption, the second-order risk, and the option no one has explored can slip past you. Try asking: What do we not know yet, and what would change our minds?',
+  heart: 'You may decide or analyze without fully registering how it lands. How people are experiencing a change, who has gone quiet, and what your decision means to the people who carry it can slip past you. Try asking: How will this land, and who needs to hear from me?',
+  gut: 'You may think or connect without checking your own ground. Your felt sense that something is off, the boundary that needs holding, and the moment to take a stand can slip past you. Try asking: What does my gut already know, and what am I tolerating that I should not?'
+};
+export function describeLowest(config, outcome) {
+  const asc = config.lenses.slice().sort((a,b)=>outcome.scores[a.id]-outcome.scores[b.id]);
+  const low = outcome.scores[asc[0].id];
+  const lows = asc.filter(l=>outcome.scores[l.id]===low);
+  if (lows.length===asc.length) return null;
+  const next = Math.min(...asc.filter(l=>outcome.scores[l.id]>low).map(l=>outcome.scores[l.id]));
+  if (next-low < (outcome.unit==='points' ? 2 : 1)) return null;
+  const lenses = lows.map(l=>({id:l.id,name:l.name,score:low,text:(typeof l.missed==='string' && l.missed.trim()) || DEFAULT_MISSED[l.id] || ''})).filter(l=>l.text);
+  return lenses.length ? {lenses, max: outcome.max || outcome.total, unit: outcome.unit} : null;
+}

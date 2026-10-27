@@ -44,6 +44,12 @@ Keep these when editing wording in the Studio:
 4. **Similar length.** Keep the three answers within about three words of each other.
 5. **Plain style.** No em dashes, no contractions.
 
+## What You Likely Miss (added October 27, 2026)
+
+- The results page shows a "What You Likely Miss" panel after The High Side / The Low Side, based on the lowest-scoring lens.
+- Shown only when the lowest score is at least 2 points (ranked) or 1 answer (legacy) below the next lens. Two lenses tied for lowest are both shown; a three-way tie shows nothing.
+- Text comes from each profile's `missed` field (Admin editor: "What you likely miss"). Blank falls back to `DEFAULT_MISSED` in `js/leadership-lens-pattern.js`. Logic: `describeLowest()` in the same file, tested in `tests/leadership-lens-pattern.mjs`.
+
 ## Editing and publishing
 
 - Studio fields (intro, intro box, instructions, scenarios, questions, answers, final reflection, result profiles) are stored in `site_settings`: `leadership_lens_draft_v1` for drafts and `leadership_lens_published_v1` for live content.

@@ -4,6 +4,12 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-27 · Claude, "What You Likely Miss" panel
+
+- **Code (needs deploy):** results page adds a "What You Likely Miss" panel for the lowest-scoring lens (`describeLowest` and `DEFAULT_MISSED` in js/leadership-lens-pattern.js). Hidden when the lowest is within 1 point of the next lens or all three tie; shows both when two tie for lowest. Admin editor gains a "What you likely miss" field per result profile. Cache bumps: pattern v5, results v13, admin leadership-lens.js v22, fallback v=missed-20261027. New tests in tests/leadership-lens-pattern.mjs; all five suites pass.
+- **Published (live, harmless before deploy):** each result profile now has a `missed` text (same as DEFAULT_MISSED). Stored published SHA-256 63ccaa37...; fallback matches exactly.
+- Not yet checked in a browser: the panel renders only after deploy. After `vercel --prod`, preview any profile at /leadership-lens-results.html?lens=head (illustrative scores put the other two lenses tied lowest, so both panels show).
+
 ## 2026-10-27 · Claude, answer balance pass
 
 - **Published (live, no deploy):** eight wording changes so every answer is equally easy to mark Most or Least. Head answers in the scenarios now carry their own cost (reorg-q2-head, reorg-q3-head, challenge-q1-head, challenge-q3-head); challenge-q1-heart reframed from image to confidence; reorg-q3-heart shortened and "looked" removed; pattern-q3-heart no longer reads as a humblebrag; tie-head "Fear of..." softened to "Concern about...". Removed repeated signal words ("scenarios", "replaying", third Heart "looked").
