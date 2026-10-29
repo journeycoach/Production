@@ -4,6 +4,10 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-10-29 · Claude, centers only
+
+- John asked that questions and answers link only to the three centers, not Enneagram type numbers. Live content and code already carry only `center` (head/heart/gut); no type numbers appear on the site. Updated AGENTS.md and docs/leadership-lens.md design principle 3 from "type coverage" to "center focus only". Removed type mappings from John's Claude Doc answer key. No deploy needed (docs only).
+
 ## 2026-10-27 · Claude, lowest-lens panel on every result
 
 - **Code (needs deploy):** "What You Likely Miss" now appears on every result. A lowest score within 1 point of the next lens adds "Your scores are close, so treat this as a lighter signal." A three-way tie shows all three texts with an even-scores note. "Where Your Attention Goes" card gets a sand tint (#f4f1ea, border #8a7a5c). pattern v6, results v15, CSS v7. Tests updated; all five suites pass.

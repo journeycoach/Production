@@ -37,10 +37,10 @@ Keep these when editing wording in the Studio:
 
 1. **Equal desirability.** Every option should sound like something a respected leader could admit. Low-side "inner pattern" questions should be equally candid for all three lenses.
 2. **No signal words.** Avoid repeating the same keyword for a lens (for example "valued", "clarity", "right") more than twice across the nine questions.
-3. **Type coverage.** Across the nine questions, each lens's answers rotate through its three Enneagram types, three answers each:
-   - Head: 5 (understanding), 6 (security, risk), 7 (possibilities)
-   - Heart: 2 (helping, connection), 3 (results, image), 4 (meaning, being seen)
-   - Gut: 8 (strength, direct action), 9 (calm, harmony), 1 (standards, integrity)
+3. **Center focus only.** Every answer is written to, and scored for, one of the three centers. Do not map or write answers to Enneagram type numbers (changed October 29, 2026 at John's request). Across the nine questions, vary each center's answers across the full range of that center:
+   - Head: understanding, certainty and preparation, possibilities and options (core emotion: fear)
+   - Heart: connection and helping, worth and standing, being seen and understood (core emotion: shame)
+   - Gut: rightness and standards, autonomy and holding ground, steadiness and quiet resistance (core emotion: anger)
 4. **Similar length.** Keep the three answers within about three words of each other.
 5. **Plain style.** No em dashes, no contractions.
 

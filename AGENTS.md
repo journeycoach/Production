@@ -47,7 +47,7 @@ Full details: **`docs/leadership-lens.md`** (scoring, thresholds, question-desig
 - Pages: `Leadership-Lens.html` (assessment), `leadership-lens-results.html` (results), `admin/leadership-lens.html` (editor). Logic is in `js/leadership-lens-core.js`.
 - Three scenarios × three questions. Participants mark **Most like me** (2 pts) and **Least like me** (0 pts) on each question; the third answer gets 1 pt. 27 points total, up to 18 per lens.
 - Only a tie for the top score triggers the final reflection question (it picks which profile to show; it never changes scores). Leads of 1 or 2 points keep the higher-scoring profile and show a "close" explanation. Changed October 27, 2026.
-- Questions were rewritten on October 19 for balance: equal desirability, no repeated signal words, all nine Enneagram types represented, similar answer lengths. Keep those principles when editing.
+- Questions were rewritten on October 19 for balance: equal desirability, no repeated signal words, every answer tied to its center (Head, Heart or Gut) and never to an Enneagram type number, similar answer lengths. Keep those principles when editing.
 - Results never send data to a server. The "Let's talk" button passes a summary to the homepage contact form within the same browser tab.
 
 ## Tests
