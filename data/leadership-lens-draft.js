@@ -1,215 +1,73 @@
 window.LEADERSHIP_LENS_SEED = {
-  "version": 2,
+  "version": 3,
   "title": "Leadership Lens",
   "intro": "Discover where your attention tends to go first, how that perspective supports your leadership, and what it may cause you to overlook.  Use this reflection as a starting point for greater awareness leading to more informed choices.",
   "instructions": "For each question, mark the answer most like you and the answer least like you. Think about what happens inside you first, before you decide how to respond. There are no better or worse answers.",
   "sections": [
     {
-      "id": "reorganization",
-      "title": "A reorganization is announced",
-      "description": "Your CEO announces a reorganization at an all-hands. You learn about it at the same time as your team. The details are thin. Two of your direct reports look visibly upset. And part of your responsibilities has been handed to a peer.",
+      "id": "leadership-lens-part-1",
+      "title": "Leadership Lens, Part 1",
+      "description": "Consider what naturally captures your attention in each situation.",
       "questions": [
         {
-          "id": "reorg-q1",
-          "text": "Walking out of that meeting, what is loudest in your mind?",
+          "id": "leadership-lens-q1",
+          "text": "When facing an important decision, what do you naturally pay attention to first?",
           "answers": [
-            {
-              "id": "reorg-q1-head",
-              "center": "head",
-              "text": "All the unanswered questions, and what this could mean six months from now."
-            },
-            {
-              "id": "reorg-q1-heart",
-              "center": "heart",
-              "text": "How my team is taking it, and what this says about how I am valued."
-            },
-            {
-              "id": "reorg-q1-gut",
-              "center": "gut",
-              "text": "That this was not handled right, and part of my ground was taken without a conversation."
-            }
+            {"id": "leadership-lens-q1-head", "center": "head", "text": "I analyze the information and possibilities."},
+            {"id": "leadership-lens-q1-heart", "center": "heart", "text": "I consider what matters to me and others."},
+            {"id": "leadership-lens-q1-gut", "center": "gut", "text": "I sense which direction feels right."}
           ]
         },
         {
-          "id": "reorg-q2",
-          "text": "That evening, what would help you most?",
+          "id": "leadership-lens-q2",
+          "text": "When a team initiative starts going off track, what bothers you most?",
           "answers": [
-            {
-              "id": "reorg-q2-head",
-              "center": "head",
-              "text": "Getting enough information to quiet the questions: who decided this, what the plan is, what comes next."
-            },
-            {
-              "id": "reorg-q2-heart",
-              "center": "heart",
-              "text": "Hearing directly from my boss that my role and contribution still count."
-            },
-            {
-              "id": "reorg-q2-gut",
-              "center": "gut",
-              "text": "Getting my footing back: deciding for myself what I will and will not accept here."
-            }
+            {"id": "leadership-lens-q2-head", "center": "head", "text": "Not understanding what’s causing the problem."},
+            {"id": "leadership-lens-q2-heart", "center": "heart", "text": "Seeing the strain it creates for the people involved."},
+            {"id": "leadership-lens-q2-gut", "center": "gut", "text": "Not being able to get things moving in the right direction."}
           ]
         },
         {
-          "id": "reorg-q3",
-          "text": "A week later, what are you still carrying?",
+          "id": "leadership-lens-q3",
+          "text": "You’ve just finished an important leadership meeting. There were different opinions, some tension, and ultimately a decision was made. What stays with you most?",
           "answers": [
-            {
-              "id": "reorg-q3-head",
-              "center": "head",
-              "text": "A running list of what could happen next, and a mind that will not settle until I know."
-            },
-            {
-              "id": "reorg-q3-heart",
-              "center": "heart",
-              "text": "Concern that I let my people down and lost standing, and a push to win back their confidence."
-            },
-            {
-              "id": "reorg-q3-gut",
-              "center": "gut",
-              "text": "A sense that a line was crossed, and a resolve that it will not happen to me again."
-            }
+            {"id": "leadership-lens-q3-head", "center": "head", "text": "The reasoning behind the decision and whether we considered everything important."},
+            {"id": "leadership-lens-q3-heart", "center": "heart", "text": "The interactions between people and the emotional tone of the meeting."},
+            {"id": "leadership-lens-q3-gut", "center": "gut", "text": "Whether the final decision feels right to me."}
           ]
         }
       ]
     },
     {
-      "id": "public-challenge",
-      "title": "Your numbers are challenged",
-      "description": "You are presenting a major recommendation to the executive team. Midway through, a respected peer challenges your numbers in front of everyone. The CEO says, \"Let's take this offline,\" and moves to the next agenda item. Your project's future is now uncertain.",
+      "id": "leadership-lens-part-2",
+      "title": "Leadership Lens, Part 2",
+      "description": "Continue with the response that is most natural for you, not the response you think you should choose.",
       "questions": [
         {
-          "id": "challenge-q1",
-          "text": "As the meeting moves on, what is loudest in your mind?",
+          "id": "leadership-lens-q4",
+          "text": "You’ve recently joined a new leadership team. As you participate in your first few meetings, what naturally captures your attention?",
           "answers": [
-            {
-              "id": "challenge-q1-head",
-              "center": "head",
-              "text": "Rechecking the numbers in my head, uneasy that I missed something I should have caught."
-            },
-            {
-              "id": "challenge-q1-heart",
-              "center": "heart",
-              "text": "How that landed with the room, and whether the CEO still has confidence in me."
-            },
-            {
-              "id": "challenge-q1-gut",
-              "center": "gut",
-              "text": "That the challenge was out of line, and that I should have held my ground."
-            }
+            {"id": "leadership-lens-q4-head", "center": "head", "text": "How the team operates, makes decisions, and approaches problems."},
+            {"id": "leadership-lens-q4-heart", "center": "heart", "text": "How people interact, communicate, and relate to one another."},
+            {"id": "leadership-lens-q4-gut", "center": "gut", "text": "How things are progressing, what feels off, and what needs attention."}
           ]
         },
         {
-          "id": "challenge-q2",
-          "text": "Before the offline conversation, what do you most want?",
+          "id": "leadership-lens-q5",
+          "text": "You’ve just completed a challenging project with your team and achieved a great result. As you reflect on the experience, what gives you the greatest satisfaction?",
           "answers": [
-            {
-              "id": "challenge-q2-head",
-              "center": "head",
-              "text": "Time to dig into the data and come back with an answer no one can poke holes in."
-            },
-            {
-              "id": "challenge-q2-heart",
-              "center": "heart",
-              "text": "To repair how I came across and make sure the key relationships are still intact."
-            },
-            {
-              "id": "challenge-q2-gut",
-              "center": "gut",
-              "text": "A direct conversation that settles it and makes clear this project is mine to lead."
-            }
+            {"id": "leadership-lens-q5-head", "center": "head", "text": "Understanding what made the project successful."},
+            {"id": "leadership-lens-q5-heart", "center": "heart", "text": "Seeing what the accomplishment meant to the people involved."},
+            {"id": "leadership-lens-q5-gut", "center": "gut", "text": "Knowing we followed through on something important."}
           ]
         },
         {
-          "id": "challenge-q3",
-          "text": "Later that day, what is still with you from that meeting?",
+          "id": "leadership-lens-q6",
+          "text": "You and a respected colleague disagree about an important decision. As you consider the disagreement, what occupies your attention most?",
           "answers": [
-            {
-              "id": "challenge-q3-head",
-              "center": "head",
-              "text": "A mental list of the holes in my case that I keep running through, even when I try to stop."
-            },
-            {
-              "id": "challenge-q3-heart",
-              "center": "heart",
-              "text": "A heaviness about how that looked, and a wish to show them who I really am."
-            },
-            {
-              "id": "challenge-q3-gut",
-              "center": "gut",
-              "text": "A low burn about how it was handled, even if I have told myself to let it go."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "looking-back",
-      "title": "Looking back",
-      "description": "Step back from any single moment. Think about your working life over the past few years: what colleagues have told you, and what you notice in yourself.",
-      "questions": [
-        {
-          "id": "pattern-q1",
-          "text": "Which reaction do you most often have to manage in yourself at work?",
-          "answers": [
-            {
-              "id": "pattern-q1-head",
-              "center": "head",
-              "text": "Worry and overthinking: running scenarios long after the meeting has ended."
-            },
-            {
-              "id": "pattern-q1-heart",
-              "center": "heart",
-              "text": "Taking things personally: replaying how I came across or how someone treated me."
-            },
-            {
-              "id": "pattern-q1-gut",
-              "center": "gut",
-              "text": "Irritation or resistance: pushing back hard, or quietly digging in, when something is not right."
-            }
-          ]
-        },
-        {
-          "id": "pattern-q2",
-          "text": "When colleagues describe your best contribution, what do they usually say?",
-          "answers": [
-            {
-              "id": "pattern-q2-head",
-              "center": "head",
-              "text": "That I see what is coming and think through what others have missed."
-            },
-            {
-              "id": "pattern-q2-heart",
-              "center": "heart",
-              "text": "That I understand people and make them feel seen and motivated."
-            },
-            {
-              "id": "pattern-q2-gut",
-              "center": "gut",
-              "text": "That I am grounded and principled, and people know where I stand."
-            }
-          ]
-        },
-        {
-          "id": "pattern-q3",
-          "text": "What criticism have you heard most often over the years?",
-          "answers": [
-            {
-              "id": "pattern-q3-head",
-              "center": "head",
-              "text": "That I live in my head: detached, second-guessing, or chasing the next idea."
-            },
-            {
-              "id": "pattern-q3-heart",
-              "center": "heart",
-              "text": "That I am too focused on how things look and how people see me."
-            },
-            {
-              "id": "pattern-q3-gut",
-              "center": "gut",
-              "text": "That I am stubborn and hard to move once I have made up my mind."
-            }
+            {"id": "leadership-lens-q6-head", "center": "head", "text": "Understanding the reasoning behind our different perspectives."},
+            {"id": "leadership-lens-q6-heart", "center": "heart", "text": "How the disagreement is affecting our working relationship."},
+            {"id": "leadership-lens-q6-gut", "center": "gut", "text": "Whether I’m standing by what I believe is right."}
           ]
         }
       ]
@@ -250,7 +108,7 @@ window.LEADERSHIP_LENS_SEED = {
       "reflection": "What might I discover if I became more curious about the things I instinctively resist?"
     }
   ],
-  "scoringNotes": "For each of the nine questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to 18 of the 27 points. A lead of 6+ points is Strong, 3 to 5 is Clear, and 0 to 2 is Moderate. A top tie or a lead of 2 or fewer points shows the final reflection, limited to the leading lenses; it suggests a primary profile without changing the scores. Preference describes answer consistency, not diagnostic confidence.",
+  "scoringNotes": "For each of the 6 questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to 12 of the 18 points. A lead of 4+ points is Strong, 3 is Clear, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.",
   "tiebreaker": {
     "id": "tie",
     "text": "If you are honest, what most often pulls you off your best leadership?",
@@ -277,5 +135,5 @@ window.LEADERSHIP_LENS_SEED = {
   },
   "panelTitle": "A perspective, not a label",
   "panelBody": "Inspired by the Enneagram's Centers (Head, Heart, and Gut), this assessments offers a leadership lens to explore.",
-  "panelNote": "Two scenarios and a look back at your working life, three questions each. A short follow-up may appear to help clarify which perspective to explore."
+  "panelNote": "Six questions in two parts. A short follow-up may appear to help clarify which perspective to explore."
 };

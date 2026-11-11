@@ -1,14 +1,13 @@
-export const OPPORTUNITY_SCENARIO = {"id":"opportunity","title":"An opportunity to shape something new","description":"You are invited to help shape a promising new initiative. Its direction is still open, and you would have meaningful influence over how it develops. Imagine that you have the time and resources to participate.","questions":[{"id":"opportunity-q7","text":"As you consider the invitation, what naturally draws your attention first?","answers":[{"id":"opportunity-q7-head","center":"head","text":"The exciting possibilities and all the different directions this could grow."},{"id":"opportunity-q7-heart","center":"heart","text":"The people involved, and how I could help them do their best work."},{"id":"opportunity-q7-gut","center":"gut","text":"The freedom to shape the direction without compromising my own judgment or what matters to me."}]},{"id":"opportunity-q8","text":"Beyond whether it succeeds, what would make participating feel worthwhile to you?","answers":[{"id":"opportunity-q8-head","center":"head","text":"Learning something new in depth and seeing how all the pieces fit together."},{"id":"opportunity-q8-heart","center":"heart","text":"Delivering a standout result that people recognize as a real accomplishment."},{"id":"opportunity-q8-gut","center":"gut","text":"Building something done well, with integrity, that I can be proud of."}]},{"id":"opportunity-q9","text":"As you become invested, which inner pattern would you most recognize in yourself?","answers":[{"id":"opportunity-q9-head","center":"head","text":"I test every risk and second-guess commitments before I feel ready to move."},{"id":"opportunity-q9-heart","center":"heart","text":"I worry the work will lose what makes it meaningful to me, and I pull away."},{"id":"opportunity-q9-gut","center":"gut","text":"I go along outwardly rather than disturb things, but become quietly resistant when my own priorities disappear."}]}]};
 export const CENTERS = ['head', 'heart', 'gut'];
 export function validateConfig(d) {
-  if (!d || !d.title?.trim() || ![2,3].includes(d.sections?.length) || d.lenses?.length !== 3) throw new Error('Use three scenarios and three lens profiles (older two-scenario results remain supported).');
+  if (!d || !d.title?.trim() || ![2,3].includes(d.sections?.length) || d.lenses?.length !== 3) throw new Error('Use two or three parts and three lens profiles.');
   const ids = new Set();
   function check(q) {
     if (!q.id || ids.has(q.id) || !q.text?.trim() || q.answers?.length !== 3) throw new Error('Each question needs a unique ID, text, and three answers.');
     ids.add(q.id);
     if (new Set(q.answers.map(a=>a.id)).size !== 3 || !CENTERS.every(c=>q.answers.some(a=>a.center===c && a.id && a.text?.trim()))) throw new Error('Each question needs one Head, Heart, and Gut answer.');
   }
-  for (const s of d.sections) { if(!s.title?.trim() || s.questions?.length!==3) throw new Error('Each scenario needs a name and three questions.'); s.questions.forEach(check); }
+  for (const s of d.sections) { if(!s.title?.trim() || s.questions?.length!==3) throw new Error('Each part needs a name and three questions.'); s.questions.forEach(check); }
   check(d.tiebreaker);
   for(const c of CENTERS) { const l=d.lenses.find(l=>l.id===c); if(!l || !['name','description','attention','high','low','opportunity','reflection'].every(k=>l[k]?.trim())) throw new Error('Complete every result profile before publishing.'); }
   return d;
@@ -45,7 +44,7 @@ export function score(d, answers, tieAnswer) {
   const closeGap=ranked ? 0 : 1;         // leads this small get the final reflection
   const nearGap=ranked ? 2 : 1;          // leads this small are described as close
   const clearGap=ranked ? 3 : 2;         // leads from here up to strongGap-1 are Clear
-  const strongGap=ranked ? 6 : 3;
+  const strongGap=ranked ? Math.ceil(n*2/3) : 3;
   const sorted=CENTERS.slice().sort((a,b)=>scores[b]-scores[a]);
   const tied=sorted.filter(c=>scores[c]===scores[sorted[0]]);
   const gap=scores[sorted[0]]-scores[sorted[1]];
@@ -85,17 +84,17 @@ export function alignStyle(d, key) {
 export const PANEL_DEFAULTS = {
   panelTitle: 'A perspective, not a label',
   panelBody: 'Explore what gets your attention, how it serves you, and what it may cause you to overlook. This is an Enneagram-informed reflection tool, not a typing assessment or a validated psychological instrument.',
-  panelNote: 'Three scenarios, three questions each. A short follow-up may appear to help clarify which perspective to explore. No email required.',
+  panelNote: 'Six questions in two parts. A short follow-up may appear to help clarify which perspective to explore. No email required.',
 };
 export const panelText = (d, key) => { const text=typeof d?.[key] === 'string' ? d[key] : PANEL_DEFAULTS[key]; return key==='panelNote' ? text.replace('A short follow-up appears only if your scores tie.','A short follow-up helps clarify your motivation when your leading scores are close or tied.') : text; };
 
-// Add the new scenario to earlier saved configurations without rewriting their content.
+// Normalize stored configurations without rewriting their authored content.
 export function upgradeConfig(config) {
   const d=structuredClone(config);
   if(!d || !Array.isArray(d.sections))throw new Error('Assessment sections are missing.');
-  if(d.sections.length===2)d.sections.push(structuredClone(OPPORTUNITY_SCENARIO));
-  d.version=2;
-  for(const key of ['panelBody','panelNote'])if(typeof d[key]==='string')d[key]=d[key].replace(/Two scenarios, three questions each\./g,'Three scenarios, three questions each.').replace(/Two scenarios, six questions/g,'Three scenarios, nine questions');
-  d.scoringNotes='For each of the nine questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to 18 of the 27 points. A lead of 6+ points is Strong, 3 to 5 is Clear, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.';
+  d.version=3;
+  const questions=d.sections.reduce((total,s)=>total+(Array.isArray(s.questions)?s.questions.length:0),0);
+  const total=questions*3, max=questions*2, strong=Math.ceil(questions*2/3);
+  d.scoringNotes=`For each of the ${questions} questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to ${max} of the ${total} points. A lead of ${strong}+ points is Strong, 3 to ${strong-1} is Clear, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.`;
   return d;
 }

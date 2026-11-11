@@ -20,4 +20,5 @@ console.log('PASS result percentages, clarified primary, original scores, existi
 
 const nine={...config,sections:Array.from({length:3},()=>({questions:[{},{},{}]}))};const message=buildContactSummary(nine,{...outcome,total:9,scores:{head:5,heart:3,gut:1}});assert.match(message,/55.6% \(5 of 9 answers\)/);assert.match(message,/33.3% \(3 of 9 answers\)/);assert.match(message,/11.1% \(1 of 9 answers\)/);console.log('PASS nine-question percentages and denominator.');
 
-const ranked=buildContactSummary(nine,{...outcome,unit:'points',total:27,max:18,scores:{head:12,heart:10,gut:5}});assert.match(ranked,/44.4% \(12 of 27 points\)/);assert.match(ranked,/18.5% \(5 of 27 points\)/);assert.match(ranked,/share of the 27 points/);console.log('PASS ranked 27-point summary.');
+const six={...config,sections:Array.from({length:2},()=>({questions:[{},{},{}]}))};
+const ranked=buildContactSummary(six,{...outcome,unit:'points',total:18,max:12,scores:{head:8,heart:7,gut:3}});assert.match(ranked,/44.4% \(8 of 18 points\)/);assert.match(ranked,/16.7% \(3 of 18 points\)/);assert.match(ranked,/share of the 18 points/);console.log('PASS ranked 18-point summary.');
