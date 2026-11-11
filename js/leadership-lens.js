@@ -1,4 +1,4 @@
-import {formatText,alignStyle,panelText,loadConfig,score,shuffle,isCompleteRanking,escapeHtml as esc} from './leadership-lens-core.js?v=10';
+import {formatText,alignStyle,panelText,loadConfig,score,shuffle,isCompleteRanking,escapeHtml as esc} from './leadership-lens-core.js?v=11';
 const root=document.getElementById('assessment');
 const STORAGE='leadership-lens-session-v1';
 let d,answers={},order={},tie=null,step='intro';

@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {validateConfig,score,shuffle,upgradeConfig} from '../js/leadership-lens-core.js';
 const context={window:{}};vm.runInNewContext(fs.readFileSync(new URL('../data/leadership-lens-draft.js',import.meta.url),'utf8'),context);
 const d=JSON.parse(JSON.stringify(context.window.LEADERSHIP_LENS_SEED));validateConfig(d);
+assert.match(upgradeConfig(d).scoringNotes,/4\+ points is Strong, 3 is Clear/);
 const questionCount=d.sections.flatMap(s=>s.questions).length;
 let cases=0,ties=new Set();
 for(let n=0;n<3**questionCount;n++){

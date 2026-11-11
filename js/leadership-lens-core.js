@@ -95,6 +95,7 @@ export function upgradeConfig(config) {
   d.version=3;
   const questions=d.sections.reduce((total,s)=>total+(Array.isArray(s.questions)?s.questions.length:0),0);
   const total=questions*3, max=questions*2, strong=Math.ceil(questions*2/3);
-  d.scoringNotes=`For each of the ${questions} questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to ${max} of the ${total} points. A lead of ${strong}+ points is Strong, 3 to ${strong-1} is Clear, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.`;
+  const clear=strong===4 ? '3 is Clear' : `3 to ${strong-1} is Clear`;
+  d.scoringNotes=`For each of the ${questions} questions, participants mark the answer most like them (2 points) and least like them (0 points); the remaining answer earns 1 point. Each lens can earn up to ${max} of the ${total} points. A lead of ${strong}+ points is Strong, ${clear}, and 0 to 2 is Moderate. Only a tie for the top score shows the final reflection, limited to the tied lenses; it suggests a primary profile without changing the scores. A lead of 1 or 2 points keeps the higher-scoring profile and is described as close. Preference describes answer consistency, not diagnostic confidence.`;
   return d;
 }
