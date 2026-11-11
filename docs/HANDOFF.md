@@ -4,6 +4,14 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-11-11 · Codex, six-question Leadership Lens production release
+
+- **Live now:** replaced the nine-question assessment with the approved six questions in two parts while preserving Most like me / Least like me, shuffled participant answer order, hidden Head/Heart/Gut mappings, result profiles, lowest-lens content, contact handoff, and the tie-only final reflection. Ranked scoring is now 18 total points, 12 maximum per lens; a 4+ lead is Strong, 3 is Clear, and 0–2 is Moderate. Leads of 1–2 retain the higher profile and show the close explanation.
+- **Admin and content:** Assessment Studio and the guarded Admin API now require two parts with three questions each. Both `leadership_lens_draft_v1` and `leadership_lens_published_v1` were updated under exact draft/live baseline guards. Published SHA-256: `3909cb2894fac6bc003995bb6f76c242cc277f6c09ebfa790b23f18045b47f44`. Fallback content matches the published six-question structure; existing profiles and tiebreaker content were preserved.
+- **Code and deploy:** commits `c815c00` and `ca331c9` are pushed to `journeycoach/Production` main. Final Vercel production deployment `dpl_4YpMkA4bGfxPWfuvJ1bTwePB3HEm` is READY and assigned to `https://www.journeycoach.co`.
+- **Verified:** all Leadership Lens scoring, pattern, contact, Admin, route, and isolated guarded-SQL tests pass, including 40,000 ranked answer sets. Local browser tests covered a 12/6/0 clear result and a 6/6/6 tie resolved by the final reflection. The public browser completed all six questions and rendered the Relational profile at 12/12 with 18 total points. Public API returns version 3, two parts, six exact questions, one Head/Heart/Gut answer per question, and the corrected scoring note. Production error scan returned 0 records in the 10-minute post-release window.
+- No deployment is needed for this handoff-only documentation commit.
+
 ## 2026-10-29 · Claude, centers only
 
 - John asked that questions and answers link only to the three centers, not Enneagram type numbers. Live content and code already carry only `center` (head/heart/gut); no type numbers appear on the site. Updated AGENTS.md and docs/leadership-lens.md design principle 3 from "type coverage" to "center focus only". Removed type mappings from John's Claude Doc answer key. No deploy needed (docs only).
