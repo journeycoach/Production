@@ -5,6 +5,7 @@ import {validateConfig,score,shuffle,upgradeConfig} from '../js/leadership-lens-
 const context={window:{}};vm.runInNewContext(fs.readFileSync(new URL('../data/leadership-lens-draft.js',import.meta.url),'utf8'),context);
 const d=JSON.parse(JSON.stringify(context.window.LEADERSHIP_LENS_SEED));validateConfig(d);
 assert.match(upgradeConfig(d).scoringNotes,/4\+ points is Strong, 3 is Clear/);
+const typo=structuredClone(d);typo.panelBody="Inspired by the centers, this assessments offers a useful reflection.";assert.equal(upgradeConfig(typo).panelBody,"Inspired by the centers, this assessment offers a useful reflection.");
 const questionCount=d.sections.flatMap(s=>s.questions).length;
 let cases=0,ties=new Set();
 for(let n=0;n<3**questionCount;n++){

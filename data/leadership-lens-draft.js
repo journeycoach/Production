@@ -134,6 +134,6 @@ window.LEADERSHIP_LENS_SEED = {
     "instructions": "left"
   },
   "panelTitle": "A perspective, not a label",
-  "panelBody": "Inspired by the Enneagram's Centers (Head, Heart, and Gut), this assessments offers a leadership lens to explore.",
+  "panelBody": "Inspired by the Enneagram's Centers (Head, Heart, and Gut), this assessment offers a leadership lens to explore.",
   "panelNote": "Six questions in two parts. A short follow-up may appear to help clarify which perspective to explore."
 };

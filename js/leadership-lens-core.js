@@ -92,6 +92,7 @@ export const panelText = (d, key) => { const text=typeof d?.[key] === 'string' ?
 export function upgradeConfig(config) {
   const d=structuredClone(config);
   if(!d || !Array.isArray(d.sections))throw new Error('Assessment sections are missing.');
+  if(typeof d.panelBody==='string')d.panelBody=d.panelBody.replace('this assessments offers','this assessment offers');
   d.version=3;
   const questions=d.sections.reduce((total,s)=>total+(Array.isArray(s.questions)?s.questions.length:0),0);
   const total=questions*3, max=questions*2, strong=Math.ceil(questions*2/3);
