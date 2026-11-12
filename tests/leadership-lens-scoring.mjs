@@ -6,6 +6,14 @@ const context={window:{}};vm.runInNewContext(fs.readFileSync(new URL('../data/le
 const d=JSON.parse(JSON.stringify(context.window.LEADERSHIP_LENS_SEED));validateConfig(d);
 assert.match(upgradeConfig(d).scoringNotes,/4\+ points is Strong, 3 is Clear/);
 const typo=structuredClone(d);typo.panelBody="Inspired by the centers, this assessments offers a useful reflection.";assert.equal(upgradeConfig(typo).panelBody,"Inspired by the centers, this assessment offers a useful reflection.");
+assert.equal(d.sections.length,3);assert.deepEqual(d.sections.map(s=>s.questions.length),[2,2,2]);
+const [q1,q2,q3,q4,q5,q6]=d.sections.flatMap(s=>s.questions);
+assert.equal(q1.text,'What draws your attention first?');assert.deepEqual(q1.answers.map(a=>[a.center,a.text]),[['head','The information and reasoning behind each perspective.'],['heart','How the decision will affect the people involved.'],['gut','The direction I believe we should take.']]);
+assert.equal(q2.text,'As the disagreement continues, what occupies your attention most?');assert.deepEqual(q2.answers.map(a=>[a.center,a.text]),[['head','Whether we have considered the decision fully.'],['heart','Whether the disagreement is weakening trust between us.'],['gut','Whether I can stand behind the direction we choose.']]);
+assert.equal(q3.text,'What draws your attention first?');assert.deepEqual(q3.answers.map(a=>[a.center,a.text]),[['head','What we still need to understand about the problem.'],['heart','How the situation is affecting the people involved.'],['gut','What needs to happen to restore momentum.']]);
+assert.equal(q4.text,'The team turns the initiative around and achieves a strong result. Looking back, what gives you the greatest satisfaction?');assert.deepEqual(q4.answers.map(a=>[a.center,a.text]),[['head','Understanding what made the turnaround successful.'],['heart','Seeing what the accomplishment meant to the team.'],['gut','Knowing we carried the initiative through to completion.']]);
+assert.equal(q5.text,'When pressure rises, what do you seek first?');assert.deepEqual(q5.answers.map(a=>[a.center,a.text]),[['head','Clarity'],['heart','Connection'],['gut','Choice']]);
+assert.equal(q6.text,'What is hardest for you to tolerate?');assert.deepEqual(q6.answers.map(a=>[a.center,a.text]),[['head','Uncertainty / Ambiguity'],['heart','Disconnection / Separation'],['gut','Constraint / Restriction']]);
 const questionCount=d.sections.flatMap(s=>s.questions).length;
 let cases=0,ties=new Set();
 for(let n=0;n<3**questionCount;n++){
@@ -23,9 +31,9 @@ assert.throws(()=>score(d,{}));const invalid=structuredClone(d);invalid.sections
 const q=d.sections[0].questions[0],before=q.answers.map(a=>a.id);assert.deepEqual(shuffle(q.answers,()=>0).map(a=>a.id).sort(),before.slice().sort());assert.deepEqual(q.answers.map(a=>a.id),before);
 console.log(`PASS ${cases} answer distributions, all tied-center resolutions, strength thresholds, missing answers, invalid mappings, and shuffle identity.`);
 
-const legacy=structuredClone(d);legacy.version=1;const oldAnswers=Object.fromEntries(legacy.sections.flatMap(s=>s.questions).map(q=>[q.id,q.answers[0].id]));assert.equal(score(legacy,oldAnswers).total,6);const upgraded=upgradeConfig(legacy);assert.equal(upgraded.sections.length,2);assert.deepEqual(upgraded.sections,legacy.sections);assert.equal(legacy.version,1);assert.equal(upgradeConfig(upgraded).version,3);assert.equal(score(upgraded,oldAnswers).total,6);console.log('PASS legacy six-answer results and idempotent upgrade preserving existing wording.');
+const legacy=structuredClone(d);legacy.version=1;const oldAnswers=Object.fromEntries(legacy.sections.flatMap(s=>s.questions).map(q=>[q.id,q.answers[0].id]));assert.equal(score(legacy,oldAnswers).total,6);const upgraded=upgradeConfig(legacy);assert.equal(upgraded.sections.length,3);assert.deepEqual(upgraded.sections,legacy.sections);assert.equal(legacy.version,1);assert.equal(upgradeConfig(upgraded).version,3);assert.equal(score(upgraded,oldAnswers).total,6);console.log('PASS legacy six-answer results and idempotent upgrade preserving existing wording.');
 
-const incomplete=structuredClone(legacy);incomplete.sections[0].questions[0].text='';assert.equal(upgradeConfig(incomplete).sections.length,2);assert.throws(()=>validateConfig(upgradeConfig(incomplete)));console.log('PASS incomplete Admin drafts can be upgraded but cannot be published.');
+const incomplete=structuredClone(legacy);incomplete.sections[0].questions[0].text='';assert.equal(upgradeConfig(incomplete).sections.length,3);assert.throws(()=>validateConfig(upgradeConfig(incomplete)));console.log('PASS incomplete Admin drafts can be upgraded but cannot be published.');
 
 // Ranked (most / least) scoring
 {

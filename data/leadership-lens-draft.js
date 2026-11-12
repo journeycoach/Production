@@ -7,33 +7,24 @@ window.LEADERSHIP_LENS_SEED = {
     {
       "id": "leadership-lens-part-1",
       "title": "Leadership Lens, Part 1",
-      "description": "Consider what naturally captures your attention in each situation.",
+      "description": "You and a respected colleague need to make an important decision, but you see the situation differently.",
       "questions": [
         {
           "id": "leadership-lens-q1",
-          "text": "When facing an important decision, what do you naturally pay attention to first?",
+          "text": "What draws your attention first?",
           "answers": [
-            {"id": "leadership-lens-q1-head", "center": "head", "text": "I analyze the information and possibilities."},
-            {"id": "leadership-lens-q1-heart", "center": "heart", "text": "I consider what matters to me and others."},
-            {"id": "leadership-lens-q1-gut", "center": "gut", "text": "I sense which direction feels right."}
+            {"id": "leadership-lens-q1-head", "center": "head", "text": "The information and reasoning behind each perspective."},
+            {"id": "leadership-lens-q1-heart", "center": "heart", "text": "How the decision will affect the people involved."},
+            {"id": "leadership-lens-q1-gut", "center": "gut", "text": "The direction I believe we should take."}
           ]
         },
         {
           "id": "leadership-lens-q2",
-          "text": "When a team initiative starts going off track, what bothers you most?",
+          "text": "As the disagreement continues, what occupies your attention most?",
           "answers": [
-            {"id": "leadership-lens-q2-head", "center": "head", "text": "Not understanding what’s causing the problem."},
-            {"id": "leadership-lens-q2-heart", "center": "heart", "text": "Seeing the strain it creates for the people involved."},
-            {"id": "leadership-lens-q2-gut", "center": "gut", "text": "Not being able to get things moving in the right direction."}
-          ]
-        },
-        {
-          "id": "leadership-lens-q3",
-          "text": "You’ve just finished an important leadership meeting. There were different opinions, some tension, and ultimately a decision was made. What stays with you most?",
-          "answers": [
-            {"id": "leadership-lens-q3-head", "center": "head", "text": "The reasoning behind the decision and whether we considered everything important."},
-            {"id": "leadership-lens-q3-heart", "center": "heart", "text": "The interactions between people and the emotional tone of the meeting."},
-            {"id": "leadership-lens-q3-gut", "center": "gut", "text": "Whether the final decision feels right to me."}
+            {"id": "leadership-lens-q2-head", "center": "head", "text": "Whether we have considered the decision fully."},
+            {"id": "leadership-lens-q2-heart", "center": "heart", "text": "Whether the disagreement is weakening trust between us."},
+            {"id": "leadership-lens-q2-gut", "center": "gut", "text": "Whether I can stand behind the direction we choose."}
           ]
         }
       ]
@@ -41,33 +32,49 @@ window.LEADERSHIP_LENS_SEED = {
     {
       "id": "leadership-lens-part-2",
       "title": "Leadership Lens, Part 2",
-      "description": "Continue with the response that is most natural for you, not the response you think you should choose.",
+      "description": "A challenging team initiative has gone off track.",
       "questions": [
         {
-          "id": "leadership-lens-q4",
-          "text": "You’ve recently joined a new leadership team. As you participate in your first few meetings, what naturally captures your attention?",
+          "id": "leadership-lens-q3",
+          "text": "What draws your attention first?",
           "answers": [
-            {"id": "leadership-lens-q4-head", "center": "head", "text": "How the team operates, makes decisions, and approaches problems."},
-            {"id": "leadership-lens-q4-heart", "center": "heart", "text": "How people interact, communicate, and relate to one another."},
-            {"id": "leadership-lens-q4-gut", "center": "gut", "text": "How things are progressing, what feels off, and what needs attention."}
+            {"id": "leadership-lens-q3-head", "center": "head", "text": "What we still need to understand about the problem."},
+            {"id": "leadership-lens-q3-heart", "center": "heart", "text": "How the situation is affecting the people involved."},
+            {"id": "leadership-lens-q3-gut", "center": "gut", "text": "What needs to happen to restore momentum."}
           ]
         },
         {
-          "id": "leadership-lens-q5",
-          "text": "You’ve just completed a challenging project with your team and achieved a great result. As you reflect on the experience, what gives you the greatest satisfaction?",
+          "id": "leadership-lens-q4",
+          "text": "The team turns the initiative around and achieves a strong result. Looking back, what gives you the greatest satisfaction?",
           "answers": [
-            {"id": "leadership-lens-q5-head", "center": "head", "text": "Understanding what made the project successful."},
-            {"id": "leadership-lens-q5-heart", "center": "heart", "text": "Seeing what the accomplishment meant to the people involved."},
-            {"id": "leadership-lens-q5-gut", "center": "gut", "text": "Knowing we followed through on something important."}
+            {"id": "leadership-lens-q4-head", "center": "head", "text": "Understanding what made the turnaround successful."},
+            {"id": "leadership-lens-q4-heart", "center": "heart", "text": "Seeing what the accomplishment meant to the team."},
+            {"id": "leadership-lens-q4-gut", "center": "gut", "text": "Knowing we carried the initiative through to completion."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "leadership-lens-part-3",
+      "title": "Leadership Lens, Part 3",
+      "description": "Continue with the response that is most natural for you, not the response you think you should choose.",
+      "questions": [
+        {
+          "id": "leadership-lens-q5",
+          "text": "When pressure rises, what do you seek first?",
+          "answers": [
+            {"id": "leadership-lens-q5-head", "center": "head", "text": "Clarity"},
+            {"id": "leadership-lens-q5-heart", "center": "heart", "text": "Connection"},
+            {"id": "leadership-lens-q5-gut", "center": "gut", "text": "Choice"}
           ]
         },
         {
           "id": "leadership-lens-q6",
-          "text": "You and a respected colleague disagree about an important decision. As you consider the disagreement, what occupies your attention most?",
+          "text": "What is hardest for you to tolerate?",
           "answers": [
-            {"id": "leadership-lens-q6-head", "center": "head", "text": "Understanding the reasoning behind our different perspectives."},
-            {"id": "leadership-lens-q6-heart", "center": "heart", "text": "How the disagreement is affecting our working relationship."},
-            {"id": "leadership-lens-q6-gut", "center": "gut", "text": "Whether I’m standing by what I believe is right."}
+            {"id": "leadership-lens-q6-head", "center": "head", "text": "Uncertainty / Ambiguity"},
+            {"id": "leadership-lens-q6-heart", "center": "heart", "text": "Disconnection / Separation"},
+            {"id": "leadership-lens-q6-gut", "center": "gut", "text": "Constraint / Restriction"}
           ]
         }
       ]
@@ -135,5 +142,5 @@ window.LEADERSHIP_LENS_SEED = {
   },
   "panelTitle": "A perspective, not a label",
   "panelBody": "Inspired by the Enneagram's Centers (Head, Heart, and Gut), this assessment offers a leadership lens to explore.",
-  "panelNote": "Six questions in two parts. A short follow-up may appear to help clarify which perspective to explore."
+  "panelNote": "Six questions in three parts. A short follow-up may appear to help clarify which perspective to explore."
 };

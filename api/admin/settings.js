@@ -169,7 +169,7 @@ export default async function handler(req, res) {
       try {
         if(typeof value !== 'string') throw new Error('Assessment content must be JSON text.');
         const config=JSON.parse(value);
-        if(key===lensKeys[1]) { validateConfig(config); if(config.sections.length!==2) throw new Error('Publish two parts with three questions each.'); }
+        if(key===lensKeys[1]) { validateConfig(config); if(config.sections.length!==3) throw new Error('Publish three parts with two questions each.'); }
       } catch(error) { return res.status(400).json({error:error.message}); }
       try {
         const updated=await guardedAssessmentWrite(sql,key,value,expected);

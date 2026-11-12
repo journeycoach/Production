@@ -1,4 +1,4 @@
-import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=12';
+import {validateConfig,upgradeConfig,formatText,alignStyle,ALIGNMENTS,PANEL_DEFAULTS,panelText} from '../../js/leadership-lens-core.js?v=13';
 const KEY = 'leadership_lens_draft_v1';
 const LIVE_KEY = 'leadership_lens_published_v1';
 let baseline = {[KEY]:null,[LIVE_KEY]:null};
@@ -176,7 +176,7 @@ init();
 
 $('publish').onclick = async () => {
   if(saving)return;
-  try { validateConfig(draft); if(draft.sections.length!==2)throw new Error('Publish two parts with three questions each.'); } catch(e) { $('status').textContent=e.message;return; }
+  try { validateConfig(draft); if(draft.sections.length!==3)throw new Error('Publish three parts with two questions each.'); } catch(e) { $('status').textContent=e.message;return; }
   if(!confirm('Publish this wording to the participant assessment? Saved draft edits are separate until you publish.'))return;
   saving=true; $('publish').disabled=true;
   try {await writeAssessment(LIVE_KEY);$('status').textContent='Assessment wording published.';} catch(e){$('status').textContent=e.message;}finally{saving=false;$('publish').disabled=false;}

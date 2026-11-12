@@ -6,14 +6,14 @@ Current as of November 11, 2026. This file is internal: `docs/` is listed in `.v
 
 | Page | Purpose |
 |---|---|
-| `/Leadership-Lens.html` | Participant assessment: intro, two three-question parts, optional final reflection |
+| `/Leadership-Lens.html` | Participant assessment: intro, three two-question parts, optional final reflection |
 | `/leadership-lens-results.html` | Results, calculated in the browser from a sessionStorage snapshot. No data is sent to the server. `?lens=head`, `heart` or `gut` shows a labeled preview with illustrative scores |
 | `/admin/leadership-lens.html` | Assessment Studio (existing admin sign-in) |
 | `/tools.html` | Resources page with the half-width Leadership Lens card |
 
 ## Structure
 
-- Two parts, three questions each (six questions). Every question has one Head, one Heart and one Gut answer; answer order is shuffled per participant.
+- Three parts, two questions each (six questions). Every question has one Head, one Heart and one Gut answer. The hidden lens mappings are never shown in participant questions or answers, and answer order is shuffled independently for every question.
 - Final reflection: one extra single-choice question, shown only when the top scores are tied. It is limited to the tied lenses and suggests which profile to show first. It never changes the scores.
 - The Results page introduces the three centers (Head, Heart, Gut). As of October 23 the intro box also names them up front (it came in with John's intro edits and is not yet confirmed as intended); the October 19 bias review recommended naming them only on the Results page.
 
@@ -54,7 +54,7 @@ Keep these when editing wording in the Studio:
 
 - Studio fields (intro, intro box, instructions, parts, questions, answers, final reflection, result profiles) are stored in `site_settings`: `leadership_lens_draft_v1` for drafts and `leadership_lens_published_v1` for live content.
 - **Reload the editor before editing.** It publishes whatever is on screen, so a tab opened before another change will overwrite that change.
-- **Save draft** keeps edits private. **Publish wording** validates the structure (two parts, three questions each, one answer per lens, complete profiles) and makes the wording live immediately. No deploy is needed for wording changes.
+- **Save draft** keeps edits private. **Publish wording** validates the structure (three parts, two questions each, one answer per lens, complete profiles) and makes the wording live immediately. No deploy is needed for wording changes.
 - Text fields support Bold, Italic, Underline, colors (`{color:#RRGGBB}text{/color}`) and alignment.
 - `data/leadership-lens-draft.js` is the built-in fallback used if the content API is unavailable. Keep it in step with the published wording.
 

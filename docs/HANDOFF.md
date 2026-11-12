@@ -4,6 +4,13 @@ Newest entries first. Each assistant (Claude or Codex) adds an entry at the end 
 
 ---
 
+## 2026-11-12 · Codex, three-page Leadership Lens release
+
+- **Approved for production, release in progress:** reorganized the six questions into three participant pages with two questions each. Page 1 contains the important-disagreement pair, Page 2 contains the team-initiative pair, and Page 3 contains the separate pressure questions. Hidden Head/Heart/Gut mappings remain in data only and are not rendered in participant questions or answers.
+- **Balanced answer wording:** refined Questions 1–4 so options are parallel and similarly desirable; all Question 2 answers now begin with “Whether.” Question 5 uses Clarity, Connection, and Choice. Question 6 uses Uncertainty / Ambiguity, Disconnection / Separation, and Constraint / Restriction. IDs and hidden mappings are unchanged.
+- **Structure and safeguards:** participant answers continue to shuffle independently for every question and render as separate stacked question blocks. Core, Admin, and guarded publishing validation now require three parts with two questions each. Answer cards use a compact desktop row for the answer text and Most/Least controls, while mobile keeps stacked controls and 44px tap targets. Selecting Most or Least changes only that radio control, never the entire answer row; selected Most uses forest green and selected Least uses muted clay red. Question headings use the site’s soft gold background and deeper gold accent border. Scenario context uses a cool slate background. Fallback content, Admin guidance, cache versions, tests, and internal documentation were updated together.
+- **Verified locally:** all five Leadership Lens scoring, pattern, contact, Admin, and route suites pass, including 40,000 ranked answer sets. The isolated guarded-SQL suite also passes. Browser walkthrough confirmed all three pages and a completed 12/6/0 Analytical result. Production deployment and database publication are the remaining release steps.
+
 ## 2026-11-11 · Codex, six-question Leadership Lens production release
 
 - **Live now:** replaced the nine-question assessment with the approved six questions in two parts while preserving Most like me / Least like me, shuffled participant answer order, hidden Head/Heart/Gut mappings, result profiles, lowest-lens content, contact handoff, and the tie-only final reflection. Ranked scoring is now 18 total points, 12 maximum per lens; a 4+ lead is Strong, 3 is Clear, and 0–2 is Moderate. Leads of 1–2 retain the higher profile and show the close explanation.

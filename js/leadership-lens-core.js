@@ -1,13 +1,13 @@
 export const CENTERS = ['head', 'heart', 'gut'];
 export function validateConfig(d) {
-  if (!d || !d.title?.trim() || ![2,3].includes(d.sections?.length) || d.lenses?.length !== 3) throw new Error('Use two or three parts and three lens profiles.');
+  if (!d || !d.title?.trim() || d.sections?.length !== 3 || d.lenses?.length !== 3) throw new Error('Use three parts and three lens profiles.');
   const ids = new Set();
   function check(q) {
     if (!q.id || ids.has(q.id) || !q.text?.trim() || q.answers?.length !== 3) throw new Error('Each question needs a unique ID, text, and three answers.');
     ids.add(q.id);
     if (new Set(q.answers.map(a=>a.id)).size !== 3 || !CENTERS.every(c=>q.answers.some(a=>a.center===c && a.id && a.text?.trim()))) throw new Error('Each question needs one Head, Heart, and Gut answer.');
   }
-  for (const s of d.sections) { if(!s.title?.trim() || s.questions?.length!==3) throw new Error('Each part needs a name and three questions.'); s.questions.forEach(check); }
+  for (const s of d.sections) { if(!s.title?.trim() || s.questions?.length!==2) throw new Error('Each part needs a name and two questions.'); s.questions.forEach(check); }
   check(d.tiebreaker);
   for(const c of CENTERS) { const l=d.lenses.find(l=>l.id===c); if(!l || !['name','description','attention','high','low','opportunity','reflection'].every(k=>l[k]?.trim())) throw new Error('Complete every result profile before publishing.'); }
   return d;
@@ -84,7 +84,7 @@ export function alignStyle(d, key) {
 export const PANEL_DEFAULTS = {
   panelTitle: 'A perspective, not a label',
   panelBody: 'Explore what gets your attention, how it serves you, and what it may cause you to overlook. This is an Enneagram-informed reflection tool, not a typing assessment or a validated psychological instrument.',
-  panelNote: 'Six questions in two parts. A short follow-up may appear to help clarify which perspective to explore. No email required.',
+  panelNote: 'Six questions in three parts. A short follow-up may appear to help clarify which perspective to explore. No email required.',
 };
 export const panelText = (d, key) => { const text=typeof d?.[key] === 'string' ? d[key] : PANEL_DEFAULTS[key]; return key==='panelNote' ? text.replace('A short follow-up appears only if your scores tie.','A short follow-up helps clarify your motivation when your leading scores are close or tied.') : text; };
 
