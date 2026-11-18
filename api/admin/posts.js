@@ -102,7 +102,7 @@ export default async function handler(req, res) {
                   'id', 'blog:' || p.id::text,
                   'date', COALESCE(to_char(p.post_date, 'YYYY-MM-DD'), to_char(NOW() AT TIME ZONE 'America/Chicago', 'YYYY-MM-DD')),
                   'channel', 'blog', 'link', 'https://www.journeycoach.co/blog/' || p.slug,
-                  'versionId', ${versionId}, 'snapshot', source.version,
+                  'versionId', ${versionId}::text, 'snapshot', source.version,
                   'publishedSnapshot', jsonb_build_object('title',p.title,'body',p.body,'summary',p.summary),
                   'recordedAt', NOW()
                 ))), revision = revision + 1, updated_at = NOW()
