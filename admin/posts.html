@@ -47,8 +47,10 @@
         <a href="post-edit.html" class="btn btn-primary">+ New Post</a>
       </div>
 
-      <div class="card">
-        <div class="card-title">All Posts</div>
+      <details class="card" open>
+        <summary class="card-title" style="cursor:pointer;">All Posts</summary>
+        <p class="td-muted" id="postsCount">Showing the 3 most recent posts.</p>
+        <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
@@ -62,7 +64,9 @@
             <tr><td colspan="4" class="table-empty">Loading...</td></tr>
           </tbody>
         </table>
-      </div>
+        </div>
+        <button type="button" id="togglePosts" class="btn btn-secondary btn-sm" style="margin-top:12px;" hidden>Show older posts</button>
+      </details>
     </main>
   </div>
 
@@ -86,15 +90,34 @@
       }
     }
 
+    let allPosts = [];
+    let showAllPosts = false;
+    document.getElementById('togglePosts').addEventListener('click', () => {
+      showAllPosts = !showAllPosts;
+      renderPosts();
+    });
+
     async function loadPosts() {
       const res = await adminFetch('/api/admin/posts');
       const data = await res.json();
+      allPosts = (data.data || []).sort((a, b) =>
+        (Date.parse(b.post_date) || 0) - (Date.parse(a.post_date) || 0) || Number(b.id) - Number(a.id));
+      renderPosts();
+    }
+
+    function renderPosts() {
       const tbody = document.getElementById('postsBody');
-      if (!data.data || data.data.length === 0) {
+      const visiblePosts = showAllPosts ? allPosts : allPosts.slice(0, 3);
+      const toggle = document.getElementById('togglePosts');
+      toggle.hidden = allPosts.length <= 3;
+      toggle.textContent = showAllPosts ? 'Show only the 3 most recent' : 'Show older posts';
+      toggle.setAttribute('aria-expanded', String(showAllPosts));
+      document.getElementById('postsCount').textContent = `Showing ${visiblePosts.length} of ${allPosts.length} posts, most recent first.`;
+      if (allPosts.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="table-empty">No posts yet. <a href="post-edit.html">Create one.</a></td></tr>';
         return;
       }
-      tbody.innerHTML = data.data.map(p => `
+      tbody.innerHTML = visiblePosts.map(p => `
         <tr>
           <td>${escHtml(p.title)}</td>
           <td class="td-muted">${formatDate(p.post_date)}</td>

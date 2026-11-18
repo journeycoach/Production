@@ -15,3 +15,7 @@ Outstanding release gates: browser walkthrough of capture, side-by-side compare,
 Environment blockers: git pull origin main could not resolve github.com; local HTTP server bind failed with Operation not permitted. Do not include pre-existing uncommitted Leadership Lens changes (Leadership-Lens.html, css/leadership-lens.css, js/leadership-lens.js, docs/HANDOFF.md) in this release. Existing HANDOFF.md was left untouched because it already had unrelated uncommitted changes; this separate handoff records the work.
 
 After release gates pass, deploy the isolated blog change from Production with `vercel --prod`. Do not deploy this mixed working directory directly.
+
+## Follow-up: compact All Posts card
+
+All Posts is now a native keyboard-accessible collapsible details card, expanded by default with the three newest posts. Show older posts reveals the complete list; the same button returns to the compact view. Posts are sorted by date, then ID. Local change only, needs deployment with the workspace release. Existing unrelated HANDOFF.md edits remain untouched.
