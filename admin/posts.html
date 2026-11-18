@@ -42,9 +42,9 @@
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
-      <div class="blog-tabs" role="tablist" aria-label="Blog management">
-        <button type="button" id="postsTab" role="tab" aria-selected="true" aria-controls="postsPanel" tabindex="0">Blog Posts</button>
-        <button type="button" id="ideasTab" role="tab" aria-selected="false" aria-controls="ideasPanel" tabindex="-1">Post Ideas</button>
+      <div class="blog-tabs page-tabs" role="tablist" aria-label="Blog management">
+        <button type="button" id="postsTab" class="page-tab is-active" role="tab" aria-selected="true" aria-controls="postsPanel" tabindex="0">Blog Posts</button>
+        <button type="button" id="ideasTab" class="page-tab" role="tab" aria-selected="false" aria-controls="ideasPanel" tabindex="-1">Post Ideas</button>
       </div>
       <section id="ideasPanel" role="tabpanel" aria-labelledby="ideasTab" hidden>
         <section id="studio" aria-label="Private leadership workspace" hidden></section>
@@ -79,7 +79,7 @@
   </div>
 
   <script src="js/admin.js"></script>
-  <link rel="stylesheet" href="css/ideas.css?v=3">
+  <link rel="stylesheet" href="css/ideas.css?v=4">
   <script type="module" src="js/ideas.js?v=3"></script>
   <script>
     requireAdminAuth();
@@ -89,6 +89,7 @@
       blogTabs.forEach((tab, index) => {
         const selected = index === (ideas ? 1 : 0);
         tab.setAttribute('aria-selected', String(selected));
+        tab.classList.toggle('is-active', selected);
         tab.tabIndex = selected ? 0 : -1;
         document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
       });
