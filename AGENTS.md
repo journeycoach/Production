@@ -78,3 +78,7 @@ All four should print PASS lines. If you change admin editor code, check that `t
 ## Folders that are never published
 
 `.vercelignore` keeps `docs/`, `tests/`, `exports/`, `AGENTS.md`, `CLAUDE.md` and backups off the live site. Put internal notes in `docs/`.
+
+## Admin page template and theme
+
+For every new admin page, tab, card, or form, start with `docs/admin-page-template.html` and follow `docs/admin-theme.md`. Subscribers is the visual reference. Reuse the shared admin stylesheet and classes instead of adding local theme colors. Use `.page-tabs` / `.page-tab` with synchronized `.is-active` and `aria-selected`; use `.card` and `.form-group` for content. Preserve the light workspace, white cards, dark text, and navy selected tabs. Verify readable contrast even when saved appearance settings contain legacy dark colors. New private data endpoints must use existing authentication and private/no-store responses.

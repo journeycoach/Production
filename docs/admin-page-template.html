@@ -1,0 +1,79 @@
+<!-- Copy to admin/, rename the title, mark the matching navigation item active, and add authenticated data loading. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Title | Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=2" />
+  <style>
+    @media (max-width: 700px) { .card { overflow-x: auto; } table { min-width: 480px; } }
+  </style>
+</head>
+<body>
+  <div class="admin-wrapper">
+    <header class="admin-header">
+      <a href="/" class="brand">Your Journey Coach <span>Admin</span></a>
+      <div class="admin-header-actions">
+        <div class="global-search">
+          <input type="text" id="globalSearchInput" placeholder="Search admin..." autocomplete="off">
+          <div id="globalSearchResults" class="global-search-results"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <nav class="admin-nav" aria-label="Admin sections">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="posts.html">Blog</a>
+      <a href="testimonials.html">Testimonials</a>
+      <a href="tools.html">Tools</a>
+      <a href="identity-ceiling.html">Identity Ceiling</a>
+      <a href="bookmarks.html">Bookmarks</a>
+      <a href="lead-dashboard.html">Reporting</a>
+      <a href="site.html">Site</a>
+      <a href="contacts.html">Contacts</a>
+      <a href="subscribers.html">Subscribers</a>
+    </nav>
+
+    <main class="admin-main">
+      <div class="admin-page-title"><h1>Page title</h1><a href="/admin/dashboard.html" class="back-link">Dashboard</a></div>
+      <div class="page-tabs" role="tablist" aria-label="Page sections">
+        <button class="page-tab is-active" id="overviewTab" role="tab" aria-selected="true" aria-controls="overviewPanel" tabindex="0" type="button">Overview</button>
+        <button class="page-tab" id="detailsTab" role="tab" aria-selected="false" aria-controls="detailsPanel" tabindex="-1" type="button">Details</button>
+      </div>
+      <section id="overviewPanel" role="tabpanel" aria-labelledby="overviewTab">
+        <div class="card"><h2 class="card-title">Overview</h2><p>Load authenticated content here.</p></div>
+      </section>
+      <section id="detailsPanel" role="tabpanel" aria-labelledby="detailsTab" hidden>
+        <div class="card"><h2 class="card-title">Details</h2><div class="form-group"><label for="itemTitle">Title</label><input id="itemTitle" type="text"></div><div class="form-group"><label for="itemStage">Stage</label><select id="itemStage"><option>Captured</option><option>Developing</option><option>Ready</option></select></div></div>
+      </section>
+    </main>
+  </div>
+  <script src="/admin/js/admin.js"></script>
+  <script>
+    requireAdminAuth();
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    function activateTab(index) {
+      tabs.forEach((tab, i) => {
+        const active = i === index;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', String(active));
+        tab.tabIndex = active ? 0 : -1;
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = !active;
+      });
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(index));
+      tab.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        activateTab(next);
+        tabs[next].focus();
+      });
+    });
+  </script>
+</body>
+</html>
