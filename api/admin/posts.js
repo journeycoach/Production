@@ -82,6 +82,36 @@ export default async function handler(req, res) {
     if (!title) return res.status(400).json({ error: 'title is required' });
     try {
       const slug = await uniqueSlug(toSlug(rawSlug || title));
+      if (req.body.idea_source) {
+        const { ideaId, versionId } = req.body.idea_source;
+        // Publishing and private history commit together; the source version must exist.
+        const rows = await sql`
+          WITH source AS (
+            SELECT i.id, v AS version FROM leadership_ideas i,
+              LATERAL jsonb_array_elements(i.data->'versions') v
+            WHERE i.id = ${ideaId} AND v->>'id' = ${versionId}
+          ), published AS (
+            INSERT INTO posts (title, post_date, author, image_url, summary, body, slug)
+            SELECT ${title}, ${post_date || null}, ${author}, ${image_url || null},
+              ${summary || null}, ${body || null}, ${slug} FROM source
+            RETURNING *
+          ), recorded AS (
+            UPDATE leadership_ideas i SET
+              data = jsonb_set(i.data, '{uses}', COALESCE(i.data->'uses','[]'::jsonb) ||
+                jsonb_build_array(jsonb_build_object(
+                  'id', 'blog:' || p.id::text,
+                  'date', COALESCE(to_char(p.post_date, 'YYYY-MM-DD'), to_char(NOW() AT TIME ZONE 'America/Chicago', 'YYYY-MM-DD')),
+                  'channel', 'blog', 'link', 'https://www.journeycoach.co/blog/' || p.slug,
+                  'versionId', ${versionId}, 'snapshot', source.version,
+                  'publishedSnapshot', jsonb_build_object('title',p.title,'body',p.body,'summary',p.summary),
+                  'recordedAt', NOW()
+                ))), revision = revision + 1, updated_at = NOW()
+            FROM published p, source WHERE i.id = source.id RETURNING i.id
+          ) SELECT published.* FROM published JOIN recorded ON TRUE
+        `;
+        if (!rows.length) return res.status(409).json({ error: 'Source version unavailable. Reload the idea before publishing.' });
+        return res.status(201).json({ data: rows[0] });
+      }
       const rows = await sql`
         INSERT INTO posts (title, post_date, author, image_url, summary, body, slug)
         VALUES (

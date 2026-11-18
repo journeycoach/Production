@@ -408,6 +408,27 @@
 
     const params = new URLSearchParams(window.location.search);
     const postId = params.get('id');
+    let sourceIdea = null;
+    let sourceVersion = null;
+    let draftLoading = !!params.get('idea');
+    if (draftLoading) {
+      document.getElementById('saveBtn').disabled = true;
+      (async () => {
+        try {
+          const res = await adminFetch('/api/admin/ideas?id=' + encodeURIComponent(params.get('idea')));
+          if (!res.ok) throw new Error('Could not load private draft.');
+          sourceIdea = (await res.json()).data;
+          sourceVersion = sourceIdea?.data.versions.find(v => v.id === params.get('version'));
+          if (!sourceVersion) throw new Error('Saved version not found.');
+          document.getElementById('title').value = sourceIdea.data.title || sourceIdea.data.observation;
+          const text = sourceVersion.body;
+          document.getElementById('body').value = sourceVersion.format === 'html' ? text : text.split(/\n\s*\n/).map(p => '<p>' + escHtml(p).replace(/\n/g, '<br>') + '</p>').join('\n');
+          document.getElementById('pageTitle').textContent = 'Review draft before publishing';
+          draftLoading = false;
+          document.getElementById('saveBtn').disabled = false;
+        } catch (e) { showFlash(e.message, 'error'); }
+      })();
+    }
     let previewVisible = false;
     let previewDebounce = null;
 
@@ -551,6 +572,7 @@
 
     document.getElementById('postForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (draftLoading) return;
       const saveBtn = document.getElementById('saveBtn');
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
@@ -566,6 +588,7 @@
       };
 
       if (postId) payload.id = parseInt(postId);
+      if (sourceIdea && sourceVersion) payload.idea_source = { ideaId: sourceIdea.id, versionId: sourceVersion.id };
 
       const res = await adminFetch('/api/admin/posts', {
         method: postId ? 'PUT' : 'POST',
