@@ -42,7 +42,14 @@
         <a href="dashboard.html" class="back-link">&#8592; Dashboard</a>
       </div>
 
-      <section id="studio" aria-label="Private leadership workspace" hidden></section>
+      <div class="blog-tabs" role="tablist" aria-label="Blog management">
+        <button type="button" id="postsTab" role="tab" aria-selected="true" aria-controls="postsPanel" tabindex="0">Blog Posts</button>
+        <button type="button" id="ideasTab" role="tab" aria-selected="false" aria-controls="ideasPanel" tabindex="-1">Post Ideas</button>
+      </div>
+      <section id="ideasPanel" role="tabpanel" aria-labelledby="ideasTab" hidden>
+        <section id="studio" aria-label="Private leadership workspace" hidden></section>
+      </section>
+      <section id="postsPanel" role="tabpanel" aria-labelledby="postsTab">
       <div style="margin-bottom:16px;">
         <a href="post-edit.html" class="btn btn-primary">+ New Post</a>
       </div>
@@ -67,14 +74,42 @@
         </div>
         <button type="button" id="togglePosts" class="btn btn-secondary btn-sm" style="margin-top:12px;" hidden>Show older posts</button>
       </details>
+      </section>
     </main>
   </div>
 
   <script src="js/admin.js"></script>
-  <link rel="stylesheet" href="css/ideas.css?v=1">
+  <link rel="stylesheet" href="css/ideas.css?v=2">
   <script type="module" src="js/ideas.js?v=3"></script>
   <script>
     requireAdminAuth();
+
+    const blogTabs = [document.getElementById('postsTab'), document.getElementById('ideasTab')];
+    function selectBlogTab(ideas, updateUrl = true) {
+      blogTabs.forEach((tab, index) => {
+        const selected = index === (ideas ? 1 : 0);
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+      });
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', ideas ? 'ideas' : 'posts');
+        history.replaceState(null, '', url);
+      }
+    }
+    blogTabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectBlogTab(index === 1));
+      tab.addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? 1 : 1 - index;
+        selectBlogTab(next === 1);
+        blogTabs[next].focus();
+      });
+    });
+    const initialParams = new URLSearchParams(window.location.search);
+    selectBlogTab(initialParams.get('tab') === 'ideas' || (initialParams.has('idea') && initialParams.get('tab') !== 'posts'), false);
 
     async function deletePost(id) {
       if (!confirm('Delete this post? This cannot be undone.')) return;
