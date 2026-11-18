@@ -46,11 +46,11 @@ const context=vm.createContext({console,process:{env:{}},Promise});let authorize
 const sql=async(strings,...values)=>{dbCalls++;const q=strings.join('?');if(q.includes('SELECT data'))return [{data:{title:'Ownership',sourceReference:'Private source',importOriginal:{secret:'not needed'},observation:'Make space'}}];if(q.includes('FROM posts'))return posts;return ideas;};
 const helper={...writing,generatePost:async input=>{aiCalls++;assert(!('sourceReference'in input.idea));assert(!('importOriginal'in input.idea));return {title:'T',body:'B',notes:''};},checkRepetition:async()=>{aiCalls++;return result;}};
 const modules={
- '../_db.js':new vm.SyntheticModule(['sql'],function(){this.setExport('sql',sql);},{context}),
- '../_auth.js':new vm.SyntheticModule(['requireAuth'],function(){this.setExport('requireAuth',(_req,res)=>{if(!authorized)res.status(401).json({error:'Unauthorized'});return authorized;});},{context}),
- '../_writing-assistant.js':new vm.SyntheticModule(['corpus','checkRepetition','generatePost','WritingError'],function(){for(const k of ['corpus','checkRepetition','generatePost','WritingError'])this.setExport(k,helper[k]);},{context})
+ './_db.js':new vm.SyntheticModule(['sql'],function(){this.setExport('sql',sql);},{context}),
+ './_auth.js':new vm.SyntheticModule(['requireAuth'],function(){this.setExport('requireAuth',(_req,res)=>{if(!authorized)res.status(401).json({error:'Unauthorized'});return authorized;});},{context}),
+ './_writing-assistant.js':new vm.SyntheticModule(['corpus','checkRepetition','generatePost','WritingError'],function(){for(const k of ['corpus','checkRepetition','generatePost','WritingError'])this.setExport(k,helper[k]);},{context})
 };
-const route=new vm.SourceTextModule(await readFile(new URL('../api/admin/writing-assistant.js',import.meta.url),'utf8'),{context});await route.link(k=>modules[k]);await route.evaluate();
+const route=new vm.SourceTextModule(await readFile(new URL('../api/_writing-route.js',import.meta.url),'utf8'),{context});await route.link(k=>modules[k]);await route.evaluate();
 async function req(method,body={}){const r={code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(v){this.body=v;return this;}};await route.namespace.default({method,body},r);return r;}
 for(const method of ['GET','POST'])assert.equal((await req(method,{action:'generate',draft:'x',ideaId:'current'})).code,401);
 assert.equal(dbCalls,0);assert.equal(aiCalls,0);

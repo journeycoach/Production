@@ -1,6 +1,6 @@
-import { sql } from '../_db.js';
-import { requireAuth } from '../_auth.js';
-import { metadata, version, usage, historyCheck, importRecords } from '../_ideas.js';
+import { sql } from './_db.js';
+import { requireAuth } from './_auth.js';
+import { metadata, version, usage, historyCheck, importRecords } from './_ideas.js';
 import crypto from 'node:crypto';
 let ready;
 async function prepare() {

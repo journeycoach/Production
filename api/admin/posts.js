@@ -1,7 +1,11 @@
+import ideasHandler from '../_ideas-route.js';
+import writingHandler from '../_writing-route.js';
 import { sql } from '../_db.js';
 import { getToken, requireAuth, verifyToken } from '../_auth.js';
 import { handleUpload } from '@vercel/blob/client';
 import { runMigrations } from '../_migrate.js';
+
+export const config = { maxDuration: 60 };
 
 function toSlug(title) {
   return String(title || '')
@@ -25,6 +29,8 @@ async function uniqueSlug(base, excludeId = null) {
 }
 
 export default async function handler(req, res) {
+  if (req.query.workspace === 'ideas') return ideasHandler(req, res);
+  if (req.query.workspace === 'writing') return writingHandler(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   if (req.query.action === 'upload') {

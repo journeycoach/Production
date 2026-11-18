@@ -35,12 +35,12 @@ const sql=async(strings,...values)=>{
  return [];
 };
 const modules={
- '../_db.js':new vm.SyntheticModule(['sql'],function(){this.setExport('sql',sql);},{context}),
- '../_auth.js':new vm.SyntheticModule(['requireAuth'],function(){this.setExport('requireAuth',(_req,res)=>{if(!authorized)res.status(401).json({error:'Unauthorized'});return authorized;});},{context}),
- '../_ideas.js':new vm.SyntheticModule(['metadata','version','usage','historyCheck','importRecords'],function(){for(const [k,v]of Object.entries({metadata,version,usage,historyCheck,importRecords}))this.setExport(k,v);},{context}),
+ './_db.js':new vm.SyntheticModule(['sql'],function(){this.setExport('sql',sql);},{context}),
+ './_auth.js':new vm.SyntheticModule(['requireAuth'],function(){this.setExport('requireAuth',(_req,res)=>{if(!authorized)res.status(401).json({error:'Unauthorized'});return authorized;});},{context}),
+ './_ideas.js':new vm.SyntheticModule(['metadata','version','usage','historyCheck','importRecords'],function(){for(const [k,v]of Object.entries({metadata,version,usage,historyCheck,importRecords}))this.setExport(k,v);},{context}),
  'node:crypto':new vm.SyntheticModule(['default'],function(){this.setExport('default',{randomUUID:()=>globalThis.crypto.randomUUID()});},{context})
 };
-const route=new vm.SourceTextModule(await readFile(new URL('../api/admin/ideas.js',import.meta.url),'utf8'),{context});
+const route=new vm.SourceTextModule(await readFile(new URL('../api/_ideas-route.js',import.meta.url),'utf8'),{context});
 await route.link(name=>modules[name]);await route.evaluate();
 async function request(method,body={},query={}){const res={code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(v){this.body=v;return this;}};await route.namespace.default({method,body,query},res);return res;}
 for(const method of ['GET','POST','PUT']){const r=await request(method,{title:'Private'}, {id:'secret'});assert.equal(r.code,401);assert.equal(r.headers['Cache-Control'],'private, no-store');}

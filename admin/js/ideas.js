@@ -1,4 +1,4 @@
-import { attachWritingAssistant } from './writing-assistant.js?v=1';
+import { attachWritingAssistant } from './writing-assistant.js?v=2';
 const root = document.getElementById('studio');
 const esc = escHtml;
 let items = [], current = null, backup = null, dirty = false;
@@ -6,7 +6,7 @@ const metadataFields = { title:'Working title', observation:'Core observation', 
 const checks = ['Clarity: Is the central observation clear?','Accuracy: Have I verified factual claims and protected client identities?','Usefulness: Can a leader put this into practice?','Originality: Does this add a fresh problem, example, or practical challenge?','Challenge: Does the closing question invite meaningful action?'];
 const today = () => new Date().toLocaleDateString('en-CA');
 async function api(body, method='PUT') {
-  const response = await adminFetch('/api/admin/ideas', body ? {method,body:JSON.stringify(body)} : {});
+  const response = await adminFetch('/api/admin/posts?workspace=ideas', body ? {method,body:JSON.stringify(body)} : {});
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'Could not save.');
   return result;

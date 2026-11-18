@@ -1,7 +1,6 @@
-import { sql } from '../_db.js';
-import { requireAuth } from '../_auth.js';
-import { corpus, checkRepetition, generatePost, WritingError } from '../_writing-assistant.js';
-export const config = { maxDuration: 60 };
+import { sql } from './_db.js';
+import { requireAuth } from './_auth.js';
+import { corpus, checkRepetition, generatePost, WritingError } from './_writing-assistant.js';
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
   if (!requireAuth(req, res)) return;

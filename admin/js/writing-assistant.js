@@ -27,7 +27,7 @@ export function attachWritingAssistant(idea, onDirty) {
     results.replaceChildren(); lastDraft = draft;
     status.textContent = action === 'generate' ? 'Developing an editable post…' : 'Comparing meaning across your recorded library…';
     try {
-      const response = await adminFetch('/api/admin/writing-assistant', { method:'POST',body:JSON.stringify({action,draft,ideaId:idea.id,kind:requestedKind,direction:direction.value}) });
+      const response = await adminFetch('/api/admin/posts?workspace=writing', { method:'POST',body:JSON.stringify({action,draft,ideaId:idea.id,kind:requestedKind,direction:direction.value}) });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'The writing assistant could not complete this request.');
       if (!panel.isConnected || token !== requestNumber) return;
@@ -75,7 +75,7 @@ export function attachWritingAssistant(idea, onDirty) {
   generate.onclick=()=>run('generate');check.onclick=()=>run('repetition');
   document.getElementById('versionSelect').addEventListener('change',()=>{requestNumber++;results.replaceChildren();status.textContent='';});
   form.elements.body.addEventListener('input',()=>{if(results.children.length){results.replaceChildren();status.textContent='Draft changed. Run the writing partner again for the current text.';}});
-  fetch('/api/admin/writing-assistant',{credentials:'same-origin',cache:'no-store'}).then(async r=>{
+  fetch('/api/admin/posts?workspace=writing',{credentials:'same-origin',cache:'no-store'}).then(async r=>{
     if(!r.ok)throw new Error();const data=await r.json();
     connection.textContent=data.configured ? 'AI connected. Checking or developing sends the needed draft and library text to OpenAI.' : 'AI setup needed: add OPENAI_API_KEY to the server environment and restart the local server. Keep the key out of browser code. ChatGPT and API billing are separate.';
   }).catch(()=>{connection.textContent='Could not check the AI connection. Try an action to see its status.';});
