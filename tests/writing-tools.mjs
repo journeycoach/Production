@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {starterDraft,writingBrief,draftStats,plainDraft,replaceEdge,themeSummary,readyPieces} from '../admin/js/writing-tools-core.js';
+import {version} from '../api/_ideas.js';
+const idea={title:'Ownership',observation:'Leaders sometimes answer too quickly.',leadershipPattern:'Teams wait for permission.',practicalReframe:'Ask what they recommend.',closingQuestion:'What could you leave with the team?',sourceReference:'My anonymized notes',themes:'Ownership, Trust'};
+const starter=starterDraft(idea,'linkedin');
+assert(starter.includes(idea.observation));assert(starter.endsWith(idea.closingQuestion));assert(!starter.includes('client told me'));
+assert(starterDraft(idea,'tool').includes('When to use this'));
+assert(starterDraft(idea,'blog').startsWith('Ownership'));
+assert(starterDraft({title:'Test'},'linkedin').includes('[Close'));
+const brief=writingBrief(idea,'My unsaved draft');assert(brief.includes('My unsaved draft'));assert(brief.includes(idea.sourceReference));assert(brief.includes('Do not invent'));
+assert.deepEqual(draftStats('One two.\n\nThree.'),{words:3,characters:16,paragraphs:2,longParagraphs:0,longOpening:false});
+assert.equal(plainDraft('<script>bad()</script><p>One &amp; two</p><p>Three</p>','html'),'One & two\n\nThree');
+assert.equal(replaceEdge('Opening.\n\nMiddle.\n\nEnding.','New.','opening'),'New.\n\nMiddle.\n\nEnding.');
+assert.equal(replaceEdge('Opening.\n\nMiddle.\n\nEnding.','New.','ending'),'Opening.\n\nMiddle.\n\nNew.');
+assert.throws(()=>replaceEdge('One paragraph only','New.','opening'),/paragraph breaks/);
+assert.throws(()=>replaceEdge('A\n\nB','','ending'),/alternative/);
+const v=version({name:'Ready version',body:'Draft',kind:'linkedin',ready:true,alternatives:{openings:['First','Second'],endings:['Close']}});
+assert(v.ready);assert.deepEqual(v.alternatives.openings,['First','Second']);
+assert.throws(()=>version({name:'x',body:'x',kind:'linkedin',alternatives:{openings:[1]}}),/alternatives/);
+const rows=[{id:'a',data:{...idea,versions:[v],uses:[]}},{id:'b',data:{themes:'ownership, Growth',versions:[{id:'2',body:'B'}],stage:'Ready',uses:[{}]}}];
+const themes=themeSummary(rows);assert.equal(themes.find(t=>t.name==='Ownership').ideas.length,2);assert.equal(themes.find(t=>t.name==='Ownership').used,1);
+assert.equal(readyPieces(rows).length,2);assert.equal(readyPieces([{id:'c',data:{versions:[{ready:false}],uses:[]}}]).length,0);
+console.log('PASS starter formats, unsaved writing briefs, plain-text stats, safe edge swaps, theme counts and persisted ready/alternative fields');
+
+assert.equal(readyPieces([{id:'a',data:{versions:[{ready:true,kind:'linkedin'},{ready:false,kind:'linkedin'}]}}]).length,0,'A newer revision supersedes the old ready version');

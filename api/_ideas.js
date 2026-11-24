@@ -9,7 +9,13 @@ export function metadata(input) {
 export function version(input) {
   if (!String(input.name || '').trim() || !String(input.body || '').trim()) throw new Error('Name the version and add draft text.');
   if (!['linkedin','blog','tool'].includes(input.kind)) throw new Error('Choose a draft format.');
-  return { id: crypto.randomUUID(), name: input.name.trim(), body: input.body, kind: input.kind, format: input.format === 'html' ? 'html' : 'text', review: input.review || {}, notes: String(input.notes || ''), createdAt: new Date().toISOString() };
+  const alternatives = {};
+  for (const edge of ['openings','endings']) {
+    const values=input.alternatives?.[edge]||[];
+    if(!Array.isArray(values)||values.length>2||values.some(v=>typeof v!=='string'||v.length>4000))throw new Error('Use up to two alternatives of 4,000 characters each.');
+    alternatives[edge]=values;
+  }
+  return { ready: input.ready === true, alternatives, id: crypto.randomUUID(), name: input.name.trim(), body: input.body, kind: input.kind, format: input.format === 'html' ? 'html' : 'text', review: input.review || {}, notes: String(input.notes || ''), createdAt: new Date().toISOString() };
 }
 function validDate(value) { return /^\d{4}-\d{2}-\d{2}$/.test(value || '') && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value; }
 export function usage(input, versions) {

@@ -1,0 +1,7 @@
+# Short-form writing tools, November 24, 2026
+
+Added API-free writing tools to Post Ideas: copy a ChatGPT writing brief with current unsaved notes/draft and voice guidance; assemble editable LinkedIn/blog/tool starters from source notes; focused writing with live word/character count; two opening and two closing alternatives per saved version; safe first/last paragraph swaps; plain-text post preview with opening and paragraph-density hints; Themes and Ready to Share workspace views; editorial challenge prompt.
+
+Alternatives and readiness are stored with each named version using the existing authenticated storage. Ready to Share uses the latest version per format; older revisions remain in Drafts. An idea marked Ready also contributes its latest saved draft. Ready cards show review progress, visual concept, recorded uses, preview, open and copy actions. Theme counts explicitly cover recorded library content. Switching overview tabs keeps the editor mounted; theme browsing retains unsaved editor fields.
+
+No new model calls, third-party integrations, dependencies or serverless routes. Existing optional AI tools remain separate. New features run without an API key. Pure helpers, rendered UI, local-tool event interactions (including cancellation and zero network calls), storage route and existing writing-assistant tests pass. Browser visual QA is unavailable in this session. Unrelated Leadership Lens and HANDOFF edits were left untouched. Deployment pending.

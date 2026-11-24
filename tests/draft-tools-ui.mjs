@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {attachDraftTools} from '../admin/js/draft-tools.js';
+function el(value=''){const events={};return {value,textContent:'',hidden:false,events,attrs:{},addEventListener(name,fn){(events[name]||=[]).push(fn);},setAttribute(k,v){this.attrs[k]=v;},focus(){},select(){},async fire(name,event={}){for(const fn of events[name]||[])await fn(event);}};}
+const ids=['studio','versionForm','draftToolStatus','draftWordCount','postPreview','previewFlags','versionSelect','copyWritingBrief','createStarter','focusWriting','briefFallback',...['opening','ending'].flatMap(edge=>[1,2].map(n=>'use-'+edge+'-'+n))];
+const nodes=Object.fromEntries(ids.map(id=>[id,el()]));
+const focused=new Set();nodes.studio.classList={toggle(k,on){on?focused.add(k):focused.delete(k);},remove(k){focused.delete(k);}};
+const fields=Object.fromEntries(['body','format','kind','name','opening1','opening2','ending1','ending2'].map(k=>[k,el()]));fields.body.value='Original opening.\n\nKeep the middle.\n\nOriginal ending.';fields.format.value='text';fields.kind.value='linkedin';fields.name.value='First';nodes.versionForm.elements=fields;nodes.versionForm.querySelectorAll=()=>[];
+let clipboard='',dirty=0,confirmation=true,network=0;
+Object.defineProperty(globalThis,'document',{value:{getElementById:id=>{assert(nodes[id],id);return nodes[id];}},configurable:true});
+Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:async text=>{clipboard=text;}}},configurable:true});
+globalThis.confirm=()=>confirmation;globalThis.fetch=()=>{network++;throw Error('No network expected');};
+const idea={data:{title:'Ownership',observation:'Let the team decide.',closingQuestion:'What could they own?'}};
+attachDraftTools({idea,readIdea:()=>({...idea.data,title:'Unsaved title'}),onDirty:()=>dirty++});
+assert.match(nodes.draftWordCount.textContent,/words/);assert.match(nodes.postPreview.textContent,/Keep the middle/);
+await nodes.copyWritingBrief.fire('click');assert(clipboard.includes('Unsaved title'));assert(clipboard.includes('Original opening'));
+fields.opening1.value='A fresh opening.';await nodes['use-opening-1'].fire('click');assert(fields.body.value.startsWith('A fresh opening.'));assert(fields.body.value.includes('Keep the middle.'));assert.equal(nodes.versionSelect.value,'');
+fields.ending1.value='A new question?';confirmation=false;await nodes['use-ending-1'].fire('click');assert(fields.body.value.endsWith('Original ending.'));
+confirmation=true;await nodes.focusWriting.fire('click');assert(focused.has('is-writing-focused'));
+await nodes.versionForm.fire('keydown',{key:'Escape',preventDefault(){}});assert(!focused.has('is-writing-focused'));
+fields.kind.value='tool';await nodes.createStarter.fire('click');assert(fields.body.value.includes('When to use this'));assert(!fields.body.value.includes('Original opening'));
+fields.format.value='html';fields.body.value='<p>Keep HTML</p>';await nodes['use-opening-1'].fire('click');assert.equal(fields.body.value,'<p>Keep HTML</p>');assert.match(nodes.draftToolStatus.textContent,/plain text/);
+assert(dirty>=2);assert.equal(network,0);
+console.log('PASS draft tool interactions: unsaved brief copy, safe alternatives, cancellation, focus/Escape, starter formats, HTML guard and zero network requests');
