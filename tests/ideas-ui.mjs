@@ -13,12 +13,15 @@ const context=vm.createContext({document,escHtml:s=>String(s||'').replaceAll('<'
 vm.runInContext(code,context);
 vm.runInContext("render()",context);
 assert(markup.includes('What are you noticing?'));
+assert(!nodes.has('deleteIdea'),'No delete button for an unsaved idea');
 assert(!nodes.has('versionForm'),'Unsaved quick capture should not show unrelated draft/history forms');
 const row={id:'one',data:{title:'Ownership',observation:'Make room for initiative.',versions:[],uses:[],checks:[],themes:'Ownership'}};
 context.row=row;vm.runInContext('items=[row];current=row;render()',context);
 assert.equal(nodes.get('ideaPanel-source').hidden,false);
 assert.equal(nodes.get('ideaPanel-drafts').hidden,true);
 assert(markup.includes('Import backup'));
+assert(nodes.has('deleteIdea'),'Selected idea has a delete button');
+context.confirm=()=>false;await nodes.get('deleteIdea').events.click();assert(nodes.has('deleteIdea'),'Cancel keeps idea open');context.confirm=()=>true;
 nodes.get('versionForm').unsavedText='Keep this text';
 nodes.get('ideaTab-drafts').events.click();
 assert.equal(nodes.get('ideaPanel-drafts').hidden,false);

@@ -50,7 +50,7 @@ function render() {
      <p id="libraryCount" class="studio-hint" aria-live="polite"></p><div id="ideaList" class="studio-list"></div>
    </aside>
    <div class="idea-editor">
-     <div class="editor-heading"><div><span class="studio-eyebrow">${current?'Selected idea':'Quick capture'}</span><h3>${esc(current?(d.title||d.observation):'What are you noticing?')}</h3></div><span id="ideaSaveStatus" role="status" class="studio-hint">${current?'Saved privately':'New idea'}</span></div>
+     <div class="editor-heading"><div><span class="studio-eyebrow">${current?'Selected idea':'Quick capture'}</span><h3>${esc(current?(d.title||d.observation):'What are you noticing?')}</h3></div><div class="idea-heading-actions"><span id="ideaSaveStatus" role="status" class="studio-hint">${current?'Saved privately':'New idea'}</span>${current?'<button type="button" id="deleteIdea" class="btn btn-danger btn-sm">Delete idea</button>':''}</div></div>
      ${current?`<div class="page-tabs idea-tabs" role="tablist" aria-label="Idea sections">${[['source','Source notes'],['drafts','Drafts · '+d.versions.length],['history','History · '+d.uses.length],['related','Related ideas']].map(([id,label])=>`<button type="button" role="tab" class="page-tab" id="ideaTab-${id}" aria-controls="ideaPanel-${id}" aria-selected="false" tabindex="-1" data-idea-section="${id}">${label}</button>`).join('')}</div>`:''}
      <section id="ideaPanel-source" ${current?'role="tabpanel" aria-labelledby="ideaTab-source"':''}>
        <div class="card"><form id="ideaForm"><p class="studio-hint">A working title or core observation is enough to save.</p>
@@ -80,6 +80,16 @@ function render() {
  bind('ideaForm',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.target));await save(data,current?'PUT':'POST');},'submit');
  bind('importFile',previewImport,'change');
  if (!current) return;
+ bind('deleteIdea', async () => {
+   const title=current.data.title||current.data.observation||'this idea';
+   if(!confirm(`Delete “${title}”?\n\nThis permanently removes this idea, its saved versions, and its usage history. Published blog articles and LinkedIn posts will stay online. This cannot be undone.`))return;
+   const button=document.getElementById('deleteIdea');button.disabled=true;
+   try {
+     await api({id:current.id,revision:current.revision},'DELETE');
+     dirty=false;dirtyForms.clear();editorSection='source';current=null;
+     await reload();select(null);showFlash('Idea deleted.');
+   } finally {button.disabled=false;}
+ });
  const sections=['source','drafts','history','related'];
  root.querySelectorAll('[data-idea-section]').forEach(tab=>{
    tab.addEventListener('click',()=>showEditorSection(tab.dataset.ideaSection));

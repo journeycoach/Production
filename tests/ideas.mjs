@@ -30,6 +30,7 @@ const sql=async(strings,...values)=>{
  const q=strings.join('?');calls.push({q,values});
  if(q.startsWith('CREATE'))return [];
  if(q.startsWith('INSERT INTO leadership_ideas (id,data)')){stored={id:values[0],revision:1,data:JSON.parse(values[1])};return [stored];}
+ if(q.startsWith('DELETE')){if(!stored || values[0]!==stored.id || values[1]!==stored.revision)return [];const deleted=stored;stored=null;return [{id:deleted.id}];}
  if(q.startsWith('SELECT *'))return stored?[stored]:[];
  if(q.startsWith('UPDATE')){if(values[2]!==stored.revision)return [];stored={...stored,data:JSON.parse(values[0]),revision:stored.revision+1};return [stored];}
  return [];
@@ -43,7 +44,7 @@ const modules={
 const route=new vm.SourceTextModule(await readFile(new URL('../api/_ideas-route.js',import.meta.url),'utf8'),{context});
 await route.link(name=>modules[name]);await route.evaluate();
 async function request(method,body={},query={}){const res={code:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.code=n;return this;},json(v){this.body=v;return this;}};await route.namespace.default({method,body,query},res);return res;}
-for(const method of ['GET','POST','PUT']){const r=await request(method,{title:'Private'}, {id:'secret'});assert.equal(r.code,401);assert.equal(r.headers['Cache-Control'],'private, no-store');}
+for(const method of ['GET','POST','PUT','DELETE']){const r=await request(method,{title:'Private'}, {id:'secret'});assert.equal(r.code,401);assert.equal(r.headers['Cache-Control'],'private, no-store');}
 assert.equal(calls.length,0,'No database access before authentication');authorized=true;
 let r=await request('POST',{observation:'One line'});assert.equal(r.code,201);assert.equal(stored.data.observation,'One line');
 r=await request('PUT',{id:stored.id,revision:1,action:'version',...a});assert.equal(r.code,200);
@@ -57,3 +58,11 @@ assert.match(editor,/sourceIdea\?\.data.versions.find/);assert.match(editor,/if 
 const publicRoute=await readFile(new URL('../api/content.js',import.meta.url),'utf8');assert(!publicRoute.includes('leadership_ideas'));
 const posts=await readFile(new URL('../api/admin/posts.js',import.meta.url),'utf8');assert.match(posts,/WITH source AS/);assert.match(posts,/publishedSnapshot/);
 console.log('PASS editor saved-version handoff and atomic blog-history SQL structure; public API has no private-table access');
+
+r=await request('DELETE',{});assert.equal(r.code,400);
+r=await request('DELETE',{id:stored.id,revision:1});assert.equal(r.code,409);assert(stored);
+const deleteId=stored.id,deleteRevision=stored.revision;
+r=await request('DELETE',{id:deleteId,revision:deleteRevision});assert.equal(r.code,200);assert.equal(stored,null);
+r=await request('DELETE',{id:deleteId,revision:deleteRevision});assert.equal(r.code,409);
+assert(!calls.some(c=>/DELETE FROM posts/.test(c.q)));
+console.log('PASS authenticated deletion validates revision, rejects stale/repeated deletion and never deletes published posts');

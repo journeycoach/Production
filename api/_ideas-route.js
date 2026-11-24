@@ -10,7 +10,7 @@ async function prepare() {
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'private, no-store');
   if (!requireAuth(req, res)) return;
-  if (!['GET','POST','PUT'].includes(req.method)) return res.status(405).json({ error: 'Method not allowed' });
+  if (!['GET','POST','PUT','DELETE'].includes(req.method)) return res.status(405).json({ error: 'Method not allowed' });
   try {
     await prepare();
     if (req.method === 'GET') {
@@ -18,6 +18,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ data: req.query.id ? rows[0] || null : rows });
     }
     const b = req.body || {};
+    if (req.method === 'DELETE') {
+      if (typeof b.id !== 'string' || !b.id || !Number.isInteger(b.revision)) return res.status(400).json({ error: 'Idea ID and loaded revision are required.' });
+      const deleted = await sql`DELETE FROM leadership_ideas WHERE id = ${b.id} AND revision = ${b.revision} RETURNING id`;
+      if (!deleted.length) return res.status(409).json({ error: 'This idea changed or was already removed. Reload before deleting it.' });
+      return res.status(200).json({ ok: true });
+    }
+
     if (b.action === 'import-preview' || b.action === 'import') {
       const records = importRecords(b.backup);
       const keys = await sql`SELECT import_key FROM leadership_ideas WHERE import_key IS NOT NULL`;
