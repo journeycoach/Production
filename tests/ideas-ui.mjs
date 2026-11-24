@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
+// Exercise the real renderer and event handlers against a bounded DOM fixture.
+const nodes=new Map();let markup='';
+function node(id='') {return {id,value:'',hidden:false,children:[],events:{},attrs:{},dataset:{},options:[],elements:[],classList:{toggle(){}},setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},addEventListener(k,f){this.events[k]=f;},append(child){this.children.push(child);},replaceChildren(){this.children=[];},focus(){},querySelectorAll(){return [];}};}
+const root=node('studio');nodes.set('studio',root);
+Object.defineProperty(root,'innerHTML',{get:()=>markup,set(html){markup=html;nodes.clear();nodes.set('studio',root);for(const m of html.matchAll(/<([a-z]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const el=node(m[3]);const section=m[2].match(/data-idea-section="([^"]+)"/);if(section)el.dataset.ideaSection=section[1];const control=m[2].match(/aria-controls="([^"]+)"/);if(control)el.attrs['aria-controls']=control[1];el.hidden=/\bhidden\b/.test(m[2]);nodes.set(el.id,el);}}});
+root.querySelectorAll=selector=>[...nodes.values()].filter(el=>selector==='form'?['ideaForm','versionForm','usageForm','checkForm'].includes(el.id):selector==='[data-idea-section]'?!!el.dataset.ideaSection:false);
+const document={getElementById(id){assert(nodes.has(id),'Missing rendered control '+id);return nodes.get(id);},createElement:()=>node()};
+const code=(await readFile(new URL('../admin/js/ideas.js',import.meta.url),'utf8')).replace(/^import .*\n/,'').split("window.addEventListener('beforeunload'")[0];
+const context=vm.createContext({document,escHtml:s=>String(s||'').replaceAll('<','&lt;'),attachWritingAssistant(){},console,confirm:()=>true,showFlash(){}});
+vm.runInContext(code,context);
+vm.runInContext("render()",context);
+assert(markup.includes('What are you noticing?'));
+assert(!nodes.has('versionForm'),'Unsaved quick capture should not show unrelated draft/history forms');
+const row={id:'one',data:{title:'Ownership',observation:'Make room for initiative.',versions:[],uses:[],checks:[],themes:'Ownership'}};
+context.row=row;vm.runInContext('items=[row];current=row;render()',context);
+assert.equal(nodes.get('ideaPanel-source').hidden,false);
+assert.equal(nodes.get('ideaPanel-drafts').hidden,true);
+assert(markup.includes('Import backup'));
+nodes.get('versionForm').unsavedText='Keep this text';
+nodes.get('ideaTab-drafts').events.click();
+assert.equal(nodes.get('ideaPanel-drafts').hidden,false);
+assert.equal(nodes.get('ideaPanel-source').hidden,true);
+assert.equal(nodes.get('versionForm').unsavedText,'Keep this text');
+let prevented=false;nodes.get('ideaTab-drafts').events.keydown({key:'End',preventDefault(){prevented=true;}});
+assert(prevented);assert.equal(nodes.get('ideaPanel-related').hidden,false);
+vm.runInContext("libraryFilters.query='Own';libraryFilters.history='used';render()",context);
+assert(markup.includes('value="Own"'));
+assert.equal(nodes.get('historyFilter').value,'used');
+assert.equal(nodes.get('libraryCount').textContent,'0 ideas');
+// IDs must be unique and all source fields must remain inside the source form.
+const ids=[...markup.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);
+const sourceForm=markup.match(/<form id="ideaForm">([\s\S]*?)<\/form>/)[1];
+for(const name of ['title','observation','themes','sourceType','sourceReference','leadershipPattern','hiddenCeiling','practicalReframe','supportingExample','closingQuestion','visualConcept','different','parentId','stage'])assert(sourceForm.includes('name="'+name+'"'),name+' preserved');
+console.log('PASS real UI renderer: quick capture, tab visibility, keyboard navigation, mounted unsaved content, persistent filters, unique IDs and all source fields');
